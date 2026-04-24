@@ -1,0 +1,86 @@
+/* Mobile-safe popup controls: keep close buttons visible inside the viewport. */
+.modal-wrap,
+.contact-popup {
+  padding-top: max(10px, env(safe-area-inset-top)) !important;
+  padding-right: max(10px, env(safe-area-inset-right)) !important;
+  padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  padding-left: max(10px, env(safe-area-inset-left)) !important;
+}
+
+.modal,
+.contact-popup-card {
+  max-height: calc(100svh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable both-edges;
+}
+
+.modal-close,
+.contact-popup-close {
+  position: sticky !important;
+  top: 10px !important;
+  right: 10px !important;
+  float: right !important;
+  z-index: 10002 !important;
+  display: grid !important;
+  place-items: center !important;
+  flex: 0 0 auto !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  margin: 0 0 12px 14px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  background: rgba(12, 16, 22, .92) !important;
+  color: #fff !important;
+  box-shadow: 0 14px 44px rgba(0,0,0,.42), 0 0 0 1px rgba(255,255,255,.05) !important;
+  backdrop-filter: blur(14px) !important;
+  touch-action: manipulation !important;
+}
+
+.contact-popup-card::after,
+.modal::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.contact-popup-card h2,
+.modal-inner {
+  clear: both;
+}
+
+@media (max-width: 760px) {
+  .modal-wrap,
+  .contact-popup {
+    align-items: flex-end !important;
+    justify-content: center !important;
+  }
+
+  .modal,
+  .contact-popup-card {
+    width: 100% !important;
+    max-height: calc(100svh - 12px - env(safe-area-inset-top)) !important;
+    border-radius: 28px 28px 0 0 !important;
+  }
+
+  .contact-popup-card {
+    padding: 14px 22px 28px !important;
+  }
+
+  .modal-inner {
+    padding-top: 12px !important;
+  }
+
+  .modal-close,
+  .contact-popup-close {
+    top: 8px !important;
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    font-size: 30px !important;
+  }
+}
