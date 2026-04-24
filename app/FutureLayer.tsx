@@ -89,6 +89,46 @@ function addFounderButton() {
   actions.appendChild(link);
 }
 
+function addServicesNav() {
+  const nav = document.querySelector(".nav-links");
+  if (!nav || nav.querySelector('[href="/services"]')) return;
+  const link = document.createElement("a");
+  link.href = "/services";
+  link.textContent = "Services";
+  const contact = nav.querySelector('[href="#contact"]');
+  nav.insertBefore(link, contact || null);
+}
+
+function refreshFAQ() {
+  const cards = Array.from(document.querySelectorAll<HTMLElement>(".faq-card"));
+  if (!cards.length || document.querySelector("[data-faq-refresh='true']")) return;
+  const nextFaq = [
+    ["What does Marketech Digital actually build?", "Marketech builds AI agent bots, workflow automations, decision dashboards, CRM flows, lead-capture systems, and growth-ready operating layers for businesses that want less manual drag and more clarity."],
+    ["How does pricing work?", "Starter systems have guidance ranges, while larger builds are quoted after the workflow, integrations, data needs, and backend requirements are understood. The goal is fair scope, not surprise pricing."],
+    ["Can the AI bot help before I contact you?", "Yes. The bot can explain offers, suggest a likely service path, estimate starter ranges, and help a visitor describe their business problem before sending an inquiry."],
+    ["Do I need a full custom system or a smaller starter system?", "If the problem is narrow, start with a bot, audit, dashboard starter, or CRM workflow. If your operations are scattered across multiple tools and teams, a larger systems stack may be the better fit."],
+    ["What happens after I reach out?", "You explain your business, current bottleneck, tools, and desired outcome. From there, Marketech recommends a strategy sprint, starter system, automation build, dashboard, or larger systems roadmap."],
+    ["Can this connect to a real backend later?", "Yes. Contact handling, live metrics, CMS content, analytics, customer records, AI memory, and real assistant logic can be connected to a backend when the business is ready."]
+  ];
+  cards.forEach((card, index) => {
+    const pair = nextFaq[index] || nextFaq[nextFaq.length - 1];
+    const h3 = card.querySelector("h3");
+    const p = card.querySelector("p");
+    if (h3) h3.textContent = pair[0];
+    if (p) p.textContent = pair[1];
+    if (index === 0) card.setAttribute("data-faq-refresh", "true");
+  });
+  const faqGrid = cards[0]?.parentElement;
+  if (faqGrid && cards.length < nextFaq.length) {
+    nextFaq.slice(cards.length).forEach(([q, a]) => {
+      const card = document.createElement("article");
+      card.className = "faq-card";
+      card.innerHTML = `<h3>${q}</h3><p>${a}</p>`;
+      faqGrid.appendChild(card);
+    });
+  }
+}
+
 export default function FutureLayer() {
   useEffect(() => {
     const hero = document.querySelector(".hero");
@@ -109,6 +149,8 @@ export default function FutureLayer() {
       offerSection.insertAdjacentElement("beforebegin", starter);
     }
 
+    addServicesNav();
+    refreshFAQ();
     addCarouselTools("offerGrid", "Offer carousel");
     addCarouselTools("processGrid", "Process carousel");
     addFounderButton();
@@ -118,6 +160,8 @@ export default function FutureLayer() {
     const timer = window.setInterval(() => {
       tick += 1;
       addFounderButton();
+      addServicesNav();
+      refreshFAQ();
       const one = document.querySelector<HTMLElement>("[data-live-one]");
       const two = document.querySelector<HTMLElement>("[data-live-two]");
       const three = document.querySelector<HTMLElement>("[data-live-three]");
