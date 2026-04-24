@@ -1,7 +1,8 @@
 .ai-launcher img,
 .ai-avatar img,
-.portrait-card img {
-  content: url('/founder-new.svg') !important;
+.portrait-card img,
+.ringPortrait img {
+  content: url('/founder.webp') !important;
   object-fit: cover !important;
   object-position: center !important;
 }
