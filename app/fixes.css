@@ -345,10 +345,64 @@
 }
 .idea-form textarea { min-height: 110px; resize: vertical; }
 .idea-form button { min-height: 52px; border: 1px solid rgba(255,106,0,.45); border-radius: 999px; background: rgba(255,106,0,.14); color: #fff; cursor: pointer; box-shadow: 0 0 44px rgba(255,106,0,.13); }
+.idea-form button:disabled { opacity: .68; cursor: progress; }
 .idea-result { margin-top: 18px; padding: 18px; border: 1px solid rgba(89,175,255,.18); border-radius: 24px; background: rgba(3,11,20,.72); }
-.idea-result strong { display: block; color: #fff; margin-bottom: 6px; }
+.idea-result strong { display: block; color: #fff; margin-bottom: 6px; font-size: clamp(1.2rem, 4vw, 1.7rem); letter-spacing: -.03em; }
 .idea-result ul { margin: 10px 0 0; padding-left: 18px; color: rgba(246,248,252,.74); line-height: 1.7; }
 .idea-result p { margin: 0; }
+.idea-mode {
+  display: inline-flex;
+  margin-bottom: 12px;
+  padding: 7px 10px;
+  border: 1px solid rgba(120,242,164,.2);
+  border-radius: 999px;
+  color: rgba(120,242,164,.92);
+  background: rgba(120,242,164,.06);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.idea-system {
+  margin-top: 16px;
+  padding: 15px;
+  border: 1px solid rgba(255,106,0,.2);
+  border-radius: 20px;
+  background: rgba(255,106,0,.065);
+}
+.idea-system span,
+.idea-system b,
+.idea-system em { display: block; }
+.idea-system span {
+  margin-bottom: 6px;
+  color: rgba(255,223,202,.8);
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.idea-system b { color: #fff; font-size: 1.1rem; }
+.idea-system em { margin-top: 6px; color: rgba(246,248,252,.68); font-style: normal; line-height: 1.5; }
+.idea-columns {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+.idea-columns > div,
+.idea-questions {
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 18px;
+  background: rgba(255,255,255,.035);
+}
+.idea-columns h4,
+.idea-questions h4 {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.idea-questions { margin-top: 12px; }
 
 /* Enhanced footer. */
 .footer-wrap[data-enhanced-footer="true"] { gap: 24px; }
@@ -374,6 +428,7 @@
   .idea-form { grid-template-columns: 1fr 1fr; align-items: start; }
   .idea-form textarea { grid-column: 1 / -1; }
   .idea-form button { width: fit-content; padding: 0 22px; }
+  .idea-columns { grid-template-columns: repeat(3, 1fr); }
   .footer-columns { grid-template-columns: repeat(3, 1fr); }
   .faq-carousel .faq-card { flex-basis: min(42vw, 460px); }
 }
