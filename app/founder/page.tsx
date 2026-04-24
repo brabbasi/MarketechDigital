@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
+import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./founder.module.css";
+import { absoluteUrl, breadcrumbJsonLd, jsonLdGraph, siteName } from "../seo";
 
 const founderImage = "/founder.webp";
 
@@ -50,17 +53,70 @@ const projects = [
 const stack = ["Python", "SQL", "Next.js", "React", "AI Automation", "LLMs", "RAG", "Data Analysis", "Dashboards", "Workflow Design", "Bot Creation", "APIs", "CRM Systems", "No-code Automation", "Business Intelligence"];
 const validations = ["BSc Computer Science — University of Hertfordshire", "AI Systems & Automation Portfolio", "Data Analysis and Decision Intelligence Concepts", "Business Workflow Automation Builds", "Digital Growth Systems and Bot Creation"];
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Basit Abbasi | Founder of Marketech Digital",
   description:
-    "Founder profile for Basit Abbasi, founder of Marketech Digital. AI systems, workflow automation, data analytics, bot creation, and decision intelligence portfolio."
+    "Meet Basit Abbasi, founder of Marketech Digital. Founder profile covering AI automation, web systems, data intelligence, software thinking, workflow design, and digital growth systems.",
+  alternates: { canonical: "/founder" },
+  openGraph: {
+    title: "Basit Abbasi | Founder of Marketech Digital",
+    description:
+      "Founder profile for Marketech Digital covering AI automation, workflow design, web systems, software thinking, and decision intelligence.",
+    url: absoluteUrl("/founder"),
+    siteName,
+    type: "profile",
+    images: [{ url: absoluteUrl(founderImage), width: 720, height: 720, alt: "Basit Abbasi, founder of Marketech Digital" }]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Basit Abbasi | Founder of Marketech Digital",
+    description: "Founder profile covering AI automation, web systems, data intelligence, software thinking, workflow design, and digital growth systems.",
+    images: [absoluteUrl(founderImage)]
+  }
 };
+
+const structuredData = jsonLdGraph([
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Founder", path: "/founder" }
+  ]),
+  {
+    "@type": "ProfilePage",
+    "@id": `${absoluteUrl("/founder")}#profile`,
+    url: absoluteUrl("/founder"),
+    name: "Basit Abbasi | Founder of Marketech Digital",
+    about: { "@id": `${absoluteUrl("/founder")}#person` }
+  },
+  {
+    "@type": "Person",
+    "@id": `${absoluteUrl("/founder")}#person`,
+    name: "Basit Abbasi",
+    image: absoluteUrl(founderImage),
+    jobTitle: "Founder",
+    worksFor: {
+      "@type": "Organization",
+      name: "Marketech Digital",
+      url: absoluteUrl("/")
+    },
+    alumniOf: {
+      "@type": "CollegeOrUniversity",
+      name: "University of Hertfordshire"
+    },
+    knowsAbout: ["AI automation", "workflow automation", "web development", "data intelligence", "software systems", "digital growth systems", "bot creation"]
+  }
+]);
 
 export default function FounderPage() {
   return (
     <main className={styles.page}>
+      <Script
+        id="marketech-founder-structured-data"
+        type="application/ld+json"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className={styles.shell}>
-        <nav className={styles.navbar}>
+        <nav className={styles.navbar} aria-label="Founder page navigation">
           <Link href="/" className={styles.brand} aria-label="Marketech Digital home">
             <span className={styles.logoPlate}><Image src="/logo.svg" alt="Marketech Digital logo" width={64} height={64} /></span>
             <span className={styles.brandWords}><strong>MARKETECH</strong><em>DIGITAL</em></span>
@@ -76,40 +132,40 @@ export default function FounderPage() {
           </details>
         </nav>
 
-        <section className={styles.heroClassic}>
+        <section className={styles.heroClassic} aria-labelledby="founder-title">
           <div className={styles.ringPortrait}>
-            <Image src={founderImage} alt="Basit Abbasi founder portrait" width={720} height={720} priority unoptimized />
+            <Image src={founderImage} alt="Basit Abbasi, founder of Marketech Digital" width={720} height={720} priority unoptimized />
           </div>
           <div className={styles.role}>Founder · Systems Architect // Basit Abbasi</div>
-          <h1><span>Basit</span><em>Abbasi.</em></h1>
+          <h1 id="founder-title"><span>Basit</span><em>Abbasi.</em></h1>
           <p>
             AI-focused founder building Marketech Digital around workflow automation, data intelligence,
-            business systems, and practical AI execution for companies that want clarity instead of noise.
+            business systems, web development, and practical AI execution for companies that want clarity instead of noise.
           </p>
           <div className={styles.heroActions}>
-            <Link href="/#contact">Start a project →</Link>
+            <Link href="/#contact" aria-label="Start a Marketech Digital project inquiry">Start a project →</Link>
             <Link href="/#offers">View services</Link>
           </div>
         </section>
 
-        <section className={styles.introBlock}>
+        <section className={styles.introBlock} aria-labelledby="founder-statement">
           <div className={styles.eyebrow}>Founder statement</div>
-          <p>
+          <p id="founder-statement">
             I build systems that help businesses move from scattered work to clearer execution. Through Marketech Digital,
-            my focus is on practical AI systems, workflow automation, data analysis, bot creation, and decision-support layers
+            my focus is on practical AI systems, workflow automation, custom web systems, data analysis, bot creation, and decision-support layers
             that make business operations easier to understand and easier to scale.
           </p>
         </section>
 
-        <section className={styles.lightBand} id="education">
+        <section className={styles.lightBand} id="education" aria-labelledby="education-title">
           <div className={styles.lightShell}>
             <div className={styles.eyebrow}>Academic foundation</div>
-            <h2>The University of Hertfordshire.</h2>
+            <h2 id="education-title">The University of Hertfordshire.</h2>
             <h3>Bachelor&apos;s in Computer Science</h3>
             <p>
               Studied Computer Science at the University of Hertfordshire, building a foundation in software thinking,
               systems logic, structured problem-solving, and technical execution. That foundation now supports Marketech Digital&apos;s
-              work across AI automation, data intelligence, business workflows, and digital systems.
+              work across AI automation, data intelligence, business workflows, custom web development, and digital growth systems.
             </p>
 
             <div className={styles.stackCard}>
@@ -119,16 +175,16 @@ export default function FounderPage() {
           </div>
         </section>
 
-        <section className={styles.sectionDark} id="projects">
+        <section className={styles.sectionDark} id="projects" aria-labelledby="projects-title">
           <div className={styles.sectionHeadCenter}>
             <div className={styles.eyebrow}>Project ledger</div>
-            <h2>Selected build concepts.</h2>
-            <p>Portfolio-style project concepts designed around the services Marketech Digital offers: AI automation, data analysis, bot creation, decision intelligence, and systems architecture.</p>
+            <h2 id="projects-title">Selected build concepts.</h2>
+            <p>Portfolio-style project concepts designed around the services Marketech Digital offers: AI automation, web development, data analysis, bot creation, decision intelligence, and systems architecture.</p>
           </div>
           <div className={styles.projectLedger}>
             {projects.map((project) => (
               <article className={styles.projectCard} key={project.title}>
-                <div className={styles.projectShots}>
+                <div className={styles.projectShots} aria-hidden="true">
                   {project.shots.map((shot, index) => (
                     <div className={styles.projectShot} key={shot}>
                       <span>{project.tags[index % project.tags.length]}</span>
@@ -140,24 +196,25 @@ export default function FounderPage() {
                 <h3>{project.title}</h3>
                 <p>{project.description}</p>
                 <div className={styles.projectTags}>{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
-                <Link href="/#contact" className={styles.projectArrow}>↗</Link>
+                <Link href="/#contact" className={styles.projectArrow} aria-label={`Start a project like ${project.title}`}>↗</Link>
               </article>
             ))}
           </div>
         </section>
 
-        <section className={styles.lightBand}> 
+        <section className={styles.lightBand} aria-labelledby="validation-title"> 
           <div className={styles.lightShell}>
             <div className={styles.eyebrow}>Validation vault</div>
+            <h2 id="validation-title" className="sr-only">Founder credentials and validation</h2>
             <div className={styles.validationList}>
               {validations.map((item) => <div key={item}><strong>{item}</strong><span>⌁</span></div>)}
             </div>
           </div>
         </section>
 
-        <section className={styles.finalCta}>
-          <h2>Ready to build a clearer system?</h2>
-          <p>Work with Marketech Digital to turn scattered workflows, disconnected data, and repetitive tasks into a cleaner operating layer.</p>
+        <section className={styles.finalCta} aria-labelledby="founder-cta-title">
+          <h2 id="founder-cta-title">Ready to build a clearer system?</h2>
+          <p>Work with Marketech Digital to turn scattered workflows, disconnected data, repetitive tasks, and underperforming websites into a cleaner operating layer.</p>
           <div className={styles.heroActions}>
             <Link href="/#contact">Start a conversation →</Link>
             <Link href="/">Return home</Link>
