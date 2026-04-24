@@ -95,30 +95,30 @@ export default function AIAssistant() {
 
   return (
     <>
-      <button className="ai-launcher" type="button" onClick={() => setOpen(true)} aria-label="Open Marketech AI guide">
-        <Image src={founderImage} alt="Basit Abbasi AI guide" width={72} height={72} priority={false} unoptimized />
+      <button className="ai-launcher" type="button" onClick={() => setOpen(true)} aria-label="Open Marketech AI assistant">
+        <Image src={founderImage} alt="Basit Abbasi AI assistant" width={72} height={72} priority={false} unoptimized />
       </button>
-      <div className={`ai-panel ${open ? "show" : ""}`} aria-hidden={!open}>
+      <div className={`ai-panel ${open ? "show" : ""}`} aria-hidden={!open} role="dialog" aria-modal="true" aria-label="Marketech Digital AI assistant">
         <div className="ai-head">
-          <div className="ai-avatar"><Image src={founderImage} alt="Basit Abbasi" width={54} height={54} unoptimized /></div>
+          <div className="ai-avatar"><Image src={founderImage} alt="Basit Abbasi AI assistant" width={54} height={54} unoptimized /></div>
           <div>
             <strong>MARKETECH_INTELLIGENCE</strong>
             <span>v2.1 // {modeLabel(mode, reason)}</span>
           </div>
-          <button type="button" onClick={() => setOpen(false)} aria-label="Close AI guide">×</button>
+          <button type="button" onClick={() => setOpen(false)} aria-label="Close Marketech AI assistant">×</button>
         </div>
-        <div className="ai-messages">
+        <div className="ai-messages" aria-live="polite">
           {messages.map((msg, index) => (
             <div className={`ai-message ${msg.role === "user" ? "user" : "bot"}`} key={`${msg.role}-${index}`}>{msg.text}</div>
           ))}
           {loading ? <div className="ai-message bot">Thinking through the best Marketech path...</div> : null}
         </div>
-        <div className="ai-quick">
+        <div className="ai-quick" aria-label="Quick prompts for Marketech AI assistant">
           {quickReplies.map((q) => <button type="button" key={q} onClick={() => send(q)} disabled={loading}>{q}</button>)}
         </div>
         <form className="ai-form" onSubmit={onSubmit}>
-          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Describe your project..." disabled={loading} />
-          <button type="submit" disabled={loading}>➤</button>
+          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Describe your project..." aria-label="Describe your project to the Marketech AI assistant" disabled={loading} />
+          <button type="submit" disabled={loading} aria-label="Send message to Marketech AI assistant">➤</button>
         </form>
         <div className="ai-actions">
           <a href="/services">Starter systems</a>
