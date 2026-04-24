@@ -1,0 +1,312 @@
+/* Final responsive polish layer: keeps the premium theme while fixing carousel behavior, starter systems visibility, and founder page layout. */
+
+/* Premium carousel controls */
+.carousel-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 10px 0 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.022));
+  box-shadow: 0 18px 56px rgba(0,0,0,.22);
+}
+.carousel-tools > div:first-child span {
+  display: block;
+  width: 52px;
+  height: 3px;
+  margin-bottom: 10px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #ff6a00, #59afff);
+  box-shadow: 0 0 22px rgba(255,106,0,.25);
+}
+.carousel-tools strong {
+  display: block;
+  font-size: .86rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.carousel-tools p {
+  margin: 5px 0 0;
+  max-width: 520px;
+  color: rgba(246,248,252,.58);
+  font-size: .92rem;
+  line-height: 1.55;
+}
+.carousel-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.carousel-buttons button {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255,255,255,.16), transparent 32%),
+    linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.3rem;
+  box-shadow: 0 12px 34px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.08);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.carousel-buttons button:hover,
+.carousel-buttons button:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(255,106,0,.5);
+  background: linear-gradient(180deg, rgba(255,106,0,.18), rgba(255,255,255,.035));
+  box-shadow: 0 18px 52px rgba(0,0,0,.34), 0 0 32px rgba(255,106,0,.18);
+  outline: none;
+}
+
+/* Make homepage carousels actual carousels on mobile and desktop. */
+#offerGrid.card-grid,
+#processGrid.card-grid {
+  display: flex !important;
+  gap: 16px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x mandatory !important;
+  scroll-padding-inline: 18px !important;
+  padding: 4px 18px 22px 0 !important;
+  margin-right: -18px !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+#offerGrid.card-grid::-webkit-scrollbar,
+#processGrid.card-grid::-webkit-scrollbar {
+  height: 7px;
+}
+#offerGrid.card-grid::-webkit-scrollbar-thumb,
+#processGrid.card-grid::-webkit-scrollbar-thumb {
+  border-radius: 99px;
+  background: linear-gradient(90deg, rgba(255,106,0,.7), rgba(89,175,255,.55));
+}
+#offerGrid .offer-card,
+#processGrid .process-card {
+  flex: 0 0 min(86vw, 430px) !important;
+  scroll-snap-align: start !important;
+  min-height: auto !important;
+}
+
+/* Starter systems section injected on homepage. */
+.starter-systems {
+  margin: 34px auto 18px;
+  padding: clamp(20px, 4vw, 34px);
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 84% 12%, rgba(89,175,255,.13), transparent 30%),
+    radial-gradient(circle at 16% 84%, rgba(255,106,0,.13), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.022));
+  box-shadow: 0 30px 110px rgba(0,0,0,.38);
+  overflow: hidden;
+  position: relative;
+}
+.starter-systems::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(circle at 50% 50%, black, transparent 84%);
+}
+.starter-systems > * { position: relative; z-index: 1; }
+.starter-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 11px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: rgba(255,223,202,.88);
+}
+.starter-label span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff6a00;
+  box-shadow: 0 0 18px rgba(255,106,0,.6);
+}
+.starter-grid {
+  display: grid;
+  gap: 22px;
+}
+.starter-copy h2 {
+  margin: 0;
+  max-width: 840px;
+  font-size: clamp(2.15rem, 7vw, 4.8rem);
+  line-height: .96;
+  letter-spacing: -.065em;
+}
+.starter-copy p {
+  margin: 16px 0 0;
+  max-width: 760px;
+  color: rgba(246,248,252,.68);
+  line-height: 1.75;
+}
+.starter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.starter-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: #fff;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,.11);
+  background: rgba(255,255,255,.04);
+}
+.starter-actions a:first-child {
+  border-color: rgba(255,106,0,.42);
+  background: rgba(255,106,0,.14);
+  box-shadow: 0 0 44px rgba(255,106,0,.13);
+}
+.starter-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.starter-mini {
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.09);
+  background: rgba(0,0,0,.18);
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+.starter-mini:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,106,0,.32);
+  background: rgba(255,106,0,.06);
+}
+.starter-mini strong {
+  display: block;
+  color: #fff;
+  margin-bottom: 5px;
+}
+.starter-mini span {
+  color: rgba(255,255,255,.58);
+  font-size: .92rem;
+}
+
+/* Founder desktop cleanup. Uses substring selectors because the founder page uses CSS modules. */
+@media (min-width: 900px) {
+  [class*="heroClassic"] {
+    min-height: auto !important;
+    padding-top: 54px !important;
+    padding-bottom: 76px !important;
+  }
+  [class*="ringPortrait"] {
+    width: min(250px, 22vw) !important;
+    height: min(250px, 22vw) !important;
+    box-shadow: 0 0 0 18px rgba(255,255,255,.022), 0 0 58px rgba(255,255,255,.1) !important;
+  }
+  [class*="role"] {
+    margin-top: 28px !important;
+  }
+  [class*="heroClassic"] h1 {
+    font-size: clamp(4.8rem, 10vw, 8.4rem) !important;
+  }
+  [class*="heroClassic"] p {
+    max-width: 760px !important;
+    font-size: clamp(1rem, 1.55vw, 1.28rem) !important;
+  }
+  [class*="projectLedger"] {
+    grid-template-columns: 1fr !important;
+    max-width: 1120px !important;
+    margin: 0 auto !important;
+    gap: 22px !important;
+  }
+  [class*="projectCard"] {
+    display: grid !important;
+    grid-template-columns: minmax(320px, .92fr) minmax(0, 1fr) !important;
+    gap: 22px !important;
+    align-items: center !important;
+    padding: 22px !important;
+    border-radius: 34px !important;
+  }
+  [class*="projectShots"] {
+    grid-row: 1 / span 6 !important;
+    min-width: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  [class*="projectShot"] {
+    flex-basis: min(82%, 360px) !important;
+    height: 260px !important;
+  }
+  [class*="projectCard"] h3 {
+    font-size: clamp(2rem, 4vw, 3.15rem) !important;
+    margin: 8px 0 8px !important;
+  }
+  [class*="projectCard"] p {
+    font-size: 1rem !important;
+    line-height: 1.68 !important;
+  }
+  [class*="projectMeta"] {
+    margin-top: 0 !important;
+  }
+}
+
+@media (min-width: 980px) {
+  .starter-grid {
+    grid-template-columns: 1.05fr .95fr;
+    align-items: center;
+  }
+  .starter-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #offerGrid .offer-card,
+  #processGrid .process-card {
+    flex-basis: 390px !important;
+  }
+}
+
+@media (min-width: 1380px) {
+  #offerGrid .offer-card,
+  #processGrid .process-card {
+    flex-basis: 370px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .carousel-tools {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 14px;
+  }
+  .carousel-buttons button {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+  }
+  [class*="heroClassic"] {
+    min-height: auto !important;
+    padding-top: 40px !important;
+  }
+  [class*="projectLedger"] {
+    grid-template-columns: 1fr !important;
+  }
+  [class*="projectCard"] {
+    display: block !important;
+    padding: 18px !important;
+  }
+  [class*="projectShot"] {
+    flex-basis: 82% !important;
+    height: 210px !important;
+  }
+}
