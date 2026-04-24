@@ -1,8 +1,23 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import FutureLayer from "./FutureLayer";
 import UXFixLayer from "./UXFixLayer";
 import AIAssistant from "./AIAssistant";
+import {
+  absoluteUrl,
+  coreServices,
+  faqJsonLd,
+  homepageFaq,
+  jsonLdGraph,
+  localBusinessJsonLd,
+  organizationJsonLd,
+  serviceJsonLd,
+  serviceKeywords,
+  siteDescription,
+  siteName,
+  siteUrl,
+  websiteJsonLd
+} from "./seo";
 import "./globals.css";
 import "./premium.css";
 import "./polish.css";
@@ -14,30 +29,29 @@ import "./bot-position-fix.css";
 import "./founder-image-replace.css";
 import "./popup-close-fix.css";
 
-const siteName = "Marketech Digital";
-const siteTitle = "Marketech Digital | AI Strategy, Workflow Automation & Decision Intelligence";
-const siteDescription =
-  "Marketech Digital helps businesses implement AI strategy, workflow automation, decision intelligence, and growth systems that reduce noise, improve execution, and support faster decisions.";
+const siteTitle = "Marketech Digital | AI, Web Development & Digital Growth Systems";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#05070d",
+  colorScheme: "dark"
+};
 
 export const metadata: Metadata = {
-  title: siteTitle,
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: siteTitle,
+    template: "%s | Marketech Digital"
+  },
   description: siteDescription,
-  keywords: [
-    "AI strategy",
-    "workflow automation",
-    "decision intelligence",
-    "growth systems",
-    "business automation",
-    "AI systems",
-    "automation architecture",
-    "software systems",
-    "digital growth",
-    "operational clarity"
-  ],
+  keywords: serviceKeywords,
   applicationName: siteName,
   authors: [{ name: siteName }],
   creator: siteName,
   publisher: siteName,
+  category: "Digital Agency",
   alternates: {
     canonical: "/"
   },
@@ -55,16 +69,26 @@ export const metadata: Metadata = {
   openGraph: {
     title: siteTitle,
     description:
-      "Premium AI systems, workflow automation, decision intelligence, and growth systems for businesses that want clearer execution and faster decisions.",
+      "Premium websites, AI automation systems, custom software, SEO, branding, landing pages, and digital growth infrastructure for businesses in Ottawa and across Canada.",
     type: "website",
+    url: siteUrl,
     siteName,
-    locale: "en_US"
+    locale: "en_CA",
+    images: [
+      {
+        url: absoluteUrl("/logo.svg"),
+        width: 1200,
+        height: 630,
+        alt: "Marketech Digital logo"
+      }
+    ]
   },
   twitter: {
     card: "summary_large_image",
     title: siteTitle,
     description:
-      "Premium AI systems, workflow automation, decision intelligence, and growth systems for businesses that want clearer execution and faster decisions."
+      "Web development, AI automation, SEO, branding, software systems, and digital growth infrastructure for modern businesses.",
+    images: [absoluteUrl("/logo.svg")]
   },
   icons: {
     icon: "/logo.svg",
@@ -73,48 +97,22 @@ export const metadata: Metadata = {
   }
 };
 
-const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      name: siteName,
-      url: "https://marketech-digital.vercel.app",
-      logo: "https://marketech-digital.vercel.app/logo.svg",
-      email: "abasitabbasi99@gmail.com",
-      founder: {
-        "@type": "Person",
-        name: "Basit Abbasi"
-      },
-      description: siteDescription
-    },
-    {
-      "@type": "Service",
-      serviceType: "AI Strategy Sprint",
-      provider: { "@type": "Organization", name: siteName },
-      description:
-        "A focused engagement that identifies where AI should create leverage, what should be prioritized, and what to implement next."
-    },
-    {
-      "@type": "Service",
-      serviceType: "Workflow Automation Build",
-      provider: { "@type": "Organization", name: siteName },
-      description:
-        "A workflow automation engagement that reduces repetitive manual work, cleans up execution, and improves consistency."
-    },
-    {
-      "@type": "Service",
-      serviceType: "Decision Intelligence Layer",
-      provider: { "@type": "Organization", name: siteName },
-      description:
-        "A visibility and intelligence layer that helps teams identify what matters, prioritize faster, and make clearer decisions."
-    }
-  ]
-};
+const structuredData = jsonLdGraph([
+  organizationJsonLd(),
+  websiteJsonLd(),
+  localBusinessJsonLd(),
+  ...coreServices.map((service) =>
+    serviceJsonLd(
+      service,
+      `Marketech Digital provides ${service.toLowerCase()} for businesses that need clearer digital infrastructure, stronger lead capture, and scalable growth systems.`
+    )
+  ),
+  faqJsonLd("/#homepage-faq", homepageFaq)
+]);
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-CA">
       <body>
         <Script
           id="marketech-structured-data"
