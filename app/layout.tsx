@@ -4,6 +4,11 @@ import FutureLayer from "./FutureLayer";
 import UXFixLayer from "./UXFixLayer";
 import AIAssistant from "./AIAssistant";
 import "./globals.css";
+import "./premium.css";
+import "./polish.css";
+import "./fixes.css";
+import "./footer-fix.css";
+import "./final-overrides.css";
 
 const siteName = "Marketech Digital";
 const siteTitle = "Marketech Digital | AI Strategy, Workflow Automation & Decision Intelligence";
