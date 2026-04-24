@@ -1,6 +1,8 @@
 @import "./premium.css";
 @import "./polish.css";
 @import "./fixes.css";
+@import "./footer-fix.css";
+@import "./final-overrides.css";
 
 :root {
   --bg: #04070d;
