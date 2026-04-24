@@ -76,7 +76,7 @@ export default function IdeaGenerator() {
   }
 
   return (
-    <section className="idea-lab">
+    <section className="idea-lab" id="idea-generator">
       <div className="services-label"><span /> Free AI idea generator</div>
       <h2>Not sure what you need yet?</h2>
       <p>
