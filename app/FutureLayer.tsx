@@ -36,6 +36,28 @@ function buildDeck() {
   `;
 }
 
+function buildStarterSystems() {
+  return `
+    <div class="starter-label"><span></span> Starter systems</div>
+    <div class="starter-grid">
+      <div class="starter-copy">
+        <h2>Smaller entry systems without lowering the brand.</h2>
+        <p>For clients who are not ready for a full operating-system build, Marketech offers focused starter systems: AI agent bots, automation audits, dashboard starters, workflow setup, and lead-capture intelligence.</p>
+        <div class="starter-actions">
+          <a href="/services">Explore starter systems →</a>
+          <a href="#contact">Ask for a recommendation</a>
+        </div>
+      </div>
+      <div class="starter-cards">
+        <div class="starter-mini"><strong>AI Agent Bot</strong><span>Lead capture, FAQs, qualification, and service routing.</span></div>
+        <div class="starter-mini"><strong>Automation Audit</strong><span>Find repetitive work and map the fastest automation wins.</span></div>
+        <div class="starter-mini"><strong>Dashboard Starter</strong><span>Clean visibility for KPIs, reports, and decision signals.</span></div>
+        <div class="starter-mini"><strong>CRM Workflow Setup</strong><span>Connect intake, follow-ups, client handoff, and alerts.</span></div>
+      </div>
+    </div>
+  `;
+}
+
 function addCarouselTools(id: string, label: string) {
   const rail = document.getElementById(id);
   if (!rail || rail.previousElementSibling?.getAttribute("data-carousel-tools") === id) return;
@@ -49,8 +71,9 @@ function addCarouselTools(id: string, label: string) {
   `;
   rail.insertAdjacentElement("beforebegin", tools);
   const [prev, next] = Array.from(tools.querySelectorAll("button"));
-  prev?.addEventListener("click", () => rail.scrollBy({ left: -420, behavior: "smooth" }));
-  next?.addEventListener("click", () => rail.scrollBy({ left: 420, behavior: "smooth" }));
+  const getAmount = () => Math.min(rail.clientWidth * 0.92, 460);
+  prev?.addEventListener("click", () => rail.scrollBy({ left: -getAmount(), behavior: "smooth" }));
+  next?.addEventListener("click", () => rail.scrollBy({ left: getAmount(), behavior: "smooth" }));
 }
 
 function addFounderButton() {
@@ -75,6 +98,15 @@ export default function FutureLayer() {
       deck.setAttribute("data-future-deck", "true");
       deck.innerHTML = buildDeck();
       hero.insertAdjacentElement("afterend", deck);
+    }
+
+    const offerSection = document.getElementById("offers") || document.getElementById("offerGrid")?.closest("section");
+    if (offerSection && !document.querySelector("[data-starter-systems]")) {
+      const starter = document.createElement("section");
+      starter.className = "starter-systems container";
+      starter.setAttribute("data-starter-systems", "true");
+      starter.innerHTML = buildStarterSystems();
+      offerSection.insertAdjacentElement("beforebegin", starter);
     }
 
     addCarouselTools("offerGrid", "Offer carousel");
