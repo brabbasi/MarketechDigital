@@ -1,4 +1,5 @@
 import Link from "next/link";
+import IdeaGenerator from "../IdeaGenerator";
 
 const services = [
   {
@@ -49,9 +50,9 @@ export default function ServicesPage() {
       <section className="services-hero">
         <Link href="/" className="services-home">← Marketech Digital</Link>
         <div className="services-label"><span /> Starter systems / premium buildouts</div>
-        <h1>Clear offers without making the brand feel cheap.</h1>
+        <h1>Clear starting points for serious business systems.</h1>
         <p>
-          These are guidance ranges for smaller entry systems and larger premium builds. Final quotes depend on integrations,
+          These are guidance ranges for focused starter systems and larger premium builds. Final quotes depend on integrations,
           backend needs, workflow complexity, data quality, and how much intelligence the system needs.
         </p>
       </section>
@@ -71,13 +72,7 @@ export default function ServicesPage() {
           </article>
         ))}
       </section>
-      <section className="services-note">
-        <h2>Pricing strategy</h2>
-        <p>
-          The best structure is not “cheap menu pricing.” It is transparent starting ranges plus custom quotes.
-          That keeps Marketech premium while letting smaller clients understand where to begin.
-        </p>
-      </section>
+      <IdeaGenerator />
     </main>
   );
 }
