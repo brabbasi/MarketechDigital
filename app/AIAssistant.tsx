@@ -10,6 +10,7 @@ type UiMessage = {
 
 type AssistantMode = "checking" | "ai" | "fallback" | "error";
 
+const founderImage = "/founder-new.svg";
 const quickReplies = ["Estimate my project", "What can you build?", "AI agent bot price", "How do we start?"];
 
 function toApiRole(role: UiMessage["role"]): "user" | "assistant" {
@@ -95,11 +96,11 @@ export default function AIAssistant() {
   return (
     <>
       <button className="ai-launcher" type="button" onClick={() => setOpen(true)} aria-label="Open Marketech AI guide">
-        <Image src="/founder.webp" alt="Basit Abbasi AI guide" width={72} height={72} priority={false} />
+        <Image src={founderImage} alt="Basit Abbasi AI guide" width={72} height={72} priority={false} />
       </button>
       <div className={`ai-panel ${open ? "show" : ""}`} aria-hidden={!open}>
         <div className="ai-head">
-          <div className="ai-avatar"><Image src="/founder.webp" alt="Basit Abbasi" width={54} height={54} /></div>
+          <div className="ai-avatar"><Image src={founderImage} alt="Basit Abbasi" width={54} height={54} /></div>
           <div>
             <strong>MARKETECH_INTELLIGENCE</strong>
             <span>v2.1 // {modeLabel(mode, reason)}</span>
@@ -143,7 +144,7 @@ export default function AIAssistant() {
           transition: transform .22s ease, box-shadow .22s ease;
           overflow: visible;
         }
-        .ai-launcher img { width: 100%; height: 100%; object-fit: cover; object-position: center top; border-radius: 50%; filter: contrast(1.05); }
+        .ai-launcher img { width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; filter: contrast(1.05); }
         .ai-launcher:hover { transform: translateY(-4px) scale(1.04); box-shadow: 0 24px 86px rgba(0,0,0,.58), 0 0 56px rgba(255,106,0,.28); }
         .ai-launcher::after { content: ""; position: absolute; right: 5px; bottom: 8px; width: 15px; height: 15px; border-radius: 50%; background: #28d66b; border: 2px solid #05070b; box-shadow: 0 0 16px rgba(40,214,107,.75); }
         .ai-panel {
@@ -170,7 +171,7 @@ export default function AIAssistant() {
         .ai-panel.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
         .ai-head { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; padding: 22px; border-bottom: 1px solid rgba(255,255,255,.08); }
         .ai-avatar { width: 54px; height: 54px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,.78); box-shadow: 0 0 22px rgba(255,106,0,.16); }
-        .ai-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+        .ai-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
         .ai-head strong { display: block; font-size: 12px; letter-spacing: .22em; }
         .ai-head span { display: block; margin-top: 4px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); }
         .ai-head button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: rgba(255,255,255,.75); font-size: 26px; cursor: pointer; }
