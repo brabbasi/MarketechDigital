@@ -3,92 +3,22 @@
 import Image from "next/image";
 import { FormEvent, useMemo, useState } from "react";
 
+type UiMessage = {
+  role: "user" | "assistant" | "bot";
+  text: string;
+};
+
 const quickReplies = ["Estimate my project", "What can you build?", "AI agent bot price", "How do we start?"];
 
-const offers = [
-  {
-    name: "AI Agent Website Bot",
-    range: "$750–$2,500 CAD starter / $3,500–$8,000+ CAD advanced",
-    fit: "Best for websites that need lead capture, FAQs, qualification, booking guidance, and guided service discovery."
-  },
-  {
-    name: "AI Strategy Sprint",
-    range: "$500–$1,500 CAD",
-    fit: "Best when a founder knows AI can help but needs a clear roadmap before spending on a full build."
-  },
-  {
-    name: "Workflow Automation Build",
-    range: "$1,500–$6,000+ CAD",
-    fit: "Best for repetitive admin, client intake, follow-ups, internal alerts, CRM handoffs, and reporting workflows."
-  },
-  {
-    name: "Decision Intelligence Dashboard",
-    range: "$2,000–$8,000+ CAD",
-    fit: "Best for teams that need clearer KPI visibility, reporting, data cleanup, and decision support."
-  },
-  {
-    name: "Growth Systems Stack",
-    range: "$4,000–$15,000+ CAD",
-    fit: "Best for businesses that want a fuller operating layer across strategy, automation, analytics, and conversion flow."
-  }
-];
-
-function estimate(input: string) {
-  const q = input.toLowerCase();
-  if (q.includes("bot") || q.includes("agent") || q.includes("chat") || q.includes("assistant")) return offers[0];
-  if (q.includes("strategy") || q.includes("roadmap") || q.includes("audit") || q.includes("plan")) return offers[1];
-  if (q.includes("automation") || q.includes("workflow") || q.includes("zapier") || q.includes("make") || q.includes("crm") || q.includes("follow")) return offers[2];
-  if (q.includes("dashboard") || q.includes("data") || q.includes("analytics") || q.includes("report") || q.includes("kpi")) return offers[3];
-  if (q.includes("system") || q.includes("stack") || q.includes("full") || q.includes("growth") || q.includes("website")) return offers[4];
-  return null;
-}
-
-function catalogReply() {
-  return `Marketech Digital can help with: ${offers.map((offer) => `${offer.name} (${offer.range})`).join("; ")}. These are guidance ranges, not final quotes. A final quote depends on integrations, pages, automation depth, data quality, and whether the system needs a real backend.`;
-}
-
-function getReply(input: string) {
-  const q = input.toLowerCase();
-  const matched = estimate(input);
-
-  if (q.includes("quote") || q.includes("estimate") || q.includes("price") || q.includes("cost") || q.includes("package") || q.includes("budget")) {
-    if (matched) {
-      return `Estimated fit: ${matched.name}. Typical range: ${matched.range}. ${matched.fit} To tighten the quote, I would need: business type, current process, tools you use, number of pages/workflows, and whether you need backend/live data.`;
-    }
-    return catalogReply();
-  }
-
-  if (q.includes("founder") || q.includes("basit")) {
-    return "Basit Abbasi is the founder of Marketech Digital, with a Computer Science background from the University of Hertfordshire and a focus on AI systems, workflow automation, data intelligence, bot creation, and clarity-driven digital execution. Open the founder profile for the full portfolio page.";
-  }
-
-  if (q.includes("small service") || q.includes("starter") || q.includes("entry")) {
-    return "A starter services page is a smart move if it is positioned as Entry Systems, not cheap packages. It can include AI Agent Bot, Automation Audit, Landing Page Intelligence, Data Dashboard Starter, and CRM Workflow Setup. This keeps the brand premium while giving smaller clients a clear first step.";
-  }
-
-  if (q.includes("contact") || q.includes("start") || q.includes("call") || q.includes("book")) {
-    return "The best first step is to describe your business, what is slowing you down, what tools you use, and what result you want. Marketech can then recommend whether you need a strategy sprint, AI bot, automation build, dashboard, or full systems stack.";
-  }
-
-  if (q.includes("solve") || q.includes("help") || q.includes("problem")) {
-    return "Marketech Digital solves business problems where work is scattered, repetitive, unclear, or hard to measure. Examples: automating lead follow-up, building AI support bots, cleaning reporting dashboards, connecting forms to CRMs, summarizing customer conversations, and creating decision views for leaders.";
-  }
-
-  if (q.includes("offer") || q.includes("service") || q.includes("automation") || q.includes("ai") || q.includes("dashboard") || q.includes("data")) {
-    return catalogReply();
-  }
-
-  if (matched) {
-    return `This sounds like a fit for ${matched.name}. Typical range: ${matched.range}. ${matched.fit} Share the business type and workflow details, and I can suggest a tighter starting scope.`;
-  }
-
-  return "I can help you think through what Marketech Digital can solve before you contact Basit: AI agents, workflow automation, dashboards, business systems, CRM flows, lead capture, reporting, and quotation ranges. Tell me what your business does and what feels slow, repetitive, or unclear.";
+function toApiRole(role: UiMessage["role"]): "user" | "assistant" {
+  return role === "user" ? "user" : "assistant";
 }
 
 export default function AIAssistant() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<UiMessage[]>([
     { role: "bot", text: "Protocol active. I’m the Marketech AI guide. Tell me what you want to build, automate, or clarify — I can suggest services, scope, and estimate ranges before you contact Basit." }
   ]);
 
@@ -98,11 +28,44 @@ export default function AIAssistant() {
     return `mailto:abasitabbasi99@gmail.com?subject=${subject}&body=${body}`;
   }, []);
 
-  function send(text = input) {
+  async function send(text = input) {
     const value = text.trim();
-    if (!value) return;
-    setMessages((prev) => [...prev, { role: "user", text: value }, { role: "bot", text: getReply(value) }]);
+    if (!value || loading) return;
+
+    const nextMessages: UiMessage[] = [...messages, { role: "user", text: value }];
+    setMessages(nextMessages);
     setInput("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: nextMessages.map((message) => ({ role: toApiRole(message.role), content: message.text }))
+        })
+      });
+      const data = await response.json();
+      const reply = typeof data?.reply === "string" ? data.reply : "I had trouble answering that. Tell me your business type, goal, and what feels repetitive or unclear.";
+      setMessages((prev) => [...prev, { role: "bot", text: reply }]);
+    } catch {
+      setMessages((prev) => [...prev, { role: "bot", text: "I had trouble connecting to the live assistant. Tell me your business type, goal, and what you want automated, and I’ll still help you narrow the starting point." }]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function submitLead() {
+    const lastUser = [...messages].reverse().find((message) => message.role === "user")?.text || "Website visitor requested contact from the AI assistant.";
+    await fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: lastUser,
+        recommendedService: "AI assistant conversation",
+        conversation: messages.map((message) => ({ role: toApiRole(message.role), content: message.text }))
+      })
+    }).catch(() => null);
   }
 
   function onSubmit(e: FormEvent) {
@@ -120,25 +83,26 @@ export default function AIAssistant() {
           <div className="ai-avatar"><Image src="/founder.webp" alt="Basit Abbasi" width={54} height={54} /></div>
           <div>
             <strong>MARKETECH_INTELLIGENCE</strong>
-            <span>v1.1 // quote-aware inquiry layer</span>
+            <span>v2.0 // backend AI advisor</span>
           </div>
           <button type="button" onClick={() => setOpen(false)} aria-label="Close AI guide">×</button>
         </div>
         <div className="ai-messages">
           {messages.map((msg, index) => (
-            <div className={`ai-message ${msg.role}`} key={`${msg.role}-${index}`}>{msg.text}</div>
+            <div className={`ai-message ${msg.role === "user" ? "user" : "bot"}`} key={`${msg.role}-${index}`}>{msg.text}</div>
           ))}
+          {loading ? <div className="ai-message bot">Thinking through the best Marketech path...</div> : null}
         </div>
         <div className="ai-quick">
-          {quickReplies.map((q) => <button type="button" key={q} onClick={() => send(q)}>{q}</button>)}
+          {quickReplies.map((q) => <button type="button" key={q} onClick={() => send(q)} disabled={loading}>{q}</button>)}
         </div>
         <form className="ai-form" onSubmit={onSubmit}>
-          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Describe your project..." />
-          <button type="submit">➤</button>
+          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Describe your project..." disabled={loading} />
+          <button type="submit" disabled={loading}>➤</button>
         </form>
         <div className="ai-actions">
           <a href="/services">Starter systems</a>
-          <a href={mailHref}>Contact →</a>
+          <a href={mailHref} onClick={submitLead}>Contact →</a>
         </div>
       </div>
       <style jsx global>{`
@@ -192,11 +156,12 @@ export default function AIAssistant() {
         .ai-head span { display: block; margin-top: 4px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.45); }
         .ai-head button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: rgba(255,255,255,.75); font-size: 26px; cursor: pointer; }
         .ai-messages { flex: 1; overflow: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
-        .ai-message { max-width: 90%; padding: 15px 16px; border-radius: 20px; line-height: 1.55; font-size: 14px; }
+        .ai-message { max-width: 90%; padding: 15px 16px; border-radius: 20px; line-height: 1.55; font-size: 14px; white-space: pre-wrap; }
         .ai-message.bot { align-self: flex-start; background: #f5f5f2; color: #101010; border-top-left-radius: 6px; }
         .ai-message.user { align-self: flex-end; background: rgba(255,106,0,.16); border: 1px solid rgba(255,106,0,.26); color: #fff; border-top-right-radius: 6px; }
         .ai-quick { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 22px 14px; }
         .ai-quick button { border: 1px solid rgba(255,255,255,.1); border-radius: 999px; background: rgba(255,255,255,.04); color: rgba(255,255,255,.78); padding: 10px 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: 10px; cursor: pointer; }
+        .ai-quick button:disabled, .ai-form button:disabled, .ai-form input:disabled { opacity: .62; cursor: not-allowed; }
         .ai-form { display: grid; grid-template-columns: 1fr 62px; gap: 10px; padding: 0 22px 16px; }
         .ai-form input { min-width: 0; border: 1px solid rgba(255,255,255,.1); border-radius: 20px; background: rgba(255,255,255,.045); color: #fff; padding: 16px; outline: none; }
         .ai-form input:focus { border-color: rgba(255,106,0,.4); box-shadow: 0 0 0 4px rgba(255,106,0,.08); }
