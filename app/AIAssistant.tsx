@@ -10,7 +10,7 @@ type UiMessage = {
 
 type AssistantMode = "checking" | "ai" | "fallback" | "error";
 
-const founderImage = "/founder-new.svg";
+const founderImage = "/founder.webp";
 const quickReplies = ["Estimate my project", "What can you build?", "AI agent bot price", "How do we start?"];
 
 function toApiRole(role: UiMessage["role"]): "user" | "assistant" {
@@ -96,11 +96,11 @@ export default function AIAssistant() {
   return (
     <>
       <button className="ai-launcher" type="button" onClick={() => setOpen(true)} aria-label="Open Marketech AI guide">
-        <Image src={founderImage} alt="Basit Abbasi AI guide" width={72} height={72} priority={false} />
+        <Image src={founderImage} alt="Basit Abbasi AI guide" width={72} height={72} priority={false} unoptimized />
       </button>
       <div className={`ai-panel ${open ? "show" : ""}`} aria-hidden={!open}>
         <div className="ai-head">
-          <div className="ai-avatar"><Image src={founderImage} alt="Basit Abbasi" width={54} height={54} /></div>
+          <div className="ai-avatar"><Image src={founderImage} alt="Basit Abbasi" width={54} height={54} unoptimized /></div>
           <div>
             <strong>MARKETECH_INTELLIGENCE</strong>
             <span>v2.1 // {modeLabel(mode, reason)}</span>
