@@ -29,6 +29,53 @@ function makeFAQCarousel() {
   addCarouselTools("faqGrid", "FAQ carousel");
 }
 
+function addHomeIdeaGeneratorCTA() {
+  if (document.getElementById("homeIdeaGeneratorCta")) return;
+  if (document.querySelector(".idea-lab")) return;
+
+  const anchorTarget = "/services#idea-generator";
+  const cta = document.createElement("section");
+  cta.id = "homeIdeaGeneratorCta";
+  cta.className = "home-idea-cta";
+  cta.innerHTML = `
+    <div class="home-idea-copy">
+      <div class="home-idea-label"><span></span> Free AI idea generator</div>
+      <h2>Not sure what system your business needs first?</h2>
+      <p>Use the Marketech idea generator to turn your business type, bottleneck, current tools, and goal into a practical starter-system recommendation before you book a call.</p>
+      <div class="home-idea-actions">
+        <a href="${anchorTarget}">Generate my system idea →</a>
+        <button type="button" data-open-contact>Ask Basit instead</button>
+      </div>
+    </div>
+    <a class="home-idea-preview" href="${anchorTarget}" aria-label="Open free AI idea generator">
+      <div class="home-idea-node one"></div>
+      <div class="home-idea-node two"></div>
+      <div class="home-idea-node three"></div>
+      <svg viewBox="0 0 520 260" aria-hidden="true">
+        <path d="M42 178 C 110 92, 168 222, 236 126 S 358 76, 478 118" />
+        <path d="M66 206 C 142 150, 196 154, 268 104 S 388 66, 492 84" />
+      </svg>
+      <div class="home-idea-card">
+        <span>AI recommendation</span>
+        <strong>Starter system blueprint</strong>
+        <em>First build · automation layer · visibility layer · price range</em>
+      </div>
+    </a>
+  `;
+
+  const starter = document.querySelector(".starter-systems");
+  const offers = document.getElementById("offers");
+  const process = document.getElementById("process");
+  const hero = document.querySelector(".hero, header, main section");
+
+  if (starter?.parentElement) starter.insertAdjacentElement("afterend", cta);
+  else if (offers?.parentElement) offers.insertAdjacentElement("beforebegin", cta);
+  else if (process?.parentElement) process.insertAdjacentElement("beforebegin", cta);
+  else hero?.insertAdjacentElement("afterend", cta);
+
+  cta.querySelector("[data-open-contact]")?.addEventListener("click", openContactModal);
+}
+
 function ensureContactModal() {
   if (document.getElementById("contactPopup")) return;
   const modal = document.createElement("div");
@@ -149,6 +196,7 @@ export default function UXFixLayer() {
       addCarouselTools("faqGrid", "FAQ carousel");
       ensureContactModal();
       interceptContactClicks();
+      addHomeIdeaGeneratorCTA();
       enhanceFooter();
     };
 
