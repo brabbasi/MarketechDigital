@@ -1,5 +1,6 @@
 @import "./premium.css";
 @import "./polish.css";
+@import "./fixes.css";
 
 :root {
   --bg: #04070d;
