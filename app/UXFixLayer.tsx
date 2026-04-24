@@ -127,7 +127,7 @@ function enhanceFooter() {
   footer.setAttribute("data-enhanced-footer", "true");
   footer.innerHTML = `
     <div class="footer-brand-block">
-      <div class="footer-mark"><img src="/logo.png" alt="Marketech Digital logo" /></div>
+      <div class="footer-mark"><img src="/logo.svg" alt="Marketech Digital logo" /></div>
       <div>
         <strong>Marketech Digital</strong>
         <p>AI systems, workflow automation, decision intelligence, and growth-ready digital execution.</p>
