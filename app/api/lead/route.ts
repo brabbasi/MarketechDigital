@@ -5,7 +5,11 @@ export const runtime = "nodejs";
 type LeadPayload = {
   name?: string;
   email?: string;
+  phone?: string;
+  company?: string;
   business?: string;
+  service?: string;
+  preferredContact?: string;
   message?: string;
   budget?: string;
   recommendedService?: string;
@@ -28,11 +32,15 @@ function buildEmailBody(payload: LeadPayload) {
 
 Name: ${sanitize(payload.name, 160) || "Not provided"}
 Email: ${sanitize(payload.email, 240) || "Not provided"}
-Business: ${sanitize(payload.business, 240) || "Not provided"}
+Phone: ${sanitize(payload.phone, 120) || "Not provided"}
+Company: ${sanitize(payload.company, 240) || "Not provided"}
+Business type: ${sanitize(payload.business, 240) || "Not provided"}
+Service interested in: ${sanitize(payload.service, 240) || "Not provided"}
 Budget: ${sanitize(payload.budget, 160) || "Not provided"}
+Preferred contact method: ${sanitize(payload.preferredContact, 160) || "Not provided"}
 Recommended service: ${sanitize(payload.recommendedService, 240) || "Not provided"}
 
-Message:
+Project details:
 ${sanitize(payload.message, 2000) || "Not provided"}
 
 Recent AI assistant conversation:
