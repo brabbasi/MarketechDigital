@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "./founder.module.css";
 
-const founderImage = "/founder-new.svg";
+const founderImage = "/founder.webp";
 
 const projects = [
   {
@@ -78,7 +78,7 @@ export default function FounderPage() {
 
         <section className={styles.heroClassic}>
           <div className={styles.ringPortrait}>
-            <Image src={founderImage} alt="Basit Abbasi founder portrait" width={420} height={420} priority />
+            <Image src={founderImage} alt="Basit Abbasi founder portrait" width={720} height={720} priority unoptimized />
           </div>
           <div className={styles.role}>Founder · Systems Architect // Basit Abbasi</div>
           <h1><span>Basit</span><em>Abbasi.</em></h1>
