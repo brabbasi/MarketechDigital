@@ -53,6 +53,19 @@ function addCarouselTools(id: string, label: string) {
   next?.addEventListener("click", () => rail.scrollBy({ left: 420, behavior: "smooth" }));
 }
 
+function addFounderButton() {
+  const profile = document.querySelector(".founder-profile");
+  if (!profile || profile.querySelector("[data-founder-full-page]")) return;
+  const actions = profile.querySelector(".hero-actions");
+  if (!actions) return;
+  const link = document.createElement("a");
+  link.href = "/founder";
+  link.className = "btn btn-secondary";
+  link.setAttribute("data-founder-full-page", "true");
+  link.textContent = "Explore the founder story →";
+  actions.appendChild(link);
+}
+
 export default function FutureLayer() {
   useEffect(() => {
     const hero = document.querySelector(".hero");
@@ -66,10 +79,13 @@ export default function FutureLayer() {
 
     addCarouselTools("offerGrid", "Offer carousel");
     addCarouselTools("processGrid", "Process carousel");
+    addFounderButton();
+    document.addEventListener("click", addFounderButton);
 
     let tick = 0;
     const timer = window.setInterval(() => {
       tick += 1;
+      addFounderButton();
       const one = document.querySelector<HTMLElement>("[data-live-one]");
       const two = document.querySelector<HTMLElement>("[data-live-two]");
       const three = document.querySelector<HTMLElement>("[data-live-three]");
@@ -80,7 +96,10 @@ export default function FutureLayer() {
       if (status) status.textContent = ["Calibrating", "Mapping", "Optimizing", "Ready"][tick % 4];
     }, 1600);
 
-    return () => window.clearInterval(timer);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("click", addFounderButton);
+    };
   }, []);
 
   return null;
