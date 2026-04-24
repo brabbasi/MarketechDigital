@@ -49,6 +49,22 @@ function isUrgentBrokenSystem(message: string) {
   return /(system|site|website|app|automation|bot|dashboard|crm|form|backend|workflow).*(down|broken|not working|stopped|crashed|failed|error|bug|offline|issue)|(?:down|broken|not working|stopped|crashed|failed|error|bug|offline).*(system|site|website|app|automation|bot|dashboard|crm|form|backend|workflow)/.test(message.toLowerCase());
 }
 
+function isGeneralInternetQuestion(message: string) {
+  return /(internet|wifi|wi-fi|router|modem|network|connection).*(not working|down|slow|fix|issue|problem|offline)|(?:how do i fix|fix|repair|troubleshoot).*(internet|wifi|wi-fi|router|modem|network|connection)/.test(message.toLowerCase());
+}
+
+function generalInternetReply() {
+  return `If your internet is down, try this quick checklist first:
+
+1. Restart the modem and router. Unplug both for 30 seconds, then plug the modem in first, wait, then the router.
+2. Check if the issue is one device or every device. If only one device is affected, restart that device and forget/rejoin the Wi‑Fi network.
+3. Check your provider outage page or app.
+4. Test with an Ethernet cable if possible. If Ethernet works but Wi‑Fi does not, the issue is likely router/Wi‑Fi related.
+5. If the modem lights show red/orange or no internet signal after rebooting, contact your internet provider.
+
+For Marketech Digital specifically, I can help if this internet issue is affecting a business website, booking flow, AI bot, CRM, automation, or dashboard. What part of your business system is impacted?`;
+}
+
 export function estimateService(message: string) {
   const q = message.toLowerCase();
   const wantsBot = /(bot|agent|chat|assistant|faq|lead capture|lead qualification)/.test(q);
@@ -116,6 +132,10 @@ export function localAssistantReply(message: string) {
   const service = estimateService(message);
   const industry = industrySuggestion(message);
 
+  if (isGeneralInternetQuestion(message)) {
+    return generalInternetReply();
+  }
+
   if (isUrgentBrokenSystem(message)) {
     return brokenSystemReply();
   }
@@ -174,6 +194,9 @@ Industry examples:
 
 Troubleshooting rule:
 If a visitor says something is down, broken, not working, crashed, failed, or has an error, do not jump straight to pricing. First triage the issue: ask what system failed, what changed recently, what platform/tool is involved, and what error they see. Position it as a systems audit/recovery workflow if they need Marketech to fix it.
+
+General helpfulness rule:
+If a visitor asks a simple general technology question, give a brief helpful answer first, then connect it back to what Marketech can help with if it affects their website, AI bot, automation, CRM, dashboard, or business system.
 
 Rules:
 - Be helpful, confident, premium, and practical.
