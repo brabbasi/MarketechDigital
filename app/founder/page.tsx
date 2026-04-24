@@ -59,10 +59,19 @@ export default function FounderPage() {
     <main className={styles.page}>
       <div className={styles.shell}>
         <nav className={styles.navbar}>
-          <Link href="/" className={styles.brand}>
-            <Image src="/logo.svg" alt="Marketech Digital logo" width={64} height={64} />
+          <Link href="/" className={styles.brand} aria-label="Marketech Digital home">
+            <span className={styles.logoPlate}><Image src="/logo.svg" alt="Marketech Digital logo" width={64} height={64} /></span>
+            <span className={styles.brandWords}><strong>MARKETECH</strong><em>DIGITAL</em></span>
           </Link>
-          <div className={styles.menuIcon}><span /><span /><span /></div>
+          <details className={styles.menuBox}>
+            <summary className={styles.menuIcon} aria-label="Open founder page menu"><span /><span /><span /></summary>
+            <div className={styles.menuPanel}>
+              <Link href="/">Home</Link>
+              <a href="#projects">Project ledger</a>
+              <a href="#education">Academic foundation</a>
+              <Link href="/#contact">Start a project</Link>
+            </div>
+          </details>
         </nav>
 
         <section className={styles.heroClassic}>
@@ -90,7 +99,7 @@ export default function FounderPage() {
           </p>
         </section>
 
-        <section className={styles.lightBand}>
+        <section className={styles.lightBand} id="education">
           <div className={styles.lightShell}>
             <div className={styles.eyebrow}>Academic foundation</div>
             <h2>The University of Hertfordshire.</h2>
@@ -108,7 +117,7 @@ export default function FounderPage() {
           </div>
         </section>
 
-        <section className={styles.sectionDark}>
+        <section className={styles.sectionDark} id="projects">
           <div className={styles.sectionHeadCenter}>
             <div className={styles.eyebrow}>Project ledger</div>
             <h2>Selected build concepts.</h2>
