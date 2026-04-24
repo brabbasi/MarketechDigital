@@ -1,5 +1,84 @@
 /* Final visual corrections for founder circle and starter carousel. */
 
+/* Bring the background network animation back without reintroducing scroll jank. */
+#bgCanvas {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  opacity: .58 !important;
+  pointer-events: none !important;
+  mix-blend-mode: screen !important;
+  transform: translateZ(0) !important;
+}
+
+body > :not(#bgCanvas):not(script):not(style) {
+  position: relative;
+  z-index: 1;
+}
+
+body::before,
+body::after {
+  z-index: 0 !important;
+}
+
+header,
+.modal-wrap,
+.contact-popup,
+.ai-assistant,
+.assistant-shell,
+.assistant-launcher,
+.toast {
+  z-index: 20 !important;
+}
+
+/* Let the animated network breathe through sections while keeping cards readable. */
+.section,
+.future-deck,
+.starter-systems {
+  background-color: transparent !important;
+}
+
+.offer-card,
+.process-card,
+.faq-card,
+.founder-card,
+.contact-card,
+.panel,
+.hero-panel,
+.future-console,
+.carousel-tools,
+.ux-carousel-tools,
+.starter-mini {
+  background-color: rgba(6, 17, 29, .72) !important;
+}
+
+@media (max-width: 760px) {
+  #bgCanvas {
+    opacity: .42 !important;
+  }
+
+  body::after {
+    display: block !important;
+    opacity: .55 !important;
+  }
+
+  .offer-card,
+  .process-card,
+  .faq-card,
+  .founder-card,
+  .contact-card,
+  .panel,
+  .hero-panel,
+  .future-console,
+  .carousel-tools,
+  .ux-carousel-tools,
+  .starter-mini {
+    background-color: rgba(6, 17, 29, .84) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
 /* Founder card: use the same circular portrait language as the rest of the site. */
 .founder-wrap {
   align-items: center !important;
