@@ -39,21 +39,22 @@ function buildDeck() {
 function buildStarterSystems() {
   return `
     <div class="starter-label"><span></span> Starter systems</div>
-    <div class="starter-grid">
+    <div class="starter-headline-row">
       <div class="starter-copy">
         <h2>Smaller entry systems without lowering the brand.</h2>
-        <p>For clients who are not ready for a full operating-system build, Marketech offers focused starter systems: AI agent bots, automation audits, dashboard starters, workflow setup, and lead-capture intelligence.</p>
-        <div class="starter-actions">
-          <a href="/services">Explore starter systems →</a>
-          <a href="#contact">Ask for a recommendation</a>
-        </div>
+        <p>Focused starter systems for clients who want value quickly before moving into a full operating-system build.</p>
       </div>
-      <div class="starter-cards">
-        <div class="starter-mini"><strong>AI Agent Bot</strong><span>Lead capture, FAQs, qualification, and service routing.</span></div>
-        <div class="starter-mini"><strong>Automation Audit</strong><span>Find repetitive work and map the fastest automation wins.</span></div>
-        <div class="starter-mini"><strong>Dashboard Starter</strong><span>Clean visibility for KPIs, reports, and decision signals.</span></div>
-        <div class="starter-mini"><strong>CRM Workflow Setup</strong><span>Connect intake, follow-ups, client handoff, and alerts.</span></div>
-      </div>
+    </div>
+    <div class="starter-carousel" id="starterCarousel" aria-label="Starter systems carousel">
+      <article class="starter-mini"><strong>AI Agent Bot</strong><span>Lead capture, FAQs, qualification, and service routing.</span><a href="#contact">Start with bot →</a></article>
+      <article class="starter-mini"><strong>Automation Audit</strong><span>Find repetitive work and map the fastest automation wins.</span><a href="#contact">Map workflow →</a></article>
+      <article class="starter-mini"><strong>Dashboard Starter</strong><span>Clean visibility for KPIs, reports, and decision signals.</span><a href="#contact">Build visibility →</a></article>
+      <article class="starter-mini"><strong>CRM Workflow Setup</strong><span>Connect intake, follow-ups, client handoff, and alerts.</span><a href="#contact">Clean handoff →</a></article>
+      <article class="starter-mini"><strong>Lead Capture System</strong><span>Turn website interest into structured inquiries and faster follow-up.</span><a href="#contact">Capture leads →</a></article>
+    </div>
+    <div class="starter-actions starter-actions-bottom">
+      <a href="/services">Explore starter systems →</a>
+      <a href="#contact">Ask for a recommendation</a>
     </div>
   `;
 }
@@ -153,6 +154,7 @@ export default function FutureLayer() {
     refreshFAQ();
     addCarouselTools("offerGrid", "Offer carousel");
     addCarouselTools("processGrid", "Process carousel");
+    addCarouselTools("starterCarousel", "Starter systems carousel");
     addFounderButton();
     document.addEventListener("click", addFounderButton);
 
@@ -162,6 +164,7 @@ export default function FutureLayer() {
       addFounderButton();
       addServicesNav();
       refreshFAQ();
+      addCarouselTools("starterCarousel", "Starter systems carousel");
       const one = document.querySelector<HTMLElement>("[data-live-one]");
       const two = document.querySelector<HTMLElement>("[data-live-two]");
       const three = document.querySelector<HTMLElement>("[data-live-three]");
