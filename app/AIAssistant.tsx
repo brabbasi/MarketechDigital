@@ -8,16 +8,31 @@ type UiMessage = {
   text: string;
 };
 
+type AssistantMode = "checking" | "ai" | "fallback" | "error";
+
 const quickReplies = ["Estimate my project", "What can you build?", "AI agent bot price", "How do we start?"];
 
 function toApiRole(role: UiMessage["role"]): "user" | "assistant" {
   return role === "user" ? "user" : "assistant";
 }
 
+function modeLabel(mode: AssistantMode, reason?: string) {
+  if (mode === "ai") return "Live AI connected";
+  if (mode === "fallback") {
+    if (reason === "missing_openai_api_key") return "Guided mode · API key missing";
+    if (reason?.startsWith("openai_error_")) return `Guided mode · ${reason.replace("openai_error_", "OpenAI error ")}`;
+    return "Guided mode";
+  }
+  if (mode === "error") return "Connection issue";
+  return "Checking backend";
+}
+
 export default function AIAssistant() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<AssistantMode>("checking");
+  const [reason, setReason] = useState<string>("");
   const [messages, setMessages] = useState<UiMessage[]>([
     { role: "bot", text: "Protocol active. I’m the Marketech AI guide. Tell me what you want to build, automate, or clarify — I can suggest services, scope, and estimate ranges before you contact Basit." }
   ]);
@@ -47,8 +62,12 @@ export default function AIAssistant() {
       });
       const data = await response.json();
       const reply = typeof data?.reply === "string" ? data.reply : "I had trouble answering that. Tell me your business type, goal, and what feels repetitive or unclear.";
+      setMode(data?.mode === "ai" ? "ai" : data?.mode === "error" ? "error" : "fallback");
+      setReason(typeof data?.reason === "string" ? data.reason : "");
       setMessages((prev) => [...prev, { role: "bot", text: reply }]);
     } catch {
+      setMode("error");
+      setReason("frontend_fetch_failed");
       setMessages((prev) => [...prev, { role: "bot", text: "I had trouble connecting to the live assistant. Tell me your business type, goal, and what you want automated, and I’ll still help you narrow the starting point." }]);
     } finally {
       setLoading(false);
@@ -83,7 +102,7 @@ export default function AIAssistant() {
           <div className="ai-avatar"><Image src="/founder.webp" alt="Basit Abbasi" width={54} height={54} /></div>
           <div>
             <strong>MARKETECH_INTELLIGENCE</strong>
-            <span>v2.0 // backend AI advisor</span>
+            <span>v2.1 // {modeLabel(mode, reason)}</span>
           </div>
           <button type="button" onClick={() => setOpen(false)} aria-label="Close AI guide">×</button>
         </div>
@@ -153,7 +172,7 @@ export default function AIAssistant() {
         .ai-avatar { width: 54px; height: 54px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,.78); box-shadow: 0 0 22px rgba(255,106,0,.16); }
         .ai-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
         .ai-head strong { display: block; font-size: 12px; letter-spacing: .22em; }
-        .ai-head span { display: block; margin-top: 4px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.45); }
+        .ai-head span { display: block; margin-top: 4px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); }
         .ai-head button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: rgba(255,255,255,.75); font-size: 26px; cursor: pointer; }
         .ai-messages { flex: 1; overflow: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
         .ai-message { max-width: 90%; padding: 15px 16px; border-radius: 20px; line-height: 1.55; font-size: 14px; white-space: pre-wrap; }
