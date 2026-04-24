@@ -45,25 +45,73 @@ export const founderProfile = {
   focus: "AI systems, workflow automation, data intelligence, bot creation, decision intelligence, and clarity-driven digital execution"
 };
 
+function hasAny(text: string, words: RegExp) {
+  return words.test(text.toLowerCase());
+}
+
 export function estimateService(message: string) {
   const q = message.toLowerCase();
-  if (/(bot|agent|chat|assistant|faq|lead capture|lead qualification)/.test(q)) return marketechServices[0];
+  const wantsBot = /(bot|agent|chat|assistant|faq|lead capture|lead qualification)/.test(q);
+  const wantsAutomation = /(automation|automate|workflow|zapier|make|crm|follow.?up|admin|routing|alert|manual|booking|estimate|quote request)/.test(q);
+  const wantsDashboard = /(dashboard|data|analytics|report|kpi|metrics|business intelligence|bi)/.test(q);
+
+  if (wantsBot && wantsAutomation) {
+    return {
+      name: "AI Agent + Workflow Automation Starter",
+      range: "$1,500–$4,500 CAD starter / $4,500–$9,500+ CAD advanced",
+      bestFor: "Businesses that want the website bot and the behind-the-scenes follow-up, booking, CRM, or internal notification flow to work together.",
+      deliverables: ["AI website guide", "Lead qualification", "Inquiry routing", "Follow-up automation", "Basic CRM or email handoff"]
+    };
+  }
+
+  if (wantsBot) return marketechServices[0];
   if (/(strategy|roadmap|audit|plan|consult|where to start|idea)/.test(q)) return marketechServices[1];
-  if (/(automation|workflow|zapier|make|crm|follow.?up|admin|routing|alert|manual)/.test(q)) return marketechServices[2];
-  if (/(dashboard|data|analytics|report|kpi|metrics|business intelligence|bi)/.test(q)) return marketechServices[3];
+  if (wantsAutomation) return marketechServices[2];
+  if (wantsDashboard) return marketechServices[3];
   if (/(system|stack|full|growth|operating layer|backend|platform|website)/.test(q)) return marketechServices[4];
+  return null;
+}
+
+function industrySuggestion(message: string) {
+  const q = message.toLowerCase();
+  if (/(cleaning|cleaner|janitorial|maid|housekeeping)/.test(q)) {
+    return {
+      industry: "cleaning business",
+      useCase: "quote requests, service-area questions, booking inquiries, recurring-cleaning follow-ups, missed-call recovery, and lead handoff",
+      firstBuild: "an AI quote/intake bot connected to a follow-up workflow for new leads"
+    };
+  }
+  if (/(real estate|realtor|property)/.test(q)) {
+    return {
+      industry: "real estate business",
+      useCase: "buyer/seller qualification, listing inquiries, showing requests, CRM handoff, and follow-up reminders",
+      firstBuild: "an AI lead qualifier connected to a CRM and follow-up sequence"
+    };
+  }
+  if (/(clinic|dental|medical|physio|salon|spa)/.test(q)) {
+    return {
+      industry: "appointment-based business",
+      useCase: "service questions, appointment requests, reminders, intake forms, and front-desk workload reduction",
+      firstBuild: "an AI receptionist-style assistant with appointment and intake automation"
+    };
+  }
   return null;
 }
 
 export function localAssistantReply(message: string) {
   const q = message.toLowerCase();
   const service = estimateService(message);
+  const industry = industrySuggestion(message);
 
   if (/(price|pricing|quote|cost|budget|estimate|range)/.test(q)) {
     if (service) {
-      return `This sounds closest to ${service.name}. Typical guidance range: ${service.range}. Best fit: ${service.bestFor} A final quote depends on integrations, data quality, number of workflows/pages, backend needs, and how much custom AI logic is required.`;
+      const industryLine = industry
+        ? `For a ${industry.industry}, I would start with ${industry.firstBuild}. It can handle ${industry.useCase}.\n\n`
+        : "";
+
+      return `${industryLine}Best-fit starting point: ${service.name}.\n\nGuidance range: ${service.range}.\n\nWhat that could include:\n- ${service.deliverables.join("\n- ")}\n\nA final quote depends on your website, tools, number of workflows, booking/CRM setup, backend needs, and how much custom AI logic is required. Two useful questions: what tools do you currently use, and where do new leads usually come from?`;
     }
-    return `Marketech guidance ranges are: ${marketechServices.map((item) => `${item.name}: ${item.range}`).join("; ")}. Tell me your business type and what you want automated or clarified, and I can narrow the likely fit.`;
+    return `Marketech guidance ranges:\n\n- ${marketechServices.map((item) => `${item.name}: ${item.range}`).join("\n- ")}\n\nTell me your business type and what you want automated or clarified, and I can narrow the likely fit.`;
   }
 
   if (/(founder|basit|education|who built|owner)/.test(q)) {
@@ -76,7 +124,8 @@ export function localAssistantReply(message: string) {
 
   if (/(solve|help|problem|can you|what can)/.test(q) || service) {
     const picked = service || marketechServices[2];
-    return `Marketech can help with problems where work is repetitive, scattered, unclear, or hard to measure. Your message sounds like it may fit ${picked.name}: ${picked.range}. Typical deliverables include ${picked.deliverables.join(", ")}.`;
+    const industryLine = industry ? `For a ${industry.industry}, a strong first system would cover ${industry.useCase}. ` : "";
+    return `${industryLine}This sounds like a fit for ${picked.name}. Guidance range: ${picked.range}.\n\nTypical deliverables:\n- ${picked.deliverables.join("\n- ")}\n\nIf you share your current tools and the main workflow you want fixed, I can narrow this into a starter scope.`;
   }
 
   return "I can help you figure out what Marketech Digital can build: AI agent bots, workflow automations, decision dashboards, CRM flows, lead-capture systems, and growth systems. Tell me what your business does and what feels slow, repetitive, or unclear.";
@@ -98,12 +147,22 @@ ${marketechServices
   )
   .join("\n")}
 
+Important combined offer:
+- AI Agent + Workflow Automation Starter: $1,500–$4,500 CAD starter / $4,500–$9,500+ CAD advanced. Use this when a visitor asks for both a bot and automation.
+
+Industry examples:
+- Cleaning businesses: quote requests, service-area questions, booking inquiries, recurring-cleaning follow-ups, missed-call recovery, and lead handoff.
+- Real estate businesses: buyer/seller qualification, listing inquiries, showing requests, CRM handoff, and follow-up reminders.
+- Clinics/salons/appointment businesses: service questions, appointment requests, reminders, intake forms, and front-desk workload reduction.
+
 Rules:
 - Be helpful, confident, premium, and practical.
 - Never sound desperate, pushy, cheap, or condescending.
 - Give guidance ranges, not guaranteed final quotes.
 - Explain that final pricing depends on integrations, backend needs, data quality, workflow complexity, timeline, number of pages/workflows, and custom AI logic.
 - If the user describes a problem, recommend the best-fit service and a likely range.
+- If they mention both bot and automation, recommend the combined AI Agent + Workflow Automation Starter.
+- Give concrete examples tailored to their industry when possible.
 - Ask at most 2 useful qualifying questions when needed.
 - Encourage the user to contact Basit when they have enough project context.
 - Keep replies concise, usually 2–5 short paragraphs or bullets.
