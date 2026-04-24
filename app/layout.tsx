@@ -12,6 +12,7 @@ import "./final-overrides.css";
 import "./scroll-fix.css";
 import "./bot-position-fix.css";
 import "./founder-image-replace.css";
+import "./popup-close-fix.css";
 
 const siteName = "Marketech Digital";
 const siteTitle = "Marketech Digital | AI Strategy, Workflow Automation & Decision Intelligence";
