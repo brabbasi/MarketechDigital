@@ -1,0 +1,232 @@
+/* Targeted fixes after globals/premium/polish. This file loads last from layout.tsx. */
+
+/* Fix the injected FutureLayer section that was rendering as plain text. */
+.future-deck {
+  position: relative;
+  width: min(1180px, calc(100% - 24px));
+  margin: 18px auto 34px;
+  padding: clamp(20px, 4vw, 34px);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 78% 14%, rgba(89,175,255,.14), transparent 32%),
+    radial-gradient(circle at 18% 86%, rgba(255,106,0,.12), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.022));
+  box-shadow: 0 30px 110px rgba(0,0,0,.42);
+  overflow: hidden;
+}
+.future-deck::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(circle at center, black, transparent 82%);
+}
+.future-deck > * { position: relative; z-index: 1; }
+.future-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: rgba(255,223,202,.88);
+  font-size: 11px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+.future-eyebrow span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff6a00;
+  box-shadow: 0 0 18px rgba(255,106,0,.65);
+}
+.future-grid { display: grid; gap: 24px; }
+.future-copy h2 {
+  margin: 0;
+  max-width: 760px;
+  color: #fff;
+  font-size: clamp(2rem, 7vw, 4.2rem);
+  line-height: .98;
+  letter-spacing: -.065em;
+}
+.future-copy p {
+  margin: 16px 0 0;
+  max-width: 700px;
+  color: rgba(246,248,252,.68);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+.future-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.future-tags span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 999px;
+  background: rgba(0,0,0,.2);
+  color: rgba(255,255,255,.72);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.future-console {
+  padding: 16px;
+  border: 1px solid rgba(89,175,255,.18);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(3,11,20,.92), rgba(1,5,12,.95));
+  box-shadow: inset 0 0 40px rgba(89,175,255,.06), 0 24px 74px rgba(0,0,0,.34);
+}
+.console-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: rgba(255,255,255,.5);
+  font-size: 11px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.console-top strong { color: #59afff; }
+.console-orbit {
+  position: relative;
+  min-height: 220px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 22px;
+  background: radial-gradient(circle at 50% 48%, rgba(89,175,255,.16), transparent 34%), linear-gradient(180deg,#06111d,#030913);
+}
+.console-orbit svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.console-orbit i {
+  position: absolute;
+  inset: 34px 20%;
+  border: 1px solid rgba(89,175,255,.18);
+  border-radius: 50%;
+  animation: spinOrbit 14s linear infinite;
+}
+.console-orbit i:nth-child(2) { inset: 58px 30%; border-color: rgba(255,106,0,.2); animation-duration: 18s; }
+.console-orbit i:nth-child(3) { inset: 84px 38%; border-color: rgba(255,255,255,.12); animation-duration: 22s; }
+@keyframes spinOrbit { to { transform: rotate(360deg); } }
+.future-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.future-metrics div {
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  background: rgba(255,255,255,.035);
+}
+.future-metrics strong {
+  display: block;
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.future-metrics span {
+  display: block;
+  margin-top: 5px;
+  color: rgba(255,255,255,.52);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  line-height: 1.35;
+}
+
+/* Better page-to-page CTA presence. */
+.nav-links a[href="/services"] {
+  color: rgba(255,223,202,.86);
+}
+
+/* Services idea generator replacement section. */
+.idea-lab {
+  max-width: 1120px;
+  margin: 28px auto 0;
+  padding: clamp(22px, 4vw, 38px);
+  border: 1px solid rgba(255,106,0,.22);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255,106,0,.14), transparent 34%),
+    radial-gradient(circle at 86% 16%, rgba(89,175,255,.11), transparent 30%),
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.022));
+  box-shadow: 0 28px 100px rgba(0,0,0,.34);
+}
+.idea-lab h2 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: .98;
+  letter-spacing: -.06em;
+}
+.idea-lab p {
+  max-width: 760px;
+  color: rgba(246,248,252,.7);
+  line-height: 1.75;
+}
+.idea-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+.idea-form input,
+.idea-form textarea,
+.idea-form select {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 18px;
+  background: rgba(0,0,0,.2);
+  color: #fff;
+  padding: 14px 15px;
+  outline: none;
+}
+.idea-form textarea { min-height: 110px; resize: vertical; }
+.idea-form button {
+  min-height: 52px;
+  border: 1px solid rgba(255,106,0,.45);
+  border-radius: 999px;
+  background: rgba(255,106,0,.14);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 0 44px rgba(255,106,0,.13);
+}
+.idea-result {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(89,175,255,.18);
+  border-radius: 24px;
+  background: rgba(3,11,20,.72);
+}
+.idea-result strong { display: block; color: #fff; margin-bottom: 6px; }
+.idea-result ul { margin: 10px 0 0; padding-left: 18px; color: rgba(246,248,252,.74); line-height: 1.7; }
+.idea-result p { margin: 0; }
+
+/* FAQ alignment refresh. */
+.faq-card h3 { text-wrap: balance; }
+.faq-card p { max-width: 62ch; }
+
+@media (min-width: 900px) {
+  .future-grid { grid-template-columns: .9fr 1.1fr; align-items: center; }
+  .future-deck { margin-top: -20px; }
+  .idea-form { grid-template-columns: 1fr 1fr; align-items: start; }
+  .idea-form textarea { grid-column: 1 / -1; }
+  .idea-form button { width: fit-content; padding: 0 22px; }
+}
+
+@media (max-width: 640px) {
+  .future-deck { border-radius: 26px; padding: 18px; }
+  .future-metrics { grid-template-columns: 1fr; }
+  .console-orbit { min-height: 190px; }
+  .future-tags span { font-size: 10px; min-height: 34px; }
+  .idea-lab { border-radius: 28px; }
+}
