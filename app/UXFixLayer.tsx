@@ -151,9 +151,10 @@ export default function UXFixLayer() {
       interceptContactClicks();
       enhanceFooter();
     };
+
     run();
-    const timer = window.setInterval(run, 1500);
-    return () => window.clearInterval(timer);
+    const timeout = window.setTimeout(run, 700);
+    return () => window.clearTimeout(timeout);
   }, []);
 
   return null;
