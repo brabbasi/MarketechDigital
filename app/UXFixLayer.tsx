@@ -6,6 +6,8 @@ function addCarouselTools(id: string, label: string) {
   const rail = document.getElementById(id);
   if (!rail || rail.previousElementSibling?.getAttribute("data-carousel-tools") === id) return;
 
+  rail.setAttribute("aria-label", `${label} scroll area`);
+
   const tools = document.createElement("div");
   tools.className = "carousel-tools ux-carousel-tools";
   tools.setAttribute("data-carousel-tools", id);
@@ -37,20 +39,21 @@ function addHomeIdeaGeneratorCTA() {
   const cta = document.createElement("section");
   cta.id = "homeIdeaGeneratorCta";
   cta.className = "home-idea-cta";
+  cta.setAttribute("aria-labelledby", "homeIdeaTitle");
   cta.innerHTML = `
     <div class="home-idea-copy">
       <div class="home-idea-label"><span></span> Free AI idea generator</div>
-      <h2>Not sure what system your business needs first?</h2>
+      <h2 id="homeIdeaTitle">Not sure what system your business needs first?</h2>
       <p>Use the Marketech idea generator to turn your business type, bottleneck, current tools, and goal into a practical starter-system recommendation before you book a call.</p>
       <div class="home-idea-actions">
         <a href="${anchorTarget}">Generate my system idea →</a>
-        <button type="button" data-open-contact>Ask Basit instead</button>
+        <button type="button" data-open-contact aria-label="Ask Basit about your project instead of using the idea generator">Ask Basit instead</button>
       </div>
     </div>
     <a class="home-idea-preview" href="${anchorTarget}" aria-label="Open free AI idea generator">
-      <div class="home-idea-node one"></div>
-      <div class="home-idea-node two"></div>
-      <div class="home-idea-node three"></div>
+      <div class="home-idea-node one" aria-hidden="true"></div>
+      <div class="home-idea-node two" aria-hidden="true"></div>
+      <div class="home-idea-node three" aria-hidden="true"></div>
       <svg viewBox="0 0 520 260" aria-hidden="true">
         <path d="M42 178 C 110 92, 168 222, 236 126 S 358 76, 478 118" />
         <path d="M66 206 C 142 150, 196 154, 268 104 S 388 66, 492 84" />
@@ -87,10 +90,22 @@ function ensureContactModal() {
       <div class="contact-popup-label"><span></span> Start a project</div>
       <h2 id="contactPopupTitle">Tell Marketech what you want to build.</h2>
       <p>Share the business problem, system idea, or automation you want. This creates a cleaner inquiry for Basit instead of forcing you to scroll to the bottom of the page.</p>
-      <form class="contact-popup-form">
-        <input name="name" placeholder="Your name" />
-        <input name="email" type="email" placeholder="Email address" />
-        <input name="business" placeholder="Business type" />
+      <form class="contact-popup-form" aria-label="Marketech Digital project inquiry form">
+        <input name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" />
+        <input name="email" type="email" placeholder="Email address" aria-label="Email address" autocomplete="email" />
+        <input name="phone" type="tel" placeholder="Phone number (optional)" aria-label="Phone number optional" autocomplete="tel" />
+        <input name="company" placeholder="Company name (optional)" aria-label="Company name optional" autocomplete="organization" />
+        <input name="business" placeholder="Business type" aria-label="Business type" />
+        <select name="service" aria-label="Service interested in">
+          <option value="">Service interested in</option>
+          <option>AI automation</option>
+          <option>Web development</option>
+          <option>Software or internal system</option>
+          <option>SEO or digital marketing</option>
+          <option>Landing page</option>
+          <option>Branding</option>
+          <option>Not sure yet</option>
+        </select>
         <select name="budget" aria-label="Budget range">
           <option value="">Budget range</option>
           <option>$500–$1,500 CAD</option>
@@ -99,7 +114,13 @@ function ensureContactModal() {
           <option>$10,000+ CAD</option>
           <option>Not sure yet</option>
         </select>
-        <textarea name="message" placeholder="What problem, system, or idea do you want help with?"></textarea>
+        <select name="preferredContact" aria-label="Preferred contact method">
+          <option value="">Preferred contact method</option>
+          <option>Email</option>
+          <option>Phone</option>
+          <option>WhatsApp</option>
+        </select>
+        <textarea name="message" placeholder="What problem, system, or idea do you want help with?" aria-label="Project details"></textarea>
         <button type="submit">Send project inquiry →</button>
       </form>
       <div class="contact-popup-status" aria-live="polite"></div>
@@ -112,6 +133,9 @@ function ensureContactModal() {
   modal.querySelector(".contact-popup-close")?.addEventListener("click", close);
   modal.addEventListener("click", (event) => {
     if (event.target === modal) close();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modal.classList.contains("show")) close();
   });
   modal.querySelector("form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -177,7 +201,7 @@ function enhanceFooter() {
       <div class="footer-mark"><img src="/logo.svg" alt="Marketech Digital logo" /></div>
       <div>
         <strong>Marketech Digital</strong>
-        <p>AI systems, workflow automation, decision intelligence, and growth-ready digital execution.</p>
+        <p>AI systems, web development, workflow automation, decision intelligence, SEO, branding, and growth-ready digital execution for businesses in Ottawa and across Canada.</p>
       </div>
     </div>
     <div class="footer-columns">
@@ -185,8 +209,15 @@ function enhanceFooter() {
       <div><span>Company</span><a href="/founder">Founder profile</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></div>
       <div><span>Contact</span><a href="mailto:abasitabbasi99@gmail.com">abasitabbasi99@gmail.com</a><button type="button">Book a consultation</button></div>
     </div>
-    <div class="footer-bottom"><span>© ${year} Marketech Digital. All rights reserved.</span><span>Built for clarity, automation, and serious growth.</span></div>
+    <div class="footer-bottom"><span>© ${year} Marketech Digital. All rights reserved.</span><span>Serving Ottawa, Kanata, Barrhaven, Nepean, Gatineau, Toronto, and businesses across Canada.</span></div>
   `;
+}
+
+function stabilizeDecorativeMedia() {
+  document.getElementById("bgCanvas")?.setAttribute("aria-hidden", "true");
+  document.querySelectorAll("svg").forEach((svg) => {
+    if (!svg.getAttribute("role") && !svg.getAttribute("aria-label")) svg.setAttribute("aria-hidden", "true");
+  });
 }
 
 export default function UXFixLayer() {
@@ -198,6 +229,7 @@ export default function UXFixLayer() {
       interceptContactClicks();
       addHomeIdeaGeneratorCTA();
       enhanceFooter();
+      stabilizeDecorativeMedia();
     };
 
     run();
