@@ -27,13 +27,68 @@ body {
   contain: size layout paint style !important;
 }
 
-body > :not(#bgCanvas):not(script):not(style) {
+/* Keep normal site content above the canvas, but do NOT pull fixed overlays into page flow. */
+body > :not(#bgCanvas):not(script):not(style):not(.modal-wrap):not(.contact-popup):not(.ai-launcher):not(.ai-panel):not(.toast) {
   position: relative;
   z-index: 1;
 }
 
 header {
   z-index: 100 !important;
+}
+
+/* All interaction overlays must stay on top of the viewport, not at the end of the document. */
+.modal-wrap,
+.contact-popup {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9996 !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.modal-wrap.show,
+.contact-popup.show {
+  display: flex !important;
+}
+
+.modal-wrap:not(.show),
+.contact-popup:not(.show) {
+  display: none !important;
+}
+
+.modal,
+.contact-popup-card {
+  position: relative !important;
+  z-index: 9997 !important;
+}
+
+.ai-launcher {
+  position: fixed !important;
+  right: max(18px, env(safe-area-inset-right)) !important;
+  bottom: max(18px, env(safe-area-inset-bottom)) !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 9998 !important;
+  margin: 0 !important;
+}
+
+.ai-panel {
+  position: fixed !important;
+  right: max(18px, env(safe-area-inset-right)) !important;
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 92px) !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 9999 !important;
+  margin: 0 !important;
+}
+
+.toast {
+  position: fixed !important;
+  z-index: 10000 !important;
 }
 
 footer {
@@ -46,5 +101,24 @@ footer {
 @media (max-width: 760px) {
   #bgCanvas {
     opacity: .38 !important;
+  }
+
+  .modal-wrap,
+  .contact-popup {
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 10px !important;
+  }
+
+  .ai-launcher {
+    right: 16px !important;
+    bottom: calc(env(safe-area-inset-bottom) + 16px) !important;
+  }
+
+  .ai-panel {
+    right: 10px !important;
+    left: 10px !important;
+    bottom: calc(env(safe-area-inset-bottom) + 88px) !important;
+    width: auto !important;
   }
 }
