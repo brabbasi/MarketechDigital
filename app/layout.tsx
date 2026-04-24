@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import FutureLayer from "./FutureLayer";
+import AIAssistant from "./AIAssistant";
 import "./globals.css";
 
 const siteName = "Marketech Digital";
@@ -113,6 +114,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         {children}
         <FutureLayer />
+        <AIAssistant />
       </body>
     </html>
   );
