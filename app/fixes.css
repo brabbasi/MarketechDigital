@@ -1,6 +1,5 @@
 /* Targeted fixes after globals/premium/polish. This file loads last from layout.tsx. */
 
-/* Fix the injected FutureLayer section that was rendering as plain text. */
 .future-deck {
   position: relative;
   width: min(1180px, calc(100% - 24px));
@@ -27,7 +26,9 @@
   mask-image: radial-gradient(circle at center, black, transparent 82%);
 }
 .future-deck > * { position: relative; z-index: 1; }
-.future-eyebrow {
+.future-eyebrow,
+.starter-label,
+.contact-popup-label {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -37,14 +38,20 @@
   letter-spacing: .24em;
   text-transform: uppercase;
 }
-.future-eyebrow span {
+.future-eyebrow span,
+.starter-label span,
+.contact-popup-label span {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: #ff6a00;
   box-shadow: 0 0 18px rgba(255,106,0,.65);
 }
-.future-grid { display: grid; gap: 24px; }
+.future-grid { display: grid; gap: 24px; min-width: 0; }
+.future-copy,
+.future-console,
+.starter-copy,
+.starter-cards { min-width: 0; }
 .future-copy h2 {
   margin: 0;
   max-width: 760px;
@@ -52,6 +59,7 @@
   font-size: clamp(2rem, 7vw, 4.2rem);
   line-height: .98;
   letter-spacing: -.065em;
+  text-wrap: balance;
 }
 .future-copy p {
   margin: 16px 0 0;
@@ -78,6 +86,7 @@
   font-size: 11px;
   letter-spacing: .12em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 .future-console {
   padding: 16px;
@@ -128,6 +137,7 @@
   border: 1px solid rgba(255,255,255,.08);
   border-radius: 18px;
   background: rgba(255,255,255,.035);
+  min-width: 0;
 }
 .future-metrics strong {
   display: block;
@@ -145,10 +155,174 @@
   line-height: 1.35;
 }
 
-/* Better page-to-page CTA presence. */
-.nav-links a[href="/services"] {
-  color: rgba(255,223,202,.86);
+.nav-links a[href="/services"] { color: rgba(255,223,202,.86); }
+
+/* Keep text inside boxes and improve injected starter section. */
+.starter-systems {
+  position: relative;
+  width: min(1180px, calc(100% - 24px));
+  margin: 28px auto 58px;
+  padding: clamp(22px, 4vw, 38px);
+  border-radius: 34px;
+  border: 1px solid rgba(255,255,255,.1);
+  background:
+    radial-gradient(circle at 84% 18%, rgba(89,175,255,.14), transparent 34%),
+    radial-gradient(circle at 16% 84%, rgba(255,106,0,.12), transparent 32%),
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.022));
+  overflow: hidden;
 }
+.starter-grid { display: grid; gap: 22px; align-items: center; }
+.starter-copy h2 {
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 4.6rem);
+  line-height: .95;
+  letter-spacing: -.07em;
+  text-wrap: balance;
+}
+.starter-copy p {
+  max-width: 680px;
+  color: rgba(246,248,252,.68);
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+.starter-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.starter-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.035);
+  color: rgba(255,255,255,.84);
+  font-size: 12px;
+}
+.starter-actions a:first-child { border-color: rgba(255,106,0,.35); background: rgba(255,106,0,.12); }
+.starter-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.starter-mini {
+  min-width: 0;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(3,11,20,.58);
+}
+.starter-mini strong,
+.starter-mini span { overflow-wrap: anywhere; hyphens: auto; }
+.starter-mini strong { display: block; color: #fff; font-size: clamp(1rem, 4vw, 1.4rem); line-height: 1.08; }
+.starter-mini span { display: block; margin-top: 8px; color: rgba(246,248,252,.66); line-height: 1.45; font-size: clamp(.9rem, 3.2vw, 1.05rem); }
+
+/* Founder image: remove awkward circle crop on homepage card. */
+.portrait-card { min-height: clamp(460px, 85vw, 620px); }
+.portrait-card img {
+  object-fit: cover !important;
+  object-position: center top !important;
+  transform: none !important;
+  border-radius: 0 !important;
+}
+.portrait-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 48%, rgba(3,8,14,.72) 88%, rgba(3,8,14,.9));
+}
+.portrait-overlay { z-index: 2; }
+
+/* FAQ carousel. */
+.faq-carousel {
+  display: flex !important;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 2px 16px;
+  scrollbar-width: none;
+}
+.faq-carousel::-webkit-scrollbar { display: none; }
+.faq-carousel .faq-card {
+  flex: 0 0 min(86vw, 430px);
+  min-height: 250px;
+  scroll-snap-align: start;
+}
+.faq-card h3 { text-wrap: balance; }
+.faq-card p { max-width: 62ch; overflow-wrap: anywhere; }
+
+/* Contact popup used by all CTA/contact clicks. */
+.contact-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  background: rgba(0,0,0,.64);
+  backdrop-filter: blur(12px);
+}
+.contact-popup.show { display: flex; }
+.contact-popup-card {
+  position: relative;
+  width: min(760px, 100%);
+  max-height: min(860px, calc(100vh - 28px));
+  overflow: auto;
+  padding: clamp(22px, 5vw, 36px);
+  border-radius: 32px;
+  border: 1px solid rgba(255,255,255,.13);
+  background:
+    radial-gradient(circle at 16% 8%, rgba(255,106,0,.16), transparent 32%),
+    radial-gradient(circle at 88% 18%, rgba(89,175,255,.13), transparent 30%),
+    linear-gradient(180deg, rgba(8,14,24,.98), rgba(3,7,13,.98));
+  box-shadow: 0 34px 130px rgba(0,0,0,.62);
+}
+.contact-popup-close {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.13);
+  background: rgba(255,255,255,.045);
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+}
+.contact-popup-card h2 {
+  margin: 0;
+  max-width: 640px;
+  font-size: clamp(2rem, 8vw, 4rem);
+  line-height: .96;
+  letter-spacing: -.07em;
+  text-wrap: balance;
+}
+.contact-popup-card p { max-width: 620px; color: rgba(246,248,252,.68); line-height: 1.7; }
+.contact-popup-form { display: grid; gap: 12px; margin-top: 18px; }
+.contact-popup-form input,
+.contact-popup-form textarea,
+.contact-popup-form select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 18px;
+  background: rgba(255,255,255,.04);
+  color: #fff;
+  padding: 14px 15px;
+  outline: none;
+}
+.contact-popup-form select option { color: #111; }
+.contact-popup-form textarea { min-height: 120px; resize: vertical; grid-column: 1 / -1; }
+.contact-popup-form button {
+  min-height: 54px;
+  border: 1px solid rgba(255,106,0,.45);
+  border-radius: 999px;
+  background: rgba(255,106,0,.16);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 0 44px rgba(255,106,0,.16);
+}
+.contact-popup-status { min-height: 24px; margin-top: 12px; color: rgba(120,242,164,.92); }
+.contact-popup-mail { color: rgba(255,223,202,.86); font-size: 13px; }
 
 /* Services idea generator replacement section. */
 .idea-lab {
@@ -163,70 +337,64 @@
     linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.022));
   box-shadow: 0 28px 100px rgba(0,0,0,.34);
 }
-.idea-lab h2 {
-  margin: 0;
-  font-size: clamp(2rem, 6vw, 4rem);
-  line-height: .98;
-  letter-spacing: -.06em;
-}
-.idea-lab p {
-  max-width: 760px;
-  color: rgba(246,248,252,.7);
-  line-height: 1.75;
-}
-.idea-form {
-  display: grid;
-  gap: 12px;
-  margin-top: 18px;
-}
-.idea-form input,
-.idea-form textarea,
-.idea-form select {
-  width: 100%;
-  border: 1px solid rgba(255,255,255,.11);
-  border-radius: 18px;
-  background: rgba(0,0,0,.2);
-  color: #fff;
-  padding: 14px 15px;
-  outline: none;
+.idea-lab h2 { margin: 0; font-size: clamp(2rem, 6vw, 4rem); line-height: .98; letter-spacing: -.06em; }
+.idea-lab p { max-width: 760px; color: rgba(246,248,252,.7); line-height: 1.75; }
+.idea-form { display: grid; gap: 12px; margin-top: 18px; }
+.idea-form input,.idea-form textarea,.idea-form select {
+  width: 100%; border: 1px solid rgba(255,255,255,.11); border-radius: 18px; background: rgba(0,0,0,.2); color: #fff; padding: 14px 15px; outline: none;
 }
 .idea-form textarea { min-height: 110px; resize: vertical; }
-.idea-form button {
-  min-height: 52px;
-  border: 1px solid rgba(255,106,0,.45);
-  border-radius: 999px;
-  background: rgba(255,106,0,.14);
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 0 44px rgba(255,106,0,.13);
-}
-.idea-result {
-  margin-top: 18px;
-  padding: 18px;
-  border: 1px solid rgba(89,175,255,.18);
-  border-radius: 24px;
-  background: rgba(3,11,20,.72);
-}
+.idea-form button { min-height: 52px; border: 1px solid rgba(255,106,0,.45); border-radius: 999px; background: rgba(255,106,0,.14); color: #fff; cursor: pointer; box-shadow: 0 0 44px rgba(255,106,0,.13); }
+.idea-result { margin-top: 18px; padding: 18px; border: 1px solid rgba(89,175,255,.18); border-radius: 24px; background: rgba(3,11,20,.72); }
 .idea-result strong { display: block; color: #fff; margin-bottom: 6px; }
 .idea-result ul { margin: 10px 0 0; padding-left: 18px; color: rgba(246,248,252,.74); line-height: 1.7; }
 .idea-result p { margin: 0; }
 
-/* FAQ alignment refresh. */
-.faq-card h3 { text-wrap: balance; }
-.faq-card p { max-width: 62ch; }
+/* Enhanced footer. */
+.footer-wrap[data-enhanced-footer="true"] { gap: 24px; }
+.footer-brand-block { display: flex; gap: 14px; align-items: center; }
+.footer-mark { width: 58px; height: 58px; border-radius: 18px; padding: 8px; background: rgba(255,255,255,.92); flex: 0 0 auto; }
+.footer-mark img { width: 100%; height: 100%; object-fit: contain; }
+.footer-brand-block strong { display: block; color: #fff; letter-spacing: .14em; text-transform: uppercase; }
+.footer-brand-block p { margin: 6px 0 0; color: rgba(246,248,252,.56); max-width: 520px; line-height: 1.6; }
+.footer-columns { display: grid; gap: 18px; }
+.footer-columns div { display: grid; gap: 8px; }
+.footer-columns span { color: rgba(255,223,202,.82); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+.footer-columns a,
+.footer-columns button { color: rgba(246,248,252,.64); background: transparent; border: 0; padding: 0; text-align: left; cursor: pointer; }
+.footer-columns a:hover,
+.footer-columns button:hover { color: #fff; }
+.footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.08); font-size: 13px; color: rgba(246,248,252,.48); }
 
 @media (min-width: 900px) {
   .future-grid { grid-template-columns: .9fr 1.1fr; align-items: center; }
   .future-deck { margin-top: -20px; }
+  .starter-grid { grid-template-columns: 1.05fr .95fr; }
+  .contact-popup-form { grid-template-columns: 1fr 1fr; }
   .idea-form { grid-template-columns: 1fr 1fr; align-items: start; }
   .idea-form textarea { grid-column: 1 / -1; }
   .idea-form button { width: fit-content; padding: 0 22px; }
+  .footer-columns { grid-template-columns: repeat(3, 1fr); }
+  .faq-carousel .faq-card { flex-basis: min(42vw, 460px); }
 }
 
 @media (max-width: 640px) {
   .future-deck { border-radius: 26px; padding: 18px; }
-  .future-metrics { grid-template-columns: 1fr; }
+  .future-copy h2 { font-size: clamp(2.1rem, 11vw, 3.35rem); }
+  .future-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .future-metrics div { padding: 10px; }
+  .future-metrics strong { font-size: 1.05rem; }
+  .future-metrics span { font-size: 8.5px; letter-spacing: .08em; }
   .console-orbit { min-height: 190px; }
-  .future-tags span { font-size: 10px; min-height: 34px; }
+  .future-tags span { font-size: 9px; min-height: 32px; padding: 0 10px; }
+  .starter-systems { border-radius: 28px; padding: 18px; }
+  .starter-grid { gap: 18px; }
+  .starter-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .starter-mini { padding: 12px; border-radius: 16px; }
+  .portrait-card { min-height: 560px; }
+  .portrait-card img { object-position: center top !important; }
+  .portrait-overlay { align-items: flex-start; flex-direction: column; }
+  .contact-popup { align-items: end; padding: 8px; }
+  .contact-popup-card { border-radius: 28px 28px 0 0; max-height: calc(100vh - 16px); }
   .idea-lab { border-radius: 28px; }
 }
