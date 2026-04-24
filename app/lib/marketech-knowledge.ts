@@ -45,8 +45,8 @@ export const founderProfile = {
   focus: "AI systems, workflow automation, data intelligence, bot creation, decision intelligence, and clarity-driven digital execution"
 };
 
-function hasAny(text: string, words: RegExp) {
-  return words.test(text.toLowerCase());
+function isUrgentBrokenSystem(message: string) {
+  return /(system|site|website|app|automation|bot|dashboard|crm|form|backend|workflow).*(down|broken|not working|stopped|crashed|failed|error|bug|offline|issue)|(?:down|broken|not working|stopped|crashed|failed|error|bug|offline).*(system|site|website|app|automation|bot|dashboard|crm|form|backend|workflow)/.test(message.toLowerCase());
 }
 
 export function estimateService(message: string) {
@@ -98,10 +98,27 @@ function industrySuggestion(message: string) {
   return null;
 }
 
+function brokenSystemReply() {
+  return `I can help, but I should not guess the fix without knowing what failed.
+
+First, identify the failure layer:
+- Website/app not loading
+- Form or booking flow not sending
+- AI bot not responding
+- Automation/CRM handoff failing
+- Dashboard or data feed not updating
+
+Fastest next step: tell me what system is down, what changed recently, the exact error if any, and what tool/platform it runs on. If this is a business-critical issue, Marketech would treat it as a systems audit or recovery workflow first, then quote the fix once the cause is clear.`;
+}
+
 export function localAssistantReply(message: string) {
   const q = message.toLowerCase();
   const service = estimateService(message);
   const industry = industrySuggestion(message);
+
+  if (isUrgentBrokenSystem(message)) {
+    return brokenSystemReply();
+  }
 
   if (/(price|pricing|quote|cost|budget|estimate|range)/.test(q)) {
     if (service) {
@@ -155,12 +172,15 @@ Industry examples:
 - Real estate businesses: buyer/seller qualification, listing inquiries, showing requests, CRM handoff, and follow-up reminders.
 - Clinics/salons/appointment businesses: service questions, appointment requests, reminders, intake forms, and front-desk workload reduction.
 
+Troubleshooting rule:
+If a visitor says something is down, broken, not working, crashed, failed, or has an error, do not jump straight to pricing. First triage the issue: ask what system failed, what changed recently, what platform/tool is involved, and what error they see. Position it as a systems audit/recovery workflow if they need Marketech to fix it.
+
 Rules:
 - Be helpful, confident, premium, and practical.
 - Never sound desperate, pushy, cheap, or condescending.
 - Give guidance ranges, not guaranteed final quotes.
 - Explain that final pricing depends on integrations, backend needs, data quality, workflow complexity, timeline, number of pages/workflows, and custom AI logic.
-- If the user describes a problem, recommend the best-fit service and a likely range.
+- If the user describes a problem, recommend the best-fit service and a likely range only after the problem is specific enough.
 - If they mention both bot and automation, recommend the combined AI Agent + Workflow Automation Starter.
 - Give concrete examples tailored to their industry when possible.
 - Ask at most 2 useful qualifying questions when needed.
