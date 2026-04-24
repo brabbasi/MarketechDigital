@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import FutureLayer from "./FutureLayer";
+import UXFixLayer from "./UXFixLayer";
 import AIAssistant from "./AIAssistant";
 import "./globals.css";
 
@@ -114,6 +115,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         {children}
         <FutureLayer />
+        <UXFixLayer />
         <AIAssistant />
       </body>
     </html>
