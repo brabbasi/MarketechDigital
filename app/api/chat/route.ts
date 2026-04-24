@@ -22,11 +22,15 @@ export async function POST(request: Request) {
     const lastUser = [...messages].reverse().find((message) => message.role === "user")?.content || "";
 
     if (!lastUser.trim()) {
-      return NextResponse.json({ reply: "Tell me what you want to build, automate, or clarify, and I’ll suggest the best Marketech path." });
+      return NextResponse.json({
+        reply: "Tell me what you want to build, automate, or clarify, and I’ll suggest the best Marketech path.",
+        mode: "fallback",
+        reason: "empty_message"
+      });
     }
 
     if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback" });
+      return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback", reason: "missing_openai_api_key" });
     }
 
     const response = await fetch(OPENAI_API_URL, {
@@ -38,7 +42,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model: process.env.OPENAI_MODEL || "gpt-4o-mini",
         temperature: 0.45,
-        max_tokens: 650,
+        max_tokens: 750,
         messages: [
           { role: "system", content: buildSystemPrompt() },
           ...messages
@@ -47,8 +51,13 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      console.error("OpenAI chat error", await response.text());
-      return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback" });
+      const errorText = await response.text();
+      console.error("OpenAI chat error", errorText);
+      return NextResponse.json({
+        reply: localAssistantReply(lastUser),
+        mode: "fallback",
+        reason: `openai_error_${response.status}`
+      });
     }
 
     const data = await response.json();
@@ -56,12 +65,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       reply: typeof reply === "string" && reply.trim() ? reply.trim() : localAssistantReply(lastUser),
-      mode: "ai"
+      mode: typeof reply === "string" && reply.trim() ? "ai" : "fallback",
+      reason: typeof reply === "string" && reply.trim() ? "openai_connected" : "empty_openai_reply"
     });
   } catch (error) {
     console.error("Chat route error", error);
     return NextResponse.json(
-      { reply: "I had trouble processing that. Tell me your business type, project goal, and what feels repetitive or unclear, and I’ll suggest a starting point.", mode: "error" },
+      { reply: "I had trouble processing that. Tell me your business type, project goal, and what feels repetitive or unclear, and I’ll suggest a starting point.", mode: "error", reason: "route_exception" },
       { status: 200 }
     );
   }
