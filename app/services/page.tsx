@@ -3,6 +3,7 @@ import Script from "next/script";
 import Link from "next/link";
 import IdeaGenerator from "../IdeaGenerator";
 import { absoluteUrl, breadcrumbJsonLd, faqJsonLd, jsonLdGraph, serviceJsonLd, siteName } from "../seo";
+import { servicePages } from "./service-pages";
 
 const services = [
   {
@@ -81,6 +82,7 @@ const structuredData = jsonLdGraph([
     { name: "Services", path: "/services" }
   ]),
   ...services.map((service) => serviceJsonLd(service.name, service.description, "/services")),
+  ...servicePages.map((service) => serviceJsonLd(service.name, service.metaDescription, `/services/${service.slug}`)),
   faqJsonLd("/services#faq", serviceFaq)
 ]);
 
@@ -102,7 +104,25 @@ export default function ServicesPage() {
           your business goal, the workflows involved, and how much support the system needs behind the scenes.
         </p>
       </section>
-      <section className="services-grid" aria-label="Marketech Digital service options">
+
+      <section className="services-grid" aria-label="Core Marketech Digital services">
+        {servicePages.map((service) => (
+          <article className="service-card" key={service.slug}>
+            <div className="service-top">
+              <span>{service.label}</span>
+              <b>{service.name}</b>
+            </div>
+            <h2>{service.name}</h2>
+            <p>{service.intro}</p>
+            <div className="service-includes" aria-label={`${service.name} service focus`}>
+              {service.builds.slice(0, 4).map((item) => <span key={item}>{item}</span>)}
+            </div>
+            <Link href={`/services/${service.slug}`} aria-label={`View ${service.name} services`}>View service details →</Link>
+          </article>
+        ))}
+      </section>
+
+      <section className="services-grid" aria-label="Marketech Digital starter systems">
         {services.map((service) => (
           <article className="service-card" key={service.name}>
             <div className="service-top">
