@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 
 const navItems = [
@@ -14,7 +15,7 @@ const navItems = [
   { href: "/#contact", label: "Contact", detail: "Start a conversation" }
 ];
 
-type CubeAnchor = CSSProperties & {
+type CubeStyle = CSSProperties & {
   "--cube-size"?: string;
   "--cube-depth"?: string;
   "--cube-depth-neg"?: string;
@@ -36,88 +37,43 @@ function CubeMenuFace() {
   );
 }
 
-function findHeaderLogo() {
+function findLogoHost() {
   const logos = Array.from(document.querySelectorAll<HTMLImageElement>('img[src*="logo"]'))
-    .filter((img) => !img.closest(".global-cube-nav") && !img.closest(".ai-launcher") && !img.closest(".ai-panel"));
+    .filter((img) => !img.closest(".global-cube-nav") && !img.closest(".ai-launcher") && !img.closest(".ai-panel") && !img.closest("footer"));
 
   const visible = logos
     .map((img) => ({ img, rect: img.getBoundingClientRect() }))
     .filter(({ img, rect }) => {
       const style = window.getComputedStyle(img);
-      return rect.width >= 30 && rect.height >= 30 && rect.top >= 0 && rect.top < Math.min(window.innerHeight * 0.46, 280) && style.display !== "none";
+      return rect.width >= 28 && rect.height >= 28 && rect.top >= 0 && rect.top < Math.min(window.innerHeight * 0.55, 340) && style.display !== "none";
     });
 
   visible.sort((a, b) => a.rect.top - b.rect.top || a.rect.left - b.rect.left);
-  return visible[0] || null;
+  const found = visible[0];
+  if (!found) return null;
+
+  const parent = found.img.parentElement;
+  if (!parent) return null;
+
+  const parentRect = parent.getBoundingClientRect();
+  const host = parentRect.width <= 110 && parentRect.height <= 110 ? parent : found.img;
+  const rect = host.getBoundingClientRect();
+  return { host: host as HTMLElement, rect };
 }
 
-function makeAnchor(rect: DOMRect): CubeAnchor {
-  const size = Math.min(Math.max(Math.max(rect.width, rect.height), 50), 70);
-  const depth = size / 2;
+function cubeVars(size: number): CubeStyle {
+  const safeSize = Math.min(Math.max(size, 46), 72);
+  const depth = Math.round(safeSize * 0.41);
   return {
-    position: "fixed",
-    top: Math.round(rect.top + rect.height / 2 - size / 2),
-    left: Math.round(rect.left + rect.width / 2 - size / 2),
-    width: size,
-    height: size,
-    "--cube-size": `${size}px`,
+    "--cube-size": `${safeSize}px`,
     "--cube-depth": `${depth}px`,
     "--cube-depth-neg": `-${depth}px`
   };
 }
 
-export default function GlobalLogoCube() {
-  const [open, setOpen] = useState(false);
-  const [anchor, setAnchor] = useState<CubeAnchor | null>(null);
-  const navRef = useRef<HTMLDivElement | null>(null);
-  const pathname = usePathname();
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    const anchorToHeaderLogo = () => {
-      const found = findHeaderLogo();
-      if (!found) {
-        setAnchor(null);
-        return;
-      }
-      setAnchor(makeAnchor(found.rect));
-    };
-
-    anchorToHeaderLogo();
-    const timers = [120, 420, 900, 1600].map((delay) => window.setTimeout(anchorToHeaderLogo, delay));
-    window.addEventListener("resize", anchorToHeaderLogo);
-    window.addEventListener("orientationchange", anchorToHeaderLogo);
-    window.addEventListener("pageshow", anchorToHeaderLogo);
-
-    return () => {
-      timers.forEach(window.clearTimeout);
-      window.removeEventListener("resize", anchorToHeaderLogo);
-      window.removeEventListener("orientationchange", anchorToHeaderLogo);
-      window.removeEventListener("pageshow", anchorToHeaderLogo);
-    };
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (event: PointerEvent) => {
-      if (!navRef.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
-
+function CubeMarkup({ open, setOpen, navRef, embedded, style }: { open: boolean; setOpen: (value: boolean | ((current: boolean) => boolean)) => void; navRef: React.RefObject<HTMLDivElement | null>; embedded: boolean; style?: CubeStyle }) {
   return (
-    <div ref={navRef} style={anchor || undefined} className={`global-cube-nav${open ? " is-open" : ""}${anchor ? " is-anchored" : ""}`}>
+    <div ref={navRef} style={style} className={`global-cube-nav${open ? " is-open" : ""}${embedded ? " is-embedded" : " is-floating"}`}>
       <button
         type="button"
         className="global-cube-trigger"
@@ -152,4 +108,93 @@ export default function GlobalLogoCube() {
       </div>
     </div>
   );
+}
+
+export default function GlobalLogoCube() {
+  const [open, setOpen] = useState(false);
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  const [hostSize, setHostSize] = useState(58);
+  const navRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    let activeHost: HTMLElement | null = null;
+
+    const cleanHost = () => {
+      if (activeHost) {
+        activeHost.classList.remove("logo-dice-host");
+        activeHost.style.position = activeHost.getAttribute("data-original-position") || "";
+        activeHost.removeAttribute("data-original-position");
+        activeHost = null;
+      }
+    };
+
+    const attachToLogo = () => {
+      const found = findLogoHost();
+      if (!found) {
+        cleanHost();
+        setHost(null);
+        return;
+      }
+
+      if (activeHost !== found.host) {
+        cleanHost();
+        const existingPosition = found.host.style.position;
+        found.host.setAttribute("data-original-position", existingPosition);
+        if (window.getComputedStyle(found.host).position === "static") found.host.style.position = "relative";
+        found.host.classList.add("logo-dice-host");
+        activeHost = found.host;
+      }
+
+      setHost(found.host);
+      setHostSize(Math.max(found.rect.width, found.rect.height));
+    };
+
+    attachToLogo();
+    const timers = [120, 420, 900, 1600].map((delay) => window.setTimeout(attachToLogo, delay));
+    window.addEventListener("resize", attachToLogo);
+    window.addEventListener("orientationchange", attachToLogo);
+    window.addEventListener("pageshow", attachToLogo);
+
+    return () => {
+      timers.forEach(window.clearTimeout);
+      window.removeEventListener("resize", attachToLogo);
+      window.removeEventListener("orientationchange", attachToLogo);
+      window.removeEventListener("pageshow", attachToLogo);
+      cleanHost();
+    };
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!navRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  const cube = (
+    <CubeMarkup
+      open={open}
+      setOpen={setOpen}
+      navRef={navRef}
+      embedded={Boolean(host)}
+      style={host ? cubeVars(hostSize) : { ...cubeVars(58) }}
+    />
+  );
+
+  if (host) return createPortal(cube, host) as ReactNode;
+  return cube;
 }
