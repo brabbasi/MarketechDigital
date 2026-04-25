@@ -22,129 +22,30 @@
       radial-gradient(circle at 50% 48%, rgba(89,175,255,.1), rgba(4,7,13,.94) 62%, rgba(4,7,13,0) 74%) !important;
   }
 
-  .portrait-card::after {
-    content: "" !important;
-    position: absolute !important;
-    left: 50% !important;
-    bottom: 18.5% !important;
-    width: min(55%, 240px) !important;
-    height: 36px !important;
-    transform: translateX(-50%) !important;
-    z-index: 9 !important;
-    pointer-events: none !important;
-    border-radius: 999px !important;
-    background:
-      radial-gradient(circle at 12% 50%, rgba(255,106,0,1) 0 4px, transparent 6px),
-      radial-gradient(circle at 50% 50%, rgba(89,175,255,1) 0 4px, transparent 6px),
-      radial-gradient(circle at 88% 50%, rgba(255,106,0,1) 0 4px, transparent 6px),
-      linear-gradient(90deg, transparent 0%, rgba(255,106,0,.95) 20%, rgba(89,175,255,.95) 50%, rgba(255,106,0,.95) 80%, transparent 100%);
-    background-size: 100% 100%, 100% 100%, 100% 100%, 185% 2px !important;
-    background-repeat: no-repeat !important;
-    background-position: center, center, center, 0 50% !important;
-    filter: drop-shadow(0 0 16px rgba(255,106,0,.48)) drop-shadow(0 0 18px rgba(89,175,255,.32)) !important;
-    opacity: .94 !important;
-    animation: founderVisibleSignal 4s ease-in-out infinite !important;
-    mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent) !important;
-  }
-
-  .portrait-card::before {
-    content: "" !important;
-    position: absolute !important;
-    left: 50% !important;
-    bottom: 12% !important;
-    width: min(58%, 250px) !important;
-    height: 30px !important;
-    transform: translateX(-50%) perspective(260px) rotateX(62deg) !important;
-    z-index: 8 !important;
-    pointer-events: none !important;
-    border-radius: 999px !important;
-    background:
-      linear-gradient(90deg, transparent, rgba(255,106,0,.32), rgba(89,175,255,.3), transparent),
-      repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 1px, transparent 1px 16px);
-    opacity: .55 !important;
-    filter: blur(.1px) !important;
-    animation: founderVisiblePlatform 3.4s ease-in-out infinite !important;
-    mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent) !important;
+  .portrait-card::before,
+  .portrait-card::after,
+  .portrait-orbits::before,
+  .portrait-orbits::after {
+    display: none !important;
+    content: none !important;
   }
 
   .portrait-card img {
     position: relative !important;
     z-index: 4 !important;
-    width: 78% !important;
-    height: 78% !important;
+    width: 84% !important;
+    height: 84% !important;
     border-radius: 50% !important;
     object-fit: cover !important;
-    object-position: center center !important;
+    object-position: center 52% !important;
     background: rgba(4,7,13,.88) !important;
+    transform: translateY(1.5%) !important;
   }
 
   .portrait-orbits {
     inset: -12% !important;
     border-radius: 50% !important;
     opacity: .62 !important;
-  }
-
-  .portrait-orbits::after {
-    content: "" !important;
-    position: absolute !important;
-    left: 22% !important;
-    right: 22% !important;
-    bottom: 17% !important;
-    height: 54px !important;
-    border-radius: 999px !important;
-    pointer-events: none !important;
-    z-index: 3 !important;
-    background:
-      radial-gradient(circle at 18% 58%, rgba(255,106,0,.95) 0 4px, transparent 6px),
-      radial-gradient(circle at 50% 42%, rgba(89,175,255,.95) 0 4px, transparent 6px),
-      radial-gradient(circle at 82% 58%, rgba(255,106,0,.95) 0 4px, transparent 6px),
-      linear-gradient(90deg, transparent 0 8%, rgba(255,106,0,.72) 18%, rgba(89,175,255,.82) 50%, rgba(255,106,0,.72) 82%, transparent 92%);
-    background-size: 100% 100%, 100% 100%, 100% 100%, 170% 2px;
-    background-repeat: no-repeat !important;
-    background-position: center, center, center, 0 58% !important;
-    filter: drop-shadow(0 0 16px rgba(255,106,0,.28)) drop-shadow(0 0 20px rgba(89,175,255,.18)) !important;
-    opacity: .76 !important;
-    animation: founderSignalSweep 4.8s ease-in-out infinite !important;
-    mask-image: linear-gradient(90deg, transparent, black 18%, black 82%, transparent) !important;
-  }
-
-  .portrait-orbits::before {
-    content: "" !important;
-    position: absolute !important;
-    left: 24% !important;
-    right: 24% !important;
-    bottom: 10.5% !important;
-    height: 34px !important;
-    border-radius: 999px !important;
-    pointer-events: none !important;
-    z-index: 2 !important;
-    background:
-      linear-gradient(90deg, transparent, rgba(255,106,0,.24), rgba(89,175,255,.22), transparent),
-      repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 1px, transparent 1px 18px);
-    opacity: .42 !important;
-    transform: perspective(260px) rotateX(62deg) !important;
-    animation: founderSignalPulse 3.6s ease-in-out infinite !important;
-    mask-image: linear-gradient(90deg, transparent, black 14%, black 86%, transparent) !important;
-  }
-
-  @keyframes founderVisibleSignal {
-    0%, 100% { background-position: center, center, center, 0 50%; opacity: .74; transform: translateX(-50%) translateY(0) scaleX(.92); }
-    50% { background-position: center, center, center, 100% 50%; opacity: 1; transform: translateX(-50%) translateY(-2px) scaleX(1); }
-  }
-
-  @keyframes founderVisiblePlatform {
-    0%, 100% { opacity: .32; transform: translateX(-50%) perspective(260px) rotateX(62deg) translateY(0) scaleX(.92); }
-    50% { opacity: .64; transform: translateX(-50%) perspective(260px) rotateX(62deg) translateY(-2px) scaleX(1); }
-  }
-
-  @keyframes founderSignalSweep {
-    0%, 100% { background-position: center, center, center, 0 58%; opacity: .58; transform: translateY(0) scaleX(.96); }
-    50% { background-position: center, center, center, 100% 58%; opacity: .9; transform: translateY(-2px) scaleX(1); }
-  }
-
-  @keyframes founderSignalPulse {
-    0%, 100% { opacity: .26; transform: perspective(260px) rotateX(62deg) translateY(0) scaleX(.92); }
-    50% { opacity: .5; transform: perspective(260px) rotateX(62deg) translateY(-2px) scaleX(1); }
   }
 
   .portrait-overlay {
@@ -160,8 +61,67 @@
     gap: 12px !important;
     padding: 9px 9px 9px 17px !important;
     border-radius: 999px !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     z-index: 12 !important;
+  }
+
+  .portrait-overlay::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: -48px !important;
+    width: min(72%, 250px) !important;
+    height: 42px !important;
+    transform: translateX(-50%) !important;
+    pointer-events: none !important;
+    border-radius: 999px !important;
+    z-index: 0 !important;
+    background:
+      radial-gradient(circle at 14% 52%, rgba(255,106,0,1) 0 4px, transparent 6px),
+      radial-gradient(circle at 50% 46%, rgba(89,175,255,1) 0 4px, transparent 6px),
+      radial-gradient(circle at 86% 52%, rgba(255,106,0,1) 0 4px, transparent 6px),
+      linear-gradient(90deg, transparent 0%, rgba(255,106,0,.9) 18%, rgba(255,255,255,.28) 38%, rgba(89,175,255,.92) 50%, rgba(255,255,255,.24) 62%, rgba(255,106,0,.9) 82%, transparent 100%);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 190% 2px !important;
+    background-repeat: no-repeat !important;
+    background-position: center, center, center, 0 52% !important;
+    filter: drop-shadow(0 0 18px rgba(255,106,0,.42)) drop-shadow(0 0 20px rgba(89,175,255,.28)) !important;
+    opacity: .92 !important;
+    animation: founderDockSignal 4.2s ease-in-out infinite !important;
+    mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent) !important;
+  }
+
+  .portrait-overlay::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: -28px !important;
+    width: min(76%, 270px) !important;
+    height: 28px !important;
+    transform: translateX(-50%) perspective(260px) rotateX(62deg) !important;
+    pointer-events: none !important;
+    border-radius: 999px !important;
+    z-index: 0 !important;
+    background:
+      linear-gradient(90deg, transparent, rgba(255,106,0,.24), rgba(89,175,255,.22), transparent),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.13) 0 1px, transparent 1px 16px);
+    opacity: .5 !important;
+    animation: founderDockPlate 3.7s ease-in-out infinite !important;
+    mask-image: linear-gradient(90deg, transparent, black 14%, black 86%, transparent) !important;
+  }
+
+  .portrait-overlay > * {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  @keyframes founderDockSignal {
+    0%, 100% { background-position: center, center, center, 0 52%; opacity: .68; transform: translateX(-50%) translateY(0) scaleX(.92); }
+    50% { background-position: center, center, center, 100% 52%; opacity: 1; transform: translateX(-50%) translateY(-2px) scaleX(1); }
+  }
+
+  @keyframes founderDockPlate {
+    0%, 100% { opacity: .28; transform: translateX(-50%) perspective(260px) rotateX(62deg) translateY(0) scaleX(.92); }
+    50% { opacity: .56; transform: translateX(-50%) perspective(260px) rotateX(62deg) translateY(-2px) scaleX(1); }
   }
 
   .portrait-overlay > *:first-child {
