@@ -30,6 +30,8 @@ import "./founder-image-replace.css";
 import "./popup-close-fix.css";
 
 const siteTitle = "Marketech Digital | AI, Web Development & Digital Growth Systems";
+const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -52,6 +54,7 @@ export const metadata: Metadata = {
   creator: siteName,
   publisher: siteName,
   category: "Digital Agency",
+  classification: "Digital agency, AI systems, web development, automation, SEO, branding, marketing technology",
   alternates: {
     canonical: "/"
   },
@@ -66,10 +69,14 @@ export const metadata: Metadata = {
       "max-video-preview": -1
     }
   },
+  verification: {
+    ...(googleVerification ? { google: googleVerification } : {}),
+    ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {})
+  },
   openGraph: {
     title: siteTitle,
     description:
-      "Premium websites, AI automation systems, custom software, SEO, branding, landing pages, and digital growth infrastructure for businesses in Ottawa and across Canada.",
+      "Websites, AI automation, software systems, SEO, branding, landing pages, and digital growth support for businesses in Ottawa and across Canada.",
     type: "website",
     url: siteUrl,
     siteName,
@@ -87,13 +94,26 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteTitle,
     description:
-      "Web development, AI automation, SEO, branding, software systems, and digital growth infrastructure for modern businesses.",
+      "Website design, AI automation, SEO, branding, software systems, and practical digital systems for modern businesses.",
     images: [absoluteUrl("/logo.svg")]
   },
   icons: {
-    icon: "/logo.svg",
+    icon: [
+      { url: "/logo.svg", type: "image/svg+xml" }
+    ],
     shortcut: "/logo.svg",
     apple: "/logo.svg"
+  },
+  manifest: "/manifest.webmanifest",
+  formatDetection: {
+    telephone: false,
+    email: false,
+    address: false
+  },
+  appleWebApp: {
+    capable: true,
+    title: siteName,
+    statusBarStyle: "black-translucent"
   }
 };
 
@@ -104,7 +124,7 @@ const structuredData = jsonLdGraph([
   ...coreServices.map((service) =>
     serviceJsonLd(
       service,
-      `Marketech Digital provides ${service.toLowerCase()} for businesses that need clearer digital infrastructure, stronger lead capture, and scalable growth systems.`
+      `Marketech Digital helps businesses with ${service.toLowerCase()} so their website, tools, leads, and follow up process feel clearer and easier to manage.`
     )
   ),
   faqJsonLd("/#homepage-faq", homepageFaq)
