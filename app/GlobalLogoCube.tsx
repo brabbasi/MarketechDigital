@@ -14,7 +14,11 @@ const navItems = [
   { href: "/#contact", label: "Contact", detail: "Start a conversation" }
 ];
 
-type CubeAnchor = CSSProperties & { "--cube-size"?: string };
+type CubeAnchor = CSSProperties & {
+  "--cube-size"?: string;
+  "--cube-depth"?: string;
+  "--cube-depth-neg"?: string;
+};
 
 function CubeLogoFace() {
   return <img src="/logo.svg" alt="Marketech Digital logo" draggable="false" />;
@@ -40,17 +44,31 @@ function findHeaderLogo() {
     .map((img) => ({ img, rect: img.getBoundingClientRect() }))
     .filter(({ img, rect }) => {
       const style = window.getComputedStyle(img);
-      return rect.width >= 34 && rect.height >= 34 && rect.top >= 0 && rect.top < Math.min(window.innerHeight * 0.42, 250) && style.visibility !== "hidden" && style.display !== "none";
+      return rect.width >= 30 && rect.height >= 30 && rect.top >= 0 && rect.top < Math.min(window.innerHeight * 0.46, 280) && style.display !== "none";
     });
 
   visible.sort((a, b) => a.rect.top - b.rect.top || a.rect.left - b.rect.left);
   return visible[0] || null;
 }
 
+function makeAnchor(rect: DOMRect): CubeAnchor {
+  const size = Math.min(Math.max(Math.max(rect.width, rect.height), 50), 70);
+  const depth = size / 2;
+  return {
+    position: "fixed",
+    top: Math.round(rect.top + rect.height / 2 - size / 2),
+    left: Math.round(rect.left + rect.width / 2 - size / 2),
+    width: size,
+    height: size,
+    "--cube-size": `${size}px`,
+    "--cube-depth": `${depth}px`,
+    "--cube-depth-neg": `-${depth}px`
+  };
+}
+
 export default function GlobalLogoCube() {
   const [open, setOpen] = useState(false);
   const [anchor, setAnchor] = useState<CubeAnchor | null>(null);
-  const hiddenLogoRef = useRef<HTMLImageElement | null>(null);
   const navRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
 
@@ -59,52 +77,26 @@ export default function GlobalLogoCube() {
   }, [pathname]);
 
   useEffect(() => {
-    const resetHiddenLogo = () => {
-      if (hiddenLogoRef.current) {
-        hiddenLogoRef.current.style.visibility = "";
-        hiddenLogoRef.current.removeAttribute("data-cube-replaced-logo");
-        hiddenLogoRef.current = null;
-      }
-    };
-
     const anchorToHeaderLogo = () => {
       const found = findHeaderLogo();
       if (!found) {
-        resetHiddenLogo();
         setAnchor(null);
         return;
       }
-
-      if (hiddenLogoRef.current !== found.img) resetHiddenLogo();
-      found.img.style.visibility = "hidden";
-      found.img.setAttribute("data-cube-replaced-logo", "true");
-      hiddenLogoRef.current = found.img;
-
-      const size = Math.min(Math.max(Math.max(found.rect.width, found.rect.height), 46), 66);
-      setAnchor({
-        position: "fixed",
-        top: Math.round(found.rect.top + found.rect.height / 2 - size / 2),
-        left: Math.round(found.rect.left + found.rect.width / 2 - size / 2),
-        width: size,
-        height: size,
-        "--cube-size": `${size}px`
-      });
+      setAnchor(makeAnchor(found.rect));
     };
 
     anchorToHeaderLogo();
-    const timers = [80, 280, 700, 1300].map((delay) => window.setTimeout(anchorToHeaderLogo, delay));
+    const timers = [120, 420, 900, 1600].map((delay) => window.setTimeout(anchorToHeaderLogo, delay));
     window.addEventListener("resize", anchorToHeaderLogo);
     window.addEventListener("orientationchange", anchorToHeaderLogo);
     window.addEventListener("pageshow", anchorToHeaderLogo);
-    window.addEventListener("scroll", anchorToHeaderLogo, { passive: true });
 
     return () => {
       timers.forEach(window.clearTimeout);
       window.removeEventListener("resize", anchorToHeaderLogo);
       window.removeEventListener("orientationchange", anchorToHeaderLogo);
       window.removeEventListener("pageshow", anchorToHeaderLogo);
-      window.removeEventListener("scroll", anchorToHeaderLogo);
-      resetHiddenLogo();
     };
   }, [pathname]);
 
