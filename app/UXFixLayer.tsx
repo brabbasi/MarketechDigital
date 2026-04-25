@@ -93,8 +93,8 @@ function ensureContactModal() {
       <form class="contact-popup-form" aria-label="Marketech Digital project inquiry form">
         <input name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" />
         <input name="email" type="email" placeholder="Email address" aria-label="Email address" autocomplete="email" />
-        <input name="phone" type="tel" placeholder="Phone number (optional)" aria-label="Phone number optional" autocomplete="tel" />
-        <input name="company" placeholder="Company name (optional)" aria-label="Company name optional" autocomplete="organization" />
+        <input name="phone" type="tel" placeholder="Phone number optional" aria-label="Phone number optional" autocomplete="tel" />
+        <input name="company" placeholder="Company name optional" aria-label="Company name optional" autocomplete="organization" />
         <input name="business" placeholder="Business type" aria-label="Business type" />
         <select name="service" aria-label="Service interested in">
           <option value="">What do you need help with?</option>
@@ -220,6 +220,91 @@ function stabilizeDecorativeMedia() {
   });
 }
 
+const exactCopy = new Map<string, string>([
+  ["AI SYSTEMS. WORKFLOW AUTOMATION. DECISION CLARITY.", "AI systems. Workflow automation. Better decisions."],
+  ["Buy a clearer system — not more noise.", "Build a clearer system for your business."],
+  ["Marketech Digital helps businesses get specific outcomes: a sharper AI roadmap, cleaner workflow automation, stronger decision visibility, and a growth-ready operating system built for action. The focus is practical business value, not vague tech talk.", "Marketech Digital helps business owners turn websites, AI, workflow automation, data, and marketing into practical systems that feel clear, useful, and easier to manage. You get a focused plan, better follow up, clearer visibility, and a site people can trust."],
+  ["From scattered work to an intelligent operating layer.", "From scattered work to a clearer way to run the business."],
+  ["Marketech Digital turns workflows, data, and decision points into a cleaner command system — so leaders can see what matters, automate what repeats, and move with more confidence.", "Marketech Digital turns workflows, data, and decision points into a clearer working system so owners and teams can see what matters, save time on repeated work, and move with more confidence."],
+  ["AI ROADMAPS", "AI PLANS"],
+  ["GROWTH SYSTEMS", "BUSINESS SYSTEMS"],
+  ["Can this become a backend-driven live site later?", "Can this grow into a real connected system later?"],
+  ["Yes. The current version is structured so public metrics, contact handling, and content management can be wired into a real backend later.", "Yes. The site can grow over time with better lead handling, content updates, public metrics, and backend tools when the business is ready."],
+  ["Smaller entry systems without lowering the brand.", "Start small without making the brand feel small."],
+  ["For clients who are not ready for a full operating-system build, Marketech offers focused starter systems: AI agent bots, automation audits, dashboard starters, workflow setup, and lead-capture intelligence.", "Some businesses need a clear first step before a larger build. Marketech can start with an assistant, an automation review, a simple dashboard, a workflow setup, or a better lead capture path."],
+  ["Offer-focused by design.", "Clear offers built around real business needs."],
+  ["Each offer opens in a deeper animated popup with clearer conversion copy, business outcomes, deliverables, and who it is best for.", "Each offer explains what it helps with, what you get, and when it makes sense for your business."],
+  ["OPEN DETAIL POPUP", "OPEN DETAILS"],
+  ["Tap for details", "View details"]
+]);
+
+const softReplacements: [RegExp, string][] = [
+  [/—/g, ","],
+  [/–/g, " to "],
+  [/growth-ready/gi, "ready to grow"],
+  [/backend-driven/gi, "connected to a real backend"],
+  [/AI-powered/gi, "personalized"],
+  [/high-value/gi, "valuable"],
+  [/Use-case/gi, "Use case"],
+  [/use-case/gi, "use case"],
+  [/delivery-focused/gi, "built around delivery"],
+  [/operations-heavy/gi, "operations based"],
+  [/long-term/gi, "lasting"],
+  [/lead-capture/gi, "lead capture"],
+  [/buildout/gi, "build"],
+  [/leverage/gi, "make a real difference"],
+  [/operating layer/gi, "working system"],
+  [/command system/gi, "working system"],
+  [/digital infrastructure/gi, "digital setup"],
+  [/intelligence layer/gi, "clear view"],
+  [/friction/gi, "roadblocks"],
+  [/vague tech talk/gi, "confusing tech talk"]
+];
+
+function humanizeVisibleCopy(root: ParentNode = document) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const parent = node.parentElement;
+      if (!parent) return NodeFilter.FILTER_REJECT;
+      const tag = parent.tagName.toLowerCase();
+      if (["script", "style", "svg", "path", "textarea", "input", "select", "option"].includes(tag)) return NodeFilter.FILTER_REJECT;
+      if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+
+  const nodes: Text[] = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+
+  nodes.forEach((node) => {
+    const original = node.nodeValue || "";
+    const trimmed = original.trim();
+    let next = exactCopy.get(trimmed) || original;
+
+    softReplacements.forEach(([pattern, replacement]) => {
+      next = next.replace(pattern, replacement);
+    });
+
+    next = next.replace(/\s{2,}/g, " ");
+    if (next !== original) node.nodeValue = next;
+  });
+}
+
+function keepCopyHumanized() {
+  if (document.body.getAttribute("data-human-copy-observer") === "true") return;
+  document.body.setAttribute("data-human-copy-observer", "true");
+  humanizeVisibleCopy();
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === Node.TEXT_NODE) humanizeVisibleCopy(node.parentElement || document);
+        if (node.nodeType === Node.ELEMENT_NODE) humanizeVisibleCopy(node as Element);
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 export default function UXFixLayer() {
   useEffect(() => {
     const run = () => {
@@ -230,11 +315,16 @@ export default function UXFixLayer() {
       addHomeIdeaGeneratorCTA();
       enhanceFooter();
       stabilizeDecorativeMedia();
+      keepCopyHumanized();
     };
 
     run();
     const timeout = window.setTimeout(run, 700);
-    return () => window.clearTimeout(timeout);
+    const lateTimeout = window.setTimeout(humanizeVisibleCopy, 1600);
+    return () => {
+      window.clearTimeout(timeout);
+      window.clearTimeout(lateTimeout);
+    };
   }, []);
 
   return null;
