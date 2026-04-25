@@ -8,6 +8,24 @@
   z-index: 9998 !important;
   margin: 0 !important;
   transform: translateZ(0) !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+}
+
+.ai-launcher img,
+.ai-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  border-radius: 50% !important;
+}
+
+.ai-launcher > span,
+.ai-avatar > span {
+  border-radius: 50% !important;
+  overflow: hidden !important;
 }
 
 .ai-panel {
