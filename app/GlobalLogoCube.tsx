@@ -128,8 +128,9 @@ function removeNearbyBrandText(rect: DOMRect) {
   });
 }
 
-function removeExtraLogos() {
+function removeExtraLogos(except?: HTMLElement | null) {
   logoCandidates().forEach((element) => {
+    if (except && (element === except || except.contains(element) || element.contains(except))) return;
     if (isAllowedStaticLogo(element)) return;
     if (element.closest("footer") || element.closest(".ai-launcher") || element.closest(".ai-panel")) return;
 
@@ -170,8 +171,10 @@ function installFounderCta(pathname: string, existingHost: HTMLElement | null) {
 }
 
 function installDiceBrand(existingHost: HTMLElement | null) {
-  removeExtraLogos();
-  if (existingHost?.isConnected) return existingHost;
+  if (existingHost?.isConnected) {
+    removeExtraLogos(existingHost);
+    return existingHost;
+  }
 
   const found = findHeaderLogo();
   if (!found) return null;
@@ -187,7 +190,7 @@ function installDiceBrand(existingHost: HTMLElement | null) {
   const rect = found.mark.getBoundingClientRect();
   replaceTarget.remove();
   removeNearbyBrandText(rect);
-  removeExtraLogos();
+  removeExtraLogos(host);
 
   return host;
 }
