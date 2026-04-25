@@ -1,6 +1,7 @@
 "use client";
 
 import { CSSProperties, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import MarketechDiceNav from "@/components/MarketechDiceNav";
 
 type DicePosition = CSSProperties & {
@@ -133,6 +134,16 @@ function makePosition(rect?: DOMRect): DicePosition {
   };
 }
 
+function makeFounderCtaPosition(rect?: DOMRect): CSSProperties | null {
+  if (!rect) return null;
+  return {
+    position: "absolute",
+    zIndex: 2147483000,
+    top: `${Math.round(window.scrollY + rect.top + rect.height / 2 - 23)}px`,
+    right: `${Math.max(18, Math.round(window.innerWidth - rect.right))}px`
+  };
+}
+
 function storeOriginalStyle(element: HTMLElement) {
   if (element.dataset.marketechDiceStyled === "true") return;
   element.dataset.marketechDiceStyled = "true";
@@ -142,6 +153,7 @@ function storeOriginalStyle(element: HTMLElement) {
   element.dataset.marketechDiceBorderColor = element.style.borderColor;
   element.dataset.marketechDiceOpacity = element.style.opacity;
   element.dataset.marketechDicePointerEvents = element.style.pointerEvents;
+  element.dataset.marketechDiceVisibility = element.style.visibility;
 }
 
 function hideElement(element: HTMLElement) {
@@ -159,6 +171,7 @@ function restoreStyledElement(element: HTMLElement | null) {
   element.style.borderColor = element.dataset.marketechDiceBorderColor || "";
   element.style.opacity = element.dataset.marketechDiceOpacity || "";
   element.style.pointerEvents = element.dataset.marketechDicePointerEvents || "";
+  element.style.visibility = element.dataset.marketechDiceVisibility || "";
   element.removeAttribute("data-marketech-dice-replaced");
   delete element.dataset.marketechDiceStyled;
   delete element.dataset.marketechDiceBackground;
@@ -167,52 +180,94 @@ function restoreStyledElement(element: HTMLElement | null) {
   delete element.dataset.marketechDiceBorderColor;
   delete element.dataset.marketechDiceOpacity;
   delete element.dataset.marketechDicePointerEvents;
+  delete element.dataset.marketechDiceVisibility;
+}
+
+function findFounderMenuButton() {
+  const candidates = Array.from(document.querySelectorAll<HTMLElement>("details, summary, nav button, nav [class*='menu' i]"));
+  return candidates
+    .map((element) => ({ element, rect: element.getBoundingClientRect() }))
+    .filter(({ rect }) => rect.width >= 34 && rect.height >= 34 && rect.top >= 0 && rect.top < 160 && rect.left > window.innerWidth * 0.55)
+    .sort((a, b) => b.rect.right - a.rect.right)[0] || null;
 }
 
 export default function GlobalLogoCube() {
   const [style, setStyle] = useState<DicePosition>(makePosition());
+  const [founderCtaStyle, setFounderCtaStyle] = useState<CSSProperties | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     let activeElement: HTMLElement | null = null;
     let activeMark: HTMLElement | null = null;
+    let activeMenu: HTMLElement | null = null;
     let activeTextNodes: HTMLElement[] = [];
 
     const restoreLogo = () => {
       restoreStyledElement(activeElement);
       restoreStyledElement(activeMark);
+      restoreStyledElement(activeMenu);
       activeTextNodes.forEach(restoreStyledElement);
       activeElement = null;
       activeMark = null;
+      activeMenu = null;
       activeTextNodes = [];
     };
 
     const placeDice = () => {
       const found = findPrimaryLogo();
       if (!found) {
-        restoreLogo();
+        restoreStyledElement(activeElement);
+        restoreStyledElement(activeMark);
+        activeTextNodes.forEach(restoreStyledElement);
+        activeElement = null;
+        activeMark = null;
+        activeTextNodes = [];
         setStyle(makePosition());
-        return;
+      } else {
+        if (activeElement !== found.element || activeMark !== found.mark) {
+          restoreStyledElement(activeElement);
+          restoreStyledElement(activeMark);
+          activeTextNodes.forEach(restoreStyledElement);
+          activeElement = null;
+          activeMark = null;
+          activeTextNodes = [];
+        }
+
+        hideElement(found.element);
+
+        if (found.mark !== found.element) {
+          storeOriginalStyle(found.mark);
+          found.mark.style.background = "transparent";
+          found.mark.style.backgroundColor = "transparent";
+          found.mark.style.boxShadow = "none";
+          found.mark.style.borderColor = "transparent";
+          found.mark.style.pointerEvents = "none";
+          found.mark.setAttribute("data-marketech-dice-replaced", "true");
+        }
+
+        found.textNodes.forEach(hideElement);
+        activeElement = found.element;
+        activeMark = found.mark !== found.element ? found.mark : null;
+        activeTextNodes = found.textNodes;
+        setStyle(makePosition(found.rect));
       }
 
-      if (activeElement !== found.element || activeMark !== found.mark) restoreLogo();
-
-      hideElement(found.element);
-
-      if (found.mark !== found.element) {
-        storeOriginalStyle(found.mark);
-        found.mark.style.background = "transparent";
-        found.mark.style.backgroundColor = "transparent";
-        found.mark.style.boxShadow = "none";
-        found.mark.style.borderColor = "transparent";
-        found.mark.style.pointerEvents = "none";
-        found.mark.setAttribute("data-marketech-dice-replaced", "true");
+      if (pathname === "/founder") {
+        const menu = findFounderMenuButton();
+        if (menu) {
+          if (activeMenu !== menu.element) restoreStyledElement(activeMenu);
+          storeOriginalStyle(menu.element);
+          menu.element.style.opacity = "0";
+          menu.element.style.pointerEvents = "none";
+          menu.element.style.visibility = "hidden";
+          activeMenu = menu.element;
+          setFounderCtaStyle(makeFounderCtaPosition(menu.rect));
+        }
+      } else {
+        restoreStyledElement(activeMenu);
+        activeMenu = null;
+        setFounderCtaStyle(null);
       }
-
-      found.textNodes.forEach(hideElement);
-      activeElement = found.element;
-      activeMark = found.mark !== found.element ? found.mark : null;
-      activeTextNodes = found.textNodes;
-      setStyle(makePosition(found.rect));
     };
 
     placeDice();
@@ -228,15 +283,20 @@ export default function GlobalLogoCube() {
       window.removeEventListener("pageshow", placeDice);
       restoreLogo();
     };
-  }, []);
+  }, [pathname]);
 
   return (
-    <div style={style} className="global-dice-nav-shell">
-      <MarketechDiceNav navItems={navItems} homeHref="/" />
-      <span className="global-dice-wordmark" aria-hidden="true">
-        <strong>MARKETECH</strong>
-        <em>DIGITAL</em>
-      </span>
+    <>
+      <div style={style} className="global-dice-nav-shell">
+        <MarketechDiceNav navItems={navItems} homeHref="/" />
+        <span className="global-dice-wordmark" aria-hidden="true">
+          <strong>MARKETECH</strong>
+          <em>DIGITAL</em>
+        </span>
+      </div>
+      {pathname === "/founder" && founderCtaStyle ? (
+        <a className="founder-consultation-replacement" href="/#contact" style={founderCtaStyle}>Book a Consultation →</a>
+      ) : null}
       <style jsx global>{`
         .global-dice-nav-shell {
           width: max-content;
@@ -263,11 +323,57 @@ export default function GlobalLogoCube() {
           font-weight: 750;
           letter-spacing: .34em;
         }
+        .global-dice-nav-shell .md-dice-menu {
+          left: 0 !important;
+          transform: translateY(-8px) scale(.96) !important;
+          transform-origin: top left !important;
+        }
+        .global-dice-nav-shell .md-dice-menu.md-menu-open {
+          transform: translateY(0) scale(1) !important;
+        }
+        .founder-consultation-replacement {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 46px;
+          padding: 0 18px;
+          border-radius: 999px;
+          border: 1px solid rgba(255, 106, 0, .42);
+          background: rgba(255, 106, 0, .13);
+          box-shadow: 0 0 34px rgba(255, 106, 0, .14), inset 0 1px 0 rgba(255, 255, 255, .08);
+          color: rgba(255, 255, 255, .94);
+          text-decoration: none;
+          font-size: .78rem;
+          font-weight: 850;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+          white-space: nowrap;
+        }
+        .founder-consultation-replacement:hover,
+        .founder-consultation-replacement:focus-visible {
+          border-color: rgba(255, 106, 0, .78);
+          background: rgba(255, 106, 0, .2);
+          outline: none;
+        }
         @media (max-width: 640px) {
           .global-dice-wordmark strong { font-size: .86rem; letter-spacing: .2em; }
           .global-dice-wordmark em { font-size: .54rem; letter-spacing: .28em; }
+          .global-dice-nav-shell .md-dice-menu {
+            left: 50% !important;
+            transform: translateX(-50%) translateY(-8px) scale(.96) !important;
+            transform-origin: top center !important;
+          }
+          .global-dice-nav-shell .md-dice-menu.md-menu-open {
+            transform: translateX(-50%) translateY(0) scale(1) !important;
+          }
+          .founder-consultation-replacement {
+            min-height: 42px;
+            padding: 0 14px;
+            font-size: .68rem;
+            letter-spacing: .05em;
+          }
         }
       `}</style>
-    </div>
+    </>
   );
 }
