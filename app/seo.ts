@@ -3,51 +3,51 @@ export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://marketech-d
 export const contactEmail = "abasitabbasi99@gmail.com";
 
 export const siteDescription =
-  "Marketech Digital is a digital agency in Ottawa that helps business owners build better websites, use AI in useful ways, improve SEO, create stronger branding, and turn messy workflows into simple systems that are easier to manage.";
+  "Marketech Digital is an Ottawa digital agency that helps business owners build better websites, use AI in practical ways, improve SEO, create stronger branding, and turn messy workflows into simple systems that are easier to manage.";
 
 export const serviceKeywords = [
   "Marketech Digital",
-  "digital agency Canada",
   "digital agency Ottawa",
+  "digital agency Canada",
   "web development Ottawa",
-  "AI automation agency",
   "AI automation Ottawa",
-  "custom software development Canada",
+  "AI automation agency",
+  "website design and development",
+  "software development Canada",
+  "app development Canada",
   "business automation agency",
   "Next.js website development",
   "website design for small business",
   "digital marketing Ottawa",
   "SEO services Ottawa",
   "landing page design agency",
-  "app development Canada",
   "custom website development",
+  "branding agency Ottawa",
+  "marketing technology agency",
   "AI systems for small businesses",
   "automated workflows for businesses",
   "business process automation",
   "high converting website design",
   "premium website development",
   "performance focused digital marketing",
-  "intelligent digital systems",
-  "growth focused web design",
   "automation for service businesses"
 ];
 
-export const areasServed = ["Ottawa", "Kanata", "Barrhaven", "Nepean", "Gatineau", "Toronto", "Canada"];
+export const areasServed = ["Ottawa", "Kanata", "Barrhaven", "Nepean", "Gatineau", "Toronto", "Ontario", "Canada"];
 
 export const coreServices = [
+  "Website Design and Development",
   "Custom Web Development",
-  "AI Automation",
-  "Workflow Automation",
   "Software Development",
   "App Development",
+  "AI Workflow Automation",
   "Digital Marketing",
   "SEO Services",
   "Branding and Digital Identity",
   "Landing Page Design",
   "Performance Optimization",
   "Lead Capture Systems",
-  "Business Process Automation",
-  "Decision Intelligence"
+  "Business Growth Systems"
 ];
 
 export function absoluteUrl(path = "") {
@@ -74,7 +74,7 @@ export const homepageFaq = [
   {
     question: "Do you serve businesses in Ottawa and across Canada?",
     answer:
-      "Yes. Marketech Digital supports businesses in Ottawa, Kanata, Barrhaven, Nepean, Gatineau, Toronto, and across Canada."
+      "Yes. Marketech Digital supports businesses in Ottawa, Kanata, Barrhaven, Nepean, Gatineau, Toronto, Ontario, and across Canada."
   },
   {
     question: "Can you help with SEO, branding, and digital marketing?",
@@ -131,9 +131,15 @@ export function localBusinessJsonLd() {
     logo: absoluteUrl("/logo.svg"),
     email: contactEmail,
     priceRange: "$$$",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Ottawa",
+      addressRegion: "ON",
+      addressCountry: "CA"
+    },
     areaServed: areasServed,
     description:
-      "A digital agency serving Ottawa and Canadian businesses with web development, AI automation, software systems, SEO, branding, digital marketing, landing pages, and practical growth systems."
+      "A digital agency serving Ottawa and Canadian businesses with website design and development, software and app development, AI workflow automation, SEO, branding, digital marketing, landing pages, and practical business growth systems."
   };
 }
 
