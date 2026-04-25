@@ -40,10 +40,9 @@ function buildDeck() {
 function buildStarterSystems() {
   const cards = [
     ["Starter", "AI Agent Bot", "Lead capture, FAQs, qualification, and service routing.", "/services/ai-agent-website-bot", "Start with bot →"],
-    ["Starter", "AI Strategy Sprint", "A clear AI roadmap before you spend money building the wrong thing.", "/services/ai-strategy-sprint", "Plan AI first →"],
-    ["Starter", "Workflow Automation Build", "Connect intake, forms, follow ups, alerts, and handoffs.", "/services/workflow-automation-build", "Map workflow →"],
-    ["Starter", "Decision Dashboard", "Clean visibility for KPIs, reports, and decision signals.", "/services/decision-intelligence-dashboard", "Build visibility →"],
-    ["Premium", "Growth Systems Stack", "Connect website, automation, lead capture, reporting, and AI support.", "/services/growth-systems-stack", "View stack →"]
+    ["Starter", "Automation Audit", "Find repetitive work, tool gaps, and the fastest automation wins.", "/services#starter-systems", "Audit workflow →"],
+    ["Starter", "Dashboard Starter", "Clean visibility for KPIs, reports, leads, and decision signals.", "/services/decision-intelligence-dashboard", "Build visibility →"],
+    ["Starter", "CRM Workflow Setup", "Connect intake, follow ups, client handoff, reminders, and alerts.", "/services#starter-systems", "Set up CRM →"]
   ];
 
   return `
