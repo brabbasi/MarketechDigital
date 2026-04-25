@@ -3,7 +3,7 @@ export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://marketech-d
 export const contactEmail = "abasitabbasi99@gmail.com";
 
 export const siteDescription =
-  "Marketech Digital is a premium digital agency in Ottawa, Canada helping businesses build custom websites, AI automation systems, software solutions, SEO foundations, branding, landing pages, and growth-focused digital infrastructure.";
+  "Marketech Digital is a digital agency in Ottawa that helps business owners build better websites, use AI in useful ways, improve SEO, create stronger branding, and turn messy workflows into simple systems that are easier to manage.";
 
 export const serviceKeywords = [
   "Marketech Digital",
@@ -24,11 +24,11 @@ export const serviceKeywords = [
   "AI systems for small businesses",
   "automated workflows for businesses",
   "business process automation",
-  "high-converting website design",
+  "high converting website design",
   "premium website development",
-  "performance-focused digital marketing",
+  "performance focused digital marketing",
   "intelligent digital systems",
-  "growth-focused web design",
+  "growth focused web design",
   "automation for service businesses"
 ];
 
@@ -59,17 +59,17 @@ export const homepageFaq = [
   {
     question: "What does Marketech Digital do?",
     answer:
-      "Marketech Digital builds premium websites, AI automation systems, custom software, SEO foundations, branding, landing pages, and digital growth systems for modern businesses."
+      "Marketech Digital helps businesses improve their website, use AI in practical ways, automate repetitive work, strengthen SEO, improve branding, and create digital systems that make daily work easier."
   },
   {
     question: "Do you build custom websites?",
     answer:
-      "Yes. Marketech Digital builds custom business websites, landing pages, and modern web experiences designed for clarity, lead generation, performance, and future automation."
+      "Yes. We build custom business websites, landing pages, and modern web experiences that are clear, fast, easy to trust, and built around real leads instead of just good looks."
   },
   {
     question: "Can you automate business workflows with AI?",
     answer:
-      "Yes. Marketech Digital designs AI assistants, workflow automation, lead qualification flows, CRM handoffs, dashboards, and decision-support systems for service businesses and growing teams."
+      "Yes. We can help with AI assistants, lead qualification, follow up flows, CRM handoffs, dashboards, and simple automation systems that save time without making the business feel complicated."
   },
   {
     question: "Do you serve businesses in Ottawa and across Canada?",
@@ -79,7 +79,7 @@ export const homepageFaq = [
   {
     question: "Can you help with SEO, branding, and digital marketing?",
     answer:
-      "Yes. Marketech Digital helps businesses improve SEO foundations, brand clarity, landing pages, marketing systems, and conversion-focused digital infrastructure."
+      "Yes. We help businesses improve their SEO foundation, sharpen their brand, build better landing pages, and create marketing systems that feel clear and useful for real customers."
   }
 ];
 
@@ -133,7 +133,7 @@ export function localBusinessJsonLd() {
     priceRange: "$$$",
     areaServed: areasServed,
     description:
-      "A modern digital agency serving Ottawa and Canadian businesses with web development, AI automation, software development, SEO, branding, digital marketing, landing pages, and growth systems."
+      "A digital agency serving Ottawa and Canadian businesses with web development, AI automation, software systems, SEO, branding, digital marketing, landing pages, and practical growth systems."
   };
 }
 
