@@ -1,15 +1,7 @@
-/* Stable fixed logo dice navigation for V2. */
-
-.logo-dice-host > img,
-.logo-dice-host > picture,
-.logo-dice-host > svg:not(.keep-visible-logo) {
-  opacity: 1 !important;
-}
+/* Stable animated logo dice navigation for V2. */
 
 .global-cube-nav {
   --cube-size: 58px;
-  --cube-depth: 24px;
-  --cube-depth-neg: -24px;
   position: fixed;
   z-index: 2147483000;
   width: var(--cube-size);
@@ -29,7 +21,7 @@
   place-items: center;
   cursor: pointer;
   color: #fff;
-  background: rgba(3, 6, 12, 0.12);
+  background: transparent;
   box-shadow: none;
   transform: translateZ(0);
 }
@@ -39,56 +31,68 @@
   outline: none;
 }
 
-.cube-scene {
-  width: calc(var(--cube-size) * .82);
-  height: calc(var(--cube-size) * .82);
-  display: block;
-  perspective: 760px;
-  filter: drop-shadow(0 14px 28px rgba(255,106,0,.22)) drop-shadow(0 0 16px rgba(89,175,255,.12));
-}
-
-.cube-core {
+.logo-dice {
   position: relative;
-  width: calc(var(--cube-size) * .82);
-  height: calc(var(--cube-size) * .82);
+  width: calc(var(--cube-size) * .9);
+  height: calc(var(--cube-size) * .9);
+  display: block;
+  border-radius: 18px;
   transform-style: preserve-3d;
-  animation: marketechDiceRoll 3.6s cubic-bezier(.48,.02,.18,1) infinite;
+  animation: reliableDiceFlip 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 14px 28px rgba(255,106,0,.24)) drop-shadow(0 0 16px rgba(89,175,255,.13));
 }
 
-.global-cube-nav.is-open .cube-core,
-.global-cube-trigger:hover .cube-core {
-  animation-duration: 1.65s;
+.global-cube-nav.is-open .logo-dice,
+.global-cube-trigger:hover .logo-dice {
+  animation-duration: 1.45s;
 }
 
-.cube-face {
+.dice-face,
+.dice-edge {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  border-radius: calc(var(--cube-size) * .2);
+  border-radius: 18px;
   border: 1px solid rgba(255,255,255,.2);
   background:
-    radial-gradient(circle at 35% 18%, rgba(255,255,255,.25), transparent 36%),
+    radial-gradient(circle at 35% 18%, rgba(255,255,255,.28), transparent 36%),
     radial-gradient(circle at 70% 82%, rgba(255,106,0,.2), transparent 45%),
     rgba(7,10,18,.96);
-  overflow: hidden;
-  backface-visibility: hidden;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -16px 30px rgba(0,0,0,.26), 0 0 0 1px rgba(255,106,0,.1);
+  overflow: hidden;
 }
 
-.cube-face img {
+.dice-logo-face img {
   width: 74%;
   height: 74%;
   object-fit: contain;
   display: block;
 }
 
-.cube-front { transform: rotateY(0deg) translateZ(var(--cube-depth)); }
-.cube-back { transform: rotateY(180deg) translateZ(var(--cube-depth)); }
-.cube-right { transform: rotateY(90deg) translateZ(var(--cube-depth)); }
-.cube-left { transform: rotateY(-90deg) translateZ(var(--cube-depth)); }
-.cube-top { transform: rotateX(90deg) translateZ(var(--cube-depth)); }
-.cube-bottom { transform: rotateX(-90deg) translateZ(var(--cube-depth)); }
+.dice-logo-face {
+  animation: logoFaceVisibility 3.2s steps(1, end) infinite;
+}
+
+.dice-wave-face {
+  animation: waveFaceVisibility 3.2s steps(1, end) infinite;
+}
+
+.dice-edge {
+  opacity: .24;
+  pointer-events: none;
+}
+
+.dice-edge-one {
+  transform: translate(6px, 5px) scale(.94);
+  filter: blur(.2px);
+}
+
+.dice-edge-two {
+  transform: translate(-5px, -4px) scale(.9);
+  border-color: rgba(89,175,255,.22);
+  opacity: .14;
+}
 
 .cube-soundwave {
   width: 54%;
@@ -115,8 +119,8 @@
 
 .global-cube-menu {
   position: fixed;
-  top: calc(var(--cube-menu-top, 82px));
-  left: calc(var(--cube-menu-left, 18px));
+  top: var(--cube-menu-top, 82px);
+  left: var(--cube-menu-left, 18px);
   width: min(310px, calc(100vw - 28px));
   padding: 13px;
   border: 1px solid rgba(255,255,255,.13);
@@ -192,13 +196,24 @@
   outline: none;
 }
 
-@keyframes marketechDiceRoll {
-  0%, 10% { transform: translateZ(var(--cube-depth-neg)) rotateX(-16deg) rotateY(28deg); }
-  15%, 25% { transform: translateZ(var(--cube-depth-neg)) rotateX(-18deg) rotateY(-90deg); }
-  30%, 40% { transform: translateZ(var(--cube-depth-neg)) rotateX(90deg) rotateY(-22deg); }
-  45%, 55% { transform: translateZ(var(--cube-depth-neg)) rotateX(-90deg) rotateY(24deg); }
-  60%, 72% { transform: translateZ(var(--cube-depth-neg)) rotateX(12deg) rotateY(180deg); }
-  80%, 100% { transform: translateZ(var(--cube-depth-neg)) rotateX(-16deg) rotateY(388deg); }
+@keyframes reliableDiceFlip {
+  0%, 18% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  25%, 44% { transform: rotateX(8deg) rotateY(96deg) rotateZ(-2deg); }
+  50%, 68% { transform: rotateX(-8deg) rotateY(180deg) rotateZ(2deg); }
+  74%, 88% { transform: rotateX(92deg) rotateY(15deg) rotateZ(-4deg); }
+  100% { transform: rotateX(0deg) rotateY(360deg) rotateZ(0deg); }
+}
+
+@keyframes logoFaceVisibility {
+  0%, 49% { opacity: 1; }
+  50%, 72% { opacity: 0; }
+  73%, 100% { opacity: 1; }
+}
+
+@keyframes waveFaceVisibility {
+  0%, 49% { opacity: 0; }
+  50%, 72% { opacity: 1; }
+  73%, 100% { opacity: 0; }
 }
 
 @keyframes cubeWave {
@@ -208,9 +223,7 @@
 
 @media (max-width: 760px) {
   .global-cube-nav {
-    --cube-size: 52px;
-    --cube-depth: 21px;
-    --cube-depth-neg: -21px;
+    --cube-size: 56px;
   }
 
   .global-cube-menu {
@@ -219,8 +232,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cube-core,
+  .logo-dice,
+  .dice-logo-face,
+  .dice-wave-face,
   .cube-soundwave i {
     animation: none;
+  }
+
+  .dice-wave-face {
+    opacity: 0;
   }
 }
