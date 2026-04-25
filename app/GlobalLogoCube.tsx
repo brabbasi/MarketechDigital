@@ -17,6 +17,12 @@ const navItems = [
   { label: "Contact", href: "/#contact" }
 ];
 
+type LogoTarget = {
+  element: HTMLElement;
+  mark: HTMLElement;
+  rect: DOMRect;
+};
+
 function logoCandidates() {
   return Array.from(
     document.querySelectorAll<HTMLElement>(
@@ -25,7 +31,29 @@ function logoCandidates() {
   );
 }
 
-function findPrimaryLogo() {
+function getLogoMark(element: HTMLElement) {
+  let mark: HTMLElement = element;
+  let current = element.parentElement;
+
+  while (current && current !== document.body) {
+    if (current.closest(".md-dice-root") || current.closest(".global-dice-nav-shell")) break;
+    const rect = current.getBoundingClientRect();
+    const text = (current.textContent || "").replace(/\s+/g, "").trim();
+    const isSmallMark = rect.width <= 118 && rect.height <= 118;
+    const isTextContainer = text.length > 3 && /marketech|digital/i.test(text);
+
+    if (isSmallMark && !isTextContainer) {
+      mark = current;
+      current = current.parentElement;
+      continue;
+    }
+    break;
+  }
+
+  return mark;
+}
+
+function findPrimaryLogo(): LogoTarget | null {
   const candidates = logoCandidates()
     .filter((element) => {
       if (element.closest(".md-dice-root")) return false;
@@ -47,7 +75,10 @@ function findPrimaryLogo() {
         style.visibility !== "hidden"
       );
     })
-    .map((element) => ({ element, rect: element.getBoundingClientRect() }))
+    .map((element) => {
+      const mark = getLogoMark(element);
+      return { element, mark, rect: mark.getBoundingClientRect() };
+    })
     .sort((a, b) => a.rect.top - b.rect.top || a.rect.left - b.rect.left);
 
   return candidates[0] || null;
@@ -65,7 +96,7 @@ function makePosition(rect?: DOMRect): DicePosition {
     };
   }
 
-  const size = Math.min(Math.max(Math.max(rect.width, rect.height), 58), 76);
+  const size = Math.min(Math.max(Math.max(rect.width, rect.height) - 10, 54), 70);
   return {
     position: "absolute",
     zIndex: 2147483000,
@@ -76,18 +107,51 @@ function makePosition(rect?: DOMRect): DicePosition {
   };
 }
 
+function storeOriginalStyle(element: HTMLElement) {
+  if (element.dataset.marketechDiceStyled === "true") return;
+  element.dataset.marketechDiceStyled = "true";
+  element.dataset.marketechDiceBackground = element.style.background;
+  element.dataset.marketechDiceBackgroundColor = element.style.backgroundColor;
+  element.dataset.marketechDiceBoxShadow = element.style.boxShadow;
+  element.dataset.marketechDiceBorderColor = element.style.borderColor;
+  element.dataset.marketechDiceOpacity = element.style.opacity;
+  element.dataset.marketechDicePointerEvents = element.style.pointerEvents;
+}
+
+function restoreStyledMark(element: HTMLElement | null) {
+  if (!element) return;
+  element.style.background = element.dataset.marketechDiceBackground || "";
+  element.style.backgroundColor = element.dataset.marketechDiceBackgroundColor || "";
+  element.style.boxShadow = element.dataset.marketechDiceBoxShadow || "";
+  element.style.borderColor = element.dataset.marketechDiceBorderColor || "";
+  element.style.opacity = element.dataset.marketechDiceOpacity || "";
+  element.style.pointerEvents = element.dataset.marketechDicePointerEvents || "";
+  element.removeAttribute("data-marketech-dice-replaced");
+  delete element.dataset.marketechDiceStyled;
+  delete element.dataset.marketechDiceBackground;
+  delete element.dataset.marketechDiceBackgroundColor;
+  delete element.dataset.marketechDiceBoxShadow;
+  delete element.dataset.marketechDiceBorderColor;
+  delete element.dataset.marketechDiceOpacity;
+  delete element.dataset.marketechDicePointerEvents;
+}
+
 export default function GlobalLogoCube() {
   const [style, setStyle] = useState<DicePosition>(makePosition());
 
   useEffect(() => {
-    let activeLogo: HTMLElement | null = null;
+    let activeElement: HTMLElement | null = null;
+    let activeMark: HTMLElement | null = null;
 
     const restoreLogo = () => {
-      if (!activeLogo) return;
-      activeLogo.style.opacity = "";
-      activeLogo.style.pointerEvents = "";
-      activeLogo.removeAttribute("data-marketech-dice-replaced");
-      activeLogo = null;
+      if (activeElement) {
+        activeElement.style.opacity = "";
+        activeElement.style.pointerEvents = "";
+        activeElement.removeAttribute("data-marketech-dice-replaced");
+      }
+      restoreStyledMark(activeMark);
+      activeElement = null;
+      activeMark = null;
     };
 
     const placeDice = () => {
@@ -98,11 +162,24 @@ export default function GlobalLogoCube() {
         return;
       }
 
-      if (activeLogo !== found.element) restoreLogo();
+      if (activeElement !== found.element || activeMark !== found.mark) restoreLogo();
+
       found.element.style.opacity = "0";
       found.element.style.pointerEvents = "none";
       found.element.setAttribute("data-marketech-dice-replaced", "true");
-      activeLogo = found.element;
+
+      if (found.mark !== found.element) {
+        storeOriginalStyle(found.mark);
+        found.mark.style.background = "transparent";
+        found.mark.style.backgroundColor = "transparent";
+        found.mark.style.boxShadow = "none";
+        found.mark.style.borderColor = "transparent";
+        found.mark.style.pointerEvents = "none";
+        found.mark.setAttribute("data-marketech-dice-replaced", "true");
+      }
+
+      activeElement = found.element;
+      activeMark = found.mark !== found.element ? found.mark : null;
       setStyle(makePosition(found.rect));
     };
 
