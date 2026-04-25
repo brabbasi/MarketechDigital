@@ -42,15 +42,15 @@ function addHomeIdeaGeneratorCTA() {
   cta.setAttribute("aria-labelledby", "homeIdeaTitle");
   cta.innerHTML = `
     <div class="home-idea-copy">
-      <div class="home-idea-label"><span></span> Free AI idea generator</div>
-      <h2 id="homeIdeaTitle">Not sure what system your business needs first?</h2>
-      <p>Use the Marketech idea generator to turn your business type, bottleneck, current tools, and goal into a practical starter-system recommendation before you book a call.</p>
+      <div class="home-idea-label"><span></span> Free idea helper</div>
+      <h2 id="homeIdeaTitle">Not sure what your business needs first?</h2>
+      <p>Tell us what kind of business you run, what feels stuck, and what tools you already use. We will suggest a practical first step before you book a call.</p>
       <div class="home-idea-actions">
-        <a href="${anchorTarget}">Generate my system idea →</a>
-        <button type="button" data-open-contact aria-label="Ask Basit about your project instead of using the idea generator">Ask Basit instead</button>
+        <a href="${anchorTarget}">Get a helpful suggestion →</a>
+        <button type="button" data-open-contact aria-label="Ask Basit about your project instead of using the idea helper">Ask Basit instead</button>
       </div>
     </div>
-    <a class="home-idea-preview" href="${anchorTarget}" aria-label="Open free AI idea generator">
+    <a class="home-idea-preview" href="${anchorTarget}" aria-label="Open free idea helper">
       <div class="home-idea-node one" aria-hidden="true"></div>
       <div class="home-idea-node two" aria-hidden="true"></div>
       <div class="home-idea-node three" aria-hidden="true"></div>
@@ -59,9 +59,9 @@ function addHomeIdeaGeneratorCTA() {
         <path d="M66 206 C 142 150, 196 154, 268 104 S 388 66, 492 84" />
       </svg>
       <div class="home-idea-card">
-        <span>AI recommendation</span>
-        <strong>Starter system blueprint</strong>
-        <em>First build · automation layer · visibility layer · price range</em>
+        <span>Personal suggestion</span>
+        <strong>A simple first step</strong>
+        <em>What to build first · what to save time on · what to track · likely budget range</em>
       </div>
     </a>
   `;
@@ -88,8 +88,8 @@ function ensureContactModal() {
     <div class="contact-popup-card" role="dialog" aria-modal="true" aria-labelledby="contactPopupTitle">
       <button class="contact-popup-close" type="button" aria-label="Close contact form">×</button>
       <div class="contact-popup-label"><span></span> Start a project</div>
-      <h2 id="contactPopupTitle">Tell Marketech what you want to build.</h2>
-      <p>Share the business problem, system idea, or automation you want. This creates a cleaner inquiry for Basit instead of forcing you to scroll to the bottom of the page.</p>
+      <h2 id="contactPopupTitle">Tell us what you want to build.</h2>
+      <p>Share what you are trying to fix, improve, or launch. You do not need to have everything figured out. A few honest details are enough to start the right conversation.</p>
       <form class="contact-popup-form" aria-label="Marketech Digital project inquiry form">
         <input name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" />
         <input name="email" type="email" placeholder="Email address" aria-label="Email address" autocomplete="email" />
@@ -97,7 +97,7 @@ function ensureContactModal() {
         <input name="company" placeholder="Company name (optional)" aria-label="Company name optional" autocomplete="organization" />
         <input name="business" placeholder="Business type" aria-label="Business type" />
         <select name="service" aria-label="Service interested in">
-          <option value="">Service interested in</option>
+          <option value="">What do you need help with?</option>
           <option>AI automation</option>
           <option>Web development</option>
           <option>Software or internal system</option>
@@ -108,9 +108,9 @@ function ensureContactModal() {
         </select>
         <select name="budget" aria-label="Budget range">
           <option value="">Budget range</option>
-          <option>$500–$1,500 CAD</option>
-          <option>$1,500–$4,500 CAD</option>
-          <option>$4,500–$9,500 CAD</option>
+          <option>$500 to $1,500 CAD</option>
+          <option>$1,500 to $4,500 CAD</option>
+          <option>$4,500 to $9,500 CAD</option>
           <option>$10,000+ CAD</option>
           <option>Not sure yet</option>
         </select>
@@ -142,7 +142,7 @@ function ensureContactModal() {
     const form = event.currentTarget as HTMLFormElement;
     const status = modal.querySelector<HTMLElement>(".contact-popup-status");
     const data = Object.fromEntries(new FormData(form).entries());
-    if (status) status.textContent = "Sending inquiry...";
+    if (status) status.textContent = "Sending your inquiry...";
     try {
       const response = await fetch("/api/lead", {
         method: "POST",
@@ -150,10 +150,10 @@ function ensureContactModal() {
         body: JSON.stringify(data)
       });
       if (!response.ok) throw new Error("Lead failed");
-      if (status) status.textContent = "Inquiry captured. Basit will review it and follow up.";
+      if (status) status.textContent = "Thank you. Your inquiry has been received and Basit will review it.";
       form.reset();
     } catch {
-      if (status) status.textContent = "Could not submit directly. Please email abasitabbasi99@gmail.com.";
+      if (status) status.textContent = "The form had trouble sending. Please email abasitabbasi99@gmail.com and we will still help you.";
     }
   });
 }
@@ -201,12 +201,12 @@ function enhanceFooter() {
       <div class="footer-mark"><img src="/logo.svg" alt="Marketech Digital logo" /></div>
       <div>
         <strong>Marketech Digital</strong>
-        <p>AI systems, web development, workflow automation, decision intelligence, SEO, branding, and growth-ready digital execution for businesses in Ottawa and across Canada.</p>
+        <p>Websites, automation, SEO, branding, and digital systems for business owners who want their online presence to feel clear, trustworthy, and easier to manage.</p>
       </div>
     </div>
     <div class="footer-columns">
-      <div><span>Services</span><a href="/services">Starter systems</a><a href="#offers">Premium offers</a><a href="#process">Process</a></div>
-      <div><span>Company</span><a href="/founder">Founder profile</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></div>
+      <div><span>Services</span><a href="/services">Starter systems</a><a href="#offers">Main offers</a><a href="#process">How we work</a></div>
+      <div><span>Company</span><a href="/founder">Founder profile</a><a href="#faq">Questions</a><a href="#contact">Contact</a></div>
       <div><span>Contact</span><a href="mailto:abasitabbasi99@gmail.com">abasitabbasi99@gmail.com</a><button type="button">Book a consultation</button></div>
     </div>
     <div class="footer-bottom"><span>© ${year} Marketech Digital. All rights reserved.</span><span>Serving Ottawa, Kanata, Barrhaven, Nepean, Gatineau, Toronto, and businesses across Canada.</span></div>
