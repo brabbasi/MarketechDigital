@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const navItems = [
@@ -26,43 +25,11 @@ function CubeLogoFace() {
 }
 
 function CubeMenuFace() {
-  return (
-    <span className="cube-soundwave" aria-hidden="true">
-      <i />
-      <i />
-      <i />
-      <i />
-      <i />
-    </span>
-  );
-}
-
-function findLogoHost() {
-  const logos = Array.from(document.querySelectorAll<HTMLImageElement>('img[src*="logo"]'))
-    .filter((img) => !img.closest(".global-cube-nav") && !img.closest(".ai-launcher") && !img.closest(".ai-panel") && !img.closest("footer"));
-
-  const visible = logos
-    .map((img) => ({ img, rect: img.getBoundingClientRect() }))
-    .filter(({ img, rect }) => {
-      const style = window.getComputedStyle(img);
-      return rect.width >= 28 && rect.height >= 28 && rect.top >= 0 && rect.top < Math.min(window.innerHeight * 0.55, 340) && style.display !== "none";
-    });
-
-  visible.sort((a, b) => a.rect.top - b.rect.top || a.rect.left - b.rect.left);
-  const found = visible[0];
-  if (!found) return null;
-
-  const parent = found.img.parentElement;
-  if (!parent) return null;
-
-  const parentRect = parent.getBoundingClientRect();
-  const host = parentRect.width <= 110 && parentRect.height <= 110 ? parent : found.img;
-  const rect = host.getBoundingClientRect();
-  return { host: host as HTMLElement, rect };
+  return <span className="cube-soundwave" aria-hidden="true"><i /><i /><i /><i /><i /></span>;
 }
 
 function cubeVars(size: number): CubeStyle {
-  const safeSize = Math.min(Math.max(size, 46), 72);
+  const safeSize = Math.min(Math.max(size, 50), 68);
   const depth = Math.round(safeSize * 0.41);
   return {
     "--cube-size": `${safeSize}px`,
@@ -71,101 +38,67 @@ function cubeVars(size: number): CubeStyle {
   };
 }
 
-function CubeMarkup({ open, setOpen, navRef, embedded, style }: { open: boolean; setOpen: (value: boolean | ((current: boolean) => boolean)) => void; navRef: React.RefObject<HTMLDivElement | null>; embedded: boolean; style?: CubeStyle }) {
-  return (
-    <div ref={navRef} style={style} className={`global-cube-nav${open ? " is-open" : ""}${embedded ? " is-embedded" : " is-floating"}`}>
-      <button
-        type="button"
-        className="global-cube-trigger"
-        aria-label="Open Marketech Digital navigation"
-        aria-expanded={open}
-        aria-controls="global-cube-menu"
-        onClick={() => setOpen((value) => !value)}
-      >
-        <span className="cube-scene" aria-hidden="true">
-          <span className="cube-core">
-            <span className="cube-face cube-front"><CubeLogoFace /></span>
-            <span className="cube-face cube-back"><CubeMenuFace /></span>
-            <span className="cube-face cube-right"><CubeLogoFace /></span>
-            <span className="cube-face cube-left"><CubeMenuFace /></span>
-            <span className="cube-face cube-top"><CubeLogoFace /></span>
-            <span className="cube-face cube-bottom"><CubeMenuFace /></span>
-          </span>
-        </span>
-      </button>
-
-      <div id="global-cube-menu" className="global-cube-menu" role="menu" aria-label="Marketech Digital navigation">
-        <div className="cube-menu-top">
-          <span>Live navigation</span>
-          <strong>Choose your path</strong>
-        </div>
-        {navItems.map((item) => (
-          <Link key={item.href} href={item.href} role="menuitem" onClick={() => setOpen(false)}>
-            <span>{item.label}</span>
-            <em>{item.detail}</em>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
+function findPrimaryLogo() {
+  const logos = Array.from(document.querySelectorAll<HTMLImageElement>('img[src*="logo"]'));
+  const candidates = logos
+    .filter((img) => !img.closest(".global-cube-nav") && !img.closest(".ai-launcher") && !img.closest(".ai-panel") && !img.closest("footer"))
+    .map((img) => ({ img, rect: img.getBoundingClientRect() }))
+    .filter(({ img, rect }) => {
+      const style = window.getComputedStyle(img);
+      return rect.width >= 28 && rect.height >= 28 && rect.top >= 0 && rect.top < Math.min(window.innerHeight * 0.55, 340) && style.display !== "none";
+    })
+    .sort((a, b) => a.rect.top - b.rect.top || a.rect.left - b.rect.left);
+  return candidates[0] || null;
 }
 
 export default function GlobalLogoCube() {
   const [open, setOpen] = useState(false);
-  const [host, setHost] = useState<HTMLElement | null>(null);
-  const [hostSize, setHostSize] = useState(58);
+  const [style, setStyle] = useState<CubeStyle>({ ...cubeVars(58), top: "18px", left: "18px" });
   const navRef = useRef<HTMLDivElement | null>(null);
+  const replacedLogoRef = useRef<HTMLImageElement | null>(null);
   const pathname = usePathname();
 
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+  useEffect(() => setOpen(false), [pathname]);
 
   useEffect(() => {
-    let activeHost: HTMLElement | null = null;
-
-    const cleanHost = () => {
-      if (activeHost) {
-        activeHost.classList.remove("logo-dice-host");
-        activeHost.style.position = activeHost.getAttribute("data-original-position") || "";
-        activeHost.removeAttribute("data-original-position");
-        activeHost = null;
-      }
+    const restoreLogo = () => {
+      if (!replacedLogoRef.current) return;
+      replacedLogoRef.current.style.opacity = "";
+      replacedLogoRef.current.style.pointerEvents = "";
+      replacedLogoRef.current = null;
     };
 
-    const attachToLogo = () => {
-      const found = findLogoHost();
+    const placeDice = () => {
+      const found = findPrimaryLogo();
       if (!found) {
-        cleanHost();
-        setHost(null);
+        restoreLogo();
+        setStyle({ ...cubeVars(58), top: "calc(env(safe-area-inset-top, 0px) + 18px)", left: "calc(env(safe-area-inset-left, 0px) + 18px)" });
         return;
       }
+      if (replacedLogoRef.current !== found.img) restoreLogo();
+      found.img.style.opacity = "0";
+      found.img.style.pointerEvents = "none";
+      replacedLogoRef.current = found.img;
 
-      if (activeHost !== found.host) {
-        cleanHost();
-        const existingPosition = found.host.style.position;
-        found.host.setAttribute("data-original-position", existingPosition);
-        if (window.getComputedStyle(found.host).position === "static") found.host.style.position = "relative";
-        found.host.classList.add("logo-dice-host");
-        activeHost = found.host;
-      }
-
-      setHost(found.host);
-      setHostSize(Math.max(found.rect.width, found.rect.height));
+      const size = Math.min(Math.max(Math.max(found.rect.width, found.rect.height), 50), 68);
+      setStyle({
+        ...cubeVars(size),
+        top: `${Math.round(found.rect.top + found.rect.height / 2 - size / 2)}px`,
+        left: `${Math.round(found.rect.left + found.rect.width / 2 - size / 2)}px`
+      });
     };
 
-    attachToLogo();
-    const timers = [120, 420, 900, 1600].map((delay) => window.setTimeout(attachToLogo, delay));
-    window.addEventListener("resize", attachToLogo);
-    window.addEventListener("orientationchange", attachToLogo);
-    window.addEventListener("pageshow", attachToLogo);
-
+    placeDice();
+    const timers = [120, 420, 900, 1600].map((delay) => window.setTimeout(placeDice, delay));
+    window.addEventListener("resize", placeDice);
+    window.addEventListener("orientationchange", placeDice);
+    window.addEventListener("pageshow", placeDice);
     return () => {
       timers.forEach(window.clearTimeout);
-      window.removeEventListener("resize", attachToLogo);
-      window.removeEventListener("orientationchange", attachToLogo);
-      window.removeEventListener("pageshow", attachToLogo);
-      cleanHost();
+      window.removeEventListener("resize", placeDice);
+      window.removeEventListener("orientationchange", placeDice);
+      window.removeEventListener("pageshow", placeDice);
+      restoreLogo();
     };
   }, [pathname]);
 
@@ -185,16 +118,24 @@ export default function GlobalLogoCube() {
     };
   }, [open]);
 
-  const cube = (
-    <CubeMarkup
-      open={open}
-      setOpen={setOpen}
-      navRef={navRef}
-      embedded={Boolean(host)}
-      style={host ? cubeVars(hostSize) : { ...cubeVars(58) }}
-    />
+  return (
+    <div ref={navRef} style={style} className={`global-cube-nav${open ? " is-open" : ""}`}>
+      <button type="button" className="global-cube-trigger" aria-label="Open Marketech Digital navigation" aria-expanded={open} aria-controls="global-cube-menu" onClick={() => setOpen((value) => !value)}>
+        <span className="cube-scene" aria-hidden="true">
+          <span className="cube-core">
+            <span className="cube-face cube-front"><CubeLogoFace /></span>
+            <span className="cube-face cube-back"><CubeMenuFace /></span>
+            <span className="cube-face cube-right"><CubeLogoFace /></span>
+            <span className="cube-face cube-left"><CubeMenuFace /></span>
+            <span className="cube-face cube-top"><CubeLogoFace /></span>
+            <span className="cube-face cube-bottom"><CubeMenuFace /></span>
+          </span>
+        </span>
+      </button>
+      <div id="global-cube-menu" className="global-cube-menu" role="menu" aria-label="Marketech Digital navigation">
+        <div className="cube-menu-top"><span>Live navigation</span><strong>Choose your path</strong></div>
+        {navItems.map((item) => <Link key={item.href} href={item.href} role="menuitem" onClick={() => setOpen(false)}><span>{item.label}</span><em>{item.detail}</em></Link>)}
+      </div>
+    </div>
   );
-
-  if (host) return createPortal(cube, host) as ReactNode;
-  return cube;
 }
