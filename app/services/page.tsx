@@ -7,37 +7,37 @@ import { absoluteUrl, breadcrumbJsonLd, faqJsonLd, jsonLdGraph, serviceJsonLd, s
 const services = [
   {
     name: "AI Agent Website Bot",
-    price: "$750–$2,500 CAD starter",
-    advanced: "$3,500–$8,000+ CAD advanced",
-    description: "A guided AI assistant for websites that answers questions, captures leads, qualifies inquiries, recommends services, and routes serious prospects to the right next step.",
-    includes: ["Website chat assistant", "FAQ and service guidance", "Lead qualification prompts", "Email/contact handoff", "Conversation-ready sales copy"]
+    price: "$750 to $2,500 CAD to start",
+    advanced: "$3,500 to $8,000+ CAD for a deeper system",
+    description: "A website assistant that welcomes visitors, answers common questions, captures serious inquiries, guides people to the right service, and sends cleaner project details to your team.",
+    includes: ["Website chat assistant", "Service guidance", "Lead qualification", "Email and contact handoff", "Conversation copy written for your business"]
   },
   {
     name: "AI Strategy Sprint",
-    price: "$500–$1,500 CAD",
-    advanced: "Roadmap before buildout",
-    description: "A focused strategy engagement that identifies where AI should create leverage, what should be automated first, and what system should be built next.",
-    includes: ["Business workflow review", "AI opportunity map", "Priority roadmap", "Tool recommendations", "Implementation plan"]
+    price: "$500 to $1,500 CAD",
+    advanced: "Clarity before you build",
+    description: "A focused planning session for business owners who know AI could help, but want a clear and sensible plan before spending money on tools or development.",
+    includes: ["Business workflow review", "AI opportunity map", "Priority plan", "Tool recommendations", "Clear next steps"]
   },
   {
     name: "Workflow Automation Build",
-    price: "$1,500–$6,000+ CAD",
-    advanced: "Depends on integrations",
-    description: "A practical automation build for repetitive admin, intake, follow-ups, internal alerts, CRM updates, reporting flows, and task routing.",
-    includes: ["Workflow mapping", "Automation architecture", "Tool integration", "Testing and refinement", "Handoff documentation"]
+    price: "$1,500 to $6,000+ CAD",
+    advanced: "Scope depends on your tools",
+    description: "A practical build that removes repeated admin work, connects forms and follow ups, improves handoffs, and helps your team spend less time chasing the same tasks.",
+    includes: ["Workflow mapping", "Automation plan", "Tool connection", "Testing and refinement", "Simple handoff notes"]
   },
   {
     name: "Decision Intelligence Dashboard",
-    price: "$2,000–$8,000+ CAD",
+    price: "$2,000 to $8,000+ CAD",
     advanced: "Data quality affects scope",
-    description: "A cleaner visibility layer for leaders who need actionable reporting, KPI tracking, decision views, and clearer performance signals.",
-    includes: ["KPI structure", "Dashboard design", "Data cleanup plan", "Reporting logic", "Decision-support views"]
+    description: "A clear reporting view for owners and teams who need to understand leads, sales, operations, campaigns, and business activity without digging through scattered tools.",
+    includes: ["KPI structure", "Dashboard design", "Data cleanup plan", "Reporting logic", "Decision views"]
   },
   {
     name: "Growth Systems Stack",
-    price: "$4,000–$15,000+ CAD",
-    advanced: "Premium buildout",
-    description: "A broader operating layer connecting AI strategy, automation, analytics, lead capture, content flow, and growth execution into one scalable system.",
+    price: "$4,000 to $15,000+ CAD",
+    advanced: "Premium connected build",
+    description: "A larger build for businesses that want their website, automation, lead capture, analytics, SEO, and growth work to feel connected instead of scattered.",
     includes: ["Systems blueprint", "Automation stack", "Data visibility", "AI assistant layer", "Growth workflow design"]
   }
 ];
@@ -45,15 +45,15 @@ const services = [
 const serviceFaq = [
   {
     question: "What services does Marketech Digital offer?",
-    answer: "Marketech Digital offers AI agent bots, AI strategy, workflow automation, decision intelligence dashboards, web development, SEO, landing pages, and growth systems for businesses in Ottawa and across Canada."
+    answer: "Marketech Digital helps with websites, AI assistants, workflow automation, software systems, dashboards, SEO, landing pages, branding, and practical digital growth systems for businesses in Ottawa and across Canada."
   },
   {
     question: "Are the prices final quotes?",
-    answer: "No. The listed ranges are guidance ranges. Final pricing depends on integrations, backend needs, workflow complexity, data quality, and the level of intelligence required."
+    answer: "No. The ranges are there to help you understand where a project may start. A final quote depends on your tools, integrations, timeline, data quality, number of pages or workflows, and how custom the system needs to be."
   },
   {
     question: "Can I start small before a larger build?",
-    answer: "Yes. Starter systems are designed to create a practical first step before a larger premium buildout or connected growth system."
+    answer: "Yes. Many clients should start with one useful system first, such as an assistant, an automation review, a dashboard starter, or a better lead capture path. That keeps the first step clear and useful."
   }
 ];
 
@@ -95,11 +95,11 @@ export default function ServicesPage() {
       />
       <section className="services-hero" aria-labelledby="services-title">
         <Link href="/" className="services-home" aria-label="Return to Marketech Digital homepage">← Marketech Digital</Link>
-        <div className="services-label"><span /> Starter systems / premium buildouts</div>
+        <div className="services-label"><span /> Starter systems and premium builds</div>
         <h1 id="services-title">Clear starting points for serious business systems.</h1>
         <p>
-          Explore AI automation, workflow automation, decision intelligence, web development, SEO, landing page, and growth system starting points. Final quotes depend on integrations,
-          backend needs, workflow complexity, data quality, and how much intelligence the system needs.
+          Explore AI automation, workflow automation, decision dashboards, web development, SEO, landing pages, and growth systems. The right starting point depends on your tools,
+          your business goal, the workflows involved, and how much support the system needs behind the scenes.
         </p>
       </section>
       <section className="services-grid" aria-label="Marketech Digital service options">
