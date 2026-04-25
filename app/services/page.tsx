@@ -83,7 +83,7 @@ export default function ServicesPage() {
         </p>
       </section>
 
-      <section className="services-hero" aria-labelledby="core-services-title">
+      <section id="core-services" className="services-hero" aria-labelledby="core-services-title">
         <div className="services-label"><span /> Core services</div>
         <h2 id="core-services-title">Build the digital foundation first.</h2>
         <p>
@@ -94,7 +94,7 @@ export default function ServicesPage() {
         {coreServicePages.map((service) => <ServiceCard service={service} key={service.slug} />)}
       </section>
 
-      <section className="services-hero" aria-labelledby="starter-services-title">
+      <section id="starter-systems" className="services-hero" aria-labelledby="starter-services-title">
         <div className="services-label"><span /> Starter systems</div>
         <h2 id="starter-services-title">Smaller entry systems with the same premium method.</h2>
         <p>
