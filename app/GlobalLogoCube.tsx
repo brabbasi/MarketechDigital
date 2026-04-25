@@ -17,15 +17,37 @@ const navItems = [
   { label: "Contact", href: "/#contact" }
 ];
 
+function logoCandidates() {
+  return Array.from(
+    document.querySelectorAll<HTMLElement>(
+      'img[src*="logo"], img[alt*="logo" i], svg[aria-label*="logo" i], header svg, nav svg, a[href="/"] svg'
+    )
+  );
+}
+
 function findPrimaryLogo() {
-  const logos = Array.from(document.querySelectorAll<HTMLImageElement>('img[src*="logo"]'));
-  const candidates = logos
-    .filter((img) => !img.closest(".md-dice-root") && !img.closest(".ai-launcher") && !img.closest(".ai-panel") && !img.closest("footer"))
-    .map((img) => ({ img, rect: img.getBoundingClientRect() }))
-    .filter(({ img, rect }) => {
-      const style = window.getComputedStyle(img);
-      return rect.width >= 28 && rect.height >= 28 && rect.top >= 0 && rect.top < Math.min(window.innerHeight * 0.55, 340) && style.display !== "none";
+  const candidates = logoCandidates()
+    .filter((element) => {
+      if (element.closest(".md-dice-root")) return false;
+      if (element.closest(".global-dice-nav-shell")) return false;
+      if (element.closest(".ai-launcher")) return false;
+      if (element.closest(".ai-panel")) return false;
+      if (element.closest("footer")) return false;
+      const rect = element.getBoundingClientRect();
+      const style = window.getComputedStyle(element);
+      return (
+        rect.width >= 24 &&
+        rect.height >= 24 &&
+        rect.width <= 130 &&
+        rect.height <= 130 &&
+        rect.top >= 0 &&
+        rect.top < Math.min(window.innerHeight * 0.55, 340) &&
+        rect.left < Math.min(window.innerWidth * 0.5, 520) &&
+        style.display !== "none" &&
+        style.visibility !== "hidden"
+      );
     })
+    .map((element) => ({ element, rect: element.getBoundingClientRect() }))
     .sort((a, b) => a.rect.top - b.rect.top || a.rect.left - b.rect.left);
 
   return candidates[0] || null;
@@ -34,18 +56,22 @@ function findPrimaryLogo() {
 function makePosition(rect?: DOMRect): DicePosition {
   if (!rect) {
     return {
-      position: "fixed",
-      top: "calc(env(safe-area-inset-top, 0px) + 18px)",
-      left: "calc(env(safe-area-inset-left, 0px) + 18px)",
+      position: "absolute",
+      zIndex: 2147483000,
+      top: "18px",
+      left: "18px",
+      pointerEvents: "auto",
       "--dice-size": "58px"
     };
   }
 
   const size = Math.min(Math.max(Math.max(rect.width, rect.height), 58), 76);
   return {
-    position: "fixed",
-    top: `${Math.round(rect.top + rect.height / 2 - (size + 22) / 2)}px`,
-    left: `${Math.round(rect.left + rect.width / 2 - (size + 22) / 2)}px`,
+    position: "absolute",
+    zIndex: 2147483000,
+    top: `${Math.round(window.scrollY + rect.top + rect.height / 2 - (size + 22) / 2)}px`,
+    left: `${Math.round(window.scrollX + rect.left + rect.width / 2 - (size + 22) / 2)}px`,
+    pointerEvents: "auto",
     "--dice-size": `${size}px`
   };
 }
@@ -54,12 +80,13 @@ export default function GlobalLogoCube() {
   const [style, setStyle] = useState<DicePosition>(makePosition());
 
   useEffect(() => {
-    let activeLogo: HTMLImageElement | null = null;
+    let activeLogo: HTMLElement | null = null;
 
     const restoreLogo = () => {
       if (!activeLogo) return;
       activeLogo.style.opacity = "";
       activeLogo.style.pointerEvents = "";
+      activeLogo.removeAttribute("data-marketech-dice-replaced");
       activeLogo = null;
     };
 
@@ -71,15 +98,16 @@ export default function GlobalLogoCube() {
         return;
       }
 
-      if (activeLogo !== found.img) restoreLogo();
-      found.img.style.opacity = "0";
-      found.img.style.pointerEvents = "none";
-      activeLogo = found.img;
+      if (activeLogo !== found.element) restoreLogo();
+      found.element.style.opacity = "0";
+      found.element.style.pointerEvents = "none";
+      found.element.setAttribute("data-marketech-dice-replaced", "true");
+      activeLogo = found.element;
       setStyle(makePosition(found.rect));
     };
 
     placeDice();
-    const timers = [100, 350, 850, 1500].map((delay) => window.setTimeout(placeDice, delay));
+    const timers = [100, 350, 850, 1500, 2500].map((delay) => window.setTimeout(placeDice, delay));
     window.addEventListener("resize", placeDice);
     window.addEventListener("orientationchange", placeDice);
     window.addEventListener("pageshow", placeDice);
