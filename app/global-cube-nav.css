@@ -1,36 +1,20 @@
-/* Global animated logo dice navigation for V2. It is injected into the real logo area instead of floating over it. */
-
-.logo-dice-host {
-  overflow: visible !important;
-  isolation: isolate;
-}
+/* Stable fixed logo dice navigation for V2. */
 
 .logo-dice-host > img,
 .logo-dice-host > picture,
 .logo-dice-host > svg:not(.keep-visible-logo) {
-  opacity: 0 !important;
+  opacity: 1 !important;
 }
 
 .global-cube-nav {
   --cube-size: 58px;
   --cube-depth: 24px;
   --cube-depth-neg: -24px;
+  position: fixed;
   z-index: 2147483000;
   width: var(--cube-size);
   height: var(--cube-size);
   isolation: isolate;
-}
-
-.global-cube-nav.is-floating {
-  position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 18px);
-  left: calc(env(safe-area-inset-left, 0px) + 18px);
-}
-
-.global-cube-nav.is-embedded {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%);
 }
 
 .global-cube-trigger {
@@ -45,7 +29,7 @@
   place-items: center;
   cursor: pointer;
   color: #fff;
-  background: transparent;
+  background: rgba(3, 6, 12, 0.12);
   box-shadow: none;
   transform: translateZ(0);
 }
@@ -130,9 +114,9 @@
 .cube-soundwave i:nth-child(5) { height: 38%; animation-delay: -.3s; opacity: .75; }
 
 .global-cube-menu {
-  position: absolute;
-  top: calc(100% + 12px);
-  left: 0;
+  position: fixed;
+  top: calc(var(--cube-menu-top, 82px));
+  left: calc(var(--cube-menu-left, 18px));
   width: min(310px, calc(100vw - 28px));
   padding: 13px;
   border: 1px solid rgba(255,255,255,.13);
@@ -223,9 +207,7 @@
 }
 
 @media (max-width: 760px) {
-  .global-cube-nav.is-floating {
-    top: calc(env(safe-area-inset-top, 0px) + 14px);
-    left: calc(env(safe-area-inset-left, 0px) + 14px);
+  .global-cube-nav {
     --cube-size: 52px;
     --cube-depth: 21px;
     --cube-depth-neg: -21px;
