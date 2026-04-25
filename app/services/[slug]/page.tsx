@@ -60,8 +60,12 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
       <section className="services-hero" aria-labelledby="service-title">
         <Link href="/services" className="services-home" aria-label="Return to all Marketech Digital services">← Services</Link>
         <div className="services-label"><span /> {service.label}</div>
+        <div className="service-top service-price-line"><span>{service.priceContext}</span><b>{service.price}</b></div>
         <h1 id="service-title">{service.h1}</h1>
         <p>{service.intro}</p>
+        <div className="service-includes" aria-label={`${service.name} pricing guidance`}>
+          {service.pricingDetails.map((item) => <span key={item}>{item}</span>)}
+        </div>
         <div className="starter-actions">
           <Link href="/#contact" aria-label={`Start a project for ${service.name}`}>Start a conversation →</Link>
           <Link href="/services">View all services</Link>
