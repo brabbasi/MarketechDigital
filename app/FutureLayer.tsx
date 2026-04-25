@@ -43,30 +43,24 @@ function buildStarterSystems() {
     ["Starter", "AI Strategy Sprint", "A clear AI roadmap before you spend money building the wrong thing.", "/services/ai-strategy-sprint", "Plan AI first →"],
     ["Starter", "Workflow Automation Build", "Connect intake, forms, follow ups, alerts, and handoffs.", "/services/workflow-automation-build", "Map workflow →"],
     ["Starter", "Decision Dashboard", "Clean visibility for KPIs, reports, and decision signals.", "/services/decision-intelligence-dashboard", "Build visibility →"],
-    ["Premium", "Growth Systems Stack", "Connect website, automation, lead capture, reporting, and AI support.", "/services/growth-systems-stack", "View stack →"],
-    ["Core", "Web Development", "Premium websites, landing pages, service pages, and conversion paths.", "/services/web-development", "View web →"],
-    ["Core", "AI Automation", "Useful AI systems for intake, routing, follow up, and repeated work.", "/services/ai-automation", "View AI →"],
-    ["Core", "Software Development", "Internal tools, dashboards, portals, and business workflow systems.", "/services/software-development", "View software →"],
-    ["Core", "SEO", "Cleaner structure, metadata, local signals, service pages, and indexing.", "/services/seo", "View SEO →"],
-    ["Core", "Branding", "Digital identity, messaging, visual direction, and premium site presence.", "/services/branding", "View branding →"]
+    ["Premium", "Growth Systems Stack", "Connect website, automation, lead capture, reporting, and AI support.", "/services/growth-systems-stack", "View stack →"]
   ];
 
   return `
-    <div class="starter-label"><span></span> Starter, core, and premium systems</div>
+    <div class="starter-label"><span></span> Starter systems</div>
     <div class="starter-headline-row">
       <div class="starter-copy">
         <h2>Start small without making the brand feel small.</h2>
-        <p>Focused systems for clients who want value quickly before moving into a larger build. Swipe through starter systems, core services, and premium options.</p>
+        <p>Focused starter systems for clients who want value quickly before moving into a full operating-system build.</p>
       </div>
     </div>
-    <div class="starter-carousel" id="starterCarousel" aria-label="Starter, core, and premium systems carousel">
+    <div class="starter-carousel" id="starterCarousel" aria-label="Starter systems carousel">
       ${cards.map(([group, title, copy, href, cta]) => `
         <article class="starter-mini"><em>${group}</em><strong>${title}</strong><span>${copy}</span><a href="${href}">${cta}</a></article>
       `).join("")}
     </div>
     <div class="starter-actions starter-actions-bottom">
       <a href="/services#starter-systems">Explore starter systems →</a>
-      <a href="/services#core-services">Explore core services →</a>
       <a href="#contact">Ask for a recommendation</a>
     </div>
   `;
@@ -74,7 +68,9 @@ function buildStarterSystems() {
 
 function addCarouselTools(id: string, label: string) {
   const rail = document.getElementById(id);
-  if (!rail || rail.previousElementSibling?.getAttribute("data-carousel-tools") === id) return;
+  if (!rail) return;
+  const previous = rail.previousElementSibling as HTMLElement | null;
+  if (previous?.getAttribute("data-carousel-tools") === id) return;
 
   const tools = document.createElement("div");
   tools.className = "carousel-tools";
@@ -128,7 +124,7 @@ function addServicesNav() {
 
 function refreshFAQ() {
   const cards = Array.from(document.querySelectorAll<HTMLElement>(".faq-card"));
-  if (!cards.length || document.querySelector("[data-faq-refresh='true']")) return;
+  if (!cards.length) return;
   const nextFaq = [
     ["What does Marketech Digital actually build?", "Marketech builds AI agent bots, workflow automations, decision dashboards, CRM flows, lead capture systems, and ready to grow working systems for businesses that want less manual drag and more clarity."],
     ["How does pricing work?", "Starter systems have guidance ranges, while larger builds are quoted after the workflow, integrations, data needs, and backend requirements are understood. The goal is fair scope, not surprise pricing."],
@@ -137,6 +133,11 @@ function refreshFAQ() {
     ["What happens after I reach out?", "You explain your business, current bottleneck, tools, and desired outcome. From there, Marketech recommends a strategy sprint, starter system, automation build, dashboard, or larger systems roadmap."],
     ["Can this connect to a real backend later?", "Yes. Contact handling, live metrics, CMS content, analytics, customer records, AI memory, and real assistant logic can be connected to a backend when the business is ready."]
   ];
+  const faqGrid = cards[0]?.parentElement as HTMLElement | null;
+  if (!faqGrid) return;
+  faqGrid.id = "faqGrid";
+  faqGrid.classList.add("faq-carousel");
+
   cards.forEach((card, index) => {
     const pair = nextFaq[index] || nextFaq[nextFaq.length - 1];
     const h3 = card.querySelector("h3");
@@ -145,8 +146,7 @@ function refreshFAQ() {
     if (p) p.textContent = pair[1];
     if (index === 0) card.setAttribute("data-faq-refresh", "true");
   });
-  const faqGrid = cards[0]?.parentElement;
-  if (faqGrid && cards.length < nextFaq.length) {
+  if (cards.length < nextFaq.length) {
     nextFaq.slice(cards.length).forEach(([q, a]) => {
       const card = document.createElement("article");
       card.className = "faq-card";
@@ -154,6 +154,7 @@ function refreshFAQ() {
       faqGrid.appendChild(card);
     });
   }
+  addCarouselTools("faqGrid", "FAQ carousel");
 }
 
 function runFutureEnhancements() {
@@ -189,6 +190,9 @@ export default function FutureLayer() {
 
   useEffect(() => {
     runFutureEnhancements();
+    const retryOne = window.setTimeout(runFutureEnhancements, 250);
+    const retryTwo = window.setTimeout(runFutureEnhancements, 900);
+    const retryThree = window.setTimeout(runFutureEnhancements, 1800);
     document.addEventListener("click", addFounderButton);
 
     const observer = new MutationObserver(() => runFutureEnhancements());
@@ -209,6 +213,9 @@ export default function FutureLayer() {
     }, 1600);
 
     return () => {
+      window.clearTimeout(retryOne);
+      window.clearTimeout(retryTwo);
+      window.clearTimeout(retryThree);
       window.clearInterval(timer);
       observer.disconnect();
       document.removeEventListener("click", addFounderButton);
