@@ -14,15 +14,15 @@ type Idea = {
 };
 
 const defaultIdea: Idea = {
-  title: "A practical starter system for your business",
+  title: "A helpful first step for your business",
   overview:
-    "Share your business type, goal, current friction, and tools. The generator will think through a focused starter system instead of giving generic AI advice.",
-  recommendedSystem: "AI Strategy Sprint or Starter System",
-  firstBuild: ["Map the workflow first so the right system is built around the real bottleneck."],
-  automations: ["Identify the highest-value repetitive task before adding automation."],
-  dataLayer: ["Create a simple view of leads, status, next action, and decision signals."],
-  priceRange: "Guidance range appears after the system idea is generated.",
-  nextQuestions: ["What business do you run?", "What part of the workflow feels slow, repetitive, or unclear?"]
+    "Tell us what kind of business you run, what you want to improve, and where things feel messy. We will suggest a practical starting point that fits your situation.",
+  recommendedSystem: "Strategy session or starter system",
+  firstBuild: ["Start by understanding the real problem before building anything new."],
+  automations: ["Look for one repeated task that costs time every week and fix that first."],
+  dataLayer: ["Create a simple place to see leads, next steps, and what needs attention."],
+  priceRange: "A guidance range will appear after your idea is generated.",
+  nextQuestions: ["What business do you run?", "What part of your work feels slow, repetitive, or hard to track?"]
 };
 
 function normalizeIdea(value: unknown): Idea {
@@ -61,14 +61,14 @@ export default function IdeaGenerator() {
       });
       const data = await response.json();
       setIdea(normalizeIdea(data?.idea));
-      setMode(data?.mode === "ai" ? "AI-powered recommendation" : "Guided recommendation");
+      setMode(data?.mode === "ai" ? "Personalized suggestion" : "Guided suggestion");
     } catch {
       setMode("Connection issue");
       setIdea({
         ...defaultIdea,
-        title: "I could not reach the idea engine",
+        title: "We could not load the idea tool right now",
         overview:
-          "The live generator had trouble connecting. Try again, or use the AI assistant button to describe the project and get a recommendation."
+          "Please try again in a moment. You can also open the assistant button and describe your project there."
       });
     } finally {
       setLoading(false);
@@ -77,35 +77,35 @@ export default function IdeaGenerator() {
 
   return (
     <section className="idea-lab" id="idea-generator">
-      <div className="services-label"><span /> Free AI idea generator</div>
+      <div className="services-label"><span /> Free idea helper</div>
       <h2>Not sure what you need yet?</h2>
       <p>
-        Describe your business and the real bottleneck. The generator now uses the same Marketech intelligence layer
-        as the assistant to create a more specific starter-system idea, not a generic template.
+        Share what you do and where things feel stuck. This tool will suggest a useful starting point for your business,
+        without making you sit through a sales call first.
       </p>
       <form className="idea-form" onSubmit={onSubmit}>
-        <input value={business} onChange={(e) => setBusiness(e.target.value)} placeholder="Business type, e.g. cleaning company, clinic, real estate, trades" />
-        <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="Main goal, e.g. more qualified leads, less admin, faster decisions" />
-        <input value={tools} onChange={(e) => setTools(e.target.value)} placeholder="Current tools, e.g. website, Gmail, WhatsApp, CRM, Google Sheets" />
+        <input value={business} onChange={(e) => setBusiness(e.target.value)} placeholder="Business type, for example cleaning, clinic, real estate, trades" />
+        <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="Main goal, for example better leads, less admin, faster follow ups" />
+        <input value={tools} onChange={(e) => setTools(e.target.value)} placeholder="Current tools, for example website, Gmail, WhatsApp, CRM, Google Sheets" />
         <textarea value={friction} onChange={(e) => setFriction(e.target.value)} placeholder="What feels slow, repetitive, confusing, expensive, or hard to track right now?" />
-        <button type="submit" disabled={loading}>{loading ? "Thinking through your system..." : "Generate thoughtful system idea →"}</button>
+        <button type="submit" disabled={loading}>{loading ? "Thinking through your situation..." : "Suggest a helpful starting point →"}</button>
       </form>
       <div className="idea-result">
         <div className="idea-mode">{mode}</div>
         <strong>{idea.title}</strong>
         <p>{idea.overview}</p>
         <div className="idea-system">
-          <span>Recommended system</span>
+          <span>Suggested starting point</span>
           <b>{idea.recommendedSystem}</b>
           <em>{idea.priceRange}</em>
         </div>
         <div className="idea-columns">
-          <div><h4>First build</h4><ul>{idea.firstBuild.map((item) => <li key={item}>{item}</li>)}</ul></div>
-          <div><h4>Automation layer</h4><ul>{idea.automations.map((item) => <li key={item}>{item}</li>)}</ul></div>
-          <div><h4>Visibility layer</h4><ul>{idea.dataLayer.map((item) => <li key={item}>{item}</li>)}</ul></div>
+          <div><h4>What to build first</h4><ul>{idea.firstBuild.map((item) => <li key={item}>{item}</li>)}</ul></div>
+          <div><h4>What to save time on</h4><ul>{idea.automations.map((item) => <li key={item}>{item}</li>)}</ul></div>
+          <div><h4>What to track</h4><ul>{idea.dataLayer.map((item) => <li key={item}>{item}</li>)}</ul></div>
         </div>
         <div className="idea-questions">
-          <h4>Smart next questions</h4>
+          <h4>Good questions to ask next</h4>
           <ul>{idea.nextQuestions.map((item) => <li key={item}>{item}</li>)}</ul>
         </div>
       </div>
