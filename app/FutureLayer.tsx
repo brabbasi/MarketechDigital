@@ -185,31 +185,35 @@ function runFutureEnhancements() {
   addFounderButton();
 }
 
+function updateFutureMetrics(tick: number) {
+  const one = document.querySelector<HTMLElement>("[data-live-one]");
+  const two = document.querySelector<HTMLElement>("[data-live-two]");
+  const three = document.querySelector<HTMLElement>("[data-live-three]");
+  const status = document.querySelector<HTMLElement>("[data-future-status]");
+  if (one) one.textContent = String(4 + (tick % 3)).padStart(2, "0");
+  if (two) two.textContent = `${87 + (tick % 9)}%`;
+  if (three) three.textContent = String(12 + (tick % 5));
+  if (status) status.textContent = ["Calibrating", "Mapping", "Optimizing", "Ready"][tick % 4];
+}
+
 export default function FutureLayer() {
   const pathname = usePathname();
 
   useEffect(() => {
-    runFutureEnhancements();
-    const retryOne = window.setTimeout(runFutureEnhancements, 250);
-    const retryTwo = window.setTimeout(runFutureEnhancements, 900);
-    const retryThree = window.setTimeout(runFutureEnhancements, 1800);
-    document.addEventListener("click", addFounderButton);
+    if (pathname !== "/") return;
 
-    const observer = new MutationObserver(() => runFutureEnhancements());
-    observer.observe(document.body, { childList: true, subtree: true });
+    runFutureEnhancements();
+    const retryOne = window.setTimeout(runFutureEnhancements, 300);
+    const retryTwo = window.setTimeout(runFutureEnhancements, 900);
+    const retryThree = window.setTimeout(runFutureEnhancements, 1600);
+    const onPageShow = () => runFutureEnhancements();
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("click", addFounderButton);
 
     let tick = 0;
     const timer = window.setInterval(() => {
       tick += 1;
-      runFutureEnhancements();
-      const one = document.querySelector<HTMLElement>("[data-live-one]");
-      const two = document.querySelector<HTMLElement>("[data-live-two]");
-      const three = document.querySelector<HTMLElement>("[data-live-three]");
-      const status = document.querySelector<HTMLElement>("[data-future-status]");
-      if (one) one.textContent = String(4 + (tick % 3)).padStart(2, "0");
-      if (two) two.textContent = `${87 + (tick % 9)}%`;
-      if (three) three.textContent = String(12 + (tick % 5));
-      if (status) status.textContent = ["Calibrating", "Mapping", "Optimizing", "Ready"][tick % 4];
+      updateFutureMetrics(tick);
     }, 1600);
 
     return () => {
@@ -217,7 +221,7 @@ export default function FutureLayer() {
       window.clearTimeout(retryTwo);
       window.clearTimeout(retryThree);
       window.clearInterval(timer);
-      observer.disconnect();
+      window.removeEventListener("pageshow", onPageShow);
       document.removeEventListener("click", addFounderButton);
     };
   }, [pathname]);
