@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import GlobalLogoCube from "./GlobalLogoCube";
 import FutureLayer from "./FutureLayer";
 import UXFixLayer from "./UXFixLayer";
 import AIAssistant from "./AIAssistant";
@@ -29,6 +30,7 @@ import "./bot-position-fix.css";
 import "./founder-image-replace.css";
 import "./popup-close-fix.css";
 import "./founder-desktop-polish.css";
+import "./global-cube-nav.css";
 
 const siteTitle = "Marketech Digital | AI, Web Development & Digital Growth Systems";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
@@ -141,6 +143,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
+        <GlobalLogoCube />
         {children}
         <FutureLayer />
         <UXFixLayer />
