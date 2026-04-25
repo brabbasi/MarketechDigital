@@ -1,21 +1,36 @@
-/* Global animated logo dice navigation for V2. It sits exactly over the logo mark and opens site navigation. */
+/* Global animated logo dice navigation for V2. It is injected into the real logo area instead of floating over it. */
+
+.logo-dice-host {
+  overflow: visible !important;
+  isolation: isolate;
+}
+
+.logo-dice-host > img,
+.logo-dice-host > picture,
+.logo-dice-host > svg:not(.keep-visible-logo) {
+  opacity: 0 !important;
+}
 
 .global-cube-nav {
   --cube-size: 58px;
-  --cube-depth: 29px;
-  --cube-depth-neg: -29px;
-  position: fixed;
+  --cube-depth: 24px;
+  --cube-depth-neg: -24px;
   z-index: 2147483000;
-  top: calc(env(safe-area-inset-top, 0px) + 18px);
-  left: calc(env(safe-area-inset-left, 0px) + 18px);
   width: var(--cube-size);
   height: var(--cube-size);
   isolation: isolate;
 }
 
-.global-cube-nav.is-anchored {
-  top: auto;
-  left: auto;
+.global-cube-nav.is-floating {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 18px);
+  left: calc(env(safe-area-inset-left, 0px) + 18px);
+}
+
+.global-cube-nav.is-embedded {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
 }
 
 .global-cube-trigger {
@@ -30,7 +45,7 @@
   place-items: center;
   cursor: pointer;
   color: #fff;
-  background: radial-gradient(circle at 50% 50%, rgba(5,7,13,.98), rgba(5,7,13,.78) 68%, transparent 72%);
+  background: transparent;
   box-shadow: none;
   transform: translateZ(0);
 }
@@ -113,10 +128,6 @@
 .cube-soundwave i:nth-child(3) { height: 100%; animation-delay: 0s; }
 .cube-soundwave i:nth-child(4) { height: 72%; animation-delay: -.15s; }
 .cube-soundwave i:nth-child(5) { height: 38%; animation-delay: -.3s; opacity: .75; }
-
-.cube-text {
-  display: none;
-}
 
 .global-cube-menu {
   position: absolute;
@@ -212,12 +223,12 @@
 }
 
 @media (max-width: 760px) {
-  .global-cube-nav:not(.is-anchored) {
+  .global-cube-nav.is-floating {
     top: calc(env(safe-area-inset-top, 0px) + 14px);
     left: calc(env(safe-area-inset-left, 0px) + 14px);
     --cube-size: 52px;
-    --cube-depth: 26px;
-    --cube-depth-neg: -26px;
+    --cube-depth: 21px;
+    --cube-depth-neg: -21px;
   }
 
   .global-cube-menu {
