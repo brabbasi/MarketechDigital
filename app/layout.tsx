@@ -28,6 +28,7 @@ import "./scroll-fix.css";
 import "./bot-position-fix.css";
 import "./founder-image-replace.css";
 import "./popup-close-fix.css";
+import "./founder-desktop-polish.css";
 
 const siteTitle = "Marketech Digital | AI, Web Development & Digital Growth Systems";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
