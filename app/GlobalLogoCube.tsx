@@ -20,7 +20,9 @@ function CubeLogoFace() {
 
 function CubeMenuFace() {
   return (
-    <span className="cube-hamburger" aria-hidden="true">
+    <span className="cube-soundwave" aria-hidden="true">
+      <i />
+      <i />
       <i />
       <i />
       <i />
@@ -82,7 +84,7 @@ export default function GlobalLogoCube() {
 
       <div id="global-cube-menu" className="global-cube-menu" role="menu" aria-label="Marketech Digital navigation">
         <div className="cube-menu-top">
-          <span>Navigate</span>
+          <span>Live navigation</span>
           <strong>Choose your path</strong>
         </div>
         {navItems.map((item) => (
