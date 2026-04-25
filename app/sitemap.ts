@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { absoluteUrl } from "./seo";
+import { servicePages } from "./services/service-pages";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -16,6 +17,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.9
     },
+    ...servicePages.map((service) => ({
+      url: absoluteUrl(`/services/${service.slug}`),
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.82
+    })),
     {
       url: absoluteUrl("/founder"),
       lastModified: now,
