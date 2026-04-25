@@ -33,7 +33,60 @@
   .portrait-orbits {
     inset: -12% !important;
     border-radius: 50% !important;
-    opacity: .48 !important;
+    opacity: .62 !important;
+  }
+
+  .portrait-orbits::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 22% !important;
+    right: 22% !important;
+    bottom: 17% !important;
+    height: 54px !important;
+    border-radius: 999px !important;
+    pointer-events: none !important;
+    z-index: 3 !important;
+    background:
+      radial-gradient(circle at 18% 58%, rgba(255,106,0,.95) 0 4px, transparent 6px),
+      radial-gradient(circle at 50% 42%, rgba(89,175,255,.95) 0 4px, transparent 6px),
+      radial-gradient(circle at 82% 58%, rgba(255,106,0,.95) 0 4px, transparent 6px),
+      linear-gradient(90deg, transparent 0 8%, rgba(255,106,0,.72) 18%, rgba(89,175,255,.82) 50%, rgba(255,106,0,.72) 82%, transparent 92%);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 170% 2px;
+    background-repeat: no-repeat !important;
+    background-position: center, center, center, 0 58% !important;
+    filter: drop-shadow(0 0 16px rgba(255,106,0,.28)) drop-shadow(0 0 20px rgba(89,175,255,.18)) !important;
+    opacity: .76 !important;
+    animation: founderSignalSweep 4.8s ease-in-out infinite !important;
+    mask-image: linear-gradient(90deg, transparent, black 18%, black 82%, transparent) !important;
+  }
+
+  .portrait-orbits::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 24% !important;
+    right: 24% !important;
+    bottom: 10.5% !important;
+    height: 34px !important;
+    border-radius: 999px !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
+    background:
+      linear-gradient(90deg, transparent, rgba(255,106,0,.24), rgba(89,175,255,.22), transparent),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 1px, transparent 1px 18px);
+    opacity: .42 !important;
+    transform: perspective(260px) rotateX(62deg) !important;
+    animation: founderSignalPulse 3.6s ease-in-out infinite !important;
+    mask-image: linear-gradient(90deg, transparent, black 14%, black 86%, transparent) !important;
+  }
+
+  @keyframes founderSignalSweep {
+    0%, 100% { background-position: center, center, center, 0 58%; opacity: .58; transform: translateY(0) scaleX(.96); }
+    50% { background-position: center, center, center, 100% 58%; opacity: .9; transform: translateY(-2px) scaleX(1); }
+  }
+
+  @keyframes founderSignalPulse {
+    0%, 100% { opacity: .26; transform: perspective(260px) rotateX(62deg) translateY(0) scaleX(.92); }
+    50% { opacity: .5; transform: perspective(260px) rotateX(62deg) translateY(-2px) scaleX(1); }
   }
 
   .portrait-overlay {
