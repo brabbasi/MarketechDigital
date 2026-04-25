@@ -1,5 +1,5 @@
 export const siteName = "Marketech Digital";
-export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://marketech-digital.vercel.app").replace(/\/$/, "");
+export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://getmarketechdigital.com").replace(/\/$/, "");
 export const contactEmail = "abasitabbasi99@gmail.com";
 
 export const siteDescription =
@@ -33,7 +33,7 @@ export const serviceKeywords = [
   "automation for service businesses"
 ];
 
-export const areasServed = ["Ottawa", "Kanata", "Barrhaven", "Nepean", "Gatineau", "Toronto", "Ontario", "Canada"];
+export const areasServed = ["Ottawa", "Kanata", "Barrhaven", "Nepean", "Gatineau", "Toronto", "Ontario", "Canada", "Remote clients"];
 
 export const coreServices = [
   "Website Design and Development",
@@ -74,7 +74,7 @@ export const homepageFaq = [
   {
     question: "Do you serve businesses in Ottawa and across Canada?",
     answer:
-      "Yes. Marketech Digital supports businesses in Ottawa, Kanata, Barrhaven, Nepean, Gatineau, Toronto, Ontario, and across Canada."
+      "Yes. Marketech Digital supports businesses in Ottawa, Kanata, Barrhaven, Nepean, Gatineau, Toronto, Ontario, across Canada, and remote clients."
   },
   {
     question: "Can you help with SEO, branding, and digital marketing?",
@@ -83,6 +83,20 @@ export const homepageFaq = [
   }
 ];
 
+const offerCatalog = {
+  "@type": "OfferCatalog",
+  name: "Marketech Digital services",
+  itemListElement: coreServices.map((service) => ({
+    "@type": "Offer",
+    itemOffered: {
+      "@type": "Service",
+      name: service,
+      serviceType: service,
+      areaServed: areasServed
+    }
+  }))
+};
+
 export function organizationJsonLd() {
   return {
     "@type": "Organization",
@@ -90,6 +104,7 @@ export function organizationJsonLd() {
     name: siteName,
     url: siteUrl,
     logo: absoluteUrl("/logo.svg"),
+    image: absoluteUrl("/logo.svg"),
     email: contactEmail,
     founder: {
       "@type": "Person",
@@ -98,6 +113,7 @@ export function organizationJsonLd() {
     },
     areaServed: areasServed,
     knowsAbout: serviceKeywords,
+    makesOffer: offerCatalog,
     description: siteDescription,
     contactPoint: {
       "@type": "ContactPoint",
@@ -130,16 +146,11 @@ export function localBusinessJsonLd() {
     image: absoluteUrl("/logo.svg"),
     logo: absoluteUrl("/logo.svg"),
     email: contactEmail,
-    priceRange: "$$$",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Ottawa",
-      addressRegion: "ON",
-      addressCountry: "CA"
-    },
+    priceRange: "Contact for quote",
     areaServed: areasServed,
+    makesOffer: offerCatalog,
     description:
-      "A digital agency serving Ottawa and Canadian businesses with website design and development, software and app development, AI workflow automation, SEO, branding, digital marketing, landing pages, and practical business growth systems."
+      "A digital agency serving Ottawa, Ontario, Canada, and remote clients with website design and development, software and app development, AI workflow automation, SEO, branding, digital marketing, landing pages, and practical business growth systems."
   };
 }
 
