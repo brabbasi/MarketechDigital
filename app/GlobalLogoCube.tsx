@@ -14,29 +14,11 @@ const navItems = [
   { href: "/#contact", label: "Contact", detail: "Start a conversation" }
 ];
 
-type CubeStyle = CSSProperties & {
+type DiceStyle = CSSProperties & {
   "--cube-size"?: string;
-  "--cube-depth"?: string;
-  "--cube-depth-neg"?: string;
+  "--cube-menu-top"?: string;
+  "--cube-menu-left"?: string;
 };
-
-function CubeLogoFace() {
-  return <img src="/logo.svg" alt="Marketech Digital logo" draggable="false" />;
-}
-
-function CubeMenuFace() {
-  return <span className="cube-soundwave" aria-hidden="true"><i /><i /><i /><i /><i /></span>;
-}
-
-function cubeVars(size: number): CubeStyle {
-  const safeSize = Math.min(Math.max(size, 50), 68);
-  const depth = Math.round(safeSize * 0.41);
-  return {
-    "--cube-size": `${safeSize}px`,
-    "--cube-depth": `${depth}px`,
-    "--cube-depth-neg": `-${depth}px`
-  };
-}
 
 function findPrimaryLogo() {
   const logos = Array.from(document.querySelectorAll<HTMLImageElement>('img[src*="logo"]'));
@@ -48,57 +30,59 @@ function findPrimaryLogo() {
       return rect.width >= 28 && rect.height >= 28 && rect.top >= 0 && rect.top < Math.min(window.innerHeight * 0.55, 340) && style.display !== "none";
     })
     .sort((a, b) => a.rect.top - b.rect.top || a.rect.left - b.rect.left);
+
   return candidates[0] || null;
+}
+
+function makeStyle(rect?: DOMRect): DiceStyle {
+  if (!rect) {
+    return {
+      top: "calc(env(safe-area-inset-top, 0px) + 18px)",
+      left: "calc(env(safe-area-inset-left, 0px) + 18px)",
+      "--cube-size": "58px",
+      "--cube-menu-top": "82px",
+      "--cube-menu-left": "18px"
+    };
+  }
+
+  const size = Math.min(Math.max(Math.max(rect.width, rect.height), 54), 70);
+  const top = Math.round(rect.top + rect.height / 2 - size / 2);
+  const left = Math.round(rect.left + rect.width / 2 - size / 2);
+
+  return {
+    top: `${top}px`,
+    left: `${left}px`,
+    "--cube-size": `${size}px`,
+    "--cube-menu-top": `${top + size + 12}px`,
+    "--cube-menu-left": `${Math.max(12, Math.min(left, window.innerWidth - 324))}px`
+  };
 }
 
 export default function GlobalLogoCube() {
   const [open, setOpen] = useState(false);
-  const [style, setStyle] = useState<CubeStyle>({ ...cubeVars(58), top: "18px", left: "18px" });
+  const [style, setStyle] = useState<DiceStyle>(makeStyle());
   const navRef = useRef<HTMLDivElement | null>(null);
-  const replacedLogoRef = useRef<HTMLImageElement | null>(null);
   const pathname = usePathname();
 
   useEffect(() => setOpen(false), [pathname]);
 
   useEffect(() => {
-    const restoreLogo = () => {
-      if (!replacedLogoRef.current) return;
-      replacedLogoRef.current.style.opacity = "";
-      replacedLogoRef.current.style.pointerEvents = "";
-      replacedLogoRef.current = null;
-    };
-
     const placeDice = () => {
       const found = findPrimaryLogo();
-      if (!found) {
-        restoreLogo();
-        setStyle({ ...cubeVars(58), top: "calc(env(safe-area-inset-top, 0px) + 18px)", left: "calc(env(safe-area-inset-left, 0px) + 18px)" });
-        return;
-      }
-      if (replacedLogoRef.current !== found.img) restoreLogo();
-      found.img.style.opacity = "0";
-      found.img.style.pointerEvents = "none";
-      replacedLogoRef.current = found.img;
-
-      const size = Math.min(Math.max(Math.max(found.rect.width, found.rect.height), 50), 68);
-      setStyle({
-        ...cubeVars(size),
-        top: `${Math.round(found.rect.top + found.rect.height / 2 - size / 2)}px`,
-        left: `${Math.round(found.rect.left + found.rect.width / 2 - size / 2)}px`
-      });
+      setStyle(makeStyle(found?.rect));
     };
 
     placeDice();
-    const timers = [120, 420, 900, 1600].map((delay) => window.setTimeout(placeDice, delay));
+    const timers = [100, 350, 850, 1500].map((delay) => window.setTimeout(placeDice, delay));
     window.addEventListener("resize", placeDice);
     window.addEventListener("orientationchange", placeDice);
     window.addEventListener("pageshow", placeDice);
+
     return () => {
       timers.forEach(window.clearTimeout);
       window.removeEventListener("resize", placeDice);
       window.removeEventListener("orientationchange", placeDice);
       window.removeEventListener("pageshow", placeDice);
-      restoreLogo();
     };
   }, [pathname]);
 
@@ -120,21 +104,30 @@ export default function GlobalLogoCube() {
 
   return (
     <div ref={navRef} style={style} className={`global-cube-nav${open ? " is-open" : ""}`}>
-      <button type="button" className="global-cube-trigger" aria-label="Open Marketech Digital navigation" aria-expanded={open} aria-controls="global-cube-menu" onClick={() => setOpen((value) => !value)}>
-        <span className="cube-scene" aria-hidden="true">
-          <span className="cube-core">
-            <span className="cube-face cube-front"><CubeLogoFace /></span>
-            <span className="cube-face cube-back"><CubeMenuFace /></span>
-            <span className="cube-face cube-right"><CubeLogoFace /></span>
-            <span className="cube-face cube-left"><CubeMenuFace /></span>
-            <span className="cube-face cube-top"><CubeLogoFace /></span>
-            <span className="cube-face cube-bottom"><CubeMenuFace /></span>
-          </span>
+      <button
+        type="button"
+        className="global-cube-trigger"
+        aria-label="Open Marketech Digital navigation"
+        aria-expanded={open}
+        aria-controls="global-cube-menu"
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span className="logo-dice" aria-hidden="true">
+          <span className="dice-face dice-logo-face"><img src="/logo.svg" alt="" draggable="false" /></span>
+          <span className="dice-face dice-wave-face"><span className="cube-soundwave"><i /><i /><i /><i /><i /></span></span>
+          <span className="dice-edge dice-edge-one" />
+          <span className="dice-edge dice-edge-two" />
         </span>
       </button>
+
       <div id="global-cube-menu" className="global-cube-menu" role="menu" aria-label="Marketech Digital navigation">
         <div className="cube-menu-top"><span>Live navigation</span><strong>Choose your path</strong></div>
-        {navItems.map((item) => <Link key={item.href} href={item.href} role="menuitem" onClick={() => setOpen(false)}><span>{item.label}</span><em>{item.detail}</em></Link>)}
+        {navItems.map((item) => (
+          <Link key={item.href} href={item.href} role="menuitem" onClick={() => setOpen(false)}>
+            <span>{item.label}</span>
+            <em>{item.detail}</em>
+          </Link>
+        ))}
       </div>
     </div>
   );
