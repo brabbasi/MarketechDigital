@@ -3,45 +3,7 @@ import Script from "next/script";
 import Link from "next/link";
 import IdeaGenerator from "../IdeaGenerator";
 import { absoluteUrl, breadcrumbJsonLd, faqJsonLd, jsonLdGraph, serviceJsonLd, siteName } from "../seo";
-import { servicePages } from "./service-pages";
-
-const services = [
-  {
-    name: "AI Agent Website Bot",
-    price: "$750 to $2,500 CAD to start",
-    advanced: "$3,500 to $8,000+ CAD for a deeper system",
-    description: "A website assistant that welcomes visitors, answers common questions, captures serious inquiries, guides people to the right service, and sends cleaner project details to your team.",
-    includes: ["Website chat assistant", "Service guidance", "Lead qualification", "Email and contact handoff", "Conversation copy written for your business"]
-  },
-  {
-    name: "AI Strategy Sprint",
-    price: "$500 to $1,500 CAD",
-    advanced: "Clarity before you build",
-    description: "A focused planning session for business owners who know AI could help, but want a clear and sensible plan before spending money on tools or development.",
-    includes: ["Business workflow review", "AI opportunity map", "Priority plan", "Tool recommendations", "Clear next steps"]
-  },
-  {
-    name: "Workflow Automation Build",
-    price: "$1,500 to $6,000+ CAD",
-    advanced: "Scope depends on your tools",
-    description: "A practical build that removes repeated admin work, connects forms and follow ups, improves handoffs, and helps your team spend less time chasing the same tasks.",
-    includes: ["Workflow mapping", "Automation plan", "Tool connection", "Testing and refinement", "Simple handoff notes"]
-  },
-  {
-    name: "Decision Intelligence Dashboard",
-    price: "$2,000 to $8,000+ CAD",
-    advanced: "Data quality affects scope",
-    description: "A clear reporting view for owners and teams who need to understand leads, sales, operations, campaigns, and business activity without digging through scattered tools.",
-    includes: ["KPI structure", "Dashboard design", "Data cleanup plan", "Reporting logic", "Decision views"]
-  },
-  {
-    name: "Growth Systems Stack",
-    price: "$4,000 to $15,000+ CAD",
-    advanced: "Premium connected build",
-    description: "A larger build for businesses that want their website, automation, lead capture, analytics, SEO, and growth work to feel connected instead of scattered.",
-    includes: ["Systems blueprint", "Automation stack", "Data visibility", "AI assistant layer", "Growth workflow design"]
-  }
-];
+import { coreServicePages, servicePages, starterSystemPages } from "./service-pages";
 
 const serviceFaq = [
   {
@@ -81,10 +43,26 @@ const structuredData = jsonLdGraph([
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" }
   ]),
-  ...services.map((service) => serviceJsonLd(service.name, service.description, "/services")),
   ...servicePages.map((service) => serviceJsonLd(service.name, service.metaDescription, `/services/${service.slug}`)),
   faqJsonLd("/services#faq", serviceFaq)
 ]);
+
+function ServiceCard({ service }: { service: (typeof servicePages)[number] }) {
+  return (
+    <article className="service-card">
+      <div className="service-top">
+        <span>{service.priceContext}</span>
+        <b>{service.price}</b>
+      </div>
+      <h2>{service.name}</h2>
+      <p>{service.intro}</p>
+      <div className="service-includes" aria-label={`${service.name} service focus`}>
+        {service.builds.slice(0, 4).map((item) => <span key={item}>{item}</span>)}
+      </div>
+      <Link href={`/services/${service.slug}`} aria-label={`View ${service.name} services`}>View service details →</Link>
+    </article>
+  );
+}
 
 export default function ServicesPage() {
   return (
@@ -105,38 +83,26 @@ export default function ServicesPage() {
         </p>
       </section>
 
+      <section className="services-hero" aria-labelledby="core-services-title">
+        <div className="services-label"><span /> Core services</div>
+        <h2 id="core-services-title">Build the digital foundation first.</h2>
+        <p>
+          These are the main service areas for businesses that need stronger websites, AI automation, software systems, SEO, marketing structure, and brand clarity.
+        </p>
+      </section>
       <section className="services-grid" aria-label="Core Marketech Digital services">
-        {servicePages.map((service) => (
-          <article className="service-card" key={service.slug}>
-            <div className="service-top">
-              <span>{service.label}</span>
-              <b>{service.name}</b>
-            </div>
-            <h2>{service.name}</h2>
-            <p>{service.intro}</p>
-            <div className="service-includes" aria-label={`${service.name} service focus`}>
-              {service.builds.slice(0, 4).map((item) => <span key={item}>{item}</span>)}
-            </div>
-            <Link href={`/services/${service.slug}`} aria-label={`View ${service.name} services`}>View service details →</Link>
-          </article>
-        ))}
+        {coreServicePages.map((service) => <ServiceCard service={service} key={service.slug} />)}
       </section>
 
+      <section className="services-hero" aria-labelledby="starter-services-title">
+        <div className="services-label"><span /> Starter systems</div>
+        <h2 id="starter-services-title">Smaller entry systems with the same premium method.</h2>
+        <p>
+          These focused builds help clients start with one useful system before moving into a larger operating layer. Each one now has its own detail page, pricing guidance, process, benefits, FAQs, and next step.
+        </p>
+      </section>
       <section className="services-grid" aria-label="Marketech Digital starter systems">
-        {services.map((service) => (
-          <article className="service-card" key={service.name}>
-            <div className="service-top">
-              <span>{service.advanced}</span>
-              <b>{service.price}</b>
-            </div>
-            <h2>{service.name}</h2>
-            <p>{service.description}</p>
-            <div className="service-includes" aria-label={`${service.name} includes`}>
-              {service.includes.map((item) => <span key={item}>{item}</span>)}
-            </div>
-            <Link href="/#contact" aria-label={`Start a project for ${service.name}`}>Start this project →</Link>
-          </article>
-        ))}
+        {starterSystemPages.map((service) => <ServiceCard service={service} key={service.slug} />)}
       </section>
       <IdeaGenerator />
     </main>
