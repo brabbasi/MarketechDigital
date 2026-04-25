@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 function buildDeck() {
   return `
     <div class="future-eyebrow"><span></span> Live systems cockpit</div>
     <div class="future-grid">
       <div class="future-copy">
-        <h2>From scattered work to an intelligent operating layer.</h2>
-        <p>Marketech Digital turns workflows, data, and decision points into a cleaner command system — so leaders can see what matters, automate what repeats, and move with more confidence.</p>
+        <h2>From scattered work to a clearer way to run the business.</h2>
+        <p>Marketech Digital turns workflows, data, and decision points into a clearer working system so owners and teams can see what matters, save time on repeated work, and move with more confidence.</p>
         <div class="future-tags">
-          <span>AI roadmaps</span><span>Automation maps</span><span>Decision views</span><span>Growth systems</span>
+          <span>AI plans</span><span>Automation maps</span><span>Decision views</span><span>Business systems</span>
         </div>
       </div>
       <div class="future-console" aria-hidden="true">
@@ -37,23 +38,35 @@ function buildDeck() {
 }
 
 function buildStarterSystems() {
+  const cards = [
+    ["Starter", "AI Agent Bot", "Lead capture, FAQs, qualification, and service routing.", "/services/ai-agent-website-bot", "Start with bot →"],
+    ["Starter", "AI Strategy Sprint", "A clear AI roadmap before you spend money building the wrong thing.", "/services/ai-strategy-sprint", "Plan AI first →"],
+    ["Starter", "Workflow Automation Build", "Connect intake, forms, follow ups, alerts, and handoffs.", "/services/workflow-automation-build", "Map workflow →"],
+    ["Starter", "Decision Dashboard", "Clean visibility for KPIs, reports, and decision signals.", "/services/decision-intelligence-dashboard", "Build visibility →"],
+    ["Premium", "Growth Systems Stack", "Connect website, automation, lead capture, reporting, and AI support.", "/services/growth-systems-stack", "View stack →"],
+    ["Core", "Web Development", "Premium websites, landing pages, service pages, and conversion paths.", "/services/web-development", "View web →"],
+    ["Core", "AI Automation", "Useful AI systems for intake, routing, follow up, and repeated work.", "/services/ai-automation", "View AI →"],
+    ["Core", "Software Development", "Internal tools, dashboards, portals, and business workflow systems.", "/services/software-development", "View software →"],
+    ["Core", "SEO", "Cleaner structure, metadata, local signals, service pages, and indexing.", "/services/seo", "View SEO →"],
+    ["Core", "Branding", "Digital identity, messaging, visual direction, and premium site presence.", "/services/branding", "View branding →"]
+  ];
+
   return `
-    <div class="starter-label"><span></span> Starter systems</div>
+    <div class="starter-label"><span></span> Starter, core, and premium systems</div>
     <div class="starter-headline-row">
       <div class="starter-copy">
-        <h2>Smaller entry systems without lowering the brand.</h2>
-        <p>Focused starter systems for clients who want value quickly before moving into a full operating-system build.</p>
+        <h2>Start small without making the brand feel small.</h2>
+        <p>Focused systems for clients who want value quickly before moving into a larger build. Swipe through starter systems, core services, and premium options.</p>
       </div>
     </div>
-    <div class="starter-carousel" id="starterCarousel" aria-label="Starter systems carousel">
-      <article class="starter-mini"><strong>AI Agent Bot</strong><span>Lead capture, FAQs, qualification, and service routing.</span><a href="#contact">Start with bot →</a></article>
-      <article class="starter-mini"><strong>Automation Audit</strong><span>Find repetitive work and map the fastest automation wins.</span><a href="#contact">Map workflow →</a></article>
-      <article class="starter-mini"><strong>Dashboard Starter</strong><span>Clean visibility for KPIs, reports, and decision signals.</span><a href="#contact">Build visibility →</a></article>
-      <article class="starter-mini"><strong>CRM Workflow Setup</strong><span>Connect intake, follow-ups, client handoff, and alerts.</span><a href="#contact">Clean handoff →</a></article>
-      <article class="starter-mini"><strong>Lead Capture System</strong><span>Turn website interest into structured inquiries and faster follow-up.</span><a href="#contact">Capture leads →</a></article>
+    <div class="starter-carousel" id="starterCarousel" aria-label="Starter, core, and premium systems carousel">
+      ${cards.map(([group, title, copy, href, cta]) => `
+        <article class="starter-mini"><em>${group}</em><strong>${title}</strong><span>${copy}</span><a href="${href}">${cta}</a></article>
+      `).join("")}
     </div>
     <div class="starter-actions starter-actions-bottom">
-      <a href="/services">Explore starter systems →</a>
+      <a href="/services#starter-systems">Explore starter systems →</a>
+      <a href="/services#core-services">Explore core services →</a>
       <a href="#contact">Ask for a recommendation</a>
     </div>
   `;
@@ -75,6 +88,19 @@ function addCarouselTools(id: string, label: string) {
   const getAmount = () => Math.min(rail.clientWidth * 0.92, 460);
   prev?.addEventListener("click", () => rail.scrollBy({ left: -getAmount(), behavior: "smooth" }));
   next?.addEventListener("click", () => rail.scrollBy({ left: getAmount(), behavior: "smooth" }));
+}
+
+function addOfferServiceCTA() {
+  const offerGrid = document.getElementById("offerGrid");
+  if (!offerGrid || document.querySelector("[data-core-service-cta]")) return;
+  const cta = document.createElement("div");
+  cta.className = "starter-actions starter-actions-bottom offer-core-service-cta";
+  cta.setAttribute("data-core-service-cta", "true");
+  cta.innerHTML = `
+    <a href="/services#core-services">Explore core services →</a>
+    <a href="/services">View all services</a>
+  `;
+  offerGrid.insertAdjacentElement("afterend", cta);
 }
 
 function addFounderButton() {
@@ -104,7 +130,7 @@ function refreshFAQ() {
   const cards = Array.from(document.querySelectorAll<HTMLElement>(".faq-card"));
   if (!cards.length || document.querySelector("[data-faq-refresh='true']")) return;
   const nextFaq = [
-    ["What does Marketech Digital actually build?", "Marketech builds AI agent bots, workflow automations, decision dashboards, CRM flows, lead-capture systems, and growth-ready operating layers for businesses that want less manual drag and more clarity."],
+    ["What does Marketech Digital actually build?", "Marketech builds AI agent bots, workflow automations, decision dashboards, CRM flows, lead capture systems, and ready to grow working systems for businesses that want less manual drag and more clarity."],
     ["How does pricing work?", "Starter systems have guidance ranges, while larger builds are quoted after the workflow, integrations, data needs, and backend requirements are understood. The goal is fair scope, not surprise pricing."],
     ["Can the AI bot help before I contact you?", "Yes. The bot can explain offers, suggest a likely service path, estimate starter ranges, and help a visitor describe their business problem before sending an inquiry."],
     ["Do I need a full custom system or a smaller starter system?", "If the problem is narrow, start with a bot, audit, dashboard starter, or CRM workflow. If your operations are scattered across multiple tools and teams, a larger systems stack may be the better fit."],
@@ -130,41 +156,48 @@ function refreshFAQ() {
   }
 }
 
+function runFutureEnhancements() {
+  const hero = document.querySelector(".hero");
+  if (hero && !document.querySelector("[data-future-deck]")) {
+    const deck = document.createElement("section");
+    deck.className = "future-deck container";
+    deck.setAttribute("data-future-deck", "true");
+    deck.innerHTML = buildDeck();
+    hero.insertAdjacentElement("afterend", deck);
+  }
+
+  const offerSection = document.getElementById("offers") || document.getElementById("offerGrid")?.closest("section");
+  if (offerSection && !document.querySelector("[data-starter-systems]")) {
+    const starter = document.createElement("section");
+    starter.className = "starter-systems container";
+    starter.setAttribute("data-starter-systems", "true");
+    starter.innerHTML = buildStarterSystems();
+    offerSection.insertAdjacentElement("beforebegin", starter);
+  }
+
+  addServicesNav();
+  refreshFAQ();
+  addOfferServiceCTA();
+  addCarouselTools("offerGrid", "Offer carousel");
+  addCarouselTools("processGrid", "Process carousel");
+  addCarouselTools("starterCarousel", "Starter systems carousel");
+  addFounderButton();
+}
+
 export default function FutureLayer() {
+  const pathname = usePathname();
+
   useEffect(() => {
-    const hero = document.querySelector(".hero");
-    if (hero && !document.querySelector("[data-future-deck]")) {
-      const deck = document.createElement("section");
-      deck.className = "future-deck container";
-      deck.setAttribute("data-future-deck", "true");
-      deck.innerHTML = buildDeck();
-      hero.insertAdjacentElement("afterend", deck);
-    }
-
-    const offerSection = document.getElementById("offers") || document.getElementById("offerGrid")?.closest("section");
-    if (offerSection && !document.querySelector("[data-starter-systems]")) {
-      const starter = document.createElement("section");
-      starter.className = "starter-systems container";
-      starter.setAttribute("data-starter-systems", "true");
-      starter.innerHTML = buildStarterSystems();
-      offerSection.insertAdjacentElement("beforebegin", starter);
-    }
-
-    addServicesNav();
-    refreshFAQ();
-    addCarouselTools("offerGrid", "Offer carousel");
-    addCarouselTools("processGrid", "Process carousel");
-    addCarouselTools("starterCarousel", "Starter systems carousel");
-    addFounderButton();
+    runFutureEnhancements();
     document.addEventListener("click", addFounderButton);
+
+    const observer = new MutationObserver(() => runFutureEnhancements());
+    observer.observe(document.body, { childList: true, subtree: true });
 
     let tick = 0;
     const timer = window.setInterval(() => {
       tick += 1;
-      addFounderButton();
-      addServicesNav();
-      refreshFAQ();
-      addCarouselTools("starterCarousel", "Starter systems carousel");
+      runFutureEnhancements();
       const one = document.querySelector<HTMLElement>("[data-live-one]");
       const two = document.querySelector<HTMLElement>("[data-live-two]");
       const three = document.querySelector<HTMLElement>("[data-live-three]");
@@ -177,9 +210,10 @@ export default function FutureLayer() {
 
     return () => {
       window.clearInterval(timer);
+      observer.disconnect();
       document.removeEventListener("click", addFounderButton);
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }
