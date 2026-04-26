@@ -1,6 +1,7 @@
 "use client";
 
-import { CSSProperties, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import MarketechDiceNav from "@/components/MarketechDiceNav";
 
@@ -14,178 +15,101 @@ const navItems = [
   { label: "Contact", href: "/#contact" }
 ];
 
-type DicePosition = CSSProperties & { "--header-dice-size"?: string };
-
-function findMainHeader() {
+function findHeader() {
   const navLinks = document.querySelector<HTMLElement>(".nav-links");
   if (navLinks) {
-    let current: HTMLElement | null = navLinks.parentElement;
-    while (current && current !== document.body) {
-      const rect = current.getBoundingClientRect();
-      const text = (current.textContent || "").toLowerCase();
-      if (rect.top < 180 && rect.width > 260 && rect.height >= 34 && rect.height <= 150 && (text.includes("book a consultation") || text.includes("offers"))) return current;
-      current = current.parentElement;
+    let node: HTMLElement | null = navLinks.parentElement;
+    while (node && node !== document.body) {
+      const rect = node.getBoundingClientRect();
+      const text = (node.textContent || "").toLowerCase();
+      if (rect.top < 220 && rect.width > 260 && rect.height >= 34 && rect.height <= 180 && (text.includes("offers") || text.includes("book a consultation"))) return node;
+      node = node.parentElement;
     }
   }
   return document.querySelector<HTMLElement>("header") || document.querySelector<HTMLElement>("nav");
 }
 
-function positionFromHeader(header?: HTMLElement | null): DicePosition {
-  const mobile = window.innerWidth < 700;
-  const size = mobile ? 52 : 42;
-  const rect = header?.getBoundingClientRect();
-  return {
-    position: "fixed",
-    zIndex: 2147483000,
-    top: rect && rect.top < 220 ? `${Math.round(rect.top + rect.height / 2 - (size + 22) / 2)}px` : mobile ? "10px" : "14px",
-    left: rect && rect.left >= 0 ? `${Math.round(rect.left + (mobile ? 10 : 16))}px` : mobile ? "14px" : "18px",
-    display: "inline-flex",
-    alignItems: "center",
-    gap: mobile ? "8px" : "10px",
-    pointerEvents: "auto",
-    "--header-dice-size": `${size}px`
-  };
-}
-
-function hideNode(node?: HTMLElement | null) {
-  if (!node || !node.isConnected) return;
-  if (node.closest(".global-dice-logo-shell") || node.closest(".md-dice-root") || node.closest(".nav-links")) return;
-  node.setAttribute("data-md-old-brand-hidden", "true");
-  node.setAttribute("aria-hidden", "true");
-  node.style.setProperty("display", "none", "important");
-  node.style.setProperty("visibility", "hidden", "important");
-  node.style.setProperty("opacity", "0", "important");
-  node.style.setProperty("pointer-events", "none", "important");
-}
-
-function directChildOf(parent: HTMLElement, node: HTMLElement) {
-  let current: HTMLElement | null = node;
-  let child = node;
-  while (current && current !== parent && current.parentElement) {
-    child = current;
-    current = current.parentElement;
+function hideOldFirstBrand(header: HTMLElement, host: HTMLElement) {
+  const children = Array.from(header.children) as HTMLElement[];
+  for (const child of children) {
+    if (child === host) continue;
+    if (child.classList.contains("nav-links") || child.querySelector(".nav-links")) continue;
+    if ((child.textContent || "").toLowerCase().includes("book a consultation")) continue;
+    child.setAttribute("data-md-old-logo", "hidden");
+    child.setAttribute("aria-hidden", "true");
+    child.style.setProperty("display", "none", "important");
+    child.style.setProperty("visibility", "hidden", "important");
+    child.style.setProperty("opacity", "0", "important");
+    child.style.setProperty("pointer-events", "none", "important");
+    break;
   }
-  return current === parent ? child : node;
-}
-
-function hideOldBrand(header?: HTMLElement | null) {
-  if (!header) return;
-  const headerRect = header.getBoundingClientRect();
-  const navLinks = header.querySelector<HTMLElement>(".nav-links");
-  const navRect = navLinks?.getBoundingClientRect();
-  const stopX = navRect && navRect.width > 5 ? navRect.left : headerRect.left + Math.min(headerRect.width * 0.42, 300);
-
-  Array.from(header.querySelectorAll<HTMLElement>("img,svg,picture,a,div,span,strong,em,p,small")).forEach((el) => {
-    if (el.closest(".global-dice-logo-shell") || el.closest(".md-dice-root") || el.closest(".nav-links")) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.width < 4 || rect.height < 4) return;
-    if (rect.left > stopX + 18 || rect.top > headerRect.bottom || rect.bottom < headerRect.top) return;
-    const text = (el.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
-    const hasLogo = el.tagName === "IMG" || el.tagName === "SVG" || el.tagName === "PICTURE" || !!el.querySelector("img,svg,picture");
-    const hasBrand = text.includes("marketech") || text.includes("digital");
-    const isLeftBrandArea = rect.left < headerRect.left + Math.min(190, headerRect.width * 0.35) && rect.width < 300;
-    if (hasLogo || hasBrand || isLeftBrandArea) hideNode(directChildOf(header, el));
-  });
 }
 
 export default function GlobalLogoCube() {
   const pathname = usePathname();
-  const [position, setPosition] = useState<DicePosition>(positionFromHeader());
-  const [ready, setReady] = useState(false);
+  const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (pathname === "/founder") {
-      setReady(false);
-      return;
-    }
+    if (pathname === "/founder") return;
+
+    let mounted = true;
 
     const sync = () => {
-      const header = findMainHeader();
-      setPosition(positionFromHeader(header));
-      hideOldBrand(header);
-      setReady(true);
+      const header = findHeader();
+      if (!header || !mounted) return;
+
+      let portalHost = header.querySelector<HTMLElement>("[data-md-dice-brand='true']");
+      if (!portalHost) {
+        portalHost = document.createElement("div");
+        portalHost.setAttribute("data-md-dice-brand", "true");
+        header.insertBefore(portalHost, header.firstChild);
+      }
+
+      portalHost.className = "md-header-dice-brand";
+      portalHost.style.setProperty("display", "inline-flex", "important");
+      portalHost.style.setProperty("align-items", "center", "important");
+      portalHost.style.setProperty("gap", "10px", "important");
+      portalHost.style.setProperty("position", "relative", "important");
+      portalHost.style.setProperty("z-index", "60", "important");
+      portalHost.style.setProperty("flex", "0 0 auto", "important");
+      portalHost.style.setProperty("min-width", "max-content", "important");
+      portalHost.style.setProperty("visibility", "visible", "important");
+      portalHost.style.setProperty("opacity", "1", "important");
+      portalHost.style.setProperty("pointer-events", "auto", "important");
+
+      hideOldFirstBrand(header, portalHost);
+      setHost(portalHost);
     };
 
     sync();
-    const timers = [60, 180, 400, 900, 1600, 2800, 5000, 8000].map((delay) => window.setTimeout(sync, delay));
+    const timers = [100, 400, 1000, 2200, 5000].map((delay) => window.setTimeout(sync, delay));
     const observer = new MutationObserver(() => window.requestAnimationFrame(sync));
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style"] });
+    observer.observe(document.body, { childList: true, subtree: true });
     window.addEventListener("resize", sync);
-    window.addEventListener("orientationchange", sync);
-    window.addEventListener("pageshow", sync);
 
     return () => {
+      mounted = false;
       timers.forEach(window.clearTimeout);
       observer.disconnect();
       window.removeEventListener("resize", sync);
-      window.removeEventListener("orientationchange", sync);
-      window.removeEventListener("pageshow", sync);
     };
   }, [pathname]);
 
-  if (pathname === "/founder" || !ready) return null;
+  if (pathname === "/founder" || !host) return null;
 
-  return (
-    <div className="global-dice-logo-shell" style={position}>
-      <MarketechDiceNav className="header-dice-nav" navItems={navItems} homeHref="/" />
-      <a className="global-dice-brand-wordmark" href="/" aria-label="Marketech Digital home">Marketech Digital</a>
+  return createPortal(
+    <>
+      <MarketechDiceNav className="md-header-dice-nav" navItems={navItems} homeHref="/" />
+      <a className="md-header-brand-text" href="/" aria-label="Marketech Digital home">Marketech Digital</a>
       <style jsx global>{`
-        [data-md-old-brand-hidden="true"] {
-          display: none !important;
-          visibility: hidden !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
-        }
-        .global-dice-logo-shell {
-          width: max-content !important;
-          isolation: isolate;
-        }
-        .global-dice-logo-shell .header-dice-nav {
-          --dice-size: var(--header-dice-size) !important;
-          flex: 0 0 auto !important;
-          display: inline-flex !important;
-          visibility: visible !important;
-          opacity: 1 !important;
-        }
-        .global-dice-logo-shell .header-dice-nav .md-dice-button,
-        .global-dice-logo-shell .header-dice-nav .md-dice-scene,
-        .global-dice-logo-shell .header-dice-nav .md-dice-cube {
-          display: inline-flex !important;
-          visibility: visible !important;
-          opacity: 1 !important;
-        }
-        .global-dice-brand-wordmark {
-          display: inline-flex !important;
-          align-items: center;
-          line-height: 1;
-          text-decoration: none;
-          white-space: nowrap;
-          color: rgba(255,255,255,.96);
-          font-family: inherit;
-          font-size: clamp(.84rem, 1.05vw, 1rem);
-          font-weight: 760;
-          letter-spacing: -.02em;
-          text-shadow: 0 0 24px rgba(255,106,0,.16);
-        }
-        .global-dice-brand-wordmark:hover,
-        .global-dice-brand-wordmark:focus-visible {
-          color: rgba(255,226,210,.96);
-          outline: none;
-        }
-        .global-dice-logo-shell .md-dice-menu {
-          position: fixed !important;
-          top: 78px !important;
-          left: 14px !important;
-          transform: translateY(-8px) scale(.96) !important;
-          transform-origin: top left !important;
-        }
-        .global-dice-logo-shell .md-dice-menu.md-menu-open {
-          transform: translateY(0) scale(1) !important;
-        }
-        @media (max-width: 700px) {
-          .global-dice-brand-wordmark { font-size: .9rem; }
-        }
+        [data-md-old-logo="hidden"] { display:none!important; visibility:hidden!important; opacity:0!important; pointer-events:none!important; }
+        .md-header-dice-brand { display:inline-flex!important; align-items:center!important; gap:10px!important; min-width:max-content!important; visibility:visible!important; opacity:1!important; pointer-events:auto!important; }
+        .md-header-dice-brand .md-header-dice-nav { --dice-size:52px!important; display:inline-flex!important; visibility:visible!important; opacity:1!important; }
+        .md-header-brand-text { display:inline-flex!important; align-items:center!important; color:rgba(255,255,255,.96)!important; font-size:.95rem!important; font-weight:760!important; line-height:1!important; letter-spacing:-.02em!important; text-decoration:none!important; white-space:nowrap!important; text-shadow:0 0 24px rgba(255,106,0,.16)!important; }
+        @media (min-width:701px) { .md-header-dice-brand .md-header-dice-nav { --dice-size:42px!important; } .md-header-brand-text { font-size:clamp(.82rem,1.05vw,1rem)!important; } }
+        @media (max-width:700px) { .md-header-dice-brand { gap:8px!important; } .md-header-brand-text { font-size:.9rem!important; } }
       `}</style>
-    </div>
+    </>,
+    host
   );
 }
