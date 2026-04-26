@@ -2,7 +2,7 @@
 
 import { CSSProperties, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import MarketechDiceNav from "@/components/MarketechDiceNav";
+import MarketechDiceNav from "@/components/MarketechDiceNavFixed";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -19,7 +19,7 @@ type DicePosition = CSSProperties & {
 };
 
 function isAllowedStaticLogo(element: HTMLElement) {
-  if (element.closest(".md-dice-root") || element.closest(".global-dice-logo-shell")) return true;
+  if (element.closest(".mdn-root") || element.closest(".global-dice-logo-shell")) return true;
 
   let current: HTMLElement | null = element;
   for (let i = 0; i < 8 && current; i++) {
@@ -45,7 +45,7 @@ function getLogoMark(element: HTMLElement) {
   let current = element.parentElement;
 
   while (current && current !== document.body) {
-    if (current.closest(".md-dice-root") || current.closest(".global-dice-logo-shell")) break;
+    if (current.closest(".mdn-root") || current.closest(".global-dice-logo-shell")) break;
     const rect = current.getBoundingClientRect();
     const text = (current.textContent || "").replace(/\s+/g, "").trim();
     const isSmallMark = rect.width <= 140 && rect.height <= 140;
@@ -67,7 +67,7 @@ function getBrandRoot(mark: HTMLElement) {
   let best: HTMLElement = mark;
 
   while (current && current !== document.body) {
-    if (current.closest(".md-dice-root") || current.closest(".global-dice-logo-shell")) break;
+    if (current.closest(".mdn-root") || current.closest(".global-dice-logo-shell")) break;
     const rect = current.getBoundingClientRect();
     const text = (current.textContent || "").replace(/\s+/g, "").trim();
     const isReasonableBrand = rect.width <= 390 && rect.height <= 140;
@@ -142,7 +142,7 @@ function positionFromRect(rect?: DOMRect): DicePosition {
 function removeBrandTextNear(rect: DOMRect) {
   const nodes = Array.from(document.querySelectorAll<HTMLElement>("header span, header strong, header em, header p, header small, nav span, nav strong, nav em, nav p, nav small"));
   nodes.forEach((node) => {
-    if (node.closest(".global-dice-logo-shell") || node.closest(".md-dice-root")) return;
+    if (node.closest(".global-dice-logo-shell") || node.closest(".mdn-root")) return;
     const text = (node.textContent || "").replace(/\s+/g, "").trim();
     if (!/marketech|digital/i.test(text)) return;
     const nodeRect = node.getBoundingClientRect();
@@ -244,14 +244,14 @@ export default function GlobalLogoCube() {
           outline: none;
         }
         @media (min-width: 641px) {
-          .global-dice-logo-shell .md-dice-menu {
+          .global-dice-logo-shell .mdn-panel {
             position: fixed !important;
             top: 92px !important;
             left: 22px !important;
             transform: translateY(-8px) scale(.96) !important;
             transform-origin: top left !important;
           }
-          .global-dice-logo-shell .md-dice-menu.md-menu-open {
+          .global-dice-logo-shell .mdn-panel.is-open {
             transform: translateY(0) scale(1) !important;
           }
         }
