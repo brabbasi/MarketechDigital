@@ -14,101 +14,83 @@ const navItems = [
   { label: "Contact", href: "/#contact" }
 ];
 
-type DicePosition = CSSProperties & { "--dice-size"?: string };
-
-const hiddenSelector = "[data-md-old-brand-hidden='true']";
-
-function rectOverlaps(a: DOMRect, b: DOMRect) {
-  return a.bottom > b.top && a.top < b.bottom;
-}
+type DicePosition = CSSProperties & { "--header-dice-size"?: string };
 
 function findMainHeader() {
-  const candidates = Array.from(document.querySelectorAll<HTMLElement>("header, nav, [class*='header' i], [class*='nav' i]"))
-    .filter((el) => {
-      if (el.closest(".global-dice-logo-shell") || el.closest(".md-dice-root")) return false;
-      const rect = el.getBoundingClientRect();
-      const text = (el.textContent || "").toLowerCase();
-      const hasMenu = ["offers", "process", "founder", "faq", "services", "contact"].filter((word) => text.includes(word)).length >= 3;
-      const hasCta = text.includes("book a consultation") || text.includes("start a conversation");
-      return rect.top >= -8 && rect.top < 160 && rect.width > 260 && rect.height >= 36 && rect.height < 130 && (hasMenu || hasCta);
-    })
-    .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top || a.getBoundingClientRect().height - b.getBoundingClientRect().height);
-
-  return candidates[0] || document.querySelector<HTMLElement>("header") || document.querySelector<HTMLElement>("nav");
+  const navLinks = document.querySelector<HTMLElement>(".nav-links");
+  if (navLinks) {
+    let current: HTMLElement | null = navLinks.parentElement;
+    while (current && current !== document.body) {
+      const rect = current.getBoundingClientRect();
+      const text = (current.textContent || "").toLowerCase();
+      if (rect.top < 180 && rect.width > 260 && rect.height >= 34 && rect.height <= 150 && (text.includes("book a consultation") || text.includes("offers"))) return current;
+      current = current.parentElement;
+    }
+  }
+  return document.querySelector<HTMLElement>("header") || document.querySelector<HTMLElement>("nav");
 }
 
-function headerPosition(header?: HTMLElement | null): DicePosition {
+function positionFromHeader(header?: HTMLElement | null): DicePosition {
+  const mobile = window.innerWidth < 700;
+  const size = mobile ? 52 : 42;
   const rect = header?.getBoundingClientRect();
-  if (!rect) {
-    return {
-      position: "fixed",
-      zIndex: 2147483000,
-      top: "12px",
-      left: "14px",
-      display: "inline-flex",
-      alignItems: "center",
-      gap: "9px",
-      pointerEvents: "auto",
-      "--dice-size": "52px"
-    };
-  }
-
-  const size = Math.round(Math.min(Math.max(rect.height - 18, window.innerWidth < 700 ? 50 : 38), window.innerWidth < 700 ? 56 : 48));
   return {
     position: "fixed",
     zIndex: 2147483000,
-    top: `${Math.round(rect.top + rect.height / 2 - (size + 22) / 2)}px`,
-    left: `${Math.round(rect.left + 10)}px`,
+    top: rect && rect.top < 220 ? `${Math.round(rect.top + rect.height / 2 - (size + 22) / 2)}px` : mobile ? "10px" : "14px",
+    left: rect && rect.left >= 0 ? `${Math.round(rect.left + (mobile ? 10 : 16))}px` : mobile ? "14px" : "18px",
     display: "inline-flex",
     alignItems: "center",
-    gap: window.innerWidth < 700 ? "8px" : "9px",
+    gap: mobile ? "8px" : "10px",
     pointerEvents: "auto",
-    "--dice-size": `${size}px`
+    "--header-dice-size": `${size}px`
   };
 }
 
-function hideElement(element?: HTMLElement | null) {
-  if (!element || !element.isConnected || element.closest(".global-dice-logo-shell") || element.closest(".md-dice-root")) return;
-  element.setAttribute("data-md-old-brand-hidden", "true");
-  element.setAttribute("aria-hidden", "true");
-  element.style.setProperty("display", "none", "important");
-  element.style.setProperty("visibility", "hidden", "important");
-  element.style.setProperty("opacity", "0", "important");
-  element.style.setProperty("pointer-events", "none", "important");
+function hideNode(node?: HTMLElement | null) {
+  if (!node || !node.isConnected) return;
+  if (node.closest(".global-dice-logo-shell") || node.closest(".md-dice-root") || node.closest(".nav-links")) return;
+  node.setAttribute("data-md-old-brand-hidden", "true");
+  node.setAttribute("aria-hidden", "true");
+  node.style.setProperty("display", "none", "important");
+  node.style.setProperty("visibility", "hidden", "important");
+  node.style.setProperty("opacity", "0", "important");
+  node.style.setProperty("pointer-events", "none", "important");
+}
+
+function directChildOf(parent: HTMLElement, node: HTMLElement) {
+  let current: HTMLElement | null = node;
+  let child = node;
+  while (current && current !== parent && current.parentElement) {
+    child = current;
+    current = current.parentElement;
+  }
+  return current === parent ? child : node;
 }
 
 function hideOldBrand(header?: HTMLElement | null) {
   if (!header) return;
   const headerRect = header.getBoundingClientRect();
-  const leftLimit = headerRect.left + Math.min(headerRect.width * 0.36, window.innerWidth < 700 ? 260 : 185);
-  const elements = Array.from(header.querySelectorAll<HTMLElement>("a, div, span, strong, em, small, p, img, svg, picture"));
+  const navLinks = header.querySelector<HTMLElement>(".nav-links");
+  const navRect = navLinks?.getBoundingClientRect();
+  const stopX = navRect && navRect.width > 5 ? navRect.left : headerRect.left + Math.min(headerRect.width * 0.42, 300);
 
-  elements.forEach((el) => {
-    if (el.closest(".global-dice-logo-shell") || el.closest(".md-dice-root") || el.matches(hiddenSelector)) return;
+  Array.from(header.querySelectorAll<HTMLElement>("img,svg,picture,a,div,span,strong,em,p,small")).forEach((el) => {
+    if (el.closest(".global-dice-logo-shell") || el.closest(".md-dice-root") || el.closest(".nav-links")) return;
     const rect = el.getBoundingClientRect();
-    if (rect.width < 8 || rect.height < 8) return;
-    if (!rectOverlaps(rect, headerRect)) return;
-    if (rect.left > leftLimit) return;
-
+    if (rect.width < 4 || rect.height < 4) return;
+    if (rect.left > stopX + 18 || rect.top > headerRect.bottom || rect.bottom < headerRect.top) return;
     const text = (el.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
-    const hasLogoMedia = el.tagName === "IMG" || el.tagName === "SVG" || !!el.querySelector("img,svg,picture");
-    const looksLikeBrandText = text.includes("marketech") || text === "digital" || text.includes("marketech digital");
-    const isLeftBrandBox = rect.left < headerRect.left + 150 && rect.width <= 230 && rect.height <= headerRect.height + 30;
-    const isHomeBrandLink = el instanceof HTMLAnchorElement && (el.getAttribute("href") === "/" || el.getAttribute("href") === "#") && rect.width <= 260;
-
-    if (hasLogoMedia || looksLikeBrandText || isHomeBrandLink || isLeftBrandBox) hideElement(el);
-  });
-
-  Array.from(document.querySelectorAll<HTMLElement>("img[src*='logo'], img[alt*='logo' i], svg[aria-label*='logo' i]")).forEach((el) => {
-    if (el.closest("footer") || el.closest(".global-dice-logo-shell") || el.closest(".md-dice-root")) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.top >= -8 && rect.top < 170 && rect.left < leftLimit + 80) hideElement(el.closest("a,div,span") as HTMLElement || el);
+    const hasLogo = el.tagName === "IMG" || el.tagName === "SVG" || el.tagName === "PICTURE" || !!el.querySelector("img,svg,picture");
+    const hasBrand = text.includes("marketech") || text.includes("digital");
+    const isLeftBrandArea = rect.left < headerRect.left + Math.min(190, headerRect.width * 0.35) && rect.width < 300;
+    if (hasLogo || hasBrand || isLeftBrandArea) hideNode(directChildOf(header, el));
   });
 }
 
 export default function GlobalLogoCube() {
   const pathname = usePathname();
-  const [position, setPosition] = useState<DicePosition>(headerPosition());
+  const [position, setPosition] = useState<DicePosition>(positionFromHeader());
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -119,7 +101,7 @@ export default function GlobalLogoCube() {
 
     const sync = () => {
       const header = findMainHeader();
-      setPosition(headerPosition(header));
+      setPosition(positionFromHeader(header));
       hideOldBrand(header);
       setReady(true);
     };
@@ -148,29 +130,39 @@ export default function GlobalLogoCube() {
       <MarketechDiceNav className="header-dice-nav" navItems={navItems} homeHref="/" />
       <a className="global-dice-brand-wordmark" href="/" aria-label="Marketech Digital home">Marketech Digital</a>
       <style jsx global>{`
-        ${hiddenSelector} {
+        [data-md-old-brand-hidden="true"] {
           display: none !important;
           visibility: hidden !important;
           opacity: 0 !important;
           pointer-events: none !important;
         }
         .global-dice-logo-shell {
-          width: max-content;
+          width: max-content !important;
           isolation: isolate;
         }
         .global-dice-logo-shell .header-dice-nav {
-          --dice-size: var(--dice-size) !important;
-          flex: 0 0 auto;
+          --dice-size: var(--header-dice-size) !important;
+          flex: 0 0 auto !important;
+          display: inline-flex !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+        }
+        .global-dice-logo-shell .header-dice-nav .md-dice-button,
+        .global-dice-logo-shell .header-dice-nav .md-dice-scene,
+        .global-dice-logo-shell .header-dice-nav .md-dice-cube {
+          display: inline-flex !important;
+          visibility: visible !important;
+          opacity: 1 !important;
         }
         .global-dice-brand-wordmark {
-          display: inline-flex;
+          display: inline-flex !important;
           align-items: center;
           line-height: 1;
           text-decoration: none;
           white-space: nowrap;
           color: rgba(255,255,255,.96);
           font-family: inherit;
-          font-size: clamp(.78rem, 1.05vw, 1rem);
+          font-size: clamp(.84rem, 1.05vw, 1rem);
           font-weight: 760;
           letter-spacing: -.02em;
           text-shadow: 0 0 24px rgba(255,106,0,.16);
@@ -182,7 +174,7 @@ export default function GlobalLogoCube() {
         }
         .global-dice-logo-shell .md-dice-menu {
           position: fixed !important;
-          top: calc(var(--header-menu-top, 70px)) !important;
+          top: 78px !important;
           left: 14px !important;
           transform: translateY(-8px) scale(.96) !important;
           transform-origin: top left !important;
