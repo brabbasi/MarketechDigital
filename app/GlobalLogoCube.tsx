@@ -48,7 +48,7 @@ function getLogoMark(element: HTMLElement) {
     if (current.closest(".md-dice-root") || current.closest(".global-dice-logo-shell")) break;
     const rect = current.getBoundingClientRect();
     const text = (current.textContent || "").replace(/\s+/g, "").trim();
-    const isSmallMark = rect.width <= 160 && rect.height <= 160;
+    const isSmallMark = rect.width <= 180 && rect.height <= 180;
     const isBrandTextContainer = text.length > 3 && /marketech|digital/i.test(text);
 
     if (isSmallMark && !isBrandTextContainer) {
@@ -70,7 +70,7 @@ function getBrandRoot(mark: HTMLElement) {
     if (current.closest(".md-dice-root") || current.closest(".global-dice-logo-shell")) break;
     const rect = current.getBoundingClientRect();
     const text = (current.textContent || "").replace(/\s+/g, "").trim();
-    const isReasonableBrand = rect.width <= 430 && rect.height <= 160;
+    const isReasonableBrand = rect.width <= 460 && rect.height <= 180;
     const hasBrandText = /marketech|digital/i.test(text);
     const isHomeLink = current instanceof HTMLAnchorElement && current.getAttribute("href") === "/";
 
@@ -91,11 +91,11 @@ function findHeaderLogo() {
       return (
         rect.width >= 18 &&
         rect.height >= 18 &&
-        rect.width <= 180 &&
-        rect.height <= 180 &&
+        rect.width <= 200 &&
+        rect.height <= 200 &&
         rect.top >= 0 &&
-        rect.top < Math.min(window.innerHeight * 0.48, 300) &&
-        rect.left < Math.min(window.innerWidth * 0.48, 620) &&
+        rect.top < Math.min(window.innerHeight * 0.48, 320) &&
+        rect.left < Math.min(window.innerWidth * 0.55, 680) &&
         style.display !== "none" &&
         style.visibility !== "hidden"
       );
@@ -139,29 +139,39 @@ function positionFromRect(rect?: DOMRect): DicePosition {
   };
 }
 
-function removeBrandTextNear(rect: DOMRect) {
+function hideElement(element: HTMLElement | null | undefined) {
+  if (!element || !element.isConnected) return;
+  element.setAttribute("data-old-header-logo-hidden", "true");
+  element.setAttribute("aria-hidden", "true");
+  element.style.setProperty("display", "none", "important");
+  element.style.setProperty("visibility", "hidden", "important");
+  element.style.setProperty("pointer-events", "none", "important");
+}
+
+function hideBrandTextNear(rect: DOMRect) {
   const nodes = Array.from(document.querySelectorAll<HTMLElement>("header span, header strong, header em, header p, header small, nav span, nav strong, nav em, nav p, nav small"));
   nodes.forEach((node) => {
     if (node.closest(".global-dice-logo-shell") || node.closest(".md-dice-root")) return;
     const text = (node.textContent || "").replace(/\s+/g, "").trim();
     if (!/marketech|digital/i.test(text)) return;
     const nodeRect = node.getBoundingClientRect();
-    const closeVertically = Math.abs(nodeRect.top - rect.top) < 100;
-    const closeHorizontally = nodeRect.left < rect.right + 360 && nodeRect.right > rect.left - 70;
-    if (closeVertically && closeHorizontally && nodeRect.width < 320 && nodeRect.height < 120) node.remove();
+    const closeVertically = Math.abs(nodeRect.top - rect.top) < 110;
+    const closeHorizontally = nodeRect.left < rect.right + 390 && nodeRect.right > rect.left - 80;
+    if (closeVertically && closeHorizontally && nodeRect.width < 360 && nodeRect.height < 140) hideElement(node);
   });
 }
 
-function removeStaticLogos() {
+function hideStaticLogos() {
   logoCandidates().forEach((element) => {
     if (isAllowedStaticLogo(element)) return;
     if (element.closest("footer") || element.closest(".ai-launcher") || element.closest(".ai-panel")) return;
     const rect = element.getBoundingClientRect();
     if (rect.width < 18 || rect.height < 18) return;
+    if (rect.top < 0 || rect.top > Math.min(window.innerHeight * 0.48, 320)) return;
+    if (rect.left > Math.min(window.innerWidth * 0.55, 680)) return;
     const mark = getLogoMark(element);
     const root = getBrandRoot(mark);
-    const target = root || mark || element;
-    if (target.isConnected) target.remove();
+    hideElement(root || mark || element);
   });
 }
 
@@ -180,19 +190,17 @@ export default function GlobalLogoCube() {
       const found = findHeaderLogo();
       if (found) {
         setPosition(positionFromRect(found.rect));
-        const rect = found.rect;
-        const target = found.brandRoot || found.mark || found.logo;
-        if (target?.isConnected) target.remove();
-        removeBrandTextNear(rect);
+        hideElement(found.brandRoot || found.mark || found.logo);
+        hideBrandTextNear(found.rect);
       }
-      removeStaticLogos();
+      hideStaticLogos();
       setReady(true);
     };
 
     sync();
-    const timers = [80, 300, 800, 1600, 2600, 4200].map((delay) => window.setTimeout(sync, delay));
+    const timers = [80, 300, 800, 1600, 2600, 4200, 6500].map((delay) => window.setTimeout(sync, delay));
     const observer = new MutationObserver(() => window.requestAnimationFrame(sync));
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
     window.addEventListener("resize", sync);
     window.addEventListener("orientationchange", sync);
     window.addEventListener("pageshow", sync);
@@ -215,6 +223,15 @@ export default function GlobalLogoCube() {
         Marketech Digital
       </a>
       <style jsx global>{`
+        header a[href="/"]:has(img[src*="logo"]),
+        nav a[href="/"]:has(img[src*="logo"]),
+        header a[href="/"]:has(svg[aria-label*="logo" i]),
+        nav a[href="/"]:has(svg[aria-label*="logo" i]),
+        [data-old-header-logo-hidden="true"] {
+          display: none !important;
+          visibility: hidden !important;
+          pointer-events: none !important;
+        }
         .global-dice-logo-shell {
           width: max-content;
           isolation: isolate;
