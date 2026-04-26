@@ -2,10 +2,20 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
+import MarketechDiceNav from "@/components/MarketechDiceNav";
 import styles from "./founder.module.css";
 import { absoluteUrl, breadcrumbJsonLd, jsonLdGraph, siteName } from "../seo";
 
 const founderImage = "/founder.webp";
+
+const founderNavItems = [
+  { label: "Home", href: "/" },
+  { label: "Services", href: "/#offers" },
+  { label: "Project ledger", href: "#projects" },
+  { label: "Academic foundation", href: "#education" },
+  { label: "Founder", href: "/founder" },
+  { label: "Contact", href: "/#contact" }
+];
 
 const projects = [
   {
@@ -117,19 +127,12 @@ export default function FounderPage() {
       />
       <div className={styles.shell}>
         <nav className={styles.navbar} aria-label="Founder page navigation">
-          <Link href="/" className={styles.brand} aria-label="Marketech Digital home">
-            <span className={styles.logoPlate}><Image src="/logo.svg" alt="Marketech Digital logo" width={64} height={64} /></span>
-            <span className={styles.brandWords}><strong>MARKETECH</strong><em>DIGITAL</em></span>
-          </Link>
-          <details className={styles.menuBox}>
-            <summary className={styles.menuIcon} aria-label="Open founder page menu"><span /><span /><span /></summary>
-            <div className={styles.menuPanel}>
-              <Link href="/">Home</Link>
-              <a href="#projects">Project ledger</a>
-              <a href="#education">Academic foundation</a>
-              <Link href="/#contact">Start a project</Link>
-            </div>
-          </details>
+          <div className={styles.brand}>
+            <MarketechDiceNav className={styles.headerDiceNav} navItems={founderNavItems} homeHref="/" />
+            <Link href="/" className={styles.brandName} aria-label="Marketech Digital home">
+              Marketech Digital
+            </Link>
+          </div>
         </nav>
 
         <section className={styles.heroClassic} aria-labelledby="founder-title">
