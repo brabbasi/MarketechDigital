@@ -2,7 +2,7 @@
 
 import { CSSProperties, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import MarketechDiceNav from "@/components/MarketechDiceNavFixed";
+import MarketechDiceNav from "@/components/MarketechDiceNav";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -19,7 +19,7 @@ type DicePosition = CSSProperties & {
 };
 
 function isAllowedStaticLogo(element: HTMLElement) {
-  if (element.closest(".mdn-root") || element.closest(".global-dice-logo-shell")) return true;
+  if (element.closest(".md-dice-root") || element.closest(".global-dice-logo-shell")) return true;
 
   let current: HTMLElement | null = element;
   for (let i = 0; i < 8 && current; i++) {
@@ -45,10 +45,10 @@ function getLogoMark(element: HTMLElement) {
   let current = element.parentElement;
 
   while (current && current !== document.body) {
-    if (current.closest(".mdn-root") || current.closest(".global-dice-logo-shell")) break;
+    if (current.closest(".md-dice-root") || current.closest(".global-dice-logo-shell")) break;
     const rect = current.getBoundingClientRect();
     const text = (current.textContent || "").replace(/\s+/g, "").trim();
-    const isSmallMark = rect.width <= 140 && rect.height <= 140;
+    const isSmallMark = rect.width <= 160 && rect.height <= 160;
     const isBrandTextContainer = text.length > 3 && /marketech|digital/i.test(text);
 
     if (isSmallMark && !isBrandTextContainer) {
@@ -67,10 +67,10 @@ function getBrandRoot(mark: HTMLElement) {
   let best: HTMLElement = mark;
 
   while (current && current !== document.body) {
-    if (current.closest(".mdn-root") || current.closest(".global-dice-logo-shell")) break;
+    if (current.closest(".md-dice-root") || current.closest(".global-dice-logo-shell")) break;
     const rect = current.getBoundingClientRect();
     const text = (current.textContent || "").replace(/\s+/g, "").trim();
-    const isReasonableBrand = rect.width <= 390 && rect.height <= 140;
+    const isReasonableBrand = rect.width <= 430 && rect.height <= 160;
     const hasBrandText = /marketech|digital/i.test(text);
     const isHomeLink = current instanceof HTMLAnchorElement && current.getAttribute("href") === "/";
 
@@ -89,13 +89,13 @@ function findHeaderLogo() {
       const rect = element.getBoundingClientRect();
       const style = window.getComputedStyle(element);
       return (
-        rect.width >= 22 &&
-        rect.height >= 22 &&
-        rect.width <= 150 &&
-        rect.height <= 150 &&
+        rect.width >= 18 &&
+        rect.height >= 18 &&
+        rect.width <= 180 &&
+        rect.height <= 180 &&
         rect.top >= 0 &&
-        rect.top < Math.min(window.innerHeight * 0.48, 260) &&
-        rect.left < Math.min(window.innerWidth * 0.48, 560) &&
+        rect.top < Math.min(window.innerHeight * 0.48, 300) &&
+        rect.left < Math.min(window.innerWidth * 0.48, 620) &&
         style.display !== "none" &&
         style.visibility !== "hidden"
       );
@@ -142,13 +142,13 @@ function positionFromRect(rect?: DOMRect): DicePosition {
 function removeBrandTextNear(rect: DOMRect) {
   const nodes = Array.from(document.querySelectorAll<HTMLElement>("header span, header strong, header em, header p, header small, nav span, nav strong, nav em, nav p, nav small"));
   nodes.forEach((node) => {
-    if (node.closest(".global-dice-logo-shell") || node.closest(".mdn-root")) return;
+    if (node.closest(".global-dice-logo-shell") || node.closest(".md-dice-root")) return;
     const text = (node.textContent || "").replace(/\s+/g, "").trim();
     if (!/marketech|digital/i.test(text)) return;
     const nodeRect = node.getBoundingClientRect();
-    const closeVertically = Math.abs(nodeRect.top - rect.top) < 90;
-    const closeHorizontally = nodeRect.left < rect.right + 330 && nodeRect.right > rect.left - 60;
-    if (closeVertically && closeHorizontally && nodeRect.width < 280 && nodeRect.height < 100) node.remove();
+    const closeVertically = Math.abs(nodeRect.top - rect.top) < 100;
+    const closeHorizontally = nodeRect.left < rect.right + 360 && nodeRect.right > rect.left - 70;
+    if (closeVertically && closeHorizontally && nodeRect.width < 320 && nodeRect.height < 120) node.remove();
   });
 }
 
@@ -190,7 +190,7 @@ export default function GlobalLogoCube() {
     };
 
     sync();
-    const timers = [80, 300, 800, 1600, 2600].map((delay) => window.setTimeout(sync, delay));
+    const timers = [80, 300, 800, 1600, 2600, 4200].map((delay) => window.setTimeout(sync, delay));
     const observer = new MutationObserver(() => window.requestAnimationFrame(sync));
     observer.observe(document.body, { childList: true, subtree: true });
     window.addEventListener("resize", sync);
@@ -244,14 +244,14 @@ export default function GlobalLogoCube() {
           outline: none;
         }
         @media (min-width: 641px) {
-          .global-dice-logo-shell .mdn-panel {
+          .global-dice-logo-shell .md-dice-menu {
             position: fixed !important;
             top: 92px !important;
             left: 22px !important;
             transform: translateY(-8px) scale(.96) !important;
             transform-origin: top left !important;
           }
-          .global-dice-logo-shell .mdn-panel.is-open {
+          .global-dice-logo-shell .md-dice-menu.md-menu-open {
             transform: translateY(0) scale(1) !important;
           }
         }
