@@ -212,8 +212,7 @@ export default function GlobalLogoCube() {
     <div className="global-dice-logo-shell" style={position}>
       <MarketechDiceNav className="header-dice-nav" navItems={navItems} homeHref="/" />
       <a className="global-dice-brand-wordmark" href="/" aria-label="Marketech Digital home">
-        <strong>MARKETECH</strong>
-        <em>DIGITAL</em>
+        Marketech Digital
       </a>
       <style jsx global>{`
         .global-dice-logo-shell {
@@ -225,25 +224,24 @@ export default function GlobalLogoCube() {
           flex: 0 0 auto;
         }
         .global-dice-brand-wordmark {
-          display: grid;
-          gap: 4px;
+          display: inline-flex;
+          align-items: center;
           line-height: 1;
           text-decoration: none;
           white-space: nowrap;
-          text-shadow: 0 0 24px rgba(255, 106, 0, .16);
-        }
-        .global-dice-brand-wordmark strong {
           color: rgba(255, 255, 255, .96);
-          font-size: clamp(.78rem, 1.18vw, 1rem);
-          font-weight: 900;
-          letter-spacing: .24em;
-        }
-        .global-dice-brand-wordmark em {
-          color: rgba(255, 226, 210, .76);
-          font-style: normal;
-          font-size: clamp(.48rem, .78vw, .64rem);
+          font-family: inherit;
+          font-size: clamp(1rem, 1.2vw, 1.15rem);
           font-weight: 760;
-          letter-spacing: .36em;
+          letter-spacing: -.02em;
+          text-shadow: 0 0 24px rgba(255, 106, 0, .16);
+          transition: color .18s ease, text-shadow .18s ease;
+        }
+        .global-dice-brand-wordmark:hover,
+        .global-dice-brand-wordmark:focus-visible {
+          color: rgba(255, 226, 210, .96);
+          text-shadow: 0 0 28px rgba(255, 106, 0, .24);
+          outline: none;
         }
         @media (min-width: 641px) {
           .global-dice-logo-shell .md-dice-menu {
@@ -260,8 +258,7 @@ export default function GlobalLogoCube() {
         @media (max-width: 640px) {
           .global-dice-logo-shell { gap: 8px !important; }
           .global-dice-logo-shell .header-dice-nav { --dice-size: 54px !important; }
-          .global-dice-brand-wordmark strong { font-size: .78rem; letter-spacing: .18em; }
-          .global-dice-brand-wordmark em { font-size: .48rem; letter-spacing: .25em; }
+          .global-dice-brand-wordmark { font-size: .9rem; letter-spacing: -.01em; }
         }
       `}</style>
     </div>
