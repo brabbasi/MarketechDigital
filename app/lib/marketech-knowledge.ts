@@ -5,6 +5,22 @@ export type ChatMessage = {
   content: string;
 };
 
+export const socialLinks = {
+  company: {
+    linkedin: "https://www.linkedin.com/company/marketechdigital/",
+    instagram: "https://www.instagram.com/official.marketech?igsh=NTR0YnVhemRiMnhr",
+    facebook: "https://www.facebook.com/share/17ee6kJiPF/",
+    email: "mailto:abasitabbasi99@gmail.com"
+  },
+  founder: {
+    linkedin: "https://www.linkedin.com/in/basitrabbasi?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    instagram: "https://www.instagram.com/a.b_abbasi?igsh=ZzViNGc5bjNxaDJ4",
+    facebook: "https://www.facebook.com/share/17yJwoTW1r/",
+    github: "https://github.com/brabbasi",
+    email: "mailto:abasitabbasi99@gmail.com"
+  }
+};
+
 export const marketechProfile = {
   name: "Marketech Digital",
   type: "Founder-led digital studio and Ottawa digital agency",
@@ -72,9 +88,9 @@ export const founderProfile = {
 
 export const socialProfileNotes = {
   company:
-    "Company social links are shown on the Marketech Digital profile page as orbiting icons around the logo. Current placeholders include LinkedIn, Instagram, Facebook, and email until final social URLs are connected.",
+    `Company social links are shown on the Marketech Digital profile page as orbiting icons around the logo. LinkedIn: ${socialLinks.company.linkedin}. Instagram: ${socialLinks.company.instagram}. Facebook: ${socialLinks.company.facebook}. Email: ${socialLinks.company.email.replace("mailto:", "")}.`,
   founder:
-    "Founder social links are shown on the founder profile page as orbiting icons around Basit Abbasi's photo. Current placeholders include LinkedIn, Instagram, GitHub, X, and email until final social URLs are connected."
+    `Founder social links are shown on the founder profile page as orbiting icons around Basit Abbasi's photo. LinkedIn: ${socialLinks.founder.linkedin}. Instagram: ${socialLinks.founder.instagram}. Facebook: ${socialLinks.founder.facebook}. GitHub: ${socialLinks.founder.github}. Email: ${socialLinks.founder.email.replace("mailto:", "")}.`
 };
 
 function isUrgentBrokenSystem(message: string) {
@@ -188,11 +204,11 @@ export function localAssistantReply(message: string) {
   }
 
   if (/(about|company|who are you|who is marketech|marketech digital|trust|story|mission)/.test(q)) {
-    return `${marketechProfile.name} is a ${marketechProfile.type}. ${marketechProfile.positioning}\n\nThe idea behind the company is simple: ${marketechProfile.belief}\n\nOn the site, the About Us carousel opens two profiles: the company profile at ${marketechProfile.profilePage} and the founder profile at ${marketechProfile.founderPage}.`;
+    return `${marketechProfile.name} is a ${marketechProfile.type}. ${marketechProfile.positioning}\n\nThe idea behind the company is simple: ${marketechProfile.belief}\n\nOn the site, the About Us carousel opens two profiles: the company profile at ${marketechProfile.profilePage} and the founder profile at ${marketechProfile.founderPage}. You can also find Marketech Digital on LinkedIn, Instagram, and Facebook.`;
   }
 
   if (/(social|linkedin|instagram|facebook|github|x\/twitter|twitter|profile links)/.test(q)) {
-    return `The site has social profile areas built into the profile pages. ${socialProfileNotes.company} ${socialProfileNotes.founder}\n\nThe final social URLs still need to be connected once Basit provides the exact links.`;
+    return `Here are the current social links:\n\nMarketech Digital:\n1. LinkedIn: ${socialLinks.company.linkedin}\n2. Instagram: ${socialLinks.company.instagram}\n3. Facebook: ${socialLinks.company.facebook}\n\nBasit Abbasi / Founder:\n1. LinkedIn: ${socialLinks.founder.linkedin}\n2. Instagram: ${socialLinks.founder.instagram}\n3. Facebook: ${socialLinks.founder.facebook}\n4. GitHub: ${socialLinks.founder.github}`;
   }
 
   if (/(price|pricing|quote|cost|budget|estimate|range)/.test(q)) {
@@ -207,7 +223,7 @@ export function localAssistantReply(message: string) {
   }
 
   if (/(founder|basit|education|who built|owner)/.test(q)) {
-    return `${founderProfile.name} is the ${founderProfile.role}. He studied ${founderProfile.education} and focuses on ${founderProfile.focus}. ${founderProfile.story} You can open the founder page at ${founderProfile.founderPage} for the full profile.`;
+    return `${founderProfile.name} is the ${founderProfile.role}. He studied ${founderProfile.education} and focuses on ${founderProfile.focus}. ${founderProfile.story} You can open the founder page at ${founderProfile.founderPage} for the full profile. His LinkedIn is ${socialLinks.founder.linkedin} and GitHub is ${socialLinks.founder.github}.`;
   }
 
   if (/(start|contact|book|call|next step)/.test(q)) {
@@ -242,10 +258,9 @@ Trust signals: ${marketechProfile.trustSignals.join(", ")}.
 Founder:
 ${founderProfile.name}, ${founderProfile.role}. Education: ${founderProfile.education}. Focus: ${founderProfile.focus}. Story: ${founderProfile.story}
 
-Social profile notes:
+Social profile links:
 ${socialProfileNotes.company}
 ${socialProfileNotes.founder}
-Do not claim the final social URLs are connected until Basit provides them. Explain that placeholder links are ready to be replaced.
 
 Services and guidance ranges:
 ${marketechServices
