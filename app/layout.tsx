@@ -3,6 +3,7 @@ import Script from "next/script";
 import GlobalLogoCube from "./GlobalLogoCube";
 import FutureLayer from "./FutureLayer";
 import UXFixLayer from "./UXFixLayer";
+import FooterSocialLayer from "./FooterSocialLayer";
 import AIAssistant from "./AIAssistant";
 import AuditPopup from "./AuditPopup";
 import {
@@ -151,6 +152,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuditPopup />
         <FutureLayer />
         <UXFixLayer />
+        <FooterSocialLayer />
         <AIAssistant />
       </body>
     </html>
