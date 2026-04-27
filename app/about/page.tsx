@@ -6,10 +6,10 @@ import ProfileSocialOrbit, { type ProfileSocialLink } from "../ProfileSocialOrbi
 import styles from "../founder/founder.module.css";
 
 const companySocials: ProfileSocialLink[] = [
-  { label: "Marketech Digital on LinkedIn", href: "#replace-marketech-linkedin", icon: "linkedin" },
-  { label: "Marketech Digital on Instagram", href: "#replace-marketech-instagram", icon: "instagram" },
-  { label: "Marketech Digital on Facebook", href: "#replace-marketech-facebook", icon: "facebook" },
-  { label: "Email Marketech Digital", href: "mailto:replace@marketechdigital.ai", icon: "email" }
+  { label: "Marketech Digital on LinkedIn", href: "https://www.linkedin.com/company/marketechdigital/", icon: "linkedin" },
+  { label: "Marketech Digital on Instagram", href: "https://www.instagram.com/official.marketech?igsh=NTR0YnVhemRiMnhr", icon: "instagram" },
+  { label: "Marketech Digital on Facebook", href: "https://www.facebook.com/share/17ee6kJiPF/", icon: "facebook" },
+  { label: "Email Marketech Digital", href: "mailto:abasitabbasi99@gmail.com", icon: "email" }
 ];
 
 const aboutNavItems = [
