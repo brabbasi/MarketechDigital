@@ -3,6 +3,7 @@ import Script from "next/script";
 import GlobalLogoCube from "./GlobalLogoCube";
 import FutureLayer from "./FutureLayer";
 import UXFixLayer from "./UXFixLayer";
+import EmailRoutingLayer from "./EmailRoutingLayer";
 import FooterSocialLayer from "./FooterSocialLayer";
 import HomeAboutCarouselLayer from "./HomeAboutCarouselLayer";
 import FounderOrbitLayer from "./FounderOrbitLayer";
@@ -155,6 +156,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuditPopup />
         <FutureLayer />
         <UXFixLayer />
+        <EmailRoutingLayer />
         <HomeAboutCarouselLayer />
         <FounderOrbitLayer />
         <FooterSocialLayer />
