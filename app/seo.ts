@@ -2,6 +2,20 @@ export const siteName = "Marketech Digital";
 export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://getmarketechdigital.com").replace(/\/$/, "");
 export const contactEmail = "abasitabbasi99@gmail.com";
 
+export const officialSocialLinks = {
+  company: {
+    linkedin: "https://www.linkedin.com/company/marketechdigital/",
+    instagram: "https://www.instagram.com/official.marketech?igsh=NTR0YnVhemRiMnhr",
+    facebook: "https://www.facebook.com/share/17ee6kJiPF/"
+  },
+  founder: {
+    linkedin: "https://www.linkedin.com/in/basitrabbasi?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    instagram: "https://www.instagram.com/a.b_abbasi?igsh=ZzViNGc5bjNxaDJ4",
+    facebook: "https://www.facebook.com/share/17yJwoTW1r/",
+    github: "https://github.com/brabbasi"
+  }
+};
+
 export const siteDescription =
   "Marketech Digital is an Ottawa digital agency and AI automation agency that helps small businesses build better websites, improve local SEO, capture more leads, use AI in practical ways, and turn messy workflows into simple digital growth systems.";
 
@@ -126,10 +140,21 @@ export function organizationJsonLd() {
     logo: absoluteUrl("/logo.svg"),
     image: absoluteUrl("/logo.svg"),
     email: contactEmail,
+    sameAs: [
+      officialSocialLinks.company.linkedin,
+      officialSocialLinks.company.instagram,
+      officialSocialLinks.company.facebook
+    ],
     founder: {
       "@type": "Person",
       name: "Basit Abbasi",
-      jobTitle: "Founder"
+      jobTitle: "Founder",
+      sameAs: [
+        officialSocialLinks.founder.linkedin,
+        officialSocialLinks.founder.instagram,
+        officialSocialLinks.founder.facebook,
+        officialSocialLinks.founder.github
+      ]
     },
     areaServed: areasServed,
     knowsAbout: serviceKeywords,
@@ -166,6 +191,11 @@ export function localBusinessJsonLd() {
     image: absoluteUrl("/logo.svg"),
     logo: absoluteUrl("/logo.svg"),
     email: contactEmail,
+    sameAs: [
+      officialSocialLinks.company.linkedin,
+      officialSocialLinks.company.instagram,
+      officialSocialLinks.company.facebook
+    ],
     priceRange: "$497-$997+",
     areaServed: areasServed,
     makesOffer: offerCatalog,
