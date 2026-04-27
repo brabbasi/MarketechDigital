@@ -1,0 +1,192 @@
+.audit-page-shell {
+  min-height: 100vh;
+}
+
+.audit-page-header {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: rgba(4, 7, 13, 0.82);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.audit-page-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.audit-page-brand {
+  color: rgba(255,255,255,.96);
+  font-size: .98rem;
+  font-weight: 780;
+  letter-spacing: -.02em;
+  text-shadow: 0 0 24px rgba(255,106,0,.16);
+}
+
+.audit-page-nav nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.audit-page-nav nav a {
+  color: rgba(255,255,255,.7);
+  font-size: .9rem;
+  transition: color .2s ease;
+}
+
+.audit-page-nav nav a:hover {
+  color: #fff;
+}
+
+.audit-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483400;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(0,0,0,.58);
+  backdrop-filter: blur(10px);
+  animation: auditBackdropIn .22s ease both;
+}
+
+.audit-popup-card {
+  position: relative;
+  width: min(560px, 100%);
+  overflow: hidden;
+  padding: 24px;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,.14);
+  background:
+    radial-gradient(circle at 18% 8%, rgba(255,106,0,.22), transparent 38%),
+    radial-gradient(circle at 88% 10%, rgba(89,175,255,.12), transparent 34%),
+    linear-gradient(180deg, rgba(7,13,24,.98), rgba(4,8,15,.98));
+  box-shadow: 0 26px 90px rgba(0,0,0,.58), 0 0 52px rgba(255,106,0,.12);
+  animation: auditPopupIn .32s cubic-bezier(.2,.84,.18,1) both;
+}
+
+.audit-popup-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(circle at center, black, transparent 84%);
+  opacity: .5;
+}
+
+.audit-popup-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.audit-popup-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.045);
+  cursor: pointer;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.audit-popup-close:hover,
+.audit-popup-close:focus-visible {
+  transform: rotate(90deg);
+  border-color: rgba(255,106,0,.6);
+  background: rgba(255,106,0,.1);
+  outline: none;
+}
+
+.audit-popup-close span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 17px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.82);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.audit-popup-close span:last-child {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.audit-popup-label {
+  margin-right: 44px;
+}
+
+.audit-popup-card h2 {
+  margin: 8px 44px 12px 0;
+  font-size: clamp(1.75rem, 6vw, 2.7rem);
+  line-height: 1.03;
+  letter-spacing: -.055em;
+}
+
+.audit-popup-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.audit-popup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@keyframes auditBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes auditPopupIn {
+  from { opacity: 0; transform: translateY(16px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 640px) {
+  .audit-page-nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .audit-page-nav nav {
+    gap: 12px;
+  }
+
+  .audit-popup-card {
+    padding: 22px;
+    border-radius: 26px;
+  }
+
+  .audit-popup-card h2 {
+    margin-right: 32px;
+  }
+
+  .audit-popup-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audit-popup-backdrop,
+  .audit-popup-card {
+    animation: none;
+  }
+}
