@@ -2,6 +2,9 @@
 
 import { useEffect } from "react";
 
+const projectEmail = "project@getmarketechdigital.com";
+const contactEmail = "contact@getmarketechdigital.com";
+
 function addCarouselTools(id: string, label: string) {
   const rail = document.getElementById(id);
   if (!rail || rail.previousElementSibling?.getAttribute("data-carousel-tools") === id) return;
@@ -124,7 +127,7 @@ function ensureContactModal() {
         <button type="submit">Send project inquiry →</button>
       </form>
       <div class="contact-popup-status" aria-live="polite"></div>
-      <a class="contact-popup-mail" href="mailto:abasitabbasi99@gmail.com">Prefer email? abasitabbasi99@gmail.com</a>
+      <a class="contact-popup-mail" href="mailto:${projectEmail}">Prefer email? ${projectEmail}</a>
     </div>
   `;
   document.body.appendChild(modal);
@@ -151,13 +154,13 @@ function ensureContactModal() {
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
-        const detail = typeof result?.error === "string" ? result.error : "Please email abasitabbasi99@gmail.com and we will still help you.";
+        const detail = typeof result?.error === "string" ? result.error : `Please email ${projectEmail} and we will still help you.`;
         throw new Error(detail);
       }
-      if (status) status.textContent = "Thank you. Your inquiry has been emailed to Basit.";
+      if (status) status.textContent = "Thank you. Your inquiry has been emailed to Marketech Digital.";
       form.reset();
     } catch (error) {
-      const detail = error instanceof Error && error.message ? error.message : "Please email abasitabbasi99@gmail.com and we will still help you.";
+      const detail = error instanceof Error && error.message ? error.message : `Please email ${projectEmail} and we will still help you.`;
       if (status) status.textContent = `The form had trouble sending. ${detail}`;
     }
   });
@@ -182,7 +185,7 @@ function interceptContactClicks() {
       const isContact =
         href === "#contact" ||
         href === "/#contact" ||
-        href.startsWith("mailto:abasitabbasi99") ||
+        href.startsWith("mailto:") ||
         text.includes("book a consultation") ||
         text.includes("start a conversation") ||
         text.includes("ask for a recommendation") ||
@@ -212,7 +215,7 @@ function enhanceFooter() {
     <div class="footer-columns">
       <div><span>Services</span><a href="/services">Starter systems</a><a href="#offers">Main offers</a><a href="#process">How we work</a></div>
       <div><span>Company</span><a href="/founder">Founder profile</a><a href="#faq">Questions</a><a href="#contact">Contact</a></div>
-      <div><span>Contact</span><a href="mailto:abasitabbasi99@gmail.com">abasitabbasi99@gmail.com</a><button type="button">Book a consultation</button></div>
+      <div><span>Contact</span><a href="mailto:${contactEmail}">${contactEmail}</a><button type="button">Book a consultation</button></div>
     </div>
     <div class="footer-bottom"><span>© ${year} Marketech Digital. All rights reserved.</span><span>Serving Ottawa, Kanata, Barrhaven, Nepean, Gatineau, Toronto, and businesses across Canada.</span></div>
   `;
