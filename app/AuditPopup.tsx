@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 
 const STORAGE_KEY = "marketech-audit-popup-dismissed";
@@ -8,6 +9,11 @@ const STORAGE_KEY = "marketech-audit-popup-dismissed";
 export default function AuditPopup() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (pathname !== "/") return;
@@ -17,16 +23,48 @@ export default function AuditPopup() {
     return () => window.clearTimeout(timer);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!open) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+
+    window.addEventListener("keydown", onEscape);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", onEscape);
+    };
+  }, [open]);
+
   const close = () => {
     window.sessionStorage.setItem(STORAGE_KEY, "true");
     setOpen(false);
   };
 
-  if (!open || pathname !== "/") return null;
+  if (!mounted || !open || pathname !== "/") return null;
 
-  return (
-    <div className="audit-popup-backdrop" role="dialog" aria-modal="true" aria-labelledby="audit-popup-title">
-      <div className="audit-popup-card">
+  return createPortal(
+    <div
+      className="audit-popup-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="audit-popup-title"
+      onClick={close}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 2147483647,
+        display: "grid",
+        placeItems: "center",
+        padding: "18px",
+        minHeight: "100dvh",
+        width: "100vw"
+      }}
+    >
+      <div className="audit-popup-card" onClick={(event) => event.stopPropagation()}>
         <button className="audit-popup-close" type="button" aria-label="Close audit offer" onClick={close}>
           <span />
           <span />
@@ -48,6 +86,7 @@ export default function AuditPopup() {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
