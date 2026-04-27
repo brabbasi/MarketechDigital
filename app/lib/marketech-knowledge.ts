@@ -5,19 +5,25 @@ export type ChatMessage = {
   content: string;
 };
 
+export const companyContactEmail = "contact@getmarketechdigital.com";
+export const founderEmail = "basit@getmarketechdigital.com";
+export const projectEmail = "project@getmarketechdigital.com";
+export const supportEmail = "support@getmarketechdigital.com";
+export const outreachEmail = "hello@getmarketechdigital.com";
+
 export const socialLinks = {
   company: {
     linkedin: "https://www.linkedin.com/company/marketechdigital/",
     instagram: "https://www.instagram.com/official.marketech?igsh=NTR0YnVhemRiMnhr",
     facebook: "https://www.facebook.com/share/17ee6kJiPF/",
-    email: "mailto:abasitabbasi99@gmail.com"
+    email: `mailto:${companyContactEmail}`
   },
   founder: {
     linkedin: "https://www.linkedin.com/in/basitrabbasi?utm_source=share_via&utm_content=profile&utm_medium=member_android",
     instagram: "https://www.instagram.com/a.b_abbasi?igsh=ZzViNGc5bjNxaDJ4",
     facebook: "https://www.facebook.com/share/17yJwoTW1r/",
     github: "https://github.com/brabbasi",
-    email: "mailto:abasitabbasi99@gmail.com"
+    email: `mailto:${founderEmail}`
   }
 };
 
@@ -227,7 +233,7 @@ export function localAssistantReply(message: string) {
   }
 
   if (/(start|contact|book|call|next step)/.test(q)) {
-    return "The best first step is to describe your business, the main bottleneck, the tools you use, the outcome you want, and the budget range you are comfortable with. From there, I can suggest whether you need an AI strategy sprint, an AI website assistant, workflow automation, a dashboard, a website/SEO build, or a larger growth system.";
+    return `The best first step is to describe your business, the main bottleneck, the tools you use, the outcome you want, and the budget range you are comfortable with. From there, I can suggest whether you need an AI strategy sprint, an AI website assistant, workflow automation, a dashboard, a website/SEO build, or a larger growth system. For project inquiries, email ${projectEmail}.`;
   }
 
   if (/(solve|help|problem|can you|what can)/.test(q) || service) {
@@ -280,7 +286,7 @@ Industry examples:
 5. Car detailing businesses: package pages, quote requests, before-and-after proof, booking flows, local SEO, and follow up reminders.
 
 Troubleshooting rule:
-If a visitor says something is down, broken, not working, crashed, failed, or has an error, do not jump straight to pricing. First ask what system failed, what changed recently, what platform is involved, and what error they see. Position it as a systems review or recovery workflow if they need Marketech to fix it.
+If a visitor says something is down, broken, not working, crashed, failed, or has an error, do not jump straight to pricing. First ask what system failed, what changed recently, what platform is involved, and what error they see. Position it as a systems review or recovery workflow if they need Marketech to fix it. Support and maintenance inquiries should go to ${supportEmail}.
 
 General helpfulness rule:
 If a visitor asks a simple technology question, give a brief helpful answer first, then connect it back to what Marketech can help with if it affects their website, AI assistant, automation, CRM, dashboard, booking, or lead system.
@@ -294,9 +300,9 @@ Rules:
 6. If they mention both bot and automation, recommend the combined AI Agent and Workflow Automation Starter.
 7. Give concrete examples tailored to their industry when possible.
 8. Ask at most two useful questions when needed.
-9. Encourage the visitor to contact Basit when they have enough project context.
+9. Encourage the visitor to contact Marketech Digital when they have enough project context.
 10. Keep replies concise, usually two to five short paragraphs or a numbered list.
 11. Do not claim Marketech has completed real client work unless the user provides it. You may discuss portfolio concepts as examples.
-12. Contact email: abasitabbasi99@gmail.com.
+12. Contact emails: general ${companyContactEmail}; founder ${founderEmail}; projects ${projectEmail}; support ${supportEmail}; outreach ${outreachEmail}.
 13. If asked whether the bot is live AI, say it is powered by Marketech's backend AI assistant when API keys are configured. Otherwise it can still guide visitors with prepared responses.`;
 }
