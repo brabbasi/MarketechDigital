@@ -3,7 +3,7 @@ export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://getmarketec
 export const contactEmail = "abasitabbasi99@gmail.com";
 
 export const siteDescription =
-  "Marketech Digital is an Ottawa digital agency that helps business owners build better websites, use AI in practical ways, improve SEO, create stronger branding, and turn messy workflows into simple systems that are easier to manage.";
+  "Marketech Digital is an Ottawa digital agency and AI automation agency that helps small businesses build better websites, improve local SEO, capture more leads, use AI in practical ways, and turn messy workflows into simple digital growth systems.";
 
 export const serviceKeywords = [
   "Marketech Digital",
@@ -17,9 +17,13 @@ export const serviceKeywords = [
   "app development Canada",
   "business automation agency",
   "Next.js website development",
+  "website design for small businesses",
   "website design for small business",
   "digital marketing Ottawa",
+  "digital marketing automation",
   "SEO services Ottawa",
+  "local business SEO",
+  "lead generation website",
   "landing page design agency",
   "custom website development",
   "branding agency Ottawa",
@@ -30,7 +34,10 @@ export const serviceKeywords = [
   "high converting website design",
   "premium website development",
   "performance focused digital marketing",
-  "automation for service businesses"
+  "automation for service businesses",
+  "free digital growth audit",
+  "Ottawa small business digital services",
+  "Canada small business digital services"
 ];
 
 export const areasServed = ["Ottawa", "Kanata", "Barrhaven", "Nepean", "Gatineau", "Toronto", "Ontario", "Canada", "Remote clients"];
@@ -43,6 +50,9 @@ export const coreServices = [
   "AI Workflow Automation",
   "Digital Marketing",
   "SEO Services",
+  "Local Business SEO",
+  "Lead Generation Website Design",
+  "Digital Growth Audit",
   "Branding and Digital Identity",
   "Landing Page Design",
   "Performance Optimization",
@@ -80,6 +90,16 @@ export const homepageFaq = [
     question: "Can you help with SEO, branding, and digital marketing?",
     answer:
       "Yes. We help businesses improve their SEO foundation, sharpen their brand, build better landing pages, and create marketing systems that feel clear and useful for real customers."
+  },
+  {
+    question: "What is the Free Digital Growth Audit?",
+    answer:
+      "The Free Digital Growth Audit is a low-pressure review for local businesses. It looks at website clarity, mobile experience, local SEO, Google Business Profile visibility, lead capture, trust signals, and simple AI automation opportunities."
+  },
+  {
+    question: "What is the Marketech Digital Growth Starter package?",
+    answer:
+      "The Growth Starter is an accessible first project for small businesses that want quick improvements without a full rebuild. It can include website review, Google Business Profile suggestions, basic SEO cleanup, contact or booking flow setup, lead capture improvements, one simple automation, and a clear action report."
   }
 ];
 
@@ -146,11 +166,11 @@ export function localBusinessJsonLd() {
     image: absoluteUrl("/logo.svg"),
     logo: absoluteUrl("/logo.svg"),
     email: contactEmail,
-    priceRange: "Contact for quote",
+    priceRange: "$497-$997+",
     areaServed: areasServed,
     makesOffer: offerCatalog,
     description:
-      "A digital agency serving Ottawa, Ontario, Canada, and remote clients with website design and development, software and app development, AI workflow automation, SEO, branding, digital marketing, landing pages, and practical business growth systems."
+      "A digital agency serving Ottawa, Ontario, Canada, and remote clients with website design and development, software and app development, AI workflow automation, local business SEO, branding, digital marketing automation, lead generation websites, landing pages, and practical business growth systems."
   };
 }
 
