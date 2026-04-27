@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 
 const STORAGE_KEY = "marketech-audit-popup-dismissed";
+const AUDIT_POPUP_DELAY_MS = 15000;
 
 export default function AuditPopup() {
   const pathname = usePathname();
@@ -19,7 +20,7 @@ export default function AuditPopup() {
     if (pathname !== "/") return;
     if (window.sessionStorage.getItem(STORAGE_KEY) === "true") return;
 
-    const timer = window.setTimeout(() => setOpen(true), 900);
+    const timer = window.setTimeout(() => setOpen(true), AUDIT_POPUP_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [pathname]);
 
