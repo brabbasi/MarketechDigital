@@ -149,11 +149,16 @@ function ensureContactModal() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       });
-      if (!response.ok) throw new Error("Lead failed");
-      if (status) status.textContent = "Thank you. Your inquiry has been received and Basit will review it.";
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const detail = typeof result?.error === "string" ? result.error : "Please email abasitabbasi99@gmail.com and we will still help you.";
+        throw new Error(detail);
+      }
+      if (status) status.textContent = "Thank you. Your inquiry has been emailed to Basit.";
       form.reset();
-    } catch {
-      if (status) status.textContent = "The form had trouble sending. Please email abasitabbasi99@gmail.com and we will still help you.";
+    } catch (error) {
+      const detail = error instanceof Error && error.message ? error.message : "Please email abasitabbasi99@gmail.com and we will still help you.";
+      if (status) status.textContent = `The form had trouble sending. ${detail}`;
     }
   });
 }
