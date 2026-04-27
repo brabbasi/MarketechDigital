@@ -8,6 +8,7 @@ import MarketechDiceNav from "@/components/MarketechDiceNav";
 const navItems = [
   { label: "Home", href: "/" },
   { label: "Free Audit", href: "/audit" },
+  { label: "Insights", href: "/insights" },
   { label: "About", href: "/about" },
   { label: "Offers", href: "/#offers" },
   { label: "Process", href: "/#process" },
