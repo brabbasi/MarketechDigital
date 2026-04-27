@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { absoluteUrl } from "./seo";
+import { insights } from "./insights/insights-data";
 import { servicePages } from "./services/service-pages";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -17,6 +18,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.9
     },
+    {
+      url: absoluteUrl("/insights"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.88
+    },
+    ...insights.map((article) => ({
+      url: absoluteUrl(`/insights/${article.slug}`),
+      lastModified: new Date(`${article.date}T12:00:00`),
+      changeFrequency: "monthly" as const,
+      priority: 0.78
+    })),
     {
       url: absoluteUrl("/about"),
       lastModified: now,
