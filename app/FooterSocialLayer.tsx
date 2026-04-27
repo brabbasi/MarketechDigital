@@ -13,7 +13,7 @@ const socialLinks = [
   { label: "Marketech Digital LinkedIn", href: "https://www.linkedin.com/company/marketechdigital/", icon: icons.linkedin },
   { label: "Marketech Digital Instagram", href: "https://www.instagram.com/official.marketech?igsh=NTR0YnVhemRiMnhr", icon: icons.instagram },
   { label: "Marketech Digital Facebook", href: "https://www.facebook.com/share/17ee6kJiPF/", icon: icons.facebook },
-  { label: "Email Marketech Digital", href: "mailto:abasitabbasi99@gmail.com", icon: icons.email }
+  { label: "Email Marketech Digital", href: "mailto:contact@getmarketechdigital.com", icon: icons.email }
 ];
 
 function injectFooterSocials() {
