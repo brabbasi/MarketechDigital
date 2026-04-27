@@ -47,7 +47,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} marketech-about-page`}>
       <div className={styles.shell}>
         <nav className={styles.navbar} aria-label="About page navigation">
           <div className={styles.brand}>
