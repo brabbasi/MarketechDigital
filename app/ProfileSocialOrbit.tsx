@@ -41,17 +41,22 @@ export default function ProfileSocialOrbit({ children, links, label, className =
       <div className="profile-social-orbit__ring profile-social-orbit__ring--inner" aria-hidden="true" />
       <div className="profile-social-orbit__center">{children}</div>
       <div className="profile-social-orbit__track">
-        {links.map((link, index) => (
-          <a
-            key={link.label}
-            className="profile-social-orbit__icon"
-            style={{ "--i": index, "--count": links.length } as CSSProperties}
-            href={link.href}
-            aria-label={link.label}
-          >
-            <BrandIcon icon={link.icon} />
-          </a>
-        ))}
+        {links.map((link, index) => {
+          const isExternal = link.href.startsWith("http");
+          return (
+            <a
+              key={link.label}
+              className="profile-social-orbit__icon"
+              style={{ "--i": index, "--count": links.length } as CSSProperties}
+              href={link.href}
+              aria-label={link.label}
+              target={isExternal ? "_blank" : undefined}
+              rel={isExternal ? "noopener noreferrer" : undefined}
+            >
+              <BrandIcon icon={link.icon} />
+            </a>
+          );
+        })}
       </div>
     </div>
   );
