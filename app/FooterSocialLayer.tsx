@@ -10,10 +10,10 @@ const icons = {
 };
 
 const socialLinks = [
-  { label: "Marketech Digital LinkedIn", href: "#replace-marketech-linkedin", icon: icons.linkedin },
-  { label: "Marketech Digital Instagram", href: "#replace-marketech-instagram", icon: icons.instagram },
-  { label: "Marketech Digital Facebook", href: "#replace-marketech-facebook", icon: icons.facebook },
-  { label: "Email Marketech Digital", href: "mailto:replace@marketechdigital.ai", icon: icons.email }
+  { label: "Marketech Digital LinkedIn", href: "https://www.linkedin.com/company/marketechdigital/", icon: icons.linkedin },
+  { label: "Marketech Digital Instagram", href: "https://www.instagram.com/official.marketech?igsh=NTR0YnVhemRiMnhr", icon: icons.instagram },
+  { label: "Marketech Digital Facebook", href: "https://www.facebook.com/share/17ee6kJiPF/", icon: icons.facebook },
+  { label: "Email Marketech Digital", href: "mailto:abasitabbasi99@gmail.com", icon: icons.email }
 ];
 
 function injectFooterSocials() {
@@ -35,7 +35,7 @@ function injectFooterSocials() {
   socialWrap.setAttribute("data-footer-socials", "true");
   socialWrap.className = "footer-socials";
   socialWrap.innerHTML = socialLinks
-    .map((link) => `<a href="${link.href}" aria-label="${link.label}">${link.icon}</a>`)
+    .map((link) => `<a href="${link.href}" aria-label="${link.label}" ${link.href.startsWith("http") ? 'target="_blank" rel="noopener noreferrer"' : ""}>${link.icon}</a>`)
     .join("");
 
   const footerBottom = footer.querySelector(".footer-bottom");
