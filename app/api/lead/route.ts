@@ -27,6 +27,7 @@ type EmailMessage = {
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://getmarketechdigital.com").replace(/\/$/, "");
 const logoUrl = `${siteUrl}/logo.svg`;
 const defaultLeadToEmail = "abasitabbasi99@gmail.com";
+const publicReplyEmail = "hello@getmarketechdigital.com";
 
 function sanitize(value: unknown, limit = 1200) {
   return typeof value === "string" ? value.trim().slice(0, limit) : "";
@@ -73,8 +74,6 @@ function getLeadDetails(payload: LeadPayload) {
 }
 
 function buildOwnerEmailText(payload: LeadPayload) {
-  const conversation = buildConversation(payload);
-
   return `New Marketech Digital project inquiry
 
 ${getLeadDetails(payload).map(([label, value]) => field(label, value)).join("\n")}
@@ -83,37 +82,71 @@ Project details:
 ${sanitize(payload.message, 2000) || "Not provided"}
 
 Recent AI assistant conversation:
-${conversation}
+${buildConversation(payload)}
 
 Reply directly to this email to contact the lead if they provided an email address.`;
 }
 
-function detailCard(label: string, value: string) {
+function ownerDetailCard(label: string, value: string) {
   return `
-    <div style="margin:0 0 10px;padding:14px 14px 13px;border:1px solid #263244;border-radius:14px;background:#0b1220;box-sizing:border-box;">
+    <div style="margin:0 0 10px;padding:14px;border:1px solid #263244;border-radius:14px;background:#0b1220;box-sizing:border-box;">
       <div style="margin:0 0 6px;color:#94a3b8;font-size:11px;line-height:1.35;font-weight:800;letter-spacing:.12em;text-transform:uppercase;">${escapeHtml(label)}</div>
       <div style="color:#f8fafc;font-size:15px;line-height:1.55;font-weight:700;word-break:break-word;overflow-wrap:anywhere;">${escapeHtml(value || "Not provided")}</div>
     </div>`;
 }
 
-function buildEmailShell(content: string, preview = "Marketech Digital email") {
+function buildOwnerEmailHtml(payload: LeadPayload) {
+  const projectDetails = escapeHtml(sanitize(payload.message, 2000) || "Not provided").replace(/\n/g, "<br />");
+  const conversation = escapeHtml(buildConversation(payload)).replace(/\n/g, "<br />");
+  const detailCards = getLeadDetails(payload).map(([label, value]) => ownerDetailCard(label, value)).join("");
+
   return `
   <!doctype html>
   <html>
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta name="x-apple-disable-message-reformatting" />
-      <title>${escapeHtml(preview)}</title>
+      <title>New Marketech Digital inquiry</title>
     </head>
     <body style="margin:0;padding:0;background:#05070d;font-family:Arial,Helvetica,sans-serif;color:#f8fafc;-webkit-text-size-adjust:100%;text-size-adjust:100%;">
-      <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(preview)}</div>
       <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;border-collapse:collapse;background:#05070d;">
         <tr>
           <td align="center" style="padding:14px 10px;">
-            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;max-width:600px;border-collapse:separate;border-spacing:0;background:#07101d;border:1px solid #263244;border-radius:22px;overflow:hidden;box-shadow:0 22px 70px rgba(0,0,0,.35);">
+            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;max-width:600px;border-collapse:separate;border-spacing:0;background:#07101d;border:1px solid #263244;border-radius:22px;overflow:hidden;">
               <tr>
-                <td style="padding:0;">
-                  ${content}
+                <td style="padding:24px 20px 20px;background:linear-gradient(180deg,#101827,#07101d);border-bottom:1px solid #263244;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;border-collapse:collapse;">
+                    <tr>
+                      <td style="vertical-align:middle;width:54px;padding:0 12px 0 0;">
+                        <img src="${logoUrl}" width="48" height="48" alt="Marketech Digital" style="display:block;width:48px;height:48px;border-radius:14px;background:#ffffff;object-fit:contain;" />
+                      </td>
+                      <td style="vertical-align:middle;padding:0;">
+                        <div style="color:#ff8a33;font-size:11px;line-height:1.35;font-weight:900;letter-spacing:.18em;text-transform:uppercase;">Marketech Digital</div>
+                        <div style="margin-top:3px;color:#cbd5e1;font-size:13px;line-height:1.5;">Website inquiry notification</div>
+                      </td>
+                    </tr>
+                  </table>
+                  <h1 style="margin:22px 0 0;color:#ffffff;font-size:28px;line-height:1.12;font-weight:900;letter-spacing:-.03em;">New project inquiry</h1>
+                  <p style="margin:12px 0 0;color:#cbd5e1;font-size:15px;line-height:1.65;">A visitor submitted the project inquiry form on the website.</p>
+                </td>
+              </tr>
+              <tr><td style="padding:18px 14px 4px;background:#07101d;">${detailCards}</td></tr>
+              <tr>
+                <td style="padding:8px 14px 4px;background:#07101d;">
+                  <h2 style="margin:0 0 10px;color:#ffb15d;font-size:14px;line-height:1.35;font-weight:900;letter-spacing:.12em;text-transform:uppercase;">Project details</h2>
+                  <div style="padding:15px;border:1px solid #263244;border-radius:16px;background:#050912;color:#f8fafc;font-size:15px;line-height:1.7;word-break:break-word;overflow-wrap:anywhere;">${projectDetails}</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:18px 14px 22px;background:#07101d;">
+                  <h2 style="margin:0 0 10px;color:#ffb15d;font-size:14px;line-height:1.35;font-weight:900;letter-spacing:.12em;text-transform:uppercase;">Recent AI assistant conversation</h2>
+                  <div style="padding:15px;border:1px solid #263244;border-radius:16px;background:#050912;color:#cbd5e1;font-size:14px;line-height:1.7;word-break:break-word;overflow-wrap:anywhere;">${conversation}</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:18px 20px;background:#050912;border-top:1px solid #263244;color:#94a3b8;font-size:13px;line-height:1.65;">
+                  <strong style="display:block;color:#f8fafc;font-size:14px;">Reply action</strong>
+                  If the visitor provided an email address, you can reply directly to this email.
                 </td>
               </tr>
             </table>
@@ -124,122 +157,73 @@ function buildEmailShell(content: string, preview = "Marketech Digital email") {
   </html>`;
 }
 
-function buildOwnerEmailHtml(payload: LeadPayload) {
-  const projectDetails = escapeHtml(sanitize(payload.message, 2000) || "Not provided").replace(/\n/g, "<br />");
-  const conversation = escapeHtml(buildConversation(payload)).replace(/\n/g, "<br />");
-  const detailCards = getLeadDetails(payload).map(([label, value]) => detailCard(label, value)).join("");
-
-  return buildEmailShell(
-    `
-    <div style="padding:24px 20px 20px;background:radial-gradient(circle at 16% 0%,rgba(255,106,0,.26),transparent 34%),linear-gradient(180deg,#101827,#07101d);border-bottom:1px solid #263244;">
-      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;border-collapse:collapse;">
-        <tr>
-          <td style="vertical-align:middle;width:54px;padding:0 12px 0 0;">
-            <img src="${logoUrl}" width="48" height="48" alt="Marketech Digital" style="display:block;width:48px;height:48px;border-radius:14px;background:#ffffff;object-fit:contain;" />
-          </td>
-          <td style="vertical-align:middle;padding:0;">
-            <div style="color:#ff8a33;font-size:11px;line-height:1.35;font-weight:900;letter-spacing:.18em;text-transform:uppercase;">Marketech Digital</div>
-            <div style="margin-top:3px;color:#cbd5e1;font-size:13px;line-height:1.5;">Website inquiry notification</div>
-          </td>
-        </tr>
-      </table>
-      <h1 style="margin:22px 0 0;color:#ffffff;font-size:30px;line-height:1.08;font-weight:900;letter-spacing:-.04em;">New project inquiry</h1>
-      <p style="margin:12px 0 0;color:#cbd5e1;font-size:15px;line-height:1.65;">A visitor submitted the project inquiry form on the Marketech Digital website.</p>
-    </div>
-
-    <div style="padding:18px 14px 4px;background:#07101d;">
-      ${detailCards}
-    </div>
-
-    <div style="padding:8px 14px 4px;background:#07101d;">
-      <h2 style="margin:0 0 10px;color:#ffb15d;font-size:14px;line-height:1.35;font-weight:900;letter-spacing:.12em;text-transform:uppercase;">Project details</h2>
-      <div style="padding:15px;border:1px solid #263244;border-radius:16px;background:#050912;color:#f8fafc;font-size:15px;line-height:1.7;word-break:break-word;overflow-wrap:anywhere;">${projectDetails}</div>
-    </div>
-
-    <div style="padding:18px 14px 22px;background:#07101d;">
-      <h2 style="margin:0 0 10px;color:#ffb15d;font-size:14px;line-height:1.35;font-weight:900;letter-spacing:.12em;text-transform:uppercase;">Recent AI assistant conversation</h2>
-      <div style="padding:15px;border:1px solid #263244;border-radius:16px;background:#050912;color:#cbd5e1;font-size:14px;line-height:1.7;word-break:break-word;overflow-wrap:anywhere;">${conversation}</div>
-    </div>
-
-    <div style="padding:18px 20px;background:#050912;border-top:1px solid #263244;color:#94a3b8;font-size:13px;line-height:1.65;">
-      <strong style="display:block;color:#f8fafc;font-size:14px;">Reply action</strong>
-      If the visitor provided an email address, you can reply directly to this email.
-    </div>`,
-    "New Marketech Digital project inquiry"
-  );
-}
-
 function buildClientEmailText(payload: LeadPayload) {
   const name = sanitize(payload.name, 80) || "there";
+  const service = sanitize(payload.service, 160);
+  const budget = sanitize(payload.budget, 160);
+
   return `Hi ${name},
 
-Thank you for reaching out to Marketech Digital.
+Thank you for contacting Marketech Digital. Your message was received.
 
-Your project inquiry has been received. I will review your message and contact you as soon as possible.
+I will review your inquiry and get back to you as soon as possible.
 
-Summary received:
-${field("Business type", sanitize(payload.business, 240))}
-${field("Service interested in", sanitize(payload.service, 240))}
-${field("Budget", sanitize(payload.budget, 160))}
-${field("Preferred contact method", sanitize(payload.preferredContact, 160))}
-
+${service ? `Service: ${service}\n` : ""}${budget ? `Budget: ${budget}\n` : ""}
 Kind regards,
+
 Basit Abbasi
 Founder, Marketech Digital
-Email: abasitabbasi99@gmail.com
-Website: ${siteUrl}`;
+${publicReplyEmail}
+${siteUrl}`;
 }
 
 function buildClientEmailHtml(payload: LeadPayload) {
   const name = escapeHtml(sanitize(payload.name, 80) || "there");
-  const summaryCards = [
-    ["Business type", sanitize(payload.business, 240)],
-    ["Service interested in", sanitize(payload.service, 240)],
-    ["Budget", sanitize(payload.budget, 160)],
-    ["Preferred contact method", sanitize(payload.preferredContact, 160)]
-  ].map(([label, value]) => detailCard(label, value)).join("");
+  const service = escapeHtml(sanitize(payload.service, 160));
+  const budget = escapeHtml(sanitize(payload.budget, 160));
 
-  return buildEmailShell(
-    `
-    <div style="padding:24px 20px 20px;background:radial-gradient(circle at 16% 0%,rgba(255,106,0,.26),transparent 34%),linear-gradient(180deg,#101827,#07101d);border-bottom:1px solid #263244;">
-      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;border-collapse:collapse;">
+  return `
+  <!doctype html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="x-apple-disable-message-reformatting" />
+      <title>We received your inquiry</title>
+    </head>
+    <body style="margin:0;padding:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#111827;-webkit-text-size-adjust:100%;text-size-adjust:100%;">
+      <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Your Marketech Digital inquiry was received.</div>
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;border-collapse:collapse;background:#ffffff;">
         <tr>
-          <td style="vertical-align:middle;width:54px;padding:0 12px 0 0;">
-            <img src="${logoUrl}" width="48" height="48" alt="Marketech Digital" style="display:block;width:48px;height:48px;border-radius:14px;background:#ffffff;object-fit:contain;" />
-          </td>
-          <td style="vertical-align:middle;padding:0;">
-            <div style="color:#ff8a33;font-size:11px;line-height:1.35;font-weight:900;letter-spacing:.18em;text-transform:uppercase;">Marketech Digital</div>
-            <div style="margin-top:3px;color:#cbd5e1;font-size:13px;line-height:1.5;">Websites · AI automation · SEO · digital systems</div>
+          <td align="left" style="padding:24px 18px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;max-width:560px;border-collapse:collapse;">
+              <tr>
+                <td style="padding:0 0 18px;border-bottom:1px solid #e5e7eb;">
+                  <div style="font-size:12px;line-height:1.4;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#d35400;">Marketech Digital</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:22px 0 8px;">
+                  <h1 style="margin:0 0 14px;font-size:22px;line-height:1.25;font-weight:800;color:#111827;">We received your inquiry</h1>
+                  <p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#374151;">Hi ${name},</p>
+                  <p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#374151;">Thank you for contacting Marketech Digital. Your message was received.</p>
+                  <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#374151;">I will review your inquiry and get back to you as soon as possible.</p>
+                  ${service || budget ? `<div style="margin:0 0 18px;padding:14px 16px;border-left:3px solid #d35400;background:#f9fafb;color:#374151;font-size:14px;line-height:1.65;">${service ? `<p style="margin:0 0 6px;">Service: ${service}</p>` : ""}${budget ? `<p style="margin:0;">Budget: ${budget}</p>` : ""}</div>` : ""}
+                  <p style="margin:0 0 4px;font-size:15px;line-height:1.7;color:#111827;">Kind regards,</p>
+                  <p style="margin:0;font-size:15px;line-height:1.7;color:#111827;font-weight:700;">Basit Abbasi</p>
+                  <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#6b7280;">Founder, Marketech Digital</p>
+                  <p style="margin:0;font-size:13px;line-height:1.7;color:#6b7280;">${publicReplyEmail}<br />${siteUrl.replace("https://", "")}</p>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
       </table>
-      <h1 style="margin:22px 0 0;color:#ffffff;font-size:30px;line-height:1.08;font-weight:900;letter-spacing:-.04em;">Thank you for reaching out.</h1>
-      <p style="margin:12px 0 0;color:#cbd5e1;font-size:15px;line-height:1.65;">Hi ${name}, your project inquiry has been received. I will review your message and contact you as soon as possible.</p>
-    </div>
-
-    <div style="padding:20px 14px 8px;background:#07101d;">
-      <h2 style="margin:0 6px 12px;color:#ffb15d;font-size:14px;line-height:1.35;font-weight:900;letter-spacing:.12em;text-transform:uppercase;">Your inquiry summary</h2>
-      ${summaryCards}
-    </div>
-
-    <div style="padding:10px 20px 24px;background:#07101d;color:#cbd5e1;font-size:15px;line-height:1.72;">
-      <p style="margin:0 0 14px;">If anything urgent changes, you can reply directly to this email with more details.</p>
-      <p style="margin:0;color:#f8fafc;font-weight:700;">Kind regards,</p>
-      <p style="margin:4px 0 0;color:#f8fafc;font-weight:900;">Basit Abbasi</p>
-      <p style="margin:3px 0 0;color:#94a3b8;">Founder, Marketech Digital</p>
-    </div>
-
-    <div style="padding:18px 20px;background:#050912;border-top:1px solid #263244;color:#94a3b8;font-size:13px;line-height:1.7;">
-      <strong style="display:block;color:#f8fafc;font-size:14px;margin-bottom:4px;">Contact</strong>
-      Email: <a href="mailto:abasitabbasi99@gmail.com" style="color:#ffb15d;text-decoration:none;word-break:break-word;">abasitabbasi99@gmail.com</a><br />
-      Website: <a href="${siteUrl}" style="color:#ffb15d;text-decoration:none;word-break:break-word;">${siteUrl.replace("https://", "")}</a>
-    </div>`,
-    "Thank you for reaching out to Marketech Digital"
-  );
+    </body>
+  </html>`;
 }
 
 async function sendResendEmail(message: EmailMessage) {
-  const from = process.env.LEAD_FROM_EMAIL || "Marketech Digital <hello@getmarketechdigital.com>";
+  const from = process.env.LEAD_FROM_EMAIL || `Marketech Digital <${publicReplyEmail}>`;
 
   return fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -293,7 +277,7 @@ export async function POST(request: Request) {
     const ownerResponse = await sendResendEmail({
       to: [leadToEmail],
       replyTo: isValidEmail(email) ? email : undefined,
-      subject: ownerSubjectParts.join(" — "),
+      subject: ownerSubjectParts.join(" - "),
       text: ownerText,
       html: ownerHtml
     });
@@ -312,7 +296,7 @@ export async function POST(request: Request) {
       const clientResponse = await sendResendEmail({
         to: [email],
         replyTo: leadToEmail,
-        subject: "Thank you for reaching out to Marketech Digital",
+        subject: "We received your inquiry",
         text: buildClientEmailText(payload),
         html: buildClientEmailHtml(payload)
       });
