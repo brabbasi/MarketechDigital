@@ -73,12 +73,29 @@ export default function FounderOrbitLayer() {
         place-items: center;
         isolation: isolate;
         margin: 0 auto;
+        overflow: visible !important;
+        contain: layout paint;
+        transform: translateZ(0);
+        will-change: transform;
       }
       .founder-dom-orbit [class*="ringPortrait"] {
         width: 58% !important;
         height: 58% !important;
         margin: 0 !important;
         z-index: 3;
+        overflow: hidden !important;
+        border-radius: 50% !important;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+        clip-path: circle(50% at 50% 50%);
+      }
+      .founder-dom-orbit [class*="ringPortrait"] img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: center top !important;
+        transform: translateZ(0) scale(1.012);
+        backface-visibility: hidden;
       }
       .founder-dom-orbit__ring {
         position: absolute;
@@ -98,6 +115,8 @@ export default function FounderOrbitLayer() {
         z-index: 4;
         border-radius: 50%;
         animation: founderOrbitSpin 30s linear infinite;
+        transform: translateZ(0);
+        will-change: transform;
       }
       .founder-dom-orbit__icon {
         --angle: calc((360deg / var(--count)) * var(--i));
@@ -116,7 +135,7 @@ export default function FounderOrbitLayer() {
         background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.035));
         box-shadow: 0 12px 30px rgba(0,0,0,.28), 0 0 28px rgba(255,106,0,.1);
         backdrop-filter: blur(16px);
-        transform: rotate(var(--angle)) translateX(calc(var(--orbit-size) * .42)) rotate(calc(-1 * var(--angle)));
+        transform: rotate(var(--angle)) translateX(calc(var(--orbit-size) * .42)) rotate(calc(-1 * var(--angle))) translateZ(0);
         transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
       }
       .founder-dom-orbit__icon svg {
@@ -137,7 +156,7 @@ export default function FounderOrbitLayer() {
       }
       @keyframes founderOrbitSpin { to { transform: rotate(360deg); } }
       @media (max-width:640px) {
-        .founder-dom-orbit { --orbit-size: min(340px, 88vw); }
+        .founder-dom-orbit { --orbit-size: min(340px, 88vw); margin-top: 10px; margin-bottom: 16px; }
         .founder-dom-orbit__icon { width:48px; height:48px; margin:-24px; }
         .founder-dom-orbit__icon svg { width:20px; height:20px; }
       }
