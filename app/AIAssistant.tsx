@@ -11,6 +11,7 @@ type UiMessage = {
 type AssistantMode = "checking" | "ai" | "fallback" | "error";
 
 const founderImage = "/founder.webp";
+const projectEmail = "project@getmarketechdigital.com";
 const quickReplies = ["Estimate my project", "What can you build?", "AI agent bot price", "How do we start?"];
 
 function toApiRole(role: UiMessage["role"]): "user" | "assistant" {
@@ -39,9 +40,9 @@ export default function AIAssistant() {
   ]);
 
   const mailHref = useMemo(() => {
-    const subject = encodeURIComponent("Marketech Digital inquiry");
-    const body = encodeURIComponent("Hi Basit, I visited the Marketech Digital website and would like to discuss a project.\n\nProject / problem:\nBusiness type:\nPreferred next step:\nEstimated budget range:");
-    return `mailto:abasitabbasi99@gmail.com?subject=${subject}&body=${body}`;
+    const subject = encodeURIComponent("Marketech Digital project inquiry");
+    const body = encodeURIComponent("Hi Marketech Digital, I visited the website and would like to discuss a project.\n\nProject / problem:\nBusiness type:\nPreferred next step:\nEstimated budget range:");
+    return `mailto:${projectEmail}?subject=${subject}&body=${body}`;
   }, []);
 
   async function send(text = input) {
