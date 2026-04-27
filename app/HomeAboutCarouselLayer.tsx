@@ -47,32 +47,38 @@ function buildAboutCarousel() {
     <div class="home-about-label"><span></span> About Us</div>
     <div class="home-about-rail" aria-label="About Us profile carousel">
       <article class="home-about-profile-card home-about-profile-card--company">
-        <div class="home-about-orb">
-          <div class="home-about-orb-ring home-about-orb-ring--one" aria-hidden="true"></div>
-          <div class="home-about-orb-ring home-about-orb-ring--two" aria-hidden="true"></div>
-          <a class="home-about-round" href="/about" aria-label="Open Marketech Digital profile">
-            <img src="/logo.svg" alt="Marketech Digital logo" />
-          </a>
-        </div>
-        <div class="home-about-profile-pill">
-          <h2 id="home-about-title">Marketech Digital</h2>
-          <p>Company</p>
-          <a href="/about">Open profile</a>
+        <div class="home-about-stage">
+          <div class="home-about-orb">
+            <div class="home-about-orb-ring home-about-orb-ring--one" aria-hidden="true"></div>
+            <div class="home-about-orb-ring home-about-orb-ring--two" aria-hidden="true"></div>
+            <a class="home-about-round" href="/about" aria-label="Open Marketech Digital profile">
+              <img src="/logo.svg" alt="Marketech Digital logo" />
+            </a>
+          </div>
+          <div class="home-about-profile-pill">
+            <div class="home-about-pill-glow" aria-hidden="true"></div>
+            <h2 id="home-about-title">Marketech Digital</h2>
+            <p>Company</p>
+            <a href="/about">Open profile</a>
+          </div>
         </div>
       </article>
 
       <article class="home-about-profile-card home-about-profile-card--founder">
-        <div class="home-about-orb">
-          <div class="home-about-orb-ring home-about-orb-ring--one" aria-hidden="true"></div>
-          <div class="home-about-orb-ring home-about-orb-ring--two" aria-hidden="true"></div>
-          <a class="home-about-round" href="/founder" aria-label="Open founder profile">
-            <img src="/founder.webp" alt="Basit Abbasi" />
-          </a>
-        </div>
-        <div class="home-about-profile-pill">
-          <h3>Basit Abbasi</h3>
-          <p>Founder</p>
-          <a href="/founder">Open profile</a>
+        <div class="home-about-stage">
+          <div class="home-about-orb">
+            <div class="home-about-orb-ring home-about-orb-ring--one" aria-hidden="true"></div>
+            <div class="home-about-orb-ring home-about-orb-ring--two" aria-hidden="true"></div>
+            <a class="home-about-round" href="/founder" aria-label="Open founder profile">
+              <img src="/founder.webp" alt="Basit Abbasi" />
+            </a>
+          </div>
+          <div class="home-about-profile-pill">
+            <div class="home-about-pill-glow" aria-hidden="true"></div>
+            <h3>Basit Abbasi</h3>
+            <p>Founder</p>
+            <a href="/founder">Open profile</a>
+          </div>
         </div>
       </article>
     </div>
@@ -141,26 +147,48 @@ export default function HomeAboutCarouselLayer() {
         overflow-y: visible;
         scroll-snap-type: x mandatory;
         padding: 8px 4px 28px;
-        scrollbar-width: thin;
+        scrollbar-width: none;
       }
-      .home-about-rail::-webkit-scrollbar { height: 6px; }
-      .home-about-rail::-webkit-scrollbar-thumb { background: linear-gradient(90deg, #ff6a00, #59afff); border-radius: 99px; }
+      .home-about-rail::-webkit-scrollbar { display: none; }
       .home-about-profile-card {
         position: relative;
         scroll-snap-align: center;
-        min-height: 552px;
+        min-height: 560px;
         display: grid;
-        place-items: center;
+        justify-items: center;
+        align-items: start;
         overflow: visible;
         border-radius: 38px;
       }
+      .home-about-stage {
+        position: relative;
+        width: min(500px, 100%);
+        min-height: 552px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        overflow: visible;
+      }
+      .home-about-stage::before {
+        content: "";
+        position: absolute;
+        inset: 10% 4% 8%;
+        border-radius: 44px;
+        background: radial-gradient(circle at 50% 30%, rgba(255,106,0,.12), transparent 36%), radial-gradient(circle at 50% 68%, rgba(89,175,255,.06), transparent 42%);
+        filter: blur(2px);
+        opacity: .85;
+        pointer-events: none;
+      }
       .home-about-orb {
         position: relative;
-        width: min(500px, 82vw);
+        z-index: 1;
+        width: min(500px, 100%);
         aspect-ratio: 1;
         display: grid;
         place-items: center;
         overflow: visible;
+        flex: 0 0 auto;
       }
       .home-about-orb-ring {
         position: absolute;
@@ -202,59 +230,97 @@ export default function HomeAboutCarouselLayer() {
         filter: drop-shadow(0 0 16px rgba(255,106,0,.3));
       }
       .home-about-profile-pill {
-        position: absolute;
+        position: relative;
         z-index: 5;
-        left: 50%;
-        top: calc(50% + min(500px, 82vw) * .22);
-        width: min(420px, calc(100% - 34px));
-        transform: translateX(-50%);
-        padding: 24px 22px 22px;
-        border: 1px solid rgba(255,255,255,.11);
-        border-radius: 32px;
-        background: rgba(4,9,18,.9);
-        backdrop-filter: blur(18px) saturate(1.25);
-        -webkit-backdrop-filter: blur(18px) saturate(1.25);
-        box-shadow: 0 24px 80px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08);
+        width: min(430px, 88%);
+        margin: -122px auto 0;
+        padding: 26px 22px 24px;
+        border: 1px solid transparent;
+        border-radius: 34px;
+        background:
+          linear-gradient(180deg, rgba(6,12,23,.96), rgba(3,7,15,.92)) padding-box,
+          linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,106,0,.34), rgba(89,175,255,.14), rgba(255,255,255,.08)) border-box;
+        backdrop-filter: blur(20px) saturate(1.32);
+        -webkit-backdrop-filter: blur(20px) saturate(1.32);
+        box-shadow:
+          0 30px 90px rgba(0,0,0,.48),
+          0 0 55px rgba(255,106,0,.13),
+          inset 0 1px 0 rgba(255,255,255,.12),
+          inset 0 -36px 70px rgba(0,0,0,.24);
         text-align: center;
+        overflow: hidden;
+      }
+      .home-about-profile-pill::before {
+        content: "";
+        position: absolute;
+        left: 14%;
+        right: 14%;
+        top: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), rgba(255,106,0,.6), transparent);
+        opacity: .9;
+      }
+      .home-about-profile-pill::after {
+        content: "";
+        position: absolute;
+        inset: -60% -20% auto;
+        height: 110px;
+        background: radial-gradient(circle at 50% 50%, rgba(255,106,0,.16), transparent 60%);
+        pointer-events: none;
+      }
+      .home-about-pill-glow {
+        position: absolute;
+        inset: auto 18% 18px;
+        height: 36px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 50% 50%, rgba(255,106,0,.18), transparent 70%);
+        filter: blur(14px);
+        pointer-events: none;
       }
       .home-about-profile-pill h2,
       .home-about-profile-pill h3 {
+        position: relative;
+        z-index: 1;
         margin: 0;
         color: #fff;
-        font-size: clamp(1.38rem, 5.2vw, 1.9rem);
-        line-height: 1.05;
-        letter-spacing: -.035em;
+        font-size: clamp(1.42rem, 5.2vw, 1.98rem);
+        line-height: 1.03;
+        letter-spacing: -.045em;
         font-weight: 950;
-        text-shadow: 0 0 24px rgba(255,255,255,.08);
+        text-shadow: 0 0 26px rgba(255,255,255,.12);
       }
       .home-about-profile-pill p {
-        margin: 9px auto 0;
+        position: relative;
+        z-index: 1;
+        margin: 12px auto 0;
         color: transparent;
-        background: linear-gradient(90deg, rgba(255,255,255,.62), rgba(255,223,202,.94), rgba(255,255,255,.62));
+        background: linear-gradient(90deg, rgba(255,255,255,.55), rgba(255,226,210,.98), rgba(255,255,255,.55));
         -webkit-background-clip: text;
         background-clip: text;
         font-size: 11px;
         line-height: 1.3;
         font-weight: 950;
-        letter-spacing: .28em;
+        letter-spacing: .36em;
         text-transform: uppercase;
       }
       .home-about-profile-pill a {
+        position: relative;
+        z-index: 1;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        margin-top: 18px;
-        min-height: 48px;
-        padding: 12px 28px;
+        margin-top: 22px;
+        min-height: 50px;
+        padding: 12px 30px;
         border: 1px solid rgba(255,106,0,.48);
         border-radius: 999px;
-        background: radial-gradient(circle at 50% 0%, rgba(255,106,0,.22), rgba(255,106,0,.08) 58%, rgba(255,106,0,.04));
+        background: radial-gradient(circle at 50% 0%, rgba(255,106,0,.26), rgba(255,106,0,.09) 60%, rgba(255,106,0,.035));
         color: #fff;
         text-decoration: none;
         font-size: .95rem;
         font-weight: 900;
         letter-spacing: -.01em;
-        box-shadow: 0 0 30px rgba(255,106,0,.14), inset 0 1px 0 rgba(255,255,255,.08);
+        box-shadow: 0 0 34px rgba(255,106,0,.16), inset 0 1px 0 rgba(255,255,255,.1);
       }
       .home-about-profile-pill a:hover,
       .home-about-profile-pill a:focus-visible,
@@ -270,16 +336,19 @@ export default function HomeAboutCarouselLayer() {
         .home-about-carousel { width: min(100% - 28px, 1180px); margin: 64px auto; }
         .home-about-label { margin-left: 0; font-size: 12px; letter-spacing: .28em; }
         .home-about-rail { grid-auto-columns: minmax(86vw, 1fr); gap: 18px; padding: 0 0 22px; }
-        .home-about-profile-card { min-height: 512px; }
+        .home-about-profile-card { min-height: 535px; }
+        .home-about-stage { width: 100%; min-height: 525px; }
         .home-about-orb { width: min(500px, 94vw); }
         .home-about-round { width: 72%; }
-        .home-about-profile-pill { top: calc(50% + min(500px, 94vw) * .19); width: min(430px, calc(100% - 24px)); padding: 22px 16px 20px; }
+        .home-about-profile-pill { width: min(430px, 86%); margin-top: -112px; padding: 24px 16px 22px; }
       }
       @media (max-width: 390px) {
-        .home-about-profile-card { min-height: 500px; }
+        .home-about-profile-card { min-height: 520px; }
+        .home-about-stage { min-height: 512px; }
+        .home-about-profile-pill { width: 84%; margin-top: -106px; }
         .home-about-profile-pill h2,
-        .home-about-profile-pill h3 { font-size: 1.34rem; }
-        .home-about-profile-pill p { letter-spacing: .22em; }
+        .home-about-profile-pill h3 { font-size: 1.36rem; }
+        .home-about-profile-pill p { letter-spacing: .28em; }
       }
       @media (prefers-reduced-motion: reduce) {
         .home-about-profile-pill a, .home-about-round { transition: none !important; }
