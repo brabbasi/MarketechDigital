@@ -4,6 +4,7 @@ import GlobalLogoCube from "./GlobalLogoCube";
 import FutureLayer from "./FutureLayer";
 import UXFixLayer from "./UXFixLayer";
 import AIAssistant from "./AIAssistant";
+import ConversionAudit from "./ConversionAudit";
 import {
   absoluteUrl,
   coreServices,
@@ -31,6 +32,7 @@ import "./founder-image-replace.css";
 import "./popup-close-fix.css";
 import "./founder-desktop-polish.css";
 import "./global-cube-nav.css";
+import "./conversion-audit.css";
 
 const siteTitle = "Marketech Digital | AI, Web Development & Digital Growth Systems";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
@@ -145,6 +147,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <GlobalLogoCube />
         {children}
+        <ConversionAudit />
         <FutureLayer />
         <UXFixLayer />
         <AIAssistant />
