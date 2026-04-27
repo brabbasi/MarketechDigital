@@ -12,7 +12,7 @@ type AssistantMode = "checking" | "ai" | "fallback" | "error";
 
 const founderImage = "/founder.webp";
 const projectEmail = "project@getmarketechdigital.com";
-const quickReplies = ["Estimate my project", "What can you build?", "AI agent bot price", "How do we start?"];
+const quickReplies = ["Free website audit", "Show me Insights", "Why am I not getting leads?", "Estimate my project"];
 
 function toApiRole(role: UiMessage["role"]): "user" | "assistant" {
   return role === "user" ? "user" : "assistant";
@@ -36,7 +36,7 @@ export default function AIAssistant() {
   const [mode, setMode] = useState<AssistantMode>("checking");
   const [reason, setReason] = useState<string>("");
   const [messages, setMessages] = useState<UiMessage[]>([
-    { role: "bot", text: "Protocol active. I’m the Marketech AI guide. Tell me what you want to build, automate, or clarify — I can suggest services, scope, and estimate ranges before you contact Basit." }
+    { role: "bot", text: "Protocol active. I’m the Marketech AI guide. I can help with website audits, SEO, Google Business Profile, lead capture, AI automation, services, pricing ranges, and the new Insights growth guides." }
   ]);
 
   const mailHref = useMemo(() => {
@@ -70,7 +70,7 @@ export default function AIAssistant() {
     } catch {
       setMode("error");
       setReason("frontend_fetch_failed");
-      setMessages((prev) => [...prev, { role: "bot", text: "I had trouble connecting to the live assistant. Tell me your business type, goal, and what you want automated, and I’ll still help you narrow the starting point." }]);
+      setMessages((prev) => [...prev, { role: "bot", text: "I had trouble connecting to the live assistant. Tell me your business type, goal, and what you want improved, and I’ll still help you narrow the starting point." }]);
     } finally {
       setLoading(false);
     }
@@ -104,7 +104,7 @@ export default function AIAssistant() {
           <div className="ai-avatar"><Image src={founderImage} alt="Basit Abbasi AI assistant" width={54} height={54} unoptimized /></div>
           <div>
             <strong>MARKETECH_INTELLIGENCE</strong>
-            <span>v2.1 // {modeLabel(mode, reason)}</span>
+            <span>v2.2 // {modeLabel(mode, reason)}</span>
           </div>
           <button type="button" onClick={() => setOpen(false)} aria-label="Close Marketech AI assistant">×</button>
         </div>
@@ -118,11 +118,12 @@ export default function AIAssistant() {
           {quickReplies.map((q) => <button type="button" key={q} onClick={() => send(q)} disabled={loading}>{q}</button>)}
         </div>
         <form className="ai-form" onSubmit={onSubmit}>
-          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Describe your project..." aria-label="Describe your project to the Marketech AI assistant" disabled={loading} />
+          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about audits, SEO, websites, automation..." aria-label="Describe your project to the Marketech AI assistant" disabled={loading} />
           <button type="submit" disabled={loading} aria-label="Send message to Marketech AI assistant">➤</button>
         </form>
         <div className="ai-actions">
-          <a href="/services">Starter systems</a>
+          <a href="/audit">Free audit</a>
+          <a href="/insights">Insights</a>
           <a href={mailHref} onClick={submitLead}>Contact →</a>
         </div>
       </div>
@@ -187,9 +188,10 @@ export default function AIAssistant() {
         .ai-form input { min-width: 0; border: 1px solid rgba(255,255,255,.1); border-radius: 20px; background: rgba(255,255,255,.045); color: #fff; padding: 16px; outline: none; }
         .ai-form input:focus { border-color: rgba(255,106,0,.4); box-shadow: 0 0 0 4px rgba(255,106,0,.08); }
         .ai-form button { border: 0; border-radius: 20px; background: #f3f3f0; color: #111; font-size: 22px; cursor: pointer; }
-        .ai-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 22px 22px; }
-        .ai-actions a { display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 999px; border: 1px solid rgba(255,255,255,.1); color: #fff; text-decoration: none; background: rgba(255,255,255,.04); font-weight: 900; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; }
+        .ai-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 22px 22px; }
+        .ai-actions a { display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 999px; border: 1px solid rgba(255,255,255,.1); color: #fff; text-decoration: none; background: rgba(255,255,255,.04); font-weight: 900; letter-spacing: .1em; text-transform: uppercase; font-size: 10px; }
         .ai-actions a:first-child { border-color: rgba(40,214,107,.28); background: rgba(40,214,107,.09); color: #78f2a4; }
+        .ai-actions a:nth-child(2) { border-color: rgba(255,106,0,.28); background: rgba(255,106,0,.09); color: #ffd5bc; }
         @media (max-width: 560px) {
           .ai-launcher { width: 66px; height: 66px; right: 16px; bottom: 18px; }
           .ai-panel { right: 10px; left: 10px; bottom: 92px; width: auto; height: min(640px, calc(100vh - 118px)); border-radius: 30px; }
