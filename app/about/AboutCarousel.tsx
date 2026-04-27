@@ -1,8 +1,10 @@
 "use client";
 
+import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import MarketechDiceNav from "@/components/MarketechDiceNav";
 import styles from "./about.module.css";
 
@@ -88,7 +90,7 @@ function MarketechLogoMark() {
   );
 }
 
-function SocialOrbit({ children, links, label }: { children: React.ReactNode; links: SocialLink[]; label: string }) {
+function SocialOrbit({ children, links, label }: { children: ReactNode; links: SocialLink[]; label: string }) {
   return (
     <div className={styles.orbitSystem} aria-label={label}>
       <div className={styles.orbitRing} aria-hidden="true" />
@@ -99,7 +101,7 @@ function SocialOrbit({ children, links, label }: { children: React.ReactNode; li
           <a
             key={link.label}
             className={styles.orbitIcon}
-            style={{ "--i": index, "--count": links.length } as React.CSSProperties}
+            style={{ "--i": index, "--count": links.length } as CSSProperties}
             href={link.href}
             aria-label={link.label}
           >
@@ -169,13 +171,20 @@ function FounderSlide() {
 }
 
 export default function AboutCarousel() {
+  const searchParams = useSearchParams();
   const slides = useMemo(() => [
     { key: "company", label: "Marketech Digital", component: <CompanySlide /> },
     { key: "founder", label: "Founder", component: <FounderSlide /> }
   ], []);
   const [active, setActive] = useState(0);
-  const activeSlide = slides[active];
 
+  useEffect(() => {
+    const requestedSlide = searchParams.get("slide");
+    const requestedIndex = slides.findIndex((slide) => slide.key === requestedSlide);
+    if (requestedIndex >= 0) setActive(requestedIndex);
+  }, [searchParams, slides]);
+
+  const activeSlide = slides[active];
   const move = (direction: number) => setActive((current) => (current + direction + slides.length) % slides.length);
 
   return (
