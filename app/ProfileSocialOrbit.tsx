@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 export type ProfileSocialIcon = "linkedin" | "instagram" | "facebook" | "github" | "x" | "email";
 
@@ -45,7 +45,7 @@ export default function ProfileSocialOrbit({ children, links, label, className =
           <a
             key={link.label}
             className="profile-social-orbit__icon"
-            style={{ "--i": index, "--count": links.length } as React.CSSProperties}
+            style={{ "--i": index, "--count": links.length } as CSSProperties}
             href={link.href}
             aria-label={link.label}
           >
