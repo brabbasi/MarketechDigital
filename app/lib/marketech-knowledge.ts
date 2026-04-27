@@ -5,6 +5,28 @@ export type ChatMessage = {
   content: string;
 };
 
+export const marketechProfile = {
+  name: "Marketech Digital",
+  type: "Founder-led digital studio and Ottawa digital agency",
+  positioning:
+    "Marketech Digital is a founder-led digital studio built to help local and growing businesses look premium, capture more leads, automate repetitive work, improve SEO, and compete online with bigger companies.",
+  belief:
+    "Small businesses should not have to look small online. Marketech Digital gives businesses a cleaner digital presence, stronger trust layer, better lead capture, useful automation, and practical growth systems without agency bloat.",
+  profilePage: "/about",
+  founderPage: "/founder",
+  aboutUsLocation:
+    "The home page includes an About Us carousel with two profile cards: Marketech Digital as the company profile and Basit Abbasi as the founder profile.",
+  profileExperience:
+    "The Marketech Digital profile page shows the company story, mission, trust positioning, focus areas, and a social orbit around the logo. The founder profile page shows Basit Abbasi, his approach, focus areas, and a social orbit around the founder photo.",
+  trustSignals: [
+    "Founder-led execution",
+    "Built for local businesses",
+    "Website + SEO + automation focus",
+    "Conversion-first digital systems",
+    "Practical execution without agency bloat"
+  ]
+};
+
 export const marketechServices = [
   {
     name: "AI Agent Website Bot",
@@ -42,7 +64,17 @@ export const founderProfile = {
   name: "Basit Abbasi",
   role: "Founder of Marketech Digital",
   education: "Bachelor's in Computer Science from the University of Hertfordshire",
-  focus: "AI systems, workflow automation, data intelligence, bot creation, decision support, web systems, and practical digital execution"
+  focus: "AI systems, workflow automation, data intelligence, bot creation, decision support, web systems, SEO foundations, branding support, lead capture, and practical digital execution",
+  founderPage: "/founder",
+  story:
+    "Basit founded Marketech Digital to help businesses combine design, technology, marketing, and automation into one clear growth system. The inspiration came from seeing small businesses lose trust and leads because their websites, branding, SEO, or workflows felt outdated, unclear, or hard to use."
+};
+
+export const socialProfileNotes = {
+  company:
+    "Company social links are shown on the Marketech Digital profile page as orbiting icons around the logo. Current placeholders include LinkedIn, Instagram, Facebook, and email until final social URLs are connected.",
+  founder:
+    "Founder social links are shown on the founder profile page as orbiting icons around Basit Abbasi's photo. Current placeholders include LinkedIn, Instagram, GitHub, X, and email until final social URLs are connected."
 };
 
 function isUrgentBrokenSystem(message: string) {
@@ -111,6 +143,20 @@ function industrySuggestion(message: string) {
       firstBuild: "an AI receptionist style assistant with appointment and intake support"
     };
   }
+  if (/(barber|barbershop|haircut|grooming)/.test(q)) {
+    return {
+      industry: "barbershop or grooming business",
+      useCase: "service questions, booking requests, price guidance, Google profile trust, local SEO, and missed lead recovery",
+      firstBuild: "a premium booking-focused website with local SEO and a simple AI inquiry assistant"
+    };
+  }
+  if (/(detailing|car detail|auto detail|car wash)/.test(q)) {
+    return {
+      industry: "car detailing business",
+      useCase: "package questions, quote requests, before-and-after proof, booking flows, local SEO, and follow up reminders",
+      firstBuild: "a conversion-focused website with package pages, lead capture, and automated follow up"
+    };
+  }
   return null;
 }
 
@@ -141,6 +187,14 @@ export function localAssistantReply(message: string) {
     return brokenSystemReply();
   }
 
+  if (/(about|company|who are you|who is marketech|marketech digital|trust|story|mission)/.test(q)) {
+    return `${marketechProfile.name} is a ${marketechProfile.type}. ${marketechProfile.positioning}\n\nThe idea behind the company is simple: ${marketechProfile.belief}\n\nOn the site, the About Us carousel opens two profiles: the company profile at ${marketechProfile.profilePage} and the founder profile at ${marketechProfile.founderPage}.`;
+  }
+
+  if (/(social|linkedin|instagram|facebook|github|x\/twitter|twitter|profile links)/.test(q)) {
+    return `The site has social profile areas built into the profile pages. ${socialProfileNotes.company} ${socialProfileNotes.founder}\n\nThe final social URLs still need to be connected once Basit provides the exact links.`;
+  }
+
   if (/(price|pricing|quote|cost|budget|estimate|range)/.test(q)) {
     if (service) {
       const industryLine = industry
@@ -153,11 +207,11 @@ export function localAssistantReply(message: string) {
   }
 
   if (/(founder|basit|education|who built|owner)/.test(q)) {
-    return `${founderProfile.name} is the ${founderProfile.role}. He studied ${founderProfile.education} and focuses on ${founderProfile.focus}. You can open the founder page for the full portfolio style profile.`;
+    return `${founderProfile.name} is the ${founderProfile.role}. He studied ${founderProfile.education} and focuses on ${founderProfile.focus}. ${founderProfile.story} You can open the founder page at ${founderProfile.founderPage} for the full profile.`;
   }
 
   if (/(start|contact|book|call|next step)/.test(q)) {
-    return "The best first step is to describe your business, the main bottleneck, the tools you use, the outcome you want, and the budget range you are comfortable with. From there, I can suggest whether you need an AI strategy sprint, an AI website assistant, workflow automation, a dashboard, or a larger growth system.";
+    return "The best first step is to describe your business, the main bottleneck, the tools you use, the outcome you want, and the budget range you are comfortable with. From there, I can suggest whether you need an AI strategy sprint, an AI website assistant, workflow automation, a dashboard, a website/SEO build, or a larger growth system.";
   }
 
   if (/(solve|help|problem|can you|what can)/.test(q) || service) {
@@ -166,17 +220,32 @@ export function localAssistantReply(message: string) {
     return `${industryLine}This sounds like a fit for ${picked.name}. Typical guidance range: ${picked.range}.\n\nCommon deliverables:\n\n${picked.deliverables.map((item, index) => `${index + 1}. ${item}`).join("\n")}\n\nIf you share your current tools and the main workflow you want fixed, I can narrow this into a sensible starter scope.`;
   }
 
-  return "I can help you understand what Marketech Digital can build for your business. That can include AI website assistants, workflow automations, dashboards, CRM flows, lead capture systems, websites, SEO, branding, landing pages, and larger digital systems. Tell me what your business does and what feels slow, repetitive, or unclear.";
+  return "I can help you understand what Marketech Digital can build for your business. That can include premium websites, SEO, lead capture systems, AI website assistants, workflow automations, dashboards, CRM flows, branding, landing pages, and larger digital growth systems. Tell me what your business does and what feels slow, repetitive, outdated, or unclear.";
 }
 
 export function buildSystemPrompt() {
   return `You are Marketech Intelligence, the AI sales and project advisor for Marketech Digital.
 
 Company positioning:
-Marketech Digital helps business owners turn scattered websites, tools, workflows, leads, and data into clearer digital systems. The work can include web development, software systems, app development, AI assistants, workflow automation, SEO, branding, digital marketing, landing pages, dashboards, and growth systems.
+${marketechProfile.name} is a ${marketechProfile.type}. ${marketechProfile.positioning}
+
+Company belief and story:
+${marketechProfile.belief}
+
+Current website trust structure:
+${marketechProfile.aboutUsLocation}
+${marketechProfile.profileExperience}
+Company profile page: ${marketechProfile.profilePage}.
+Founder profile page: ${marketechProfile.founderPage}.
+Trust signals: ${marketechProfile.trustSignals.join(", ")}.
 
 Founder:
-${founderProfile.name}, ${founderProfile.role}. Education: ${founderProfile.education}. Focus: ${founderProfile.focus}.
+${founderProfile.name}, ${founderProfile.role}. Education: ${founderProfile.education}. Focus: ${founderProfile.focus}. Story: ${founderProfile.story}
+
+Social profile notes:
+${socialProfileNotes.company}
+${socialProfileNotes.founder}
+Do not claim the final social URLs are connected until Basit provides them. Explain that placeholder links are ready to be replaced.
 
 Services and guidance ranges:
 ${marketechServices
@@ -192,6 +261,8 @@ Industry examples:
 1. Cleaning businesses: quote requests, service area questions, booking inquiries, recurring cleaning follow ups, missed call recovery, and lead handoff.
 2. Real estate businesses: buyer and seller qualification, listing inquiries, showing requests, CRM handoff, and follow up reminders.
 3. Clinics, salons, and appointment based businesses: service questions, appointment requests, reminders, intake forms, and front desk workload reduction.
+4. Barbershops and salons: local SEO, booking-focused pages, Google Business Profile trust, service questions, and missed lead recovery.
+5. Car detailing businesses: package pages, quote requests, before-and-after proof, booking flows, local SEO, and follow up reminders.
 
 Troubleshooting rule:
 If a visitor says something is down, broken, not working, crashed, failed, or has an error, do not jump straight to pricing. First ask what system failed, what changed recently, what platform is involved, and what error they see. Position it as a systems review or recovery workflow if they need Marketech to fix it.
