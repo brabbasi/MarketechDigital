@@ -1,0 +1,434 @@
+.conversion-section {
+  position: relative;
+  padding: 64px 0 88px;
+  overflow: hidden;
+}
+
+.conversion-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 22% 12%, rgba(255,106,0,.12), transparent 24%),
+    radial-gradient(circle at 82% 30%, rgba(89,175,255,.09), transparent 28%);
+  opacity: .82;
+}
+
+.conversion-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.conversion-intro {
+  max-width: 920px;
+  margin-bottom: 24px;
+}
+
+.conversion-intro h2,
+.starter-copy h2,
+.ideal-client-block h2,
+.audit-form-copy h2 {
+  margin: 0;
+  font-size: clamp(2.15rem, 8vw, 4.75rem);
+  line-height: .98;
+  letter-spacing: -.06em;
+}
+
+.conversion-intro p,
+.starter-copy p,
+.audit-form-copy p,
+.audit-card p,
+.compact-head p {
+  color: var(--muted);
+  line-height: 1.85;
+}
+
+.conversion-lead {
+  margin-top: 20px;
+  font-size: clamp(1.18rem, 4vw, 1.7rem);
+  color: #fff !important;
+  max-width: 860px;
+}
+
+.conversion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.conversion-cta {
+  position: relative;
+  overflow: hidden;
+}
+
+.conversion-cta::after {
+  content: "";
+  position: absolute;
+  inset: -70% -30%;
+  background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,.26), transparent 70%);
+  transform: translateX(-80%);
+  transition: transform .7s ease;
+}
+
+.conversion-cta:hover::after {
+  transform: translateX(80%);
+}
+
+.conversion-limited {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 11px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,106,0,.18);
+  background: rgba(255,106,0,.06);
+  color: rgba(255,230,216,.88) !important;
+  font-size: .92rem;
+}
+
+.audit-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.audit-card,
+.starter-panel,
+.ideal-client-block,
+.audit-form,
+.audit-form-copy {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+  box-shadow: 0 18px 66px rgba(0,0,0,.25);
+}
+
+.audit-card,
+.ideal-client-block,
+.audit-form,
+.audit-form-copy {
+  padding: 22px;
+}
+
+.audit-card::before,
+.starter-panel::before,
+.ideal-client-block::before,
+.audit-form::before,
+.audit-form-copy::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .64;
+  background: radial-gradient(420px circle at 18% 8%, rgba(255,106,0,.08), transparent 46%);
+}
+
+.audit-card > *,
+.starter-panel > *,
+.ideal-client-block > *,
+.audit-form > *,
+.audit-form-copy > * {
+  position: relative;
+  z-index: 1;
+}
+
+.audit-card-kicker {
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(255,223,202,.86);
+  margin-bottom: 12px;
+}
+
+.audit-card h3 {
+  margin: 0 0 16px;
+  font-size: clamp(1.45rem, 5vw, 2.45rem);
+  line-height: 1.08;
+  letter-spacing: -.04em;
+}
+
+.audit-check-grid,
+.starter-list {
+  display: grid;
+  gap: 10px;
+}
+
+.audit-check,
+.starter-item,
+.client-chip {
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.18);
+  color: rgba(255,255,255,.84);
+}
+
+.audit-check,
+.starter-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 14px;
+  border-radius: 18px;
+  line-height: 1.55;
+}
+
+.audit-check span,
+.starter-item span {
+  color: var(--orange2);
+  text-shadow: 0 0 18px rgba(255,106,0,.45);
+}
+
+.audit-signal-card {
+  min-height: 320px;
+}
+
+.audit-orbit {
+  position: absolute;
+  right: -54px;
+  top: -54px;
+  width: 230px;
+  height: 230px;
+  opacity: .54;
+}
+
+.audit-orbit span {
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(89,175,255,.18);
+  animation: auditPulse 5s ease-in-out infinite;
+}
+
+.audit-orbit span:nth-child(2) {
+  inset: 52px;
+  border-color: rgba(255,106,0,.22);
+  animation-delay: .7s;
+}
+
+.audit-orbit span:nth-child(3) {
+  inset: 86px;
+  border-color: rgba(255,255,255,.16);
+  animation-delay: 1.4s;
+}
+
+@keyframes auditPulse {
+  0%, 100% { transform: scale(.96); opacity: .45; }
+  50% { transform: scale(1.04); opacity: .9; }
+}
+
+.starter-panel {
+  display: grid;
+  gap: 22px;
+  margin-top: 16px;
+  padding: 24px;
+  border-color: rgba(255,106,0,.16);
+  background:
+    linear-gradient(180deg, rgba(255,106,0,.055), rgba(255,255,255,.018)),
+    linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.018));
+}
+
+.starter-price {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,106,0,.18);
+  background: rgba(255,106,0,.055);
+  color: rgba(255,234,222,.92) !important;
+}
+
+.starter-price strong {
+  color: #fff;
+}
+
+.ideal-client-block {
+  margin-top: 16px;
+}
+
+.compact-head {
+  margin-bottom: 18px;
+}
+
+.client-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.client-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  font-size: .92rem;
+}
+
+.audit-contact-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+  scroll-margin-top: 110px;
+}
+
+.audit-form-copy,
+.audit-form {
+  min-width: 0;
+}
+
+.form-flow-card {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(89,175,255,.16);
+  background: rgba(89,175,255,.055);
+}
+
+.form-flow-card strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.form-flow-card span {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.audit-form label {
+  display: grid;
+  gap: 8px;
+  color: rgba(255,255,255,.78);
+  font-size: .92rem;
+}
+
+.audit-form input,
+.audit-form select,
+.audit-form textarea {
+  width: 100%;
+  padding: 14px 15px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.03);
+  color: #fff;
+  outline: none;
+  transition: .22s border-color, .22s box-shadow, .22s background;
+}
+
+.audit-form select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,.72) 50%), linear-gradient(135deg, rgba(255,255,255,.72) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 20px, calc(100% - 14px) 20px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.audit-form option {
+  color: #080b12;
+}
+
+.audit-form input:focus,
+.audit-form select:focus,
+.audit-form textarea:focus {
+  border-color: rgba(255,106,0,.46);
+  background: rgba(255,255,255,.045);
+  box-shadow: 0 0 0 4px rgba(255,106,0,.08), 0 0 32px rgba(255,106,0,.08);
+}
+
+.audit-form-grid {
+  margin-top: 0;
+}
+
+.audit-message-field {
+  grid-column: 1 / -1;
+}
+
+.audit-submit {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.audit-submit-note {
+  margin: 14px 0 0;
+  color: rgba(255,230,216,.88);
+  line-height: 1.6;
+}
+
+.conversion-reveal {
+  animation: conversionFadeUp .72s ease both;
+}
+
+.conversion-reveal:nth-child(2) { animation-delay: .08s; }
+.conversion-reveal:nth-child(3) { animation-delay: .14s; }
+.conversion-reveal:nth-child(4) { animation-delay: .2s; }
+.conversion-reveal:nth-child(5) { animation-delay: .26s; }
+
+@keyframes conversionFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .conversion-reveal,
+  .audit-orbit span {
+    animation: none;
+  }
+
+  .conversion-cta::after {
+    display: none;
+  }
+}
+
+@media (min-width: 900px) {
+  .conversion-section {
+    padding: 88px 0 116px;
+  }
+
+  .audit-grid {
+    grid-template-columns: 1.25fr .75fr;
+  }
+
+  .audit-card,
+  .ideal-client-block,
+  .audit-form,
+  .audit-form-copy {
+    padding: 30px;
+  }
+
+  .audit-check-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .starter-panel {
+    grid-template-columns: .92fr 1.08fr;
+    align-items: center;
+    padding: 34px;
+  }
+
+  .starter-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .audit-contact-grid {
+    grid-template-columns: .86fr 1.14fr;
+    align-items: start;
+  }
+
+  .audit-form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .conversion-intro h2,
+  .starter-copy h2,
+  .ideal-client-block h2,
+  .audit-form-copy h2 {
+    font-size: min(5rem, 6.2vw);
+  }
+
+  .audit-card-large {
+    min-height: 430px;
+  }
+}
