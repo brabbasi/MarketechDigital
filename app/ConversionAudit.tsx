@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 
+const projectEmail = "project@getmarketechdigital.com";
+
 const auditReviewItems = [
   "Website design and first impression",
   "Mobile experience",
@@ -82,7 +84,7 @@ export default function ConversionAudit() {
       message || "Not provided"
     ].join("\n");
 
-    window.location.href = `mailto:abasitabbasi99@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:${projectEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setSubmitted(true);
   };
 
@@ -205,7 +207,7 @@ export default function ConversionAudit() {
           <form
             className="audit-form"
             onSubmit={handleSubmit}
-            data-destination-email="abasitabbasi99@gmail.com"
+            data-destination-email={projectEmail}
             data-integration-ready="Formspree, Resend, EmailJS, Supabase, Next.js API route"
           >
             <div className="form-grid audit-form-grid">
@@ -248,7 +250,7 @@ export default function ConversionAudit() {
             </button>
             {submitted && (
               <p className="audit-submit-note" role="status">
-                Your email app should open with the audit request ready to send to abasitabbasi99@gmail.com.
+                Your email app should open with the audit request ready to send to {projectEmail}.
               </p>
             )}
           </form>
