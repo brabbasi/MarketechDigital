@@ -26,7 +26,7 @@ const founderSocials = [
   },
   {
     label: "Email Basit Abbasi",
-    href: "mailto:abasitabbasi99@gmail.com",
+    href: "mailto:basit@getmarketechdigital.com",
     svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5.75A2.75 2.75 0 0 1 4.75 3h14.5A2.75 2.75 0 0 1 22 5.75v12.5A2.75 2.75 0 0 1 19.25 21H4.75A2.75 2.75 0 0 1 2 18.25V5.75Zm2.75-.75a.75.75 0 0 0-.75.75v.6l8 5.12 8-5.12v-.6a.75.75 0 0 0-.75-.75H4.75ZM20 8.73l-7.46 4.78a1 1 0 0 1-1.08 0L4 8.73v9.52c0 .414.336.75.75.75h14.5a.75.75 0 0 0 .75-.75V8.73Z" /></svg>'
   }
 ];
