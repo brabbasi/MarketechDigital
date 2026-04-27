@@ -8,9 +8,10 @@ import MarketechDiceNav from "@/components/MarketechDiceNav";
 const navItems = [
   { label: "Home", href: "/" },
   { label: "Free Audit", href: "/audit" },
+  { label: "About", href: "/about" },
   { label: "Offers", href: "/#offers" },
   { label: "Process", href: "/#process" },
-  { label: "Founder", href: "/founder" },
+  { label: "Founder", href: "/about?slide=founder" },
   { label: "FAQ", href: "/#faq" },
   { label: "Services", href: "/services" },
   { label: "Contact", href: "/#contact" }
@@ -51,7 +52,7 @@ export default function GlobalLogoCube() {
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (pathname === "/founder") return;
+    if (pathname === "/founder" || pathname === "/about") return;
 
     let mounted = true;
 
@@ -96,7 +97,7 @@ export default function GlobalLogoCube() {
     };
   }, [pathname]);
 
-  if (pathname === "/founder" || !host) return null;
+  if (pathname === "/founder" || pathname === "/about" || !host) return null;
 
   return createPortal(
     <>

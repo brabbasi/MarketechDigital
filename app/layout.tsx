@@ -3,6 +3,9 @@ import Script from "next/script";
 import GlobalLogoCube from "./GlobalLogoCube";
 import FutureLayer from "./FutureLayer";
 import UXFixLayer from "./UXFixLayer";
+import FooterSocialLayer from "./FooterSocialLayer";
+import HomeAboutCarouselLayer from "./HomeAboutCarouselLayer";
+import FounderOrbitLayer from "./FounderOrbitLayer";
 import AIAssistant from "./AIAssistant";
 import AuditPopup from "./AuditPopup";
 import {
@@ -34,6 +37,7 @@ import "./founder-desktop-polish.css";
 import "./global-cube-nav.css";
 import "./conversion-audit.css";
 import "./audit-popup.css";
+import "./profile-social-orbit.css";
 
 const siteTitle = "Marketech Digital | AI, Web Development & Digital Growth Systems";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
@@ -151,6 +155,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuditPopup />
         <FutureLayer />
         <UXFixLayer />
+        <HomeAboutCarouselLayer />
+        <FounderOrbitLayer />
+        <FooterSocialLayer />
         <AIAssistant />
       </body>
     </html>

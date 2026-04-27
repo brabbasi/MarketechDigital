@@ -16,11 +16,12 @@ type MarketechDiceNavProps = {
 
 const DEFAULT_NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "Core services", href: "/services#core-services" },
   { label: "Starter systems", href: "/services#starter-systems" },
   { label: "Idea helper", href: "/services#idea-generator" },
-  { label: "Founder", href: "/founder" },
+  { label: "Founder", href: "/about?slide=founder" },
   { label: "Contact", href: "/#contact" }
 ];
 
