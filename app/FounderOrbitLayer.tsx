@@ -50,13 +50,47 @@ function enhanceFounderOrbit() {
   orbit.appendChild(portrait);
 }
 
+function startFounderOrbitRotation() {
+  const orbit = document.querySelector<HTMLElement>(".founder-dom-orbit");
+  const track = document.querySelector<HTMLElement>(".founder-dom-orbit__track");
+  if (!orbit || !track || track.dataset.rotationActive === "true") return;
+
+  track.dataset.rotationActive = "true";
+  let angle = 0;
+  let last = performance.now();
+  let paused = false;
+
+  const pause = () => { paused = true; };
+  const resume = () => { paused = false; };
+  orbit.addEventListener("pointerenter", pause);
+  orbit.addEventListener("pointerleave", resume);
+  orbit.addEventListener("focusin", pause);
+  orbit.addEventListener("focusout", resume);
+
+  const step = (now: number) => {
+    const delta = Math.min(48, now - last);
+    last = now;
+    if (!paused) {
+      angle = (angle + delta * 0.012) % 360;
+      track.style.setProperty("--orbit-rotation", `${angle}deg`);
+    }
+    window.requestAnimationFrame(step);
+  };
+
+  window.requestAnimationFrame(step);
+}
+
 export default function FounderOrbitLayer() {
   const pathname = usePathname();
 
   useEffect(() => {
     if (pathname !== "/founder") return;
-    enhanceFounderOrbit();
-    const timers = [250, 800, 1500].map((delay) => window.setTimeout(enhanceFounderOrbit, delay));
+    const sync = () => {
+      enhanceFounderOrbit();
+      startFounderOrbitRotation();
+    };
+    sync();
+    const timers = [250, 800, 1500, 2600].map((delay) => window.setTimeout(sync, delay));
     return () => timers.forEach(window.clearTimeout);
   }, [pathname]);
 
@@ -114,8 +148,7 @@ export default function FounderOrbitLayer() {
         inset: 0;
         z-index: 4;
         border-radius: 50%;
-        animation: founderOrbitSpin 30s linear infinite;
-        transform: translateZ(0);
+        transform: rotate(var(--orbit-rotation, 0deg)) translateZ(0);
         will-change: transform;
       }
       .founder-dom-orbit__icon {
@@ -143,10 +176,6 @@ export default function FounderOrbitLayer() {
         height: 23px;
         fill: currentColor;
       }
-      .founder-dom-orbit:hover .founder-dom-orbit__track,
-      .founder-dom-orbit:focus-within .founder-dom-orbit__track {
-        animation-play-state: paused;
-      }
       .founder-dom-orbit__icon:hover,
       .founder-dom-orbit__icon:focus-visible {
         outline: none;
@@ -154,14 +183,12 @@ export default function FounderOrbitLayer() {
         background: rgba(255,106,0,.16);
         box-shadow: 0 0 36px rgba(255,106,0,.2);
       }
-      @keyframes founderOrbitSpin { to { transform: rotate(360deg); } }
       @media (max-width:640px) {
         .founder-dom-orbit { --orbit-size: min(340px, 88vw); margin-top: 10px; margin-bottom: 16px; }
         .founder-dom-orbit__icon { width:48px; height:48px; margin:-24px; }
         .founder-dom-orbit__icon svg { width:20px; height:20px; }
       }
       @media (prefers-reduced-motion: reduce) {
-        .founder-dom-orbit__track { animation: none !important; }
         .founder-dom-orbit__icon { transition: none !important; }
       }
     `}</style>
