@@ -26,8 +26,9 @@ type EmailMessage = {
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://getmarketechdigital.com").replace(/\/$/, "");
 const logoUrl = `${siteUrl}/logo.svg`;
-const defaultLeadToEmail = "abasitabbasi99@gmail.com";
-const publicReplyEmail = "hello@getmarketechdigital.com";
+const defaultLeadToEmail = "project@getmarketechdigital.com";
+const projectEmail = "project@getmarketechdigital.com";
+const contactEmail = "contact@getmarketechdigital.com";
 
 function sanitize(value: unknown, limit = 1200) {
   return typeof value === "string" ? value.trim().slice(0, limit) : "";
@@ -38,7 +39,7 @@ function escapeHtml(value: string) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
+    .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
 
@@ -173,7 +174,7 @@ Kind regards,
 
 Basit Abbasi
 Founder, Marketech Digital
-${publicReplyEmail}
+${projectEmail}
 ${siteUrl}`;
 }
 
@@ -211,7 +212,7 @@ function buildClientEmailHtml(payload: LeadPayload) {
                   <p style="margin:0 0 4px;font-size:15px;line-height:1.7;color:#111827;">Kind regards,</p>
                   <p style="margin:0;font-size:15px;line-height:1.7;color:#111827;font-weight:700;">Basit Abbasi</p>
                   <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#6b7280;">Founder, Marketech Digital</p>
-                  <p style="margin:0;font-size:13px;line-height:1.7;color:#6b7280;">${publicReplyEmail}<br />${siteUrl.replace("https://", "")}</p>
+                  <p style="margin:0;font-size:13px;line-height:1.7;color:#6b7280;">${projectEmail}<br />${siteUrl.replace("https://", "")}</p>
                 </td>
               </tr>
             </table>
@@ -223,7 +224,7 @@ function buildClientEmailHtml(payload: LeadPayload) {
 }
 
 async function sendResendEmail(message: EmailMessage) {
-  const from = process.env.LEAD_FROM_EMAIL || `Marketech Digital <${publicReplyEmail}>`;
+  const from = process.env.LEAD_FROM_EMAIL || `Marketech Digital <${contactEmail}>`;
 
   return fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -262,7 +263,7 @@ export async function POST(request: Request) {
         {
           ok: false,
           mode: "email_not_configured",
-          error: "Email delivery is not configured yet. Please email abasitabbasi99@gmail.com directly."
+          error: `Email delivery is not configured yet. Please email ${projectEmail} directly.`
         },
         { status: 503 }
       );
@@ -286,7 +287,7 @@ export async function POST(request: Request) {
       const resendError = await ownerResponse.text();
       console.error("Resend lead owner email error", resendError);
       return NextResponse.json(
-        { ok: false, mode: "email_failed", error: "Email delivery failed. Please email abasitabbasi99@gmail.com directly." },
+        { ok: false, mode: "email_failed", error: `Email delivery failed. Please email ${projectEmail} directly.` },
         { status: 502 }
       );
     }
