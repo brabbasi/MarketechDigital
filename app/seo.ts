@@ -1,6 +1,11 @@
 export const siteName = "Marketech Digital";
 export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://getmarketechdigital.com").replace(/\/$/, "");
-export const contactEmail = "abasitabbasi99@gmail.com";
+
+export const outreachEmail = "hello@getmarketechdigital.com";
+export const founderEmail = "basit@getmarketechdigital.com";
+export const contactEmail = "contact@getmarketechdigital.com";
+export const projectEmail = "project@getmarketechdigital.com";
+export const supportEmail = "support@getmarketechdigital.com";
 
 export const officialSocialLinks = {
   company: {
@@ -149,6 +154,7 @@ export function organizationJsonLd() {
       "@type": "Person",
       name: "Basit Abbasi",
       jobTitle: "Founder",
+      email: founderEmail,
       sameAs: [
         officialSocialLinks.founder.linkedin,
         officialSocialLinks.founder.instagram,
@@ -160,13 +166,29 @@ export function organizationJsonLd() {
     knowsAbout: serviceKeywords,
     makesOffer: offerCatalog,
     description: siteDescription,
-    contactPoint: {
-      "@type": "ContactPoint",
-      contactType: "sales",
-      email: contactEmail,
-      areaServed: "CA",
-      availableLanguage: ["English"]
-    }
+    contactPoint: [
+      {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        email: contactEmail,
+        areaServed: "CA",
+        availableLanguage: ["English"]
+      },
+      {
+        "@type": "ContactPoint",
+        contactType: "sales",
+        email: projectEmail,
+        areaServed: "CA",
+        availableLanguage: ["English"]
+      },
+      {
+        "@type": "ContactPoint",
+        contactType: "technical support",
+        email: supportEmail,
+        areaServed: "CA",
+        availableLanguage: ["English"]
+      }
+    ]
   };
 }
 
