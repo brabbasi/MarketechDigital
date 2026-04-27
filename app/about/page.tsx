@@ -9,7 +9,7 @@ const companySocials: ProfileSocialLink[] = [
   { label: "Marketech Digital on LinkedIn", href: "https://www.linkedin.com/company/marketechdigital/", icon: "linkedin" },
   { label: "Marketech Digital on Instagram", href: "https://www.instagram.com/official.marketech?igsh=NTR0YnVhemRiMnhr", icon: "instagram" },
   { label: "Marketech Digital on Facebook", href: "https://www.facebook.com/share/17ee6kJiPF/", icon: "facebook" },
-  { label: "Email Marketech Digital", href: "mailto:abasitabbasi99@gmail.com", icon: "email" }
+  { label: "Email Marketech Digital", href: "mailto:contact@getmarketechdigital.com", icon: "email" }
 ];
 
 const aboutNavItems = [
