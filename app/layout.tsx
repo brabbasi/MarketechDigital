@@ -33,6 +33,7 @@ import "./popup-close-fix.css";
 import "./founder-desktop-polish.css";
 import "./global-cube-nav.css";
 import "./conversion-audit.css";
+import "./audit-popup.css";
 
 const siteTitle = "Marketech Digital | AI, Web Development & Digital Growth Systems";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
