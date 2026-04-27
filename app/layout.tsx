@@ -4,7 +4,7 @@ import GlobalLogoCube from "./GlobalLogoCube";
 import FutureLayer from "./FutureLayer";
 import UXFixLayer from "./UXFixLayer";
 import AIAssistant from "./AIAssistant";
-import ConversionAudit from "./ConversionAudit";
+import AuditPopup from "./AuditPopup";
 import {
   absoluteUrl,
   coreServices,
@@ -147,7 +147,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <GlobalLogoCube />
         {children}
-        <ConversionAudit />
+        <AuditPopup />
         <FutureLayer />
         <UXFixLayer />
         <AIAssistant />
