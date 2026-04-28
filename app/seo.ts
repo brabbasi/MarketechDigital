@@ -22,14 +22,25 @@ export const officialSocialLinks = {
 };
 
 export const siteDescription =
-  "Marketech Digital is an Ottawa digital agency and AI automation agency that helps small businesses build better websites, improve local SEO, capture more leads, use AI in practical ways, and turn messy workflows into simple digital growth systems.";
+  "Marketech Digital helps Ottawa businesses get more calls, bookings, and clients with premium websites, local SEO, Google Business optimization, lead capture systems, and practical AI automation.";
 
 export const serviceKeywords = [
   "Marketech Digital",
+  "Ottawa web design",
+  "web design Ottawa",
+  "Ottawa SEO agency",
+  "local SEO Ottawa",
+  "AI automation Ottawa",
+  "Google Business Profile optimization",
+  "lead generation websites",
+  "lead capture systems",
+  "website design Kanata",
+  "website design Barrhaven",
+  "small business websites Ottawa",
+  "digital marketing Ottawa",
   "digital agency Ottawa",
   "digital agency Canada",
   "web development Ottawa",
-  "AI automation Ottawa",
   "AI automation agency",
   "website design and development",
   "software development Canada",
@@ -38,11 +49,9 @@ export const serviceKeywords = [
   "Next.js website development",
   "website design for small businesses",
   "website design for small business",
-  "digital marketing Ottawa",
   "digital marketing automation",
   "SEO services Ottawa",
   "local business SEO",
-  "lead generation website",
   "landing page design agency",
   "custom website development",
   "branding agency Ottawa",
@@ -142,8 +151,8 @@ export function organizationJsonLd() {
     "@id": `${siteUrl}/#organization`,
     name: siteName,
     url: siteUrl,
-    logo: absoluteUrl("/logo.svg"),
-    image: absoluteUrl("/logo.svg"),
+    logo: absoluteUrl("/android-chrome-512x512.png"),
+    image: absoluteUrl("/og-image.png"),
     email: contactEmail,
     sameAs: [
       officialSocialLinks.company.linkedin,
@@ -210,8 +219,8 @@ export function localBusinessJsonLd() {
     "@id": `${siteUrl}/#localbusiness`,
     name: siteName,
     url: siteUrl,
-    image: absoluteUrl("/logo.svg"),
-    logo: absoluteUrl("/logo.svg"),
+    image: absoluteUrl("/og-image.png"),
+    logo: absoluteUrl("/android-chrome-512x512.png"),
     email: contactEmail,
     sameAs: [
       officialSocialLinks.company.linkedin,
@@ -222,7 +231,7 @@ export function localBusinessJsonLd() {
     areaServed: areasServed,
     makesOffer: offerCatalog,
     description:
-      "A digital agency serving Ottawa, Ontario, Canada, and remote clients with website design and development, software and app development, AI workflow automation, local business SEO, branding, digital marketing automation, lead generation websites, landing pages, and practical business growth systems."
+      "Marketech Digital is an Ottawa digital agency helping local businesses get more calls, bookings, and clients through premium websites, local SEO, Google Business optimization, lead capture systems, branding, and practical AI automation."
   };
 }
 
