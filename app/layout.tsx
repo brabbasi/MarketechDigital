@@ -41,7 +41,7 @@ import "./audit-popup.css";
 import "./profile-social-orbit.css";
 import "./insights.css";
 
-const siteTitle = "Marketech Digital | AI, Web Development & Digital Growth Systems";
+const siteTitle = "Marketech Digital | Ottawa Web Design, SEO & AI Automation";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
 
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
   creator: siteName,
   publisher: siteName,
   category: "Digital Agency",
-  classification: "Digital agency, AI systems, web development, automation, SEO, branding, marketing technology",
+  classification: "Ottawa digital agency, web design, SEO, AI automation, Google Business optimization, lead capture, branding, marketing technology",
   alternates: {
     canonical: "/"
   },
@@ -87,18 +87,17 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: siteTitle,
-    description:
-      "Websites, AI automation, software systems, SEO, branding, landing pages, and digital growth support for businesses in Ottawa and across Canada.",
+    description: siteDescription,
     type: "website",
     url: siteUrl,
     siteName,
     locale: "en_CA",
     images: [
       {
-        url: absoluteUrl("/logo.svg"),
+        url: absoluteUrl("/og-image.png"),
         width: 1200,
         height: 630,
-        alt: "Marketech Digital logo"
+        alt: "Marketech Digital - Ottawa Web Design, SEO and AI Automation"
       }
     ]
   },
@@ -106,15 +105,23 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteTitle,
     description:
-      "Website design, AI automation, SEO, branding, software systems, and practical digital systems for modern businesses.",
-    images: [absoluteUrl("/logo.svg")]
+      "We help Ottawa businesses turn better websites, local SEO, lead capture, and practical AI automation into more calls, bookings, and clients.",
+    images: [absoluteUrl("/og-image.png")]
   },
   icons: {
     icon: [
-      { url: "/logo.svg", type: "image/svg+xml" }
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" }
     ],
-    shortcut: "/logo.svg",
-    apple: "/logo.svg"
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+    ],
+    other: [
+      { rel: "icon", url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+      { rel: "icon", url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" }
+    ]
   },
   manifest: "/manifest.webmanifest",
   formatDetection: {
