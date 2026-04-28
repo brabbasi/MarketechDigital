@@ -12,8 +12,6 @@ import AuditPopup from "./AuditPopup";
 import {
   absoluteUrl,
   coreServices,
-  faqJsonLd,
-  homepageFaq,
   jsonLdGraph,
   localBusinessJsonLd,
   organizationJsonLd,
@@ -145,8 +143,7 @@ const structuredData = jsonLdGraph([
       service,
       `Marketech Digital helps businesses with ${service.toLowerCase()} so their website, tools, leads, and follow up process feel clearer and easier to manage.`
     )
-  ),
-  faqJsonLd("/#homepage-faq", homepageFaq)
+  )
 ]);
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
