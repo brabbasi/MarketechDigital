@@ -9,6 +9,7 @@ import HomeAboutCarouselLayer from "./HomeAboutCarouselLayer";
 import FounderOrbitLayer from "./FounderOrbitLayer";
 import AIAssistant from "./AIAssistant";
 import AuditPopup from "./AuditPopup";
+import GoogleAnalytics from "./GoogleAnalytics";
 import {
   absoluteUrl,
   coreServices,
@@ -150,6 +151,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-CA">
       <body>
+        <GoogleAnalytics />
         <Script
           id="marketech-structured-data"
           type="application/ld+json"
