@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const projectEmail = "project@getmarketechdigital.com";
 const contactEmail = "contact@getmarketechdigital.com";
@@ -288,11 +289,9 @@ function humanizeVisibleCopy(root: ParentNode = document) {
     const original = node.nodeValue || "";
     const trimmed = original.trim();
     let next = exactCopy.get(trimmed) || original;
-
     softReplacements.forEach(([pattern, replacement]) => {
       next = next.replace(pattern, replacement);
     });
-
     next = next.replace(/\s{2,}/g, " ");
     if (next !== original) node.nodeValue = next;
   });
@@ -314,26 +313,32 @@ function keepCopyHumanized() {
 }
 
 export default function UXFixLayer() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
   useEffect(() => {
     const run = () => {
-      makeFAQCarousel();
-      addCarouselTools("faqGrid", "FAQ carousel");
       ensureContactModal();
       interceptContactClicks();
-      addHomeIdeaGeneratorCTA();
-      enhanceFooter();
       stabilizeDecorativeMedia();
-      keepCopyHumanized();
+
+      if (isHome) {
+        makeFAQCarousel();
+        addCarouselTools("faqGrid", "FAQ carousel");
+        addHomeIdeaGeneratorCTA();
+        enhanceFooter();
+        keepCopyHumanized();
+      }
     };
 
     run();
     const timeout = window.setTimeout(run, 700);
-    const lateTimeout = window.setTimeout(humanizeVisibleCopy, 1600);
+    const lateTimeout = isHome ? window.setTimeout(humanizeVisibleCopy, 1600) : undefined;
     return () => {
       window.clearTimeout(timeout);
-      window.clearTimeout(lateTimeout);
+      if (lateTimeout) window.clearTimeout(lateTimeout);
     };
-  }, []);
+  }, [isHome]);
 
   return null;
 }
