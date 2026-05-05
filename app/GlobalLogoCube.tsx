@@ -8,6 +8,7 @@ import MarketechDiceNav from "@/components/MarketechDiceNav";
 const navItems = [
   { label: "Home", href: "/" },
   { label: "Free Audit", href: "/audit" },
+  { label: "Revenue Calculator", href: "/revenue-calculator" },
   { label: "Insights", href: "/insights" },
   { label: "About", href: "/about" },
   { label: "Offers", href: "/#offers" },
@@ -25,7 +26,7 @@ function findHeader() {
     while (node && node !== document.body) {
       const rect = node.getBoundingClientRect();
       const text = (node.textContent || "").toLowerCase();
-      if (rect.top < 220 && rect.width > 260 && rect.height >= 34 && rect.height <= 180 && (text.includes("offers") || text.includes("book a consultation"))) return node;
+      if (rect.top < 220 && rect.width > 260 && rect.height >= 34 && rect.height <= 180 && (text.includes("offers") || text.includes("book a consultation") || text.includes("revenue calculator"))) return node;
       node = node.parentElement;
     }
   }
@@ -54,20 +55,16 @@ export default function GlobalLogoCube() {
 
   useEffect(() => {
     if (pathname === "/founder" || pathname === "/about") return;
-
     let mounted = true;
-
     const sync = () => {
       const header = findHeader();
       if (!header || !mounted) return;
-
       let portalHost = header.querySelector<HTMLElement>("[data-md-dice-brand='true']");
       if (!portalHost) {
         portalHost = document.createElement("div");
         portalHost.setAttribute("data-md-dice-brand", "true");
         header.insertBefore(portalHost, header.firstChild);
       }
-
       portalHost.className = "md-header-dice-brand";
       portalHost.style.setProperty("display", "inline-flex", "important");
       portalHost.style.setProperty("align-items", "center", "important");
@@ -79,17 +76,14 @@ export default function GlobalLogoCube() {
       portalHost.style.setProperty("visibility", "visible", "important");
       portalHost.style.setProperty("opacity", "1", "important");
       portalHost.style.setProperty("pointer-events", "auto", "important");
-
       hideOldFirstBrand(header, portalHost);
       setHost(portalHost);
     };
-
     sync();
     const timers = [100, 400, 1000, 2200, 5000].map((delay) => window.setTimeout(sync, delay));
     const observer = new MutationObserver(() => window.requestAnimationFrame(sync));
     observer.observe(document.body, { childList: true, subtree: true });
     window.addEventListener("resize", sync);
-
     return () => {
       mounted = false;
       timers.forEach(window.clearTimeout);
