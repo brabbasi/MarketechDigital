@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import RevenueCalculatorClient from "./RevenueCalculatorClient";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Missed Revenue Calculator | Marketech Digital",
   description:
