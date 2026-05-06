@@ -41,6 +41,7 @@ import "./conversion-audit.css";
 import "./audit-popup.css";
 import "./profile-social-orbit.css";
 import "./insights.css";
+import "./tradepilot-v1-overrides.css";
 
 const siteTitle = "Marketech Digital | Websites, Lead Systems & AI Automation";
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
