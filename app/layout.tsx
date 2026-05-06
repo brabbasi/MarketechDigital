@@ -109,7 +109,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "48x48", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
       { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" }
@@ -119,6 +119,7 @@ export const metadata: Metadata = {
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" }
     ],
     other: [
+      { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" },
       { rel: "icon", url: "/icon-192.png", sizes: "192x192", type: "image/png" }
     ]
   },
