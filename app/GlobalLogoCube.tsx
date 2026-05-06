@@ -8,11 +8,11 @@ import MarketechDiceNav from "@/components/MarketechDiceNav";
 const navItems = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
-  { label: "Systems", href: "/services#lead-capture" },
+  { label: "Systems", href: "/systems" },
   { label: "TradePilot AI", href: "/tradepilot" },
-  { label: "Work", href: "/#work" },
+  { label: "Work", href: "/work" },
+  { label: "Insights", href: "/insights" },
   { label: "About", href: "/about" },
-  { label: "Founder", href: "/founder" },
   { label: "Contact", href: "/contact" }
 ];
 
@@ -23,7 +23,7 @@ function findHeader() {
     while (node && node !== document.body) {
       const rect = node.getBoundingClientRect();
       const text = (node.textContent || "").toLowerCase();
-      if (rect.top < 220 && rect.width > 260 && rect.height >= 34 && rect.height <= 180 && (text.includes("services") || text.includes("book a consultation") || text.includes("tradepilot"))) return node;
+      if (rect.top < 220 && rect.width > 260 && rect.height >= 34 && rect.height <= 180 && (text.includes("services") || text.includes("book a consultation") || text.includes("offers"))) return node;
       node = node.parentElement;
     }
   }
@@ -95,11 +95,16 @@ export default function GlobalLogoCube() {
     <>
       <MarketechDiceNav className="md-header-dice-nav" navItems={navItems} homeHref="/" />
       <a className="md-header-brand-text" href="/" aria-label="Marketech Digital home">Marketech Digital</a>
+      <span className="md-header-soundbar" aria-hidden="true">{Array.from({ length: 7 }).map((_, i) => <i key={i} style={{ animationDelay: `${i * 0.08}s` }} />)}</span>
       <style jsx global>{`
         [data-md-old-logo="hidden"] { display:none!important; visibility:hidden!important; opacity:0!important; pointer-events:none!important; }
         .md-header-dice-brand { display:inline-flex!important; align-items:center!important; gap:10px!important; min-width:max-content!important; visibility:visible!important; opacity:1!important; pointer-events:auto!important; }
         .md-header-dice-brand .md-header-dice-nav { --dice-size:52px!important; display:inline-flex!important; visibility:visible!important; opacity:1!important; }
         .md-header-brand-text { display:inline-flex!important; align-items:center!important; color:rgba(255,255,255,.96)!important; font-size:.95rem!important; font-weight:760!important; line-height:1!important; letter-spacing:-.02em!important; text-decoration:none!important; white-space:nowrap!important; text-shadow:0 0 24px rgba(255,106,0,.16)!important; }
+        .md-header-soundbar{display:inline-flex!important;align-items:center!important;gap:3px!important;height:18px!important;margin-left:1px!important;filter:drop-shadow(0 0 10px rgba(255,106,0,.42));}
+        .md-header-soundbar i{display:block;width:3px;border-radius:999px;background:linear-gradient(180deg,#fff7ed,#ff7a1a 60%,#7c2d12);animation:md-header-wave 1.28s ease-in-out infinite;}
+        .md-header-soundbar i:nth-child(1),.md-header-soundbar i:nth-child(7){height:6px}.md-header-soundbar i:nth-child(2),.md-header-soundbar i:nth-child(6){height:10px}.md-header-soundbar i:nth-child(3),.md-header-soundbar i:nth-child(5){height:14px}.md-header-soundbar i:nth-child(4){height:18px}
+        @keyframes md-header-wave{0%,100%{transform:scaleY(.55);opacity:.55}50%{transform:scaleY(1);opacity:1}}
         @media (min-width:701px) { .md-header-dice-brand .md-header-dice-nav { --dice-size:42px!important; } .md-header-brand-text { font-size:clamp(.82rem,1.05vw,1rem)!important; } }
         @media (max-width:700px) { .md-header-dice-brand { gap:8px!important; } .md-header-brand-text { font-size:.9rem!important; } }
       `}</style>
