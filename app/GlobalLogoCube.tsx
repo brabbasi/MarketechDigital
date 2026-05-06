@@ -13,7 +13,7 @@ const navItems = [
   { label: "Work", href: "/#work" },
   { label: "About", href: "/about" },
   { label: "Founder", href: "/founder" },
-  { label: "Contact", href: "/#contact" }
+  { label: "Contact", href: "/contact" }
 ];
 
 function findHeader() {
