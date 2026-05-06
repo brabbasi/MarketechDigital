@@ -7,15 +7,12 @@ import MarketechDiceNav from "@/components/MarketechDiceNav";
 
 const navItems = [
   { label: "Home", href: "/" },
-  { label: "Free Audit", href: "/audit" },
-  { label: "Revenue Calculator", href: "/revenue-calculator" },
-  { label: "Insights", href: "/insights" },
-  { label: "About", href: "/about" },
-  { label: "Offers", href: "/#offers" },
-  { label: "Process", href: "/#process" },
-  { label: "Founder", href: "/about?slide=founder" },
-  { label: "FAQ", href: "/#faq" },
   { label: "Services", href: "/services" },
+  { label: "Systems", href: "/services#lead-capture" },
+  { label: "TradePilot AI", href: "/tradepilot" },
+  { label: "Work", href: "/#work" },
+  { label: "About", href: "/about" },
+  { label: "Founder", href: "/founder" },
   { label: "Contact", href: "/#contact" }
 ];
 
@@ -26,7 +23,7 @@ function findHeader() {
     while (node && node !== document.body) {
       const rect = node.getBoundingClientRect();
       const text = (node.textContent || "").toLowerCase();
-      if (rect.top < 220 && rect.width > 260 && rect.height >= 34 && rect.height <= 180 && (text.includes("offers") || text.includes("book a consultation") || text.includes("revenue calculator"))) return node;
+      if (rect.top < 220 && rect.width > 260 && rect.height >= 34 && rect.height <= 180 && (text.includes("services") || text.includes("book a consultation") || text.includes("tradepilot"))) return node;
       node = node.parentElement;
     }
   }
