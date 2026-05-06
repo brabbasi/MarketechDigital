@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import ContactClient from "./ContactClient";
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function ContactPage() {
             <p>We review your website, lead capture, SEO basics, follow-up flow, and automation opportunities. Then we recommend the clearest next move.</p>
             <ul><li>Website clarity</li><li>Lead capture and follow-up</li><li>SEO and local presence</li><li>TradePilot or automation fit</li></ul>
           </aside>
-          <ContactClient />
+          <Suspense fallback={<div className="contact-card">Loading form...</div>}><ContactClient /></Suspense>
         </div>
       </section>
       <style>{`
