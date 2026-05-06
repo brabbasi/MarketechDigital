@@ -51,7 +51,7 @@ export default function GlobalLogoCube() {
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (pathname === "/founder" || pathname === "/about") return;
+    if (pathname !== "/") return;
     let mounted = true;
     const sync = () => {
       const header = findHeader();
@@ -89,7 +89,7 @@ export default function GlobalLogoCube() {
     };
   }, [pathname]);
 
-  if (pathname === "/founder" || pathname === "/about" || !host) return null;
+  if (pathname !== "/" || !host) return null;
 
   return createPortal(
     <>
