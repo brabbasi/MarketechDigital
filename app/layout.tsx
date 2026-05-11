@@ -36,7 +36,6 @@ import "./bot-position-fix.css";
 import "./founder-image-replace.css";
 import "./popup-close-fix.css";
 import "./founder-desktop-polish.css";
-import "./global-cube-nav.css";
 import "./conversion-audit.css";
 import "./audit-popup.css";
 import "./profile-social-orbit.css";
