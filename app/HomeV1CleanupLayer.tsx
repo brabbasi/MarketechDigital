@@ -11,6 +11,7 @@ const cleanNav = [
   ["Work", "/work"],
   ["Insights", "/insights"],
   ["About", "/about"],
+  ["Founder", "/founder"],
   ["Contact", "/contact"]
 ];
 
@@ -75,12 +76,9 @@ export default function HomeV1CleanupLayer() {
       rewriteFAQCopy();
     };
     run();
-    const timers = [250, 900, 1800, 3500].map((delay) => window.setTimeout(run, delay));
-    const observer = new MutationObserver(run);
-    observer.observe(document.body, { childList: true, subtree: true });
+    const timers = [250, 900, 1800].map((delay) => window.setTimeout(run, delay));
     return () => {
       timers.forEach(window.clearTimeout);
-      observer.disconnect();
     };
   }, [pathname]);
   return null;
