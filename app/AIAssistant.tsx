@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type UiMessage = {
   role: "user" | "assistant" | "bot";
@@ -30,6 +30,7 @@ function modeLabel(mode: AssistantMode, reason?: string) {
 }
 
 export default function AIAssistant() {
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,10 @@ export default function AIAssistant() {
   const [messages, setMessages] = useState<UiMessage[]>([
     { role: "bot", text: "Protocol active. I’m the Marketech AI guide. I can help with website audits, SEO, Google Business Profile, lead capture, AI automation, services, pricing ranges, and the new Insights growth guides." }
   ]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const mailHref = useMemo(() => {
     const subject = encodeURIComponent("Marketech Digital project inquiry");
@@ -94,6 +99,8 @@ export default function AIAssistant() {
     send();
   }
 
+  if (!mounted) return null;
+
   return (
     <>
       <button className="ai-launcher" type="button" onClick={() => setOpen(true)} aria-label="Open Marketech AI assistant">
@@ -119,7 +126,7 @@ export default function AIAssistant() {
         </div>
         <form className="ai-form" onSubmit={onSubmit}>
           <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about audits, SEO, websites, automation..." aria-label="Describe your project to the Marketech AI assistant" disabled={loading} />
-          <button type="submit" disabled={loading} aria-label="Send message to Marketech AI assistant">➤</button>
+          <button type="submit" disabled={loading} aria-label="Send message to the Marketech AI assistant">➤</button>
         </form>
         <div className="ai-actions">
           <a href="/audit">Free audit</a>
