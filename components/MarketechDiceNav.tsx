@@ -31,7 +31,6 @@ const POSES = [
   "rotateX(90deg) rotateY(90deg) rotateZ(0deg)"
 ];
 
-const ACTIVE_FACE_TYPES = ["logo", "menu", "logo", "menu", "logo", "menu"] as const;
 const FACES = [
   { id: "front", type: "logo", transform: "translateZ(var(--md-cube-half))" },
   { id: "back", type: "menu", transform: "rotateY(180deg) translateZ(var(--md-cube-half))" },
@@ -61,11 +60,10 @@ function SoundWaveMenuIcon() {
   return <span className="md-wave-icon" aria-hidden="true">{Array.from({ length: 7 }).map((_, index) => <i key={index} style={{ animationDelay: `${index * 0.07}s` }} />)}</span>;
 }
 
-export default function MarketechDiceNav({ className = "", navItems = DEFAULT_NAV_ITEMS, homeHref = "/", onNavigate }: MarketechDiceNavProps) {
+export default function MarketechDiceNav({ className = "", navItems = DEFAULT_NAV_ITEMS, onNavigate }: MarketechDiceNavProps) {
   const [poseIndex, setPoseIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const activeFaceType = ACTIVE_FACE_TYPES[poseIndex];
 
   useEffect(() => {
     if (menuOpen) return;
@@ -89,14 +87,12 @@ export default function MarketechDiceNav({ className = "", navItems = DEFAULT_NA
   };
 
   const handleDiceClick = () => {
-    if (menuOpen) return setMenuOpen(false);
-    if (activeFaceType === "logo") return navigateTo(homeHref);
-    setMenuOpen(true);
+    setMenuOpen((current) => !current);
   };
 
   return (
     <div ref={rootRef} className={`md-dice-root ${className}`.trim()}>
-      <button type="button" className={`md-dice-button ${menuOpen ? "md-menu-is-open" : ""}`} aria-label={activeFaceType === "logo" ? "Go to Marketech Digital home" : "Open Marketech Digital navigation menu"} aria-haspopup="menu" aria-expanded={menuOpen} onClick={handleDiceClick}>
+      <button type="button" className={`md-dice-button ${menuOpen ? "md-menu-is-open" : ""}`} aria-label={menuOpen ? "Close Marketech Digital navigation menu" : "Open Marketech Digital navigation menu"} aria-haspopup="menu" aria-expanded={menuOpen} onClick={handleDiceClick}>
         <span className="md-dice-aura" />
         <span className="md-dice-scene"><span className="md-dice-cube" style={{ transform: POSES[poseIndex] }}>{FACES.map((face) => <span key={face.id} className={`md-dice-face md-face-${face.type}`} style={{ transform: face.transform }}><span className="md-face-shine" /><span className="md-face-grid" />{face.type === "logo" ? <MarketechLogoMark /> : <SoundWaveMenuIcon />}</span>)}</span></span>
       </button>
