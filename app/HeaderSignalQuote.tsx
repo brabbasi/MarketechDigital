@@ -45,24 +45,26 @@ export default function HeaderSignalQuote() {
       <style jsx global>{`
         .md-header-signal-quote {
           position: fixed;
-          top: 24px;
+          top: 14px;
           left: 50%;
-          z-index: 2147481500;
+          z-index: 2147483200;
           transform: translateX(-50%);
           display: none;
           align-items: center;
+          justify-content: center;
           gap: 10px;
-          width: min(46vw, 620px);
-          min-height: 42px;
+          width: min(42vw, 560px);
+          min-height: 40px;
           padding: 8px 16px;
-          border: 1px solid rgba(255, 106, 0, .16);
+          border: 1px solid rgba(255, 106, 0, .22);
           border-radius: 999px;
-          background: linear-gradient(90deg, rgba(255,106,0,.055), rgba(89,175,255,.045), rgba(255,255,255,.025));
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 18px 60px rgba(0,0,0,.22), 0 0 32px rgba(255,106,0,.06);
-          backdrop-filter: blur(16px) saturate(1.2);
-          -webkit-backdrop-filter: blur(16px) saturate(1.2);
+          background: radial-gradient(circle at 10% 50%, rgba(255,106,0,.16), transparent 36%), linear-gradient(90deg, rgba(255,106,0,.075), rgba(89,175,255,.055), rgba(255,255,255,.028));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 18px 60px rgba(0,0,0,.26), 0 0 34px rgba(255,106,0,.08);
+          backdrop-filter: blur(18px) saturate(1.25);
+          -webkit-backdrop-filter: blur(18px) saturate(1.25);
           pointer-events: none;
           overflow: hidden;
+          font-family: inherit;
         }
         .md-header-signal-quote::before {
           content: "";
@@ -74,7 +76,7 @@ export default function HeaderSignalQuote() {
           box-shadow: 0 0 18px rgba(255,106,0,.75);
         }
         .md-header-signal-quote span {
-          color: rgba(255,226,210,.72);
+          color: rgba(255,226,210,.78);
           font-size: 10px;
           font-weight: 900;
           letter-spacing: .22em;
@@ -83,21 +85,28 @@ export default function HeaderSignalQuote() {
         }
         .md-header-signal-quote strong {
           min-width: 0;
-          color: rgba(246,248,252,.76);
-          font-size: clamp(.72rem, .86vw, .9rem);
-          font-weight: 720;
+          color: rgba(246,248,252,.82);
+          font-size: clamp(.76rem, .88vw, .92rem);
+          font-weight: 760;
           letter-spacing: .01em;
           line-height: 1.2;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          text-shadow: 0 0 24px rgba(255,106,0,.12);
         }
-        @media (min-width: 1121px) {
+        @media (min-width: 761px) {
           .md-header-signal-quote { display: inline-flex; }
         }
-        @media (min-width: 1121px) and (max-width: 1320px) {
-          .md-header-signal-quote { width: min(36vw, 480px); }
+        @media (min-width: 761px) and (max-width: 1120px) {
+          .md-header-signal-quote { top: 12px; width: min(52vw, 520px); }
+        }
+        @media (min-width: 1121px) and (max-width: 1380px) {
+          .md-header-signal-quote { width: min(34vw, 460px); }
           .md-header-signal-quote span { display: none; }
+        }
+        @media (max-width: 760px) {
+          .md-header-signal-quote { display: none !important; }
         }
       `}</style>
     </div>
