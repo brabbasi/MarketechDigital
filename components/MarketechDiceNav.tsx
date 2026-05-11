@@ -19,6 +19,7 @@ const DEFAULT_NAV_ITEMS: NavItem[] = [
   { label: "Work", href: "/work" },
   { label: "Insights", href: "/insights" },
   { label: "About", href: "/about" },
+  { label: "Founder", href: "/founder" },
   { label: "Contact", href: "/contact" }
 ];
 
@@ -39,6 +40,14 @@ const FACES = [
   { id: "top", type: "logo", transform: "rotateX(90deg) translateZ(var(--md-cube-half))" },
   { id: "bottom", type: "menu", transform: "rotateX(-90deg) translateZ(var(--md-cube-half))" }
 ] as const;
+
+function normalizeNavItems(items: NavItem[]) {
+  if (items.some((item) => item.href === "/founder")) return items;
+  const aboutIndex = items.findIndex((item) => item.href === "/about");
+  const founderItem = { label: "Founder", href: "/founder" };
+  if (aboutIndex < 0) return [...items, founderItem];
+  return [...items.slice(0, aboutIndex + 1), founderItem, ...items.slice(aboutIndex + 1)];
+}
 
 function MarketechLogoMark() {
   return (
@@ -64,6 +73,7 @@ export default function MarketechDiceNav({ className = "", navItems = DEFAULT_NA
   const [poseIndex, setPoseIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const menuItems = normalizeNavItems(navItems);
 
   useEffect(() => {
     if (menuOpen) return;
@@ -98,7 +108,7 @@ export default function MarketechDiceNav({ className = "", navItems = DEFAULT_NA
       </button>
       <nav className={`md-dice-menu ${menuOpen ? "md-menu-open" : ""}`} aria-label="Marketech Digital main navigation">
         <div className="md-menu-header"><span className="md-menu-kicker">Marketech Digital</span><button type="button" className="md-menu-close" aria-label="Close navigation menu" onClick={() => setMenuOpen(false)}><span /><span /></button></div>
-        <div className="md-menu-links" role="menu">{navItems.map((item, index) => <a key={item.href} href={item.href} role="menuitem" onClick={(event) => { event.preventDefault(); navigateTo(item.href); }}><span className="md-menu-index">{String(index + 1).padStart(2, "0")}</span><span className="md-menu-label">{item.label}</span><span className="md-menu-arrow">→</span></a>)}</div>
+        <div className="md-menu-links" role="menu">{menuItems.map((item, index) => <a key={item.href} href={item.href} role="menuitem" onClick={(event) => { event.preventDefault(); navigateTo(item.href); }}><span className="md-menu-index">{String(index + 1).padStart(2, "0")}</span><span className="md-menu-label">{item.label}</span><span className="md-menu-arrow">→</span></a>)}</div>
       </nav>
       <style>{`
         .md-dice-root{--dice-size:clamp(58px,5vw,76px);--md-cube-half:calc(var(--dice-size)/2);position:relative;z-index:2147483000;display:inline-flex;align-items:center;justify-content:center}.md-dice-button{position:relative;width:calc(var(--dice-size) + 22px);height:calc(var(--dice-size) + 22px);display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;padding:0;cursor:pointer;isolation:isolate;-webkit-tap-highlight-color:transparent}.md-dice-button:focus-visible{outline:2px solid rgba(255,122,26,.95);outline-offset:6px;border-radius:20px}.md-dice-aura{position:absolute;inset:4px;border-radius:999px;background:radial-gradient(circle at 50% 48%,rgba(255,122,26,.22),transparent 48%),radial-gradient(circle at 68% 22%,rgba(255,255,255,.13),transparent 32%);filter:blur(10px);opacity:.72;transform:scale(.92);transition:opacity .32s ease,transform .32s ease;pointer-events:none}.md-dice-button:hover .md-dice-aura,.md-menu-is-open .md-dice-aura{opacity:1;transform:scale(1.06)}.md-dice-scene{width:var(--dice-size);height:var(--dice-size);display:block;perspective:780px;filter:drop-shadow(0 18px 24px rgba(0,0,0,.36))}.md-dice-cube{position:relative;width:100%;height:100%;display:block;transform-style:preserve-3d;transition:transform 1120ms cubic-bezier(.2,.84,.18,1);will-change:transform}.md-dice-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:18px;border:1px solid rgba(255,255,255,.13);background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.025) 38%,rgba(0,0,0,.22)),radial-gradient(circle at 25% 18%,rgba(255,122,26,.2),transparent 36%),linear-gradient(180deg,rgba(15,23,42,.96),rgba(5,8,15,.96));box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -18px 38px rgba(0,0,0,.42),0 0 28px rgba(255,122,26,.13);backface-visibility:hidden}.md-face-menu{background:linear-gradient(145deg,rgba(255,122,26,.24),rgba(255,255,255,.035) 36%,rgba(0,0,0,.24)),radial-gradient(circle at 62% 22%,rgba(255,122,26,.28),transparent 34%),linear-gradient(180deg,rgba(10,16,28,.98),rgba(3,6,13,.98))}.md-face-shine,.md-face-grid{position:absolute;inset:0;pointer-events:none}.md-face-shine{background:linear-gradient(120deg,transparent 12%,rgba(255,255,255,.18) 20%,transparent 36%),radial-gradient(circle at 18% 12%,rgba(255,255,255,.16),transparent 38%);mix-blend-mode:screen;opacity:.72}.md-face-grid{background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:13px 13px;mask-image:radial-gradient(circle at 50% 50%,black,transparent 74%);opacity:.38}.md-logo-svg{width:76%;height:76%;display:block;position:relative;z-index:2;filter:drop-shadow(0 0 8px rgba(255,122,26,.22))}.md-wave-icon{position:relative;z-index:3;width:68%;height:54%;display:flex;align-items:center;justify-content:center;gap:4px;filter:drop-shadow(0 0 12px rgba(255,122,26,.72))}.md-wave-icon i{display:block;width:max(4px,8%);border-radius:999px;background:linear-gradient(180deg,#fff7ed,#ff7a1a 54%,#7c2d12);box-shadow:0 0 12px rgba(255,122,26,.48);animation:md-wave-breathe 1.28s ease-in-out infinite;opacity:.98}.md-wave-icon i:nth-child(1),.md-wave-icon i:nth-child(7){height:30%}.md-wave-icon i:nth-child(2),.md-wave-icon i:nth-child(6){height:52%}.md-wave-icon i:nth-child(3),.md-wave-icon i:nth-child(5){height:78%}.md-wave-icon i:nth-child(4){height:100%}@keyframes md-wave-breathe{0%,100%{transform:scaleY(.58);opacity:.62}50%{transform:scaleY(1);opacity:1}}
