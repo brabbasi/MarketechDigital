@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import GlobalLogoCube from "./GlobalLogoCube";
 import GlobalPageHeader from "./GlobalPageHeader";
+import HeaderSignalQuote from "./HeaderSignalQuote";
 import FutureLayer from "./FutureLayer";
 import UXFixLayer from "./UXFixLayer";
 import HomeV1CleanupLayer from "./HomeV1CleanupLayer";
@@ -137,6 +138,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <GlobalLogoCube />
         <GlobalPageHeader />
+        <HeaderSignalQuote />
         {children}
         <AuditPopup />
         <FutureLayer />
