@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "project_id": "marketech-digital",
+  "reviewer": "marketech-ai-reviewer",
+  "risk_tier": 2,
+  "coverage": ["pull_requests","code","website_copy","forms","seo","analytics","deployments","accessibility"],
+  "blocking_before_release": true,
+  "producer_self_approval_allowed": false,
+  "special_invariants": ["No fabricated clients, results, guarantees or capabilities.","Contact and lead flows require privacy review.","Public claims must be evidence-backed."],
+  "baseline_review_status": "IN_PROGRESS"
+}
