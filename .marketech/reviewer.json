@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "project_id": "marketech-digital-site",
+  "project_name": "Marketech Digital Website",
+  "risk_tier": 2,
+  "reviewer": "marketech-ai-reviewer",
+  "coverage": ["pull_request", "copy_claims", "contact_form", "analytics", "seo", "dependency", "deployment", "production_readiness"],
+  "fail_closed": true,
+  "baseline_review": ".marketech/BASELINE_REVIEW.md"
+}
