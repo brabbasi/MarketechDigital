@@ -1,0 +1,43 @@
+name: Marketech AI Reviewer
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  independent-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require reviewer bridge
+        env:
+          URL: ${{ secrets.MARKETECH_REVIEWER_URL }}
+          TOKEN: ${{ secrets.MARKETECH_REVIEWER_API_TOKEN }}
+        run: test -n "$URL" && test -n "$TOKEN"
+      - name: Dispatch exact PR to reviewer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ secrets.MARKETECH_REVIEWER_URL }}
+          TOKEN: ${{ secrets.MARKETECH_REVIEWER_API_TOKEN }}
+          PROJECT_ID: marketech-digital-site
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request, urllib.error
+          req=urllib.request.Request(f"https://api.github.com/repos/{os.environ['REPO']}/pulls/{os.environ['PR']}",headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github.diff','X-GitHub-Api-Version':'2022-11-28'})
+          with urllib.request.urlopen(req,timeout=30) as r: diff=r.read().decode('utf-8','replace')
+          target=f"{os.environ['REPO']}/pull/{os.environ['PR']}@{os.environ['HEAD_SHA']}"
+          payload={'project_id':os.environ['PROJECT_ID'],'target_type':'pull_request','target_ref':target,'producer_agent':'github-pull-request','requirements':'Review this exact Marketech website change for correctness, accessibility, responsive UX, evidence-backed public claims, lead/contact privacy, spam/security, SEO regressions and deployment readiness.','evidence_packet':json.dumps({'repository':os.environ['REPO'],'pr':int(os.environ['PR']),'head_sha':os.environ['HEAD_SHA'],'base_sha':os.environ['BASE_SHA'],'diff':diff[:150000],'diff_truncated':len(diff)>150000}),'evidence_refs':[target],'deterministic_checks':{'exact_head_sha_bound':True}}
+          call=urllib.request.Request(os.environ['URL'].rstrip('/')+'/v1/reviews',data=json.dumps(payload).encode(),headers={'Content-Type':'application/json','X-Marketech-Reviewer-Token':os.environ['TOKEN']},method='POST')
+          try:
+            with urllib.request.urlopen(call,timeout=120) as r: result=json.load(r)
+          except urllib.error.HTTPError as e: raise SystemExit(f"Reviewer blocked/unavailable: {e.code} {e.read().decode('utf-8','replace')}")
+          print(json.dumps({'review_id':result.get('review_id'),'decision':result.get('decision')}))
+          if result.get('decision') not in {'PASS','PASS_WITH_NOTES'}: raise SystemExit(f"Reviewer blocks promotion: {result.get('decision')}")
+          PY
