@@ -6,6 +6,8 @@ on:
       - 'app/api/inquiry/**'
       - 'app/contact/ContactClient.tsx'
       - 'app/IdeaGenerator.tsx'
+      - 'app/AcquisitionGuard.tsx'
+      - 'app/layout.tsx'
       - 'scripts/verify-inbound-acquisition.mjs'
       - '.github/workflows/inbound-acquisition-ci.yml'
   workflow_dispatch:
