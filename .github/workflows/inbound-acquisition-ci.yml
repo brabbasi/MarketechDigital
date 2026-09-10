@@ -4,9 +4,12 @@ on:
   pull_request:
     paths:
       - 'app/api/inquiry/**'
+      - 'app/api/lead/**'
       - 'app/contact/ContactClient.tsx'
       - 'app/IdeaGenerator.tsx'
       - 'app/AcquisitionGuard.tsx'
+      - 'app/AIAssistant.tsx'
+      - 'app/UXFixLayer.tsx'
       - 'app/layout.tsx'
       - 'scripts/verify-inbound-acquisition.mjs'
       - '.github/workflows/inbound-acquisition-ci.yml'
