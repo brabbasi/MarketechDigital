@@ -1,0 +1,36 @@
+name: Inbound Acquisition CI
+
+on:
+  pull_request:
+    paths:
+      - 'app/api/inquiry/**'
+      - 'app/contact/ContactClient.tsx'
+      - 'app/IdeaGenerator.tsx'
+      - 'scripts/verify-inbound-acquisition.mjs'
+      - '.github/workflows/inbound-acquisition-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify acquisition contract
+        run: node scripts/verify-inbound-acquisition.mjs
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build site
+        run: npm run build
