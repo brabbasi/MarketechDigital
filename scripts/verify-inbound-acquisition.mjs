@@ -13,6 +13,7 @@ function forbidText(source, needle, label) {
 }
 
 const inquiry = read("app/api/inquiry/route.ts");
+const legacyLead = read("app/api/lead/route.ts");
 const contact = read("app/contact/ContactClient.tsx");
 const idea = read("app/IdeaGenerator.tsx");
 const guard = read("app/AcquisitionGuard.tsx");
@@ -42,6 +43,15 @@ requireText(inquiry, "lead-owner/${payload.submissionId}", "owner send key");
 requireText(inquiry, "isValidSubmissionId", "submission-id validation");
 requireText(inquiry, "Deliberately no automatic client receipt in v1", "public mail-relay boundary");
 forbidText(inquiry, "lead-receipt/${payload.submissionId}", "automatic client receipt must remain disabled");
+
+// The old endpoint must fail closed rather than remain a second public mail path.
+requireText(legacyLead, 'mode: "legacy_endpoint_retired"', "legacy endpoint retirement marker");
+requireText(legacyLead, "status: 410", "legacy endpoint retirement status");
+requireText(legacyLead, '"Cache-Control": "no-store"', "legacy endpoint no-store response");
+forbidText(legacyLead, "api.resend.com", "legacy outbound provider surface");
+forbidText(legacyLead, "RESEND_API_KEY", "legacy outbound credential surface");
+forbidText(legacyLead, "sendResendEmail", "legacy outbound helper");
+forbidText(legacyLead, "fetch(", "legacy network action surface");
 
 requireText(contact, 'fetch("/api/inquiry"', "contact endpoint migration");
 requireText(contact, "submissionIdRef", "stable retry identity");
