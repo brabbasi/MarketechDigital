@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+const MAX_BODY_BYTES = 32_000;
+
 type LeadPayload = {
   submissionId?: string;
   name?: string;
@@ -21,6 +23,7 @@ type LeadPayload = {
   referrer?: string;
   landingPage?: string;
   firstTouchOffer?: string;
+  companyUrl2?: string;
 };
 
 type EmailMessage = {
@@ -58,6 +61,20 @@ function isValidSubmissionId(value: string) {
   return /^[A-Za-z0-9][A-Za-z0-9_-]{7,127}$/.test(value);
 }
 
+function isSameOriginRequest(request: Request) {
+  const origin = request.headers.get("origin");
+  const fetchSite = request.headers.get("sec-fetch-site");
+  if (!origin) return false;
+
+  try {
+    if (origin !== new URL(request.url).origin) return false;
+  } catch {
+    return false;
+  }
+
+  return !fetchSite || fetchSite === "same-origin";
+}
+
 function normalize(payload: LeadPayload) {
   return {
     submissionId: clean(payload.submissionId, 128),
@@ -77,7 +94,8 @@ function normalize(payload: LeadPayload) {
     campaign: clean(payload.campaign, 160),
     referrer: clean(payload.referrer, 500),
     landingPage: clean(payload.landingPage, 500),
-    firstTouchOffer: clean(payload.firstTouchOffer, 240)
+    firstTouchOffer: clean(payload.firstTouchOffer, 240),
+    companyUrl2: clean(payload.companyUrl2, 240)
   };
 }
 
@@ -137,16 +155,6 @@ function ownerHtml(data: ReturnType<typeof normalize>) {
   return `<!doctype html><html><body style="margin:0;padding:24px;font-family:Arial,Helvetica,sans-serif;color:#111827;background:#ffffff;"><div style="max-width:640px;"><div style="font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#d35400;">Marketech Digital</div><h1 style="font-size:24px;margin:10px 0 18px;">New project inquiry</h1><table style="border-collapse:collapse;font-size:14px;line-height:1.5;">${details}</table><h2 style="font-size:16px;margin:24px 0 8px;">Project details</h2><p style="font-size:15px;line-height:1.7;white-space:pre-wrap;">${escapeHtml(data.message || "Not provided")}</p></div></body></html>`;
 }
 
-function clientText(data: ReturnType<typeof normalize>) {
-  const name = data.name || "there";
-  return `Hi ${name},\n\nThanks for reaching out to Marketech Digital. I received your inquiry and will review it personally.\n\nI will get back to you with the clearest next step rather than pushing you into a larger project than you need.\n\nBest,\nBasit Abbasi\nFounder, Marketech Digital\n${projectEmail}\n${siteUrl}`;
-}
-
-function clientHtml(data: ReturnType<typeof normalize>) {
-  const name = escapeHtml(data.name || "there");
-  return `<!doctype html><html><body style="margin:0;padding:24px;font-family:Arial,Helvetica,sans-serif;color:#111827;background:#ffffff;"><div style="max-width:560px;"><div style="font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#d35400;">Marketech Digital</div><p style="margin:22px 0 12px;font-size:15px;line-height:1.7;">Hi ${name},</p><p style="margin:0 0 12px;font-size:15px;line-height:1.7;">Thanks for reaching out to Marketech Digital. I received your inquiry and will review it personally.</p><p style="margin:0 0 22px;font-size:15px;line-height:1.7;">I will get back to you with the clearest next step rather than pushing you into a larger project than you need.</p><p style="margin:0;font-size:15px;line-height:1.7;"><strong>Basit Abbasi</strong><br/>Founder, Marketech Digital<br/>${escapeHtml(projectEmail)}<br/>${escapeHtml(siteUrl.replace("https://", ""))}</p></div></body></html>`;
-}
-
 async function sendResendEmail(message: EmailMessage) {
   const from = process.env.LEAD_FROM_EMAIL || `Marketech Digital <${contactEmail}>`;
   return fetch("https://api.resend.com/emails", {
@@ -169,7 +177,33 @@ async function sendResendEmail(message: EmailMessage) {
 
 export async function POST(request: Request) {
   try {
-    const payload = normalize((await request.json().catch(() => ({}))) as LeadPayload);
+    if (!isSameOriginRequest(request)) {
+      return NextResponse.json({ ok: false, error: "This form must be submitted from the Marketech Digital website." }, { status: 403 });
+    }
+
+    const declaredLength = Number(request.headers.get("content-length") || "0");
+    if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
+      return NextResponse.json({ ok: false, error: "Your request is too large. Please shorten the message and try again." }, { status: 413 });
+    }
+
+    const raw = await request.text();
+    if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) {
+      return NextResponse.json({ ok: false, error: "Your request is too large. Please shorten the message and try again." }, { status: 413 });
+    }
+
+    let input: LeadPayload = {};
+    try {
+      input = JSON.parse(raw || "{}") as LeadPayload;
+    } catch {
+      return NextResponse.json({ ok: false, error: "Please refresh the page and try again." }, { status: 400 });
+    }
+
+    const payload = normalize(input);
+
+    // Honeypot: legitimate UI keeps this field empty and hidden from people.
+    if (payload.companyUrl2) {
+      return NextResponse.json({ ok: true, submissionId: payload.submissionId });
+    }
 
     if (!isValidSubmissionId(payload.submissionId)) {
       return NextResponse.json({ ok: false, error: "Please refresh the page and try again." }, { status: 400 });
@@ -202,21 +236,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: `Email delivery failed. Please email ${projectEmail} directly.` }, { status: 502 });
     }
 
-    let receipt = "skipped";
-    if (payload.email) {
-      const clientResponse = await sendResendEmail({
-        to: [payload.email],
-        replyTo: leadToEmail,
-        subject: "We received your Marketech Digital inquiry",
-        text: clientText(payload),
-        html: clientHtml(payload),
-        idempotencyKey: `lead-receipt/${payload.submissionId}`
-      });
-      receipt = clientResponse.ok ? "sent" : "failed";
-      if (!clientResponse.ok) console.error("MARKETECH_INQUIRY_RECEIPT_FAILED", await clientResponse.text());
-    }
-
-    return NextResponse.json({ ok: true, submissionId: payload.submissionId, receipt });
+    // Deliberately no automatic client receipt in v1. This prevents the public
+    // endpoint from becoming a generic mail-sending surface before stronger
+    // abuse controls are available. The UI confirms successful submission.
+    return NextResponse.json({ ok: true, submissionId: payload.submissionId });
   } catch (error) {
     console.error("MARKETECH_INQUIRY_UNEXPECTED", error);
     return NextResponse.json({ ok: false, error: `Something went wrong. Please email ${projectEmail} directly.` }, { status: 500 });
