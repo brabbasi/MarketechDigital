@@ -11,6 +11,8 @@ function requireText(source, needle, label) {
 const inquiry = read("app/api/inquiry/route.ts");
 const contact = read("app/contact/ContactClient.tsx");
 const idea = read("app/IdeaGenerator.tsx");
+const guard = read("app/AcquisitionGuard.tsx");
+const layout = read("app/layout.tsx");
 
 for (const field of [
   "submissionId",
@@ -37,8 +39,15 @@ requireText(idea, "Send me this plan", "idea-helper conversion CTA");
 requireText(idea, "Talk to Basit", "founder CTA");
 requireText(idea, 'source: "idea-helper"', "idea-helper attribution");
 requireText(idea, "recommendedService", "recommendation preservation");
+requireText(guard, 'target.matches(".contact-popup-form")', "legacy contact-popup guard");
+requireText(guard, 'fetch("/api/inquiry"', "legacy popup endpoint migration");
+requireText(guard, ".ai-actions a[href^='mailto:']", "AI assistant contact interception");
+requireText(guard, "assistant-contact", "AI assistant acquisition attribution");
+requireText(layout, 'import AcquisitionGuard from "./AcquisitionGuard"', "global guard import");
+requireText(layout, "<AcquisitionGuard />", "global guard mount");
 
 if (contact.includes('fetch("/api/lead"')) throw new Error("contact page still posts to legacy lead endpoint");
 if (inquiry.includes("localStorage") || inquiry.includes("sessionStorage")) throw new Error("server route must not rely on browser storage");
+if (!guard.includes("stopImmediatePropagation")) throw new Error("legacy capture guard must prevent legacy submit/click handlers from firing after interception");
 
 console.log("Inbound acquisition contract: PASS");
