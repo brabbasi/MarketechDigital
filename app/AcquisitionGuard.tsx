@@ -7,8 +7,14 @@ function newSubmissionId() {
   return `lead_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
 }
 
-function currentLandingPage() {
-  return `${window.location.pathname}${window.location.search}`;
+function safeReferrer() {
+  if (!document.referrer) return "";
+  try {
+    const referrer = new URL(document.referrer);
+    return `${referrer.origin}${referrer.pathname}`;
+  } catch {
+    return "";
+  }
 }
 
 export default function AcquisitionGuard() {
@@ -31,12 +37,13 @@ export default function AcquisitionGuard() {
       const data = Object.fromEntries(new FormData(target).entries());
       const payload = {
         ...data,
+        companyUrl2: "",
         submissionId: target.dataset.submissionId,
         source: "website-contact-popup",
         medium: "website",
         campaign: "site-contact-popup",
-        referrer: document.referrer,
-        landingPage: currentLandingPage()
+        referrer: safeReferrer(),
+        landingPage: window.location.pathname
       };
 
       try {
