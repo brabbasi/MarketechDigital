@@ -82,9 +82,9 @@ export default function IdeaGenerator() {
     source: "idea-helper",
     medium: "website",
     campaign: "inbound-idea-helper",
-    service: idea.recommendedSystem,
+    service: "Not sure yet",
     recommendedService: idea.recommendedSystem,
-    firstTouchOffer: idea.title
+    firstTouchOffer: "Idea Helper recommendation"
   });
   const contactHref = `/contact?${contactParams.toString()}`;
 
