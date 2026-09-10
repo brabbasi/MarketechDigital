@@ -18,9 +18,20 @@ function newSubmissionId() {
   return `lead_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
 }
 
+function safeReferrer() {
+  if (typeof document === "undefined" || !document.referrer) return "";
+  try {
+    const referrer = new URL(document.referrer);
+    return `${referrer.origin}${referrer.pathname}`;
+  } catch {
+    return "";
+  }
+}
+
 export default function ContactClient() {
   const params = useSearchParams();
-  const initialService = params.get("service") || "";
+  const initialServiceCandidate = params.get("service") || "";
+  const initialService = needs.includes(initialServiceCandidate) ? initialServiceCandidate : "";
   const source = params.get("source") || "website-contact";
   const medium = params.get("medium") || "website";
   const campaign = params.get("campaign") || "";
@@ -44,8 +55,8 @@ export default function ContactClient() {
       campaign,
       firstTouchOffer,
       recommendedService,
-      referrer: typeof document !== "undefined" ? document.referrer : "",
-      landingPage: typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "/contact"
+      referrer: safeReferrer(),
+      landingPage: typeof window !== "undefined" ? window.location.pathname : "/contact"
     };
 
     setSending(true);
@@ -79,6 +90,7 @@ export default function ContactClient() {
         <label>What do you need help with?<select name="service" defaultValue={initialService}><option value="" disabled>Select one</option>{needs.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
       </div>
       <label>Message<textarea name="message" rows={5} placeholder="Tell us what you want to improve, fix, or build." /></label>
+      <input name="companyUrl2" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: "1px", height: "1px", opacity: 0 }} />
       {recommendedService && <input type="hidden" name="recommendedService" value={recommendedService} />}
       {firstTouchOffer && <input type="hidden" name="firstTouchOffer" value={firstTouchOffer} />}
       <button type="submit" disabled={sending}>{sending ? "Sending..." : "Request a Free Digital Growth Audit"}</button>
