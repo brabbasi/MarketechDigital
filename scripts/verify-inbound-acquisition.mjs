@@ -63,6 +63,25 @@ requireText(contact, "window.location.pathname", "landing-path minimization");
 requireText(contact, 'name="companyUrl2"', "contact honeypot");
 forbidText(contact, "window.location.search", "landing query-string collection");
 
+// Contact taxonomy must continue to represent Marketech's broader business model,
+// not collapse back to a website-only agency.
+for (const offer of [
+  "Website / web app",
+  "SEO / GEO / local search",
+  "AI strategy",
+  "Workflow automation",
+  "AI website agent / lead qualification",
+  "Dashboard / decision intelligence",
+  "Custom software / internal tool",
+  "Digital marketing / growth campaign",
+  "Branding / messaging",
+  "Partnership / implementation",
+  "Not sure yet"
+]) {
+  requireText(contact, offer, "full Marketech inquiry taxonomy");
+}
+requireText(contact, "Tell us what you need", "broad inquiry CTA");
+
 requireText(idea, "Send me this plan", "idea-helper conversion CTA");
 requireText(idea, "Talk to Basit", "founder CTA");
 requireText(idea, 'source: "idea-helper"', "idea-helper attribution");
