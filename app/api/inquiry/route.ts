@@ -4,6 +4,11 @@ export const runtime = "nodejs";
 
 const MAX_BODY_BYTES = 32_000;
 
+const ALLOWED_SOURCES = new Set(["website-contact", "website-contact-popup", "idea-helper", "ai-assistant"]);
+const ALLOWED_MEDIUMS = new Set(["website"]);
+const ALLOWED_CAMPAIGNS = new Set(["", "site-contact-popup", "inbound-idea-helper", "assistant-contact"]);
+const ALLOWED_FIRST_TOUCH = new Set(["", "Idea Helper recommendation", "Talk to Basit"]);
+
 type LeadPayload = {
   submissionId?: string;
   name?: string;
@@ -42,6 +47,29 @@ const contactEmail = "contact@getmarketechdigital.com";
 
 function clean(value: unknown, limit = 500) {
   return typeof value === "string" ? value.trim().slice(0, limit) : "";
+}
+
+function pickAllowed(value: unknown, allowed: Set<string>, fallback = "") {
+  const candidate = clean(value, 180);
+  return allowed.has(candidate) ? candidate : fallback;
+}
+
+function safeLandingPath(value: unknown) {
+  const candidate = clean(value, 500);
+  if (!candidate.startsWith("/") || candidate.startsWith("//")) return "";
+  return candidate.split(/[?#]/, 1)[0].slice(0, 500);
+}
+
+function safeReferrer(value: unknown) {
+  const candidate = clean(value, 500);
+  if (!candidate) return "";
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return "";
+    return `${parsed.origin}${parsed.pathname}`.slice(0, 500);
+  } catch {
+    return "";
+  }
 }
 
 function escapeHtml(value: string) {
@@ -89,12 +117,12 @@ function normalize(payload: LeadPayload) {
     message: clean(payload.message, 2400),
     budget: clean(payload.budget, 160),
     recommendedService: clean(payload.recommendedService, 240),
-    source: clean(payload.source, 120),
-    medium: clean(payload.medium, 120),
-    campaign: clean(payload.campaign, 160),
-    referrer: clean(payload.referrer, 500),
-    landingPage: clean(payload.landingPage, 500),
-    firstTouchOffer: clean(payload.firstTouchOffer, 240),
+    source: pickAllowed(payload.source, ALLOWED_SOURCES, "website-contact"),
+    medium: pickAllowed(payload.medium, ALLOWED_MEDIUMS, "website"),
+    campaign: pickAllowed(payload.campaign, ALLOWED_CAMPAIGNS),
+    referrer: safeReferrer(payload.referrer),
+    landingPage: safeLandingPath(payload.landingPage),
+    firstTouchOffer: pickAllowed(payload.firstTouchOffer, ALLOWED_FIRST_TOUCH),
     companyUrl2: clean(payload.companyUrl2, 240)
   };
 }
