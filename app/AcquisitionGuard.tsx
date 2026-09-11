@@ -66,31 +66,12 @@ export default function AcquisitionGuard() {
       }
     }
 
-    function handleClick(event: MouseEvent) {
-      const node = event.target;
-      if (!(node instanceof Element)) return;
-      const link = node.closest<HTMLAnchorElement>(".ai-actions a[href^='mailto:']");
-      if (!link) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-
-      const params = new URLSearchParams({
-        source: "ai-assistant",
-        medium: "website",
-        campaign: "assistant-contact",
-        recommendedService: "AI assistant conversation",
-        firstTouchOffer: "Talk to Basit"
-      });
-      window.location.assign(`/contact?${params.toString()}`);
-    }
-
+    // Capture phase intentionally wins over the legacy popup handler in UXFixLayer.
+    // The AI assistant itself now links directly to /contact and no longer needs a
+    // document-level click interceptor here.
     document.addEventListener("submit", handleSubmit, true);
-    document.addEventListener("click", handleClick, true);
     return () => {
       document.removeEventListener("submit", handleSubmit, true);
-      document.removeEventListener("click", handleClick, true);
     };
   }, []);
 
