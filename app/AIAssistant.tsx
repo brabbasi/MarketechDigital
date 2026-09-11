@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 type UiMessage = {
   role: "user" | "assistant" | "bot";
@@ -11,7 +11,7 @@ type UiMessage = {
 type AssistantMode = "checking" | "ai" | "fallback" | "error";
 
 const founderImage = "/founder.webp";
-const projectEmail = "project@getmarketechdigital.com";
+const contactHref = "/contact?source=ai-assistant&medium=website&campaign=assistant-contact&recommendedService=AI%20assistant%20conversation&firstTouchOffer=Talk%20to%20Basit";
 const quickReplies = ["Free website audit", "Show me Insights", "Why am I not getting leads?", "Estimate my project"];
 
 function toApiRole(role: UiMessage["role"]): "user" | "assistant" {
@@ -44,12 +44,6 @@ export default function AIAssistant() {
     setMounted(true);
   }, []);
 
-  const mailHref = useMemo(() => {
-    const subject = encodeURIComponent("Marketech Digital project inquiry");
-    const body = encodeURIComponent("Hi Marketech Digital, I visited the website and would like to discuss a project.\n\nProject / problem:\nBusiness type:\nPreferred next step:\nEstimated budget range:");
-    return `mailto:${projectEmail}?subject=${subject}&body=${body}`;
-  }, []);
-
   async function send(text = input) {
     const value = text.trim();
     if (!value || loading) return;
@@ -79,19 +73,6 @@ export default function AIAssistant() {
     } finally {
       setLoading(false);
     }
-  }
-
-  async function submitLead() {
-    const lastUser = [...messages].reverse().find((message) => message.role === "user")?.text || "Website visitor requested contact from the AI assistant.";
-    await fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: lastUser,
-        recommendedService: "AI assistant conversation",
-        conversation: messages.map((message) => ({ role: toApiRole(message.role), content: message.text }))
-      })
-    }).catch(() => null);
   }
 
   function onSubmit(e: FormEvent) {
@@ -131,7 +112,7 @@ export default function AIAssistant() {
         <div className="ai-actions">
           <a href="/audit">Free audit</a>
           <a href="/insights">Insights</a>
-          <a href={mailHref} onClick={submitLead}>Contact →</a>
+          <a href={contactHref}>Contact →</a>
         </div>
       </div>
       <style jsx global>{`
