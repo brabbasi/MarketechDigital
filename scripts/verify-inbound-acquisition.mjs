@@ -45,6 +45,35 @@ requireText(inquiry, "isValidSubmissionId", "submission-id validation");
 requireText(inquiry, "Deliberately no automatic client receipt in v1", "public mail-relay boundary");
 forbidText(inquiry, "lead-receipt/${payload.submissionId}", "automatic client receipt must remain disabled");
 
+// Acquisition attribution is advisory analytics data, not trusted user input.
+// Keep v1 sources/campaigns bounded and normalize URL-like values again server-side.
+for (const marker of [
+  "ALLOWED_SOURCES",
+  "ALLOWED_MEDIUMS",
+  "ALLOWED_CAMPAIGNS",
+  "ALLOWED_FIRST_TOUCH",
+  "pickAllowed",
+  "safeLandingPath",
+  "safeReferrer"
+]) {
+  requireText(inquiry, marker, "server attribution normalization");
+}
+for (const allowedValue of [
+  '"website-contact"',
+  '"website-contact-popup"',
+  '"idea-helper"',
+  '"ai-assistant"',
+  '"inbound-idea-helper"',
+  '"assistant-contact"',
+  '"Idea Helper recommendation"',
+  '"Talk to Basit"'
+]) {
+  requireText(inquiry, allowedValue, "bounded acquisition vocabulary");
+}
+requireText(inquiry, 'parsed.protocol !== "https:" && parsed.protocol !== "http:"', "referrer protocol gate");
+requireText(inquiry, "candidate.split(/[?#]/, 1)[0]", "landing query-fragment stripping");
+requireText(inquiry, "`${parsed.origin}${parsed.pathname}`", "server referrer query stripping");
+
 // The old endpoint must fail closed rather than remain a second public mail path.
 requireText(legacyLead, 'mode: "legacy_endpoint_retired"', "legacy endpoint retirement marker");
 requireText(legacyLead, "status: 410", "legacy endpoint retirement status");
