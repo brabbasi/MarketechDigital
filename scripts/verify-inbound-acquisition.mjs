@@ -16,6 +16,7 @@ const inquiry = read("app/api/inquiry/route.ts");
 const legacyLead = read("app/api/lead/route.ts");
 const contact = read("app/contact/ContactClient.tsx");
 const idea = read("app/IdeaGenerator.tsx");
+const assistant = read("app/AIAssistant.tsx");
 const guard = read("app/AcquisitionGuard.tsx");
 const layout = read("app/layout.tsx");
 
@@ -70,12 +71,24 @@ requireText(idea, 'service: "Not sure yet"', "valid contact-service default");
 requireText(idea, "recommendedService: idea.recommendedSystem", "recommendation preservation");
 forbidText(idea, "firstTouchOffer: idea.title", "generated title in URL attribution");
 
+// AI assistant now links directly to the governed contact flow. It must not rely
+// on a mailto click interceptor or silently submit a second lead request.
+requireText(assistant, 'const contactHref = "/contact?source=ai-assistant', "AI assistant direct contact route");
+requireText(assistant, "campaign=assistant-contact", "AI assistant campaign attribution");
+requireText(assistant, "recommendedService=AI%20assistant%20conversation", "AI assistant service attribution");
+forbidText(assistant, 'fetch("/api/lead"', "AI assistant legacy endpoint");
+forbidText(assistant, "submitLead", "AI assistant hidden side-effect handler");
+forbidText(assistant, "mailto:", "AI assistant contact mailto bypass");
+
+// AcquisitionGuard remains only as a compatibility bridge for the legacy popup
+// form in UXFixLayer. It no longer intercepts AI-assistant clicks.
 requireText(guard, 'target.matches(".contact-popup-form")', "legacy contact-popup guard");
 requireText(guard, 'fetch("/api/inquiry"', "legacy popup endpoint migration");
-requireText(guard, ".ai-actions a[href^='mailto:']", "AI assistant contact interception");
-requireText(guard, "assistant-contact", "AI assistant acquisition attribution");
 requireText(guard, "safeReferrer", "legacy referrer minimization");
 requireText(guard, "window.location.pathname", "legacy landing-path minimization");
+requireText(guard, "stopImmediatePropagation", "legacy duplicate-handler prevention");
+forbidText(guard, ".ai-actions", "obsolete AI assistant click interception");
+forbidText(guard, "assistant-contact", "duplicate AI assistant attribution path");
 forbidText(guard, "window.location.search", "legacy landing query-string collection");
 
 requireText(layout, 'import AcquisitionGuard from "./AcquisitionGuard"', "global guard import");
@@ -84,6 +97,5 @@ requireText(layout, "<AcquisitionGuard />", "global guard mount");
 forbidText(contact, 'fetch("/api/lead"', "contact page legacy endpoint");
 forbidText(inquiry, "localStorage", "server route browser storage");
 forbidText(inquiry, "sessionStorage", "server route browser storage");
-requireText(guard, "stopImmediatePropagation", "legacy duplicate-handler prevention");
 
 console.log("Inbound acquisition contract: PASS");
