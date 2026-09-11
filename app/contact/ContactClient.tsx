@@ -3,13 +3,21 @@
 import { useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
+// Keep the inquiry taxonomy aligned with the full Marketech offer surface rather
+// than reducing every lead to a website project. The list stays outcome-oriented
+// so visitors do not need to understand internal product names before contacting us.
 const needs = [
-  "Starter website",
-  "Premium website / SEO",
-  "Lead capture",
+  "Website / web app",
+  "SEO / GEO / local search",
+  "AI strategy",
+  "Workflow automation",
+  "AI website agent / lead qualification",
+  "Dashboard / decision intelligence",
+  "Custom software / internal tool",
+  "Digital marketing / growth campaign",
+  "Branding / messaging",
   "TradePilot AI",
-  "AI automation",
-  "Custom system",
+  "Partnership / implementation",
   "Not sure yet"
 ];
 
@@ -89,11 +97,11 @@ export default function ContactClient() {
         <label>Website<input name="website" type="url" placeholder="https://yourwebsite.com" /></label>
         <label>What do you need help with?<select name="service" defaultValue={initialService}><option value="" disabled>Select one</option>{needs.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
       </div>
-      <label>Message<textarea name="message" rows={5} placeholder="Tell us what you want to improve, fix, or build." /></label>
+      <label>Message<textarea name="message" rows={5} placeholder="Tell us what you want to improve, automate, market, or build." /></label>
       <input name="companyUrl2" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: "1px", height: "1px", opacity: 0 }} />
       {recommendedService && <input type="hidden" name="recommendedService" value={recommendedService} />}
       {firstTouchOffer && <input type="hidden" name="firstTouchOffer" value={firstTouchOffer} />}
-      <button type="submit" disabled={sending}>{sending ? "Sending..." : "Request a Free Digital Growth Audit"}</button>
+      <button type="submit" disabled={sending}>{sending ? "Sending..." : "Tell us what you need"}</button>
       <small>No pressure. We&apos;ll review your current setup and recommend the clearest next move.</small>
       <p className="contact-status" aria-live="polite">{status}</p>
     </form>
