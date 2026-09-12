@@ -11,6 +11,8 @@ on:
       - 'app/AIAssistant.tsx'
       - 'app/UXFixLayer.tsx'
       - 'app/layout.tsx'
+      - 'package.json'
+      - '.marketech/inquiry-rate-limit-v1.json'
       - 'scripts/verify-inbound-acquisition.mjs'
       - '.github/workflows/inbound-acquisition-ci.yml'
   workflow_dispatch:
