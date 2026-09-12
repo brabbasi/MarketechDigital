@@ -12,6 +12,10 @@ function forbidText(source, needle, label) {
   if (source.includes(needle)) throw new Error(`${label}: forbidden ${needle}`);
 }
 
+function requireEqual(actual, expected, label) {
+  if (actual !== expected) throw new Error(`${label}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
+}
+
 const inquiry = read("app/api/inquiry/route.ts");
 const legacyLead = read("app/api/lead/route.ts");
 const contact = read("app/contact/ContactClient.tsx");
@@ -19,6 +23,8 @@ const idea = read("app/IdeaGenerator.tsx");
 const assistant = read("app/AIAssistant.tsx");
 const guard = read("app/AcquisitionGuard.tsx");
 const layout = read("app/layout.tsx");
+const packageJson = JSON.parse(read("package.json"));
+const rateLimitManifest = JSON.parse(read(".marketech/inquiry-rate-limit-v1.json"));
 
 for (const field of [
   "submissionId",
@@ -44,6 +50,42 @@ requireText(inquiry, "lead-owner/${payload.submissionId}", "owner send key");
 requireText(inquiry, "isValidSubmissionId", "submission-id validation");
 requireText(inquiry, "Deliberately no automatic client receipt in v1", "public mail-relay boundary");
 forbidText(inquiry, "lead-receipt/${payload.submissionId}", "automatic client receipt must remain disabled");
+
+// The public endpoint can generate an owner email, so a submission ID alone is not
+// an abuse boundary. Require the Vercel firewall SDK and fail closed if the bound
+// dashboard rule is absent/unavailable rather than silently allowing unlimited
+// unique submission IDs to consume owner mailbox/provider quota.
+requireEqual(packageJson.dependencies?.["@vercel/firewall"], "1.2.5", "pinned Vercel firewall SDK");
+requireText(inquiry, 'import { checkRateLimit } from "@vercel/firewall"', "rate-limit SDK import");
+requireText(inquiry, 'INQUIRY_RATE_LIMIT_ID = "marketech-inquiry-owner-notification"', "fixed rate-limit rule identity");
+requireText(inquiry, "checkRateLimit(INQUIRY_RATE_LIMIT_ID, { request })", "server-side rate-limit check");
+requireText(inquiry, '"error" in limitResult && limitResult.error', "missing-rule fail-closed detection");
+requireText(inquiry, "MARKETECH_INQUIRY_RATE_LIMIT_UNAVAILABLE", "rate-limit unavailable audit marker");
+requireText(inquiry, "MARKETECH_INQUIRY_RATE_LIMIT_FAILED", "rate-limit exception audit marker");
+requireText(inquiry, "status: 429", "rate-limit rejection status");
+requireText(inquiry, '"Retry-After": "60"', "rate-limit retry contract");
+requireText(inquiry, "status: 503", "rate-limit fail-closed status");
+requireText(inquiry, "const rateLimitResponse = await enforceInquiryRateLimit(request)", "rate-limit execution before owner send");
+
+requireEqual(rateLimitManifest.schema_version, 1, "rate-limit manifest schema");
+requireEqual(rateLimitManifest.vercel?.team_id, "team_OHRkafYU5Gg6L00qcwYYsq81", "rate-limit team binding");
+requireEqual(rateLimitManifest.vercel?.project_id, "prj_iRZyxQA5Gh93mcrEt7Z6XSMN7HVJ", "rate-limit project binding");
+requireEqual(rateLimitManifest.rule?.id, "marketech-inquiry-owner-notification", "rate-limit rule binding");
+requireEqual(rateLimitManifest.rule?.environment, "production", "rate-limit environment binding");
+requireEqual(rateLimitManifest.rule?.method, "POST", "rate-limit method binding");
+requireEqual(rateLimitManifest.rule?.path, "/api/inquiry", "rate-limit path binding");
+requireEqual(rateLimitManifest.rule?.window_seconds, 60, "rate-limit window");
+requireEqual(rateLimitManifest.rule?.requests_per_window, 5, "rate-limit request budget");
+requireEqual(rateLimitManifest.rule?.keys?.join(","), "ip", "rate-limit privacy-preserving platform key");
+requireEqual(rateLimitManifest.rule?.limit_action, "rate_limit", "rate-limit action");
+requireEqual(rateLimitManifest.rule?.limited_status, 429, "rate-limit status binding");
+requireEqual(rateLimitManifest.application_contract?.missing_rule_or_sdk_error, "fail_closed_503", "missing-rule fail-closed manifest");
+requireEqual(rateLimitManifest.application_contract?.submission_id_is_not_rate_limit_identity, true, "submission-id abuse-boundary assertion");
+requireEqual(rateLimitManifest.application_contract?.raw_client_ip_stored_by_application, false, "application IP minimization");
+requireEqual(rateLimitManifest.deployment_gate?.production_rule_required, true, "production firewall prerequisite");
+requireEqual(rateLimitManifest.deployment_gate?.production_rule_activation_performed_by_this_pr, false, "no implicit firewall activation");
+requireEqual(rateLimitManifest.deployment_gate?.founder_approval_required_before_production_activation, true, "Founder firewall activation gate");
+requireEqual(rateLimitManifest.deployment_gate?.production_deployment_authorized_by_this_manifest, false, "manifest is not deployment authority");
 
 // Acquisition attribution is advisory analytics data, not trusted user input.
 // Keep v1 sources/campaigns bounded and normalize URL-like values again server-side.
