@@ -1,8 +1,10 @@
+import { checkRateLimit } from "@vercel/firewall";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
 const MAX_BODY_BYTES = 32_000;
+const INQUIRY_RATE_LIMIT_ID = "marketech-inquiry-owner-notification";
 
 const ALLOWED_SOURCES = new Set(["website-contact", "website-contact-popup", "idea-helper", "ai-assistant"]);
 const ALLOWED_MEDIUMS = new Set(["website"]);
@@ -101,6 +103,38 @@ function isSameOriginRequest(request: Request) {
   }
 
   return !fetchSite || fetchSite === "same-origin";
+}
+
+async function enforceInquiryRateLimit(request: Request) {
+  try {
+    const limitResult = await checkRateLimit(INQUIRY_RATE_LIMIT_ID, { request });
+
+    // The Vercel SDK can return a non-limiting error when a referenced dashboard
+    // rule is missing/unavailable. For this public mail-producing endpoint, that
+    // must fail closed instead of silently removing the abuse boundary.
+    if ("error" in limitResult && limitResult.error) {
+      console.error("MARKETECH_INQUIRY_RATE_LIMIT_UNAVAILABLE", limitResult.error);
+      return NextResponse.json(
+        { ok: false, error: `The inquiry form is temporarily unavailable. Please email ${projectEmail} directly.` },
+        { status: 503, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
+    if (limitResult.rateLimited) {
+      return NextResponse.json(
+        { ok: false, error: "Too many inquiry attempts. Please wait a minute and try again." },
+        { status: 429, headers: { "Retry-After": "60", "Cache-Control": "no-store" } }
+      );
+    }
+
+    return null;
+  } catch (error) {
+    console.error("MARKETECH_INQUIRY_RATE_LIMIT_FAILED", error);
+    return NextResponse.json(
+      { ok: false, error: `The inquiry form is temporarily unavailable. Please email ${projectEmail} directly.` },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
+    );
+  }
 }
 
 function normalize(payload: LeadPayload) {
@@ -208,6 +242,9 @@ export async function POST(request: Request) {
     if (!isSameOriginRequest(request)) {
       return NextResponse.json({ ok: false, error: "This form must be submitted from the Marketech Digital website." }, { status: 403 });
     }
+
+    const rateLimitResponse = await enforceInquiryRateLimit(request);
+    if (rateLimitResponse) return rateLimitResponse;
 
     const declaredLength = Number(request.headers.get("content-length") || "0");
     if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
