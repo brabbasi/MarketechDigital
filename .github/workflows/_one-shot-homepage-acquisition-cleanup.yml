@@ -1,0 +1,168 @@
+name: One-shot Homepage Acquisition Cleanup
+
+on:
+  push:
+    paths:
+      - '.github/workflows/_one-shot-homepage-acquisition-cleanup.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Apply bounded homepage acquisition repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          page_path = Path('app/page.tsx')
+          text = page_path.read_text(encoding='utf-8')
+          original = text
+
+          # Remove the legacy modal form that opened a personal-Gmail mailto.
+          start = text.index('function ContactModal(')
+          end = text.index('export default function Page() {', start)
+          text = text[:start] + text[end:]
+
+          text = text.replace('  const [contactOpen, setContactOpen] = useState(false);\n', '')
+          text = text.replace('  const [toast, setToast] = useState("");\n', '')
+
+          # Replace the personal-mailto handler with a bounded, non-PII handoff to
+          # the already governed /contact -> /api/inquiry flow.
+          start = text.index('  const showToast = (message: string) => {')
+          end = text.index('  return (\n', start)
+          replacement = '''  const openContact = (source: "website-contact" | "website-contact-popup" = "website-contact") => {
+    const params = new URLSearchParams({
+      source,
+      medium: "website",
+      campaign: source === "website-contact-popup" ? "site-contact-popup" : ""
+    });
+    window.location.href = `/contact?${params.toString()}`;
+  };
+
+'''
+          text = text[:start] + replacement + text[end:]
+
+          # Every existing homepage/modal CTA now hands off to the governed contact page.
+          text = text.replace('setContactOpen(true)', 'openContact("website-contact-popup")')
+
+          # Keep FAQ structured data on the visible homepage, but remove the duplicate
+          # Organization/Service graph. Canonical organization/service JSON-LD lives in layout.tsx.
+          script_start = text.index('      <script\n        type="application/ld+json"')
+          header_start = text.index('      <header>', script_start)
+          faq_script = '''      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faq.map((item) => ({
+              "@type": "Question",
+              name: item.q,
+              acceptedAnswer: { "@type": "Answer", text: item.a }
+            }))
+          })
+        }}
+      />
+'''
+          text = text[:script_start] + faq_script + text[header_start:]
+
+          # Replace the old inline contact fields with a clear CTA into the governed form.
+          contact_start = text.index('        <section className="container section" id="contact"')
+          contact_end = text.index('        </section>', contact_start) + len('        </section>')
+          contact_section = '''        <section className="container section" id="contact" aria-label="Contact section">
+          <div className="contact-card">
+            <SectionLabel>Contact</SectionLabel>
+            <div className="section-head" style={{ marginBottom: 10 }}>
+              <h2>Start the conversation.</h2>
+              <p>Tell Marketech Digital what you want to build, improve, automate, or grow. Your inquiry continues through our governed contact flow so it can be measured and followed up reliably.</p>
+            </div>
+            <div className="hero-actions">
+              <button className="btn btn-primary" onClick={() => openContact("website-contact")}>Continue to inquiry form →</button>
+            </div>
+          </div>
+        </section>'''
+          text = text[:contact_start] + contact_section + text[contact_end:]
+
+          # Remove now-dead modal/toast mounts.
+          text = '\n'.join(
+              line for line in text.splitlines()
+              if '<ContactModal ' not in line and '<div className={`toast ' not in line
+          ) + '\n'
+
+          # ContactFields is no longer used; remove the old duplicate homepage form implementation.
+          marker = '\nfunction ContactFields('
+          if marker in text:
+              text = text[:text.index(marker)].rstrip() + '\n'
+
+          assert text != original, 'homepage repair produced no changes'
+          assert 'abasitabbasi99@gmail.com' not in text
+          assert 'mailto:' not in text
+          assert 'sendEmail' not in text
+          assert 'ContactModal' not in text
+          assert 'ContactFields' not in text
+          assert '"@type": "Organization"' not in text
+          assert '"@type": "FAQPage"' in text
+          assert 'window.location.href = `/contact?${params.toString()}`' in text
+          page_path.write_text(text, encoding='utf-8')
+
+          verifier_path = Path('scripts/verify-inbound-acquisition.mjs')
+          verifier = verifier_path.read_text(encoding='utf-8')
+          anchor = 'const layout = read("app/layout.tsx");\n'
+          assert anchor in verifier
+          verifier = verifier.replace(anchor, anchor + 'const homepage = read("app/page.tsx");\n', 1)
+
+          verify_anchor = 'requireText(layout, "<AcquisitionGuard />", "global guard mount");\n\n'
+          assert verify_anchor in verifier
+          checks = '''requireText(homepage, 'window.location.href = `/contact?${params.toString()}`', "homepage governed contact handoff");
+          requireText(homepage, 'source: "website-contact" | "website-contact-popup"', "homepage bounded contact sources");
+          requireText(homepage, 'medium: "website"', "homepage bounded contact medium");
+          requireText(homepage, '"@type": "FAQPage"', "homepage FAQ structured data");
+          forbidText(homepage, '"@type": "Organization"', "duplicate homepage organization structured data");
+          forbidText(homepage, "abasitabbasi99@gmail.com", "personal Gmail public contact bypass");
+          forbidText(homepage, "mailto:", "homepage mailto bypass");
+          forbidText(homepage, 'fetch("/api/lead"', "homepage legacy lead endpoint");
+          forbidText(homepage, "sendEmail", "homepage legacy email handler");
+          forbidText(homepage, "ContactFields", "homepage duplicate form implementation");
+          requireText(layout, "organizationJsonLd()", "canonical organization structured-data source");
+
+'''
+          verifier = verifier.replace(verify_anchor, verify_anchor + checks, 1)
+          verifier_path.write_text(verifier, encoding='utf-8')
+          PY
+
+          git diff --check
+          node scripts/verify-inbound-acquisition.mjs
+
+      - name: Install and build
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+
+      - name: Commit only bounded acquisition files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/page.tsx scripts/verify-inbound-acquisition.mjs
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = "app/page.tsx scripts/verify-inbound-acquisition.mjs "
+          git commit -m 'Route homepage inquiries through governed contact flow'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
