@@ -47,6 +47,7 @@ export default function IdeaGenerator() {
   const [idea, setIdea] = useState<Idea>(defaultIdea);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState("ready");
+  const [hasResult, setHasResult] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -62,8 +63,10 @@ export default function IdeaGenerator() {
       const data = await response.json();
       setIdea(normalizeIdea(data?.idea));
       setMode(data?.mode === "ai" ? "Personalized suggestion" : "Guided suggestion");
+      setHasResult(true);
     } catch {
       setMode("Connection issue");
+      setHasResult(false);
       setIdea({
         ...defaultIdea,
         title: "We could not load the idea tool right now",
@@ -74,6 +77,19 @@ export default function IdeaGenerator() {
       setLoading(false);
     }
   }
+
+  // Keep generated recommendation text on-page. Query strings can be retained in
+  // browser history, request logs and referrers, so the handoff carries only a
+  // fixed, non-PII category into the governed contact flow.
+  const contactParams = new URLSearchParams({
+    source: "idea-helper",
+    medium: "website",
+    campaign: "inbound-idea-helper",
+    service: "Not sure yet",
+    recommendedService: "Idea Helper recommendation",
+    firstTouchOffer: "Idea Helper recommendation"
+  });
+  const contactHref = `/contact?${contactParams.toString()}`;
 
   return (
     <section className="idea-lab" id="idea-generator">
@@ -108,6 +124,13 @@ export default function IdeaGenerator() {
           <h4>Good questions to ask next</h4>
           <ul>{idea.nextQuestions.map((item) => <li key={item}>{item}</li>)}</ul>
         </div>
+        {hasResult && (
+          <div className="idea-actions" aria-label="Next steps for your recommendation">
+            <p>Your recommendation is yours to keep. If you want, I can also look at your actual setup and tell you what I would prioritize first.</p>
+            <a href={contactHref}>Send me this plan →</a>
+            <a href={`${contactHref}&intent=talk-to-basit`}>Talk to Basit</a>
+          </div>
+        )}
       </div>
     </section>
   );
