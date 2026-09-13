@@ -23,6 +23,7 @@ const idea = read("app/IdeaGenerator.tsx");
 const assistant = read("app/AIAssistant.tsx");
 const guard = read("app/AcquisitionGuard.tsx");
 const layout = read("app/layout.tsx");
+const homepage = read("app/page.tsx");
 const packageJson = JSON.parse(read("package.json"));
 const rateLimitManifest = JSON.parse(read(".marketech/inquiry-rate-limit-v1.json"));
 
@@ -183,6 +184,18 @@ forbidText(guard, "window.location.search", "legacy landing query-string collect
 
 requireText(layout, 'import AcquisitionGuard from "./AcquisitionGuard"', "global guard import");
 requireText(layout, "<AcquisitionGuard />", "global guard mount");
+
+requireText(homepage, 'window.location.href = `/contact?${params.toString()}`', "homepage governed contact handoff");
+requireText(homepage, 'source: "website-contact" | "website-contact-popup"', "homepage bounded contact sources");
+requireText(homepage, 'medium: "website"', "homepage bounded contact medium");
+requireText(homepage, '"@type": "FAQPage"', "homepage FAQ structured data");
+forbidText(homepage, '"@type": "Organization"', "duplicate homepage organization structured data");
+forbidText(homepage, "abasitabbasi99@gmail.com", "personal Gmail public contact bypass");
+forbidText(homepage, "mailto:", "homepage mailto bypass");
+forbidText(homepage, 'fetch("/api/lead"', "homepage legacy lead endpoint");
+forbidText(homepage, "sendEmail", "homepage legacy email handler");
+forbidText(homepage, "ContactFields", "homepage duplicate form implementation");
+requireText(layout, "organizationJsonLd()", "canonical organization structured-data source");
 
 forbidText(contact, 'fetch("/api/lead"', "contact page legacy endpoint");
 forbidText(inquiry, "localStorage", "server route browser storage");
