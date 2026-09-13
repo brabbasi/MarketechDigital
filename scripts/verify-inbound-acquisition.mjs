@@ -24,6 +24,7 @@ const assistant = read("app/AIAssistant.tsx");
 const guard = read("app/AcquisitionGuard.tsx");
 const layout = read("app/layout.tsx");
 const homepage = read("app/page.tsx");
+const inboundCi = read(".github/workflows/inbound-acquisition-ci.yml");
 const packageJson = JSON.parse(read("package.json"));
 const rateLimitManifest = JSON.parse(read(".marketech/inquiry-rate-limit-v1.json"));
 
@@ -154,12 +155,18 @@ for (const offer of [
 }
 requireText(contact, "Tell us what you need", "broad inquiry CTA");
 
+// Homepage acquisition behavior is part of this contract; homepage-only changes
+// must trigger this workflow so mailto/send-surface and structured-data regressions
+// cannot bypass the acquisition verifier.
+requireText(inboundCi, "- 'app/page.tsx'", "homepage acquisition CI trigger");
+
 requireText(idea, "Send me this plan", "idea-helper conversion CTA");
 requireText(idea, "Talk to Basit", "founder CTA");
 requireText(idea, 'source: "idea-helper"', "idea-helper attribution");
 requireText(idea, 'firstTouchOffer: "Idea Helper recommendation"', "fixed first-touch label");
 requireText(idea, 'service: "Not sure yet"', "valid contact-service default");
-requireText(idea, "recommendedService: idea.recommendedSystem", "recommendation preservation");
+requireText(idea, 'recommendedService: "Idea Helper recommendation"', "fixed non-PII recommendation handoff");
+forbidText(idea, "recommendedService: idea.recommendedSystem", "generated recommendation text in contact URL");
 forbidText(idea, "firstTouchOffer: idea.title", "generated title in URL attribution");
 
 // AI assistant now links directly to the governed contact flow. It must not rely
