@@ -78,12 +78,15 @@ export default function IdeaGenerator() {
     }
   }
 
+  // Keep generated recommendation text on-page. Query strings can be retained in
+  // browser history, request logs and referrers, so the handoff carries only a
+  // fixed, non-PII category into the governed contact flow.
   const contactParams = new URLSearchParams({
     source: "idea-helper",
     medium: "website",
     campaign: "inbound-idea-helper",
     service: "Not sure yet",
-    recommendedService: idea.recommendedSystem,
+    recommendedService: "Idea Helper recommendation",
     firstTouchOffer: "Idea Helper recommendation"
   });
   const contactHref = `/contact?${contactParams.toString()}`;
