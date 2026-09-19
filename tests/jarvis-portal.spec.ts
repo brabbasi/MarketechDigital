@@ -18,16 +18,36 @@ test.describe("JARVIS Founder Portal", () => {
         outbound_authorized: false,
         spend_authorized: false,
       },
-      projects: [{
-        repository: "brabbasi/Marketech_Digital_OS",
-        present: true,
-        archived: false,
-        default_branch: "main",
-        head_sha: "a".repeat(40),
-        head_committed_at: "2026-09-19T19:40:00Z",
-        open_pr_count: 1,
-        open_prs: [{ number: 66, title: "Trusted Machine Bridge", head_sha: "b".repeat(40) }],
-      }],
+      projects: [
+        {
+          repository: "brabbasi/Marketech_Digital_OS",
+          present: true,
+          archived: false,
+          default_branch: "main",
+          head_sha: "a".repeat(40),
+          head_committed_at: "2026-09-19T19:40:00Z",
+          open_pr_count: 1,
+          open_prs: [{ number: 66, title: "Trusted Machine Bridge", head_sha: "b".repeat(40) }],
+        },
+        ...[
+          "brabbasi/MarketechDigital",
+          "brabbasi/Rangrez",
+          "brabbasi/deutschpath-ai",
+          "brabbasi/axiom-market-intelligence",
+          "brabbasi/Tradepilot",
+          "brabbasi/Basit-Portfolio",
+          "brabbasi/veilbound-shadows-origin",
+        ].map((repository, index) => ({
+          repository,
+          present: true,
+          archived: false,
+          default_branch: "main",
+          head_sha: String(index + 1).repeat(40),
+          head_committed_at: "2026-09-19T19:40:00Z",
+          open_pr_count: 0,
+          open_prs: [],
+        })),
+      ],
       workforce: {
         source_ref: "canonical-org",
         source_sha: "c".repeat(40),
@@ -85,6 +105,17 @@ test.describe("JARVIS Founder Portal", () => {
       },
       { nowMs, maxAgeSeconds: 600 },
     )).toThrow(/authority/);
+
+    const { autonomy: _removedAutonomy, ...partialFinishChain } = fixture.finish_chain;
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      { ...fixture, finish_chain: partialFinishChain },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/finish chain autonomy/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      { ...fixture, projects: fixture.projects.slice(0, -1) },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/project catalog incomplete/);
   });
 
   test("read model is explicit, read-only and structurally complete", async ({ request }) => {
