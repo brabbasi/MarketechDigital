@@ -1,7 +1,13 @@
 import { test, expect } from "@playwright/test";
-import { adaptTrustedControlPlaneSnapshot } from "../app/jarvis/trustedMirror";
+import { adaptTrustedControlPlaneSnapshot, jarvisStateEndpointEnabled } from "../app/jarvis/trustedMirror";
 
 test.describe("JARVIS Founder Portal", () => {
+
+  test("production state endpoint stays hard-disabled until Founder auth is implemented", () => {
+    expect(jarvisStateEndpointEnabled("production")).toBe(false);
+    expect(jarvisStateEndpointEnabled("preview")).toBe(true);
+    expect(jarvisStateEndpointEnabled(undefined)).toBe(true);
+  });
 
   test("trusted control-plane mirror adapter is freshness and authority bound", async () => {
     const nowMs = Date.parse("2026-09-19T19:45:00Z");
