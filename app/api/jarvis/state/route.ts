@@ -39,6 +39,7 @@ function unavailable(reason: string) {
       status: "unavailable",
       source: "mirror",
       reason,
+      portal: portalMetadata(),
     },
     {
       status: 503,
@@ -54,6 +55,7 @@ export async function GET() {
         status: "unavailable",
         source: "none",
         reason: "founder_auth_required",
+        portal: portalMetadata(),
       },
       {
         status: 503,
@@ -123,6 +125,7 @@ export async function GET() {
         status: "unavailable",
         source: "none",
         reason: "jarvis_mirror_not_configured",
+        portal: portalMetadata(),
       },
       {
         status: 503,
