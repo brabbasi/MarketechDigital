@@ -104,6 +104,26 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.revenue.outboundHeld).toBe(true);
   });
 
+  test("unavailable read model hides sample company state", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.route("**/api/jarvis/state", async route => {
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ status: "unavailable", source: "mirror", reason: "qa_forced_unavailable" }),
+      });
+    });
+
+    await page.goto("/jarvis");
+    await expect(page.getByTestId("read-model-gate")).toBeVisible();
+    await expect(page.getByText("JARVIS will not show demo data as live state.")).toBeVisible();
+    await expect(page.getByText("Agent Constellation")).toHaveCount(0);
+    await expect(page.getByTestId("project-rangrez")).toHaveCount(0);
+    await expect(page.getByTestId("read-model-status")).toContainText("UNAVAILABLE");
+    await page.screenshot({ path: "artifacts/jarvis-read-model-unavailable.png", fullPage: true });
+  });
+
   test("desktop cockpit stays compact and makes project-to-agent focus obvious", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chromium");
 
