@@ -16,7 +16,8 @@ const stateLabel: Record<JarvisAgent["state"],string> = {
   ready:"READY",
   blocked:"BLOCKED",
   review:"REVIEW",
-  training:"TRAINING"
+  training:"TRAINING",
+  unknown:"UNKNOWN"
 };
 
 const taskLabel: Record<TaskState,string> = {
@@ -112,10 +113,26 @@ export default function JarvisPortal() {
   function askJarvis(){
     const normalized=query.toLowerCase();
     let answer="I can summarize company state, agent assignments, project worklanes, approvals and blockers from the governed read model.";
-    if(normalized.includes("block")) answer="Current preview focus: JARVIS is gated at the exact-head Trusted Bridge review; Capability Lab certification is waiting on hosted runner allocation. Project lanes remain independently preserved.";
-    if(normalized.includes("agent")) answer=`${agents.filter(a=>a.state==="running").length} agents are shown running in this prototype. Select any agent to inspect its projects, workers, history and skills.`;
-    if(normalized.includes("approval")) answer="The Founder rail shows approval objects separately from ordinary blockers. These buttons are preview-only until signed Founder Intents and Trusted Bridge consumption are implemented.";
-    if(normalized.includes("revenue")) answer="Canonical revenue research has 48 qualified prospects; the newest 12 packets await independent review. Outbound remains intentionally held.";
+    if(normalized.includes("block")){
+      const blocked=tasks.filter(task=>task.state==="blocked");
+      answer=blocked.length
+        ? `The current read model exposes ${blocked.length} blocked item${blocked.length===1?"":"s"}: ${blocked.slice(0,3).map(task=>task.title).join("; ")}.`
+        : "The current read model exposes no blocked task. That does not imply unexposed systems are healthy.";
+    }
+    if(normalized.includes("agent")){
+      const running=agents.filter(agent=>agent.state==="running").length;
+      const unknown=agents.filter(agent=>agent.state==="unknown").length;
+      answer=snapshot?.source==="mirror"
+        ? `The sanitized mirror explicitly marks ${running} agent${running===1?"":"s"} running and leaves ${unknown} agent${unknown===1?"":"s"} with unknown live activity. I will not infer activity from org membership.`
+        : `${running} agents are shown running in this preview. Select any agent to inspect its projects, workers, history and skills.`;
+    }
+    if(normalized.includes("approval")){
+      const needsFounder=tasks.filter(task=>task.state==="founder");
+      answer=`The current read model exposes ${needsFounder.length} item${needsFounder.length===1?"":"s"} needing Founder action. The remote signed-intent path is still off, so this portal does not record a decision yet.`;
+    }
+    if(normalized.includes("revenue") && snapshot){
+      answer=`The read model shows ${snapshot.revenue.qualifiedProspects} qualified prospects and ${snapshot.revenue.pendingIndependentReview} pending independent review. Outbound is ${snapshot.revenue.outboundHeld?"held":"not marked held"} by the current authority state.`;
+    }
     setJarvisAnswer(answer);
     setQuery("");
   }
@@ -198,7 +215,7 @@ export default function JarvisPortal() {
         <section className={styles.center}>
           <div className={styles.sceneHeader}>
             <div><small>COMPANY VIEW · {readModelStatus.toUpperCase()}</small><h1>Agent Constellation</h1><p>{readModelStatus==="mirror"?"Sanitized trusted mirror. Drag an agent onto a project to request assistance.":"Preview data only. Drag an agent onto a project to rehearse bounded assistance."}</p></div>
-            <div className={styles.companyStats}><b>{agents.filter(a=>a.state==="running").length}<small>running</small></b><b>{tasks.filter(t=>t.state==="live").length}<small>live tasks</small></b><b>{tasks.filter(t=>t.state==="founder").length}<small>needs you</small></b></div>
+            <div className={styles.companyStats}><b>{snapshot.source==="mirror"?"—":agents.filter(a=>a.state==="running").length}<small>{snapshot.source==="mirror"?"activity":"running"}</small></b><b>{tasks.filter(t=>t.state==="live").length}<small>live tasks</small></b><b>{tasks.filter(t=>t.state==="founder").length}<small>needs you</small></b></div>
           </div>
 
           <div className={styles.scene} data-testid="agent-scene">
