@@ -24,6 +24,7 @@ export type JarvisProject = {
   area: string;
   state: ProjectState;
   progress: number;
+  progressKnown?: boolean;
   objective: string;
   now: string;
   next: string;
@@ -70,6 +71,13 @@ export type JarvisState = {
     reviewer: string;
     runtime: string;
     autonomy: string;
+  };
+  mirror?: {
+    contract: string;
+    ageSeconds: number;
+    sourceRepository: string;
+    workforceSourceSha?: string;
+    authoritySafe: boolean;
   };
 };
 
