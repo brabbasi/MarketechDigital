@@ -215,10 +215,10 @@ function decodeBase32(value: string): Uint8Array | null {
 
 async function totpAt(secret: Uint8Array, counter: number): Promise<string> {
   const counterBytes = new Uint8Array(8);
-  let remaining = BigInt(counter);
+  let remaining = Math.max(0, Math.floor(counter));
   for (let index = 7; index >= 0; index -= 1) {
-    counterBytes[index] = Number(remaining & 0xffn);
-    remaining >>= 8n;
+    counterBytes[index] = remaining % 256;
+    remaining = Math.floor(remaining / 256);
   }
   const key = await crypto.subtle.importKey(
     "raw",
