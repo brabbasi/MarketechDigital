@@ -91,6 +91,12 @@ test.describe("JARVIS Founder Portal", () => {
     const viewportWidth = await page.evaluate(() => window.innerWidth);
     expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 2);
 
+    const sceneBox = await page.getByTestId("agent-scene").boundingBox();
+    const horizonBox = await page.getByTestId("task-horizon").boundingBox();
+    expect(sceneBox).not.toBeNull();
+    expect(horizonBox).not.toBeNull();
+    expect(horizonBox!.y).toBeGreaterThanOrEqual(sceneBox!.y + sceneBox!.height - 2);
+
     await page.screenshot({ path: "artifacts/jarvis-mobile.png", fullPage: true });
   });
 });
