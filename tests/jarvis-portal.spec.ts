@@ -146,6 +146,15 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.portal?.environment).toBeTruthy();
   });
 
+  test("Founder login remains staged and fail-closed in preview QA", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.goto("/jarvis/login");
+    await expect(page.getByRole("heading", { name: "Founder authentication" })).toBeVisible();
+    await expect(page.getByTestId("founder-auth-status")).toContainText("staged but not activated");
+    await expect(page.getByRole("button", { name: "Verify Founder" })).toBeDisabled();
+  });
+
   test("unavailable read model hides sample company state", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chromium");
 
