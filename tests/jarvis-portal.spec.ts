@@ -26,9 +26,15 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByTestId("approvals-title")).toBeVisible();
     await expect(page.getByTestId("read-model-status")).toContainText("READ MODEL");
 
-    const initialHeight = await page.evaluate(() => document.documentElement.scrollHeight);
-    const viewportHeight = await page.evaluate(() => window.innerHeight);
-    expect(initialHeight).toBeLessThanOrEqual(viewportHeight + 16);
+    const layout = await page.evaluate(() => ({
+      scrollHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+      publicHeaderPresent: !!document.querySelector(".standard-page-header-shell"),
+      bodyOverflowX: getComputedStyle(document.body).overflowX,
+    }));
+    expect(layout.publicHeaderPresent).toBe(false);
+    expect(layout.scrollHeight).toBeLessThanOrEqual(layout.viewportHeight + 16);
+    expect(layout.bodyOverflowX).not.toBe("scroll");
 
     await page.getByTestId("project-rangrez").click();
     await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
@@ -48,9 +54,9 @@ test.describe("JARVIS Founder Portal", () => {
     await page.getByTestId("agent-engineering").click();
 
     await expect(page.getByText("AGENT INSPECTOR")).toBeVisible();
-    await expect(page.getByText("Workers")).toBeVisible();
-    await expect(page.getByText("Skills")).toBeVisible();
-    await expect(page.getByText("Recent agent history")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Workers" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Skills" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Recent agent history" })).toBeVisible();
     await expect(page.getByText("Codebase Memory")).toBeVisible();
 
     await page.screenshot({ path: "artifacts/jarvis-agent-inspector.png", fullPage: true });
