@@ -1,51 +1,14 @@
 import { NextResponse } from "next/server";
-import { demoJarvisState, type JarvisState } from "../../../jarvis/jarvisState";
+import { demoJarvisState } from "../../../jarvis/jarvisState";
 import { adaptTrustedControlPlaneSnapshot } from "../../../jarvis/trustedMirror";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-function isJarvisState(value: unknown): value is JarvisState {
-  if (!value || typeof value !== "object") return false;
-  const state = value as Partial<JarvisState>;
-  return (
-    state.schemaVersion === 1 &&
-    state.authority === "read_only" &&
-    Array.isArray(state.agents) &&
-    Array.isArray(state.projects) &&
-    state.projects.every(project =>
-      !!project &&
-      typeof project.id === "string" &&
-      typeof project.objective === "string" &&
-      typeof project.now === "string" &&
-      typeof project.next === "string" &&
-      typeof project.lastUpdate === "string" &&
-      Array.isArray(project.agentIds) &&
-      Array.isArray(project.assignments) &&
-      project.assignments.every(assignment =>
-        !!assignment &&
-        typeof assignment.agentId === "string" &&
-        ["Primary","Assist","Specialist","Reviewer","Observer","Shadow"].includes(assignment.role)
-      )
-    ) &&
-    Array.isArray(state.tasks) &&
-    state.tasks.every(task => !!task && typeof task.id === "string" && typeof task.projectId === "string") &&
-    !!state.revenue &&
-    !!state.finishChain
-  );
-}
-
 function maxMirrorAgeSeconds(): number {
   const raw = Number.parseInt(process.env.JARVIS_MIRROR_MAX_AGE_SECONDS ?? "600", 10);
   if (!Number.isFinite(raw)) return 600;
   return Math.min(Math.max(raw, 30), 3600);
-}
-
-function isFreshMirrorState(state: JarvisState, maxAgeSeconds: number): boolean {
-  const generatedMs = Date.parse(state.generatedAt);
-  if (!Number.isFinite(generatedMs)) return false;
-  const ageSeconds = Math.floor((Date.now() - generatedMs) / 1000);
-  return ageSeconds >= -60 && ageSeconds <= maxAgeSeconds;
 }
 
 function mirrorUrlAllowed(value: string): boolean {
@@ -104,23 +67,16 @@ export async function GET() {
 
       const payload: unknown = await response.json();
       const maxAgeSeconds = maxMirrorAgeSeconds();
-      let normalized: JarvisState;
+      let normalized;
 
-      if (isJarvisState(payload) && payload.source === "mirror") {
-        if (!isFreshMirrorState(payload, maxAgeSeconds)) {
+      try {
+        normalized = adaptTrustedControlPlaneSnapshot(payload, { maxAgeSeconds });
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : "";
+        if (detail.includes("stale") || detail.includes("future")) {
           return unavailable("mirror_stale_or_clock_invalid");
         }
-        normalized = payload;
-      } else {
-        try {
-          normalized = adaptTrustedControlPlaneSnapshot(payload, { maxAgeSeconds });
-        } catch (error) {
-          const detail = error instanceof Error ? error.message : "";
-          if (detail.includes("stale") || detail.includes("future")) {
-            return unavailable("mirror_stale_or_clock_invalid");
-          }
-          return unavailable("invalid_mirror_contract");
-        }
+        return unavailable("invalid_mirror_contract");
       }
 
       return NextResponse.json(normalized, {
