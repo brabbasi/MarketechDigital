@@ -87,6 +87,22 @@
 }
 .founder strong,.founder small{display:block}.founder strong{font-size:10px}.founder small{margin-top:2px;color:#6c8fab;font-size:7px;letter-spacing:.08em}
 
+
+.stateGate{
+  position:relative;
+  z-index:4;
+  height:calc(100vh - 104px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:28px;
+}
+.stateGate small{font-size:8px;letter-spacing:.16em;color:#5fb8e9}
+.stateGate h1{max-width:720px;margin:10px 0 7px;font-size:26px;letter-spacing:.02em;color:#e2f5ff}
+.stateGate p{max-width:620px;margin:0;color:#7898ad;font-size:10px;line-height:1.65}
+
 .layout{
   position:relative;z-index:2;height:calc(100vh - 104px);
   display:grid;grid-template-columns:280px minmax(0,1fr) 370px;
