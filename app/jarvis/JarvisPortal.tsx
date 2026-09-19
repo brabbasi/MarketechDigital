@@ -153,7 +153,7 @@ export default function JarvisPortal() {
             <div className={styles.companyStats}><b>{agents.filter(a=>a.state==="running").length}<small>running</small></b><b>{tasks.filter(t=>t.state==="live").length}<small>live tasks</small></b><b>{tasks.filter(t=>t.state==="founder").length}<small>needs you</small></b></div>
           </div>
 
-          <div className={styles.scene}>
+          <div className={styles.scene} data-testid="agent-scene">
             <div className={styles.orbitA}/><div className={styles.orbitB}/><div className={styles.orbitC}/>
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{agents.map(agent=><line key={agent.id} className={assigned.has(agent.id)?styles.beamActive:styles.beam} x1="50" y1="50" x2={agent.x} y2={agent.y}/>)}</svg>
             <button className={styles.core} onClick={()=>setSelectedAgentId(null)}><span>J</span><strong>JARVIS</strong><small>COMPANY BRAIN</small><em>{selectedProject.name}</em></button>
@@ -169,7 +169,7 @@ export default function JarvisPortal() {
             <div className={styles.sceneLegend}><span><i className={styles.runningDot}/>working</span><span><i className={styles.reviewDot}/>review</span><span><i className={styles.trainingDot}/>learning</span><span>bright beam = assigned to selected project</span></div>
           </div>
 
-          <div className={styles.taskHorizon}>
+          <div className={styles.taskHorizon} data-testid="task-horizon">
             {(["live","next","queued","review","founder","blocked","done"] as TaskState[]).map(state=><div key={state}><header>{taskLabel[state]} <b>{tasks.filter(t=>t.state===state).length}</b></header>{tasks.filter(t=>t.state===state).slice(0,2).map(task=><button key={task.id} onClick={()=>setSelectedTaskId(task.id)}><strong>{task.title}</strong><small>{task.project} · {task.agent}</small></button>)}</div>)}
           </div>
         </section>
