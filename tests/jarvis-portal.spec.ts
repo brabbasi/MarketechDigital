@@ -3,10 +3,11 @@ import { adaptTrustedControlPlaneSnapshot, jarvisStateEndpointEnabled } from "..
 
 test.describe("JARVIS Founder Portal", () => {
 
-  test("production state endpoint stays hard-disabled until Founder auth is implemented", () => {
-    expect(jarvisStateEndpointEnabled("production")).toBe(false);
-    expect(jarvisStateEndpointEnabled("preview")).toBe(true);
-    expect(jarvisStateEndpointEnabled(undefined)).toBe(true);
+  test("production state endpoint requires a verified Founder session", () => {
+    expect(jarvisStateEndpointEnabled("production", false)).toBe(false);
+    expect(jarvisStateEndpointEnabled("production", true)).toBe(true);
+    expect(jarvisStateEndpointEnabled("preview", false)).toBe(true);
+    expect(jarvisStateEndpointEnabled(undefined, false)).toBe(true);
   });
 
   test("trusted control-plane mirror adapter is freshness and authority bound", async () => {
