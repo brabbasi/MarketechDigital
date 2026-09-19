@@ -44,6 +44,7 @@ export default function JarvisPortal() {
   const [query,setQuery] = useState("");
   const [jarvisAnswer,setJarvisAnswer] = useState("Ask what changed, what is blocked, which agents are working, or what needs your approval.");
   const [approvalState,setApprovalState] = useState<Record<string,string>>({});
+  const [mobileView,setMobileView] = useState<"jarvis"|"agents"|"projects"|"tasks"|"approvals"|"history">("jarvis");
 
   useEffect(() => {
     let cancelled = false;
@@ -185,6 +186,101 @@ export default function JarvisPortal() {
         <div className={styles.askTop}><span>⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&askJarvis()} placeholder="Ask JARVIS anything..."/><button onClick={askJarvis}>ASK</button></div>
         <div className={styles.founder}><i/><div><strong>Founder</strong><small>{readModelStatus.toUpperCase()} READ MODEL · NO AUTHORITY</small></div></div>
       </header>
+
+      <nav className={styles.mobileNav} data-testid="mobile-nav" aria-label="JARVIS mobile sections">
+        {([
+          ["jarvis","JARVIS"],
+          ["agents","Agents"],
+          ["projects","Projects"],
+          ["tasks","Tasks"],
+          ["approvals","Approvals"],
+          ["history","History"],
+        ] as const).map(([id,label])=><button key={id} className={mobileView===id?styles.mobileNavActive:""} onClick={()=>setMobileView(id)}>{label}</button>)}
+      </nav>
+
+      <div className={styles.mobileShell} data-testid="mobile-shell">
+        {mobileView==="jarvis"&&<section className={styles.mobileHome} data-testid="mobile-home">
+          <div className={styles.mobileBrief}>
+            <div><small>FOUNDER SNAPSHOT</small><span>{snapshot.source.toUpperCase()} · READ ONLY{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s`:""}</span></div>
+            <h1>Good afternoon, Basit.</h1>
+            <p>{snapshot.source==="mirror"?"Trusted mirror only. Unknown activity stays unknown.":"Preview mode for product and interaction QA."}</p>
+            <div className={styles.mobilePulse}>
+              <b>{tasks.filter(t=>t.state==="live").length}<small>live</small></b>
+              <b>{tasks.filter(t=>t.state==="review").length}<small>review</small></b>
+              <b>{tasks.filter(t=>t.state==="blocked").length}<small>blocked</small></b>
+              <b>{tasks.filter(t=>t.state==="founder").length}<small>needs you</small></b>
+            </div>
+          </div>
+
+          <div className={styles.mobileAgentWheel}>
+            <div className={styles.mobileCore}><b>J</b><span>JARVIS</span></div>
+            {agents.slice(0,6).map(agent=><button data-testid={`mobile-agent-${agent.id}`} key={agent.id} onClick={()=>setSelectedAgentId(agent.id)} className={styles[agent.state]}>
+              <b>{agent.short}</b><span>{agent.name}</span><small>{stateLabel[agent.state]}</small>
+            </button>)}
+          </div>
+
+          <section className={styles.mobileNeeds}>
+            <header><span>NEEDS YOU</span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
+            {approvalItems.slice(0,2).map(item=><article key={item.id}>
+              <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
+              {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Reject</button></span>}
+            </article>)}
+            {approvalItems.length>2&&<button className={styles.mobileMore} onClick={()=>setMobileView("approvals")}>View all approvals</button>}
+          </section>
+
+          <section className={styles.mobileAsk}>
+            <header>ASK JARVIS</header>
+            <div>{jarvisAnswer}</div>
+            <label><input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&askJarvis()} placeholder="What changed? What is blocked?"/><button onClick={askJarvis}>Ask</button></label>
+          </section>
+        </section>}
+
+        {mobileView==="agents"&&<section className={styles.mobilePanel} data-testid="mobile-agents">
+          <header><div><small>WORKFORCE</small><h2>Agents</h2></div><b>{agents.length}</b></header>
+          <div className={styles.mobileAgentList}>{agents.map(agent=><button data-testid={`mobile-list-agent-${agent.id}`} key={agent.id} onClick={()=>setSelectedAgentId(agent.id)}>
+            <b className={styles[agent.state]}>{agent.short}</b><div><strong>{agent.name}</strong><small>{agent.department} · {stateLabel[agent.state]}</small></div><em>{agent.workers.length} workers</em>
+          </button>)}</div>
+        </section>}
+
+        {mobileView==="projects"&&<section className={styles.mobilePanel} data-testid="mobile-projects">
+          <header><div><small>WORKLANES</small><h2>Projects</h2></div><b>{projects.length}</b></header>
+          <div className={styles.mobileProjectList}>{projects.map(project=><button data-testid={`mobile-project-${project.id}`} key={project.id} onClick={()=>setSelectedProjectId(project.id)}>
+            <div><strong>{project.name}</strong><small>{project.area}</small></div><em className={styles[project.state]}>{project.progressKnown===false?"UNKNOWN":`${project.progress}%`}</em>
+            <span>{project.now}</span>
+          </button>)}</div>
+          <article className={styles.mobileProjectFocus}>
+            <small>SELECTED</small><h3>{selectedProject.name}</h3><p>{selectedProject.now}</p><p><b>Next:</b> {selectedProject.next}</p>
+          </article>
+        </section>}
+
+        {mobileView==="tasks"&&<section className={styles.mobilePanel} data-testid="mobile-tasks">
+          <header><div><small>MISSION HORIZON</small><h2>Tasks</h2></div><b>{tasks.length}</b></header>
+          <div className={styles.mobileTaskGroups}>{(["live","next","queued","review","founder","blocked","done"] as TaskState[]).map(state=>{
+            const bucket=tasks.filter(task=>task.state===state);
+            return <section key={state}><header><span>{taskLabel[state]}</span><b>{bucket.length}</b></header>{bucket.slice(0,5).map(task=><button key={task.id} onClick={()=>setSelectedTaskId(task.id)}><strong>{task.title}</strong><small>{task.project} · {task.agent}</small></button>)}</section>
+          })}</div>
+        </section>}
+
+        {mobileView==="approvals"&&<section className={styles.mobilePanel} data-testid="mobile-approvals">
+          <header><div><small>FOUNDER CONTROL</small><h2>Approvals</h2></div><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
+          <div className={styles.mobileApprovalList}>{approvalItems.map(item=><article key={item.id}>
+            <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
+            {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Reject</button></span>}
+          </article>)}</div>
+          <p className={styles.mobileSafety}>{snapshot.source==="mirror"?"Read-only mirror. Signed Founder Intents are not active.":"Preview decisions only; no consequential authority."}</p>
+        </section>}
+
+        {mobileView==="history"&&<section className={styles.mobilePanel} data-testid="mobile-history">
+          <header><div><small>PROVENANCE</small><h2>History</h2></div><b>{selectedProject.history.length}</b></header>
+          <article className={styles.mobileProjectFocus}><small>SELECTED PROJECT</small><h3>{selectedProject.name}</h3><p>{selectedProject.lastUpdate}</p></article>
+          <div className={styles.mobileHistoryList}>{selectedProject.history.map(entry=><div key={entry}><b>{entry}</b><small>project evidence retained</small></div>)}</div>
+          <article className={styles.mobileProvenance}>
+            <small>READ MODEL</small><strong>{snapshot.source.toUpperCase()}</strong>
+            <span>{snapshot.mirror?.contract || "demo-preview-v1"}</span>
+            <span>{snapshot.mirror?.workforceSourceSha ? `workforce ${snapshot.mirror.workforceSourceSha.slice(0,12)}…` : "No live workforce provenance in demo mode"}</span>
+          </article>
+        </section>}
+      </div>
 
       <div className={styles.layout}>
         <aside className={styles.projects}>
