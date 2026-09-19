@@ -12,7 +12,8 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.source).toBe("demo");
     expect(payload.authority).toBe("read_only");
     expect(payload.agents.length).toBeGreaterThanOrEqual(8);
-    expect(payload.projects.length).toBeGreaterThanOrEqual(6);
+    expect(payload.projects.length).toBeGreaterThanOrEqual(10);
+    expect(payload.projects.every((project: { objective?: string; next?: string; assignments?: unknown[] }) => project.objective && project.next && Array.isArray(project.assignments))).toBe(true);
     expect(payload.tasks.length).toBeGreaterThanOrEqual(6);
     expect(payload.revenue.outboundHeld).toBe(true);
   });
@@ -39,6 +40,10 @@ test.describe("JARVIS Founder Portal", () => {
 
     await page.getByTestId("project-rangrez").click();
     await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
+    await expect(page.getByTestId("project-worklane")).toContainText("Product convergence + visual QA");
+    await expect(page.getByTestId("project-worklane")).toContainText("NEXT");
+    await expect(page.getByTestId("project-worklane")).toContainText("PRIMARY");
+    await expect(page.getByTestId("project-worklane")).toContainText("REVIEWER");
 
     const relatedCount = await page.locator('button[data-testid^="agent-"][data-assigned="true"]').count();
     const unrelatedCount = await page.locator('button[data-testid^="agent-"][data-assigned="false"]').count();
@@ -58,6 +63,7 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByRole("heading", { name: "Workers" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Skills" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Recent agent history" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Project roles" })).toBeVisible();
     await expect(page.getByText("Codebase Memory")).toBeVisible();
 
     await page.screenshot({ path: "artifacts/jarvis-agent-inspector.png", fullPage: true });
@@ -95,7 +101,10 @@ test.describe("JARVIS Founder Portal", () => {
     const horizonBox = await page.getByTestId("task-horizon").boundingBox();
     expect(sceneBox).not.toBeNull();
     expect(horizonBox).not.toBeNull();
-    expect(horizonBox!.y).toBeGreaterThanOrEqual(sceneBox!.y + sceneBox!.height - 2);
+    const worklaneBox = await page.getByTestId("project-worklane").boundingBox();
+    expect(worklaneBox).not.toBeNull();
+    expect(worklaneBox!.y).toBeGreaterThanOrEqual(sceneBox!.y + sceneBox!.height - 2);
+    expect(horizonBox!.y).toBeGreaterThanOrEqual(worklaneBox!.y + worklaneBox!.height - 2);
 
     await page.screenshot({ path: "artifacts/jarvis-mobile.png", fullPage: true });
   });
