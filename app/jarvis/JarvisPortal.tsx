@@ -30,11 +30,11 @@ const taskLabel: Record<TaskState,string> = {
 };
 
 export default function JarvisPortal() {
-  const [snapshot,setSnapshot] = useState<JarvisState>(demoJarvisState);
-  const [projects,setProjects] = useState<JarvisProject[]>(demoJarvisState.projects);
+  const [snapshot,setSnapshot] = useState<JarvisState | null>(null);
+  const [projects,setProjects] = useState<JarvisProject[]>([]);
   const [readModelStatus,setReadModelStatus] = useState<"loading"|"demo"|"mirror"|"unavailable">("loading");
-  const agents = snapshot.agents;
-  const tasks = snapshot.tasks;
+  const agents = snapshot?.agents ?? [];
+  const tasks = snapshot?.tasks ?? [];
   const [selectedProjectId,setSelectedProjectId] = useState("jarvis");
   const [selectedAgentId,setSelectedAgentId] = useState<string | null>(null);
   const [selectedTaskId,setSelectedTaskId] = useState<string | null>(null);
@@ -51,7 +51,11 @@ export default function JarvisPortal() {
       try {
         const response = await fetch("/api/jarvis/state", { cache: "no-store" });
         if (!response.ok) {
-          if (!cancelled) setReadModelStatus("unavailable");
+          if (!cancelled) {
+            setSnapshot(null);
+            setProjects([]);
+            setReadModelStatus("unavailable");
+          }
           return;
         }
         const next = (await response.json()) as JarvisState;
@@ -60,7 +64,11 @@ export default function JarvisPortal() {
         setProjects(next.projects);
         setReadModelStatus(next.source);
       } catch {
-        if (!cancelled) setReadModelStatus("unavailable");
+        if (!cancelled) {
+          setSnapshot(null);
+          setProjects([]);
+          setReadModelStatus("unavailable");
+        }
       }
     }
 
@@ -72,11 +80,11 @@ export default function JarvisPortal() {
     };
   }, []);
 
-  const selectedProject = useMemo(() => projects.find(p=>p.id===selectedProjectId) || projects[0], [projects,selectedProjectId]);
-  const selectedAgent = useMemo(() => agents.find(a=>a.id===selectedAgentId) || null,[selectedAgentId]);
+  const selectedProject = useMemo(() => projects.find(p=>p.id===selectedProjectId) || projects[0] || null, [projects,selectedProjectId]);
+  const selectedAgent = useMemo(() => agents.find(a=>a.id===selectedAgentId) || null,[agents,selectedAgentId]);
   const selectedTask = useMemo(() => tasks.find(t=>t.id===selectedTaskId) || null,[tasks,selectedTaskId]);
-  const projectTasks = useMemo(() => tasks.filter(t=>t.projectId===selectedProject.id),[tasks,selectedProject.id]);
-  const assigned = new Set(selectedProject.agentIds);
+  const projectTasks = useMemo(() => selectedProject ? tasks.filter(t=>t.projectId===selectedProject.id) : [],[tasks,selectedProject]);
+  const assigned = new Set(selectedProject?.agentIds ?? []);
 
   function startDrag(event:DragEvent<HTMLButtonElement>,agentId:string){
     event.dataTransfer.setData("text/agent-id",agentId);
@@ -89,6 +97,11 @@ export default function JarvisPortal() {
   }
   function confirmAssignment(){
     if(!pendingAssignment) return;
+    if(snapshot?.source==="mirror"){
+      setJarvisAnswer("The live Founder Intent path is not activated yet. No assignment was written; the trusted mirror remains read-only.");
+      setPendingAssignment(null);
+      return;
+    }
     setProjects(current=>current.map(project=>{
       if(project.id!==pendingAssignment.projectId || project.agentIds.includes(pendingAssignment.agentId)) return project;
       return {...project,agentIds:[...project.agentIds,pendingAssignment.agentId],assignments:[...project.assignments,{agentId:pendingAssignment.agentId,role:assignmentRole as JarvisProject["assignments"][number]["role"]}]};
@@ -107,11 +120,45 @@ export default function JarvisPortal() {
     setQuery("");
   }
 
-  const approvalItems=[
-    {id:"a1",title:"Phase-A autonomy canary",meta:"JARVIS · exact target required",risk:"LOW"},
-    {id:"a2",title:"Production portal activation",meta:"Website · auth + review required",risk:"MED"},
-    {id:"a3",title:"Skill promotion candidate",meta:"Agent Skill Fabric · reviewer required",risk:"LOW"},
-  ];
+  const approvalItems = snapshot?.source==="mirror"
+    ? tasks.filter(task=>task.state==="founder").slice(0,5).map(task=>({
+        id:task.id,
+        title:task.title,
+        meta:`${task.project} · ${task.agent}`,
+        risk:"GATED",
+      }))
+    : [
+        {id:"a1",title:"Phase-A autonomy canary",meta:"JARVIS · exact target required",risk:"LOW"},
+        {id:"a2",title:"Production portal activation",meta:"Website · auth + review required",risk:"MED"},
+        {id:"a3",title:"Skill promotion candidate",meta:"Agent Skill Fabric · reviewer required",risk:"LOW"},
+      ];
+
+  function recordApprovalPreview(id:string, decision:"APPROVED PREVIEW"|"REJECTED PREVIEW"){
+    if(snapshot?.source==="mirror"){
+      setJarvisAnswer("Founder Intent signing is not activated. The trusted mirror is read-only, so no approval or rejection was recorded.");
+      return;
+    }
+    setApprovalState(state=>({...state,[id]:decision}));
+  }
+
+  if(!snapshot || !selectedProject){
+    return (
+      <main className={styles.portal}>
+        <div className={styles.grid}/>
+        <header className={styles.topbar}>
+          <div className={styles.brand}><span className={styles.mark}>M</span><div><strong>MARKETECH DIGITAL</strong><small>JARVIS · COMPANY OS</small></div></div>
+          <div className={styles.askTop}><span>⌕</span><input disabled placeholder="JARVIS read model unavailable"/><button disabled>ASK</button></div>
+          <div className={styles.founder}><i/><div><strong>Founder</strong><small>{readModelStatus.toUpperCase()} · NO AUTHORITY</small></div></div>
+        </header>
+        <section className={styles.stateGate} data-testid="read-model-gate">
+          <small>{readModelStatus==="loading"?"CONNECTING TO READ MODEL":"READ MODEL UNAVAILABLE"}</small>
+          <h1>{readModelStatus==="loading"?"Loading governed company state…":"JARVIS will not show demo data as live state."}</h1>
+          <p>{readModelStatus==="loading"?"Waiting for a validated DEMO or Trusted Control Plane mirror response.":"The current mirror is missing, stale, malformed, or unreachable. Remote authority remains off and stale company data is hidden."}</p>
+        </section>
+        <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL</span><span>FAIL CLOSED · NO STALE FALLBACK</span><span>REMOTE AUTHORITY OFF</span></footer>
+      </main>
+    );
+  }
 
   return (
     <main className={styles.portal}>
@@ -131,9 +178,9 @@ export default function JarvisPortal() {
               const active=project.id===selectedProject.id;
               return <button data-testid={`project-${project.id}`} key={project.id} className={active?styles.projectActive:""} onClick={()=>setSelectedProjectId(project.id)} onDragOver={e=>e.preventDefault()} onDrop={e=>dropAgent(e,project.id)}>
                 <div><strong>{project.name}</strong><small>{project.area}</small></div>
-                <span className={styles[project.state]}>{project.progress}%</span>
+                <span className={styles[project.state]}>{project.progressKnown===false?"—":`${project.progress}%`}</span>
                 <em>{project.agentIds.length} agents</em>
-                <div className={styles.projectProgress}><i style={{width:`${project.progress}%`}}/></div>
+                <div className={styles.projectProgress}><i style={{width:project.progressKnown===false?"0%":`${project.progress}%`}}/></div>
                 <div className={styles.projectAgents}>
                   {project.agentIds.slice(0,5).map(id=><b key={id}>{agents.find(a=>a.id===id)?.short || "?"}</b>)}
                   {project.agentIds.length>5&&<b>+{project.agentIds.length-5}</b>}
@@ -173,7 +220,7 @@ export default function JarvisPortal() {
           <section className={styles.projectWorklane} data-testid="project-worklane">
             <div className={styles.worklaneHead}>
               <div><small>PROJECT WORKLANE</small><strong>{selectedProject.name}</strong><span>{selectedProject.lastUpdate}</span></div>
-              <div className={styles.worklaneHealth}><b>{selectedProject.progress}%</b><span className={styles[selectedProject.state]}>{selectedProject.state.replace("_"," ")}</span></div>
+              <div className={styles.worklaneHealth}><b>{selectedProject.progressKnown===false?"—":`${selectedProject.progress}%`}</b><span className={styles[selectedProject.state]}>{selectedProject.state.replace("_"," ")}</span></div>
             </div>
             <div className={styles.worklaneGrid}>
               <article><small>OBJECTIVE</small><p>{selectedProject.objective}</p></article>
@@ -202,9 +249,9 @@ export default function JarvisPortal() {
 
         <aside className={styles.founderRail}>
           <section className={styles.brief}>
-            <div><small>FOUNDER BRIEF</small><span>{snapshot.source.toUpperCase()} · READ ONLY</span></div>
+            <div><small>FOUNDER BRIEF</small><span>{snapshot.source.toUpperCase()} · READ ONLY{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s old`:""}</span></div>
             <h2>Good afternoon, Basit.</h2>
-            <p>JARVIS should tell you what changed, who is working, what is blocked and what needs you—without making you inspect every project.</p>
+            <p>{snapshot.source==="mirror"?"This view is derived from the sanitized Trusted Control Plane snapshot. Unexposed activity is shown as unknown instead of invented.":"This is preview data for interaction and visual QA; it is not installed/runtime truth."}</p>
             <div className={styles.briefStats}><b>4<small>finish gates</small></b><b>{snapshot.revenue.qualifiedProspects}<small>prospects</small></b><b>{snapshot.revenue.outboundHeld ? 0 : snapshot.revenue.outreachSent}<small>unsafe sends</small></b></div>
           </section>
 
@@ -212,9 +259,9 @@ export default function JarvisPortal() {
             <header data-testid="approvals-title"><span>NEEDS YOUR APPROVAL</span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
             {approvalItems.map(item=><div key={item.id} className={approvalState[item.id]?styles.decided:""}>
               <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
-              {!approvalState[item.id]&&<span><button onClick={()=>setApprovalState(s=>({...s,[item.id]:"APPROVED PREVIEW"}))}>Approve</button><button onClick={()=>setApprovalState(s=>({...s,[item.id]:"REJECTED PREVIEW"}))}>Reject</button></span>}
+              {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Reject</button></span>}
             </div>)}
-            <p>Preview only. Real buttons will create signed, expiring Founder Intents—never direct shell commands.</p>
+            <p>{snapshot.source==="mirror"?"Read-only mirror. Buttons do not record a decision until signed Founder Intents are activated.":"Preview only. Real buttons will create signed, expiring Founder Intents—never direct shell commands."}</p>
           </section>
 
           <section className={styles.jarvisChat}>
@@ -252,7 +299,7 @@ export default function JarvisPortal() {
         <footer><button onClick={()=>setPendingAssignment(null)}>Cancel</button><button onClick={confirmAssignment}>Assign preview</button></footer>
       </section></div>}
 
-      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL</span><span>AGENTS → PROJECTS → TASKS → WORKERS → EVIDENCE</span><span>REMOTE AUTHORITY OFF</span></footer>
+      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s OLD`:""}</span><span>AGENTS → PROJECTS → TASKS → WORKERS → EVIDENCE</span><span>REMOTE AUTHORITY OFF</span></footer>
     </main>
   );
 }
