@@ -512,3 +512,17 @@
     line-height:1.25;
   }
 }
+
+@media(max-width:640px){
+  .center{
+    grid-template-rows:auto 560px auto;
+  }
+  .taskHorizon{
+    min-height:132px;
+    height:auto;
+    align-items:stretch;
+  }
+  .taskHorizon>div{
+    min-height:124px;
+  }
+}
