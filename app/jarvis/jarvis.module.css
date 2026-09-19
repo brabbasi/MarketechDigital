@@ -468,3 +468,47 @@
 .agent.running .workerSatellites u{background:#35f0b8;box-shadow:0 0 8px rgba(53,240,184,.9)}
 .agent.review .workerSatellites u{background:#ffd26a;box-shadow:0 0 8px rgba(255,210,106,.9)}
 .agent.training .workerSatellites u{background:#a985ff;box-shadow:0 0 8px rgba(169,133,255,.9)}
+
+/* QA pass: mobile readability and clean Founder-only surface. */
+@media(max-width:640px){
+  .agent{
+    width:108px;
+    min-height:50px;
+    grid-template-columns:28px minmax(0,1fr);
+    gap:5px;
+    padding:6px 7px;
+  }
+  .agent>span{
+    width:28px;
+    height:28px;
+    font-size:7px;
+  }
+  .agent strong{
+    font-size:7.5px;
+    line-height:1.12;
+  }
+  .agent small{
+    display:none;
+  }
+  .scene{
+    min-height:560px;
+  }
+  .taskHorizon{
+    margin-top:8px;
+    padding-bottom:4px;
+  }
+  .taskHorizon>div{
+    min-width:155px;
+  }
+  .taskHorizon header{
+    font-size:7px;
+  }
+  .taskHorizon strong{
+    font-size:7px;
+    line-height:1.25;
+  }
+  .taskHorizon small{
+    font-size:6px;
+    line-height:1.25;
+  }
+}
