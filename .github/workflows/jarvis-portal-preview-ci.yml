@@ -6,12 +6,20 @@ on:
       - feature/jarvis-founder-portal-v1
     paths:
       - 'app/jarvis/**'
+      - 'app/api/jarvis/**'
+      - 'tests/jarvis-portal.spec.ts'
+      - 'playwright.config.ts'
+      - 'package.json'
       - '.github/workflows/jarvis-portal-preview-ci.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'app/jarvis/**'
+      - 'app/api/jarvis/**'
+      - 'tests/jarvis-portal.spec.ts'
+      - 'playwright.config.ts'
+      - 'package.json'
       - '.github/workflows/jarvis-portal-preview-ci.yml'
 
 permissions:
@@ -34,3 +42,18 @@ jobs:
           node-version: '20'
       - run: npm install --no-audit --no-fund
       - run: npm run build
+      - name: Install Chromium for JARVIS QA
+        run: npx playwright install --with-deps chromium
+      - name: Run JARVIS browser QA
+        run: npm run qa:jarvis
+      - name: Upload JARVIS QA screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jarvis-portal-qa
+          path: |
+            artifacts/
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
