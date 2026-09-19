@@ -21,6 +21,18 @@ function mirrorUrlAllowed(value: string): boolean {
   }
 }
 
+function portalMetadata() {
+  const buildSha = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || "local";
+  const deploymentUrl = process.env.VERCEL_URL?.trim();
+  const branchUrl = process.env.VERCEL_BRANCH_URL?.trim();
+  return {
+    buildSha,
+    deploymentUrl: deploymentUrl ? `https://${deploymentUrl}` : undefined,
+    branchUrl: branchUrl ? `https://${branchUrl}` : undefined,
+    environment: process.env.VERCEL_ENV?.trim() || "local",
+  };
+}
+
 function unavailable(reason: string) {
   return NextResponse.json(
     {
@@ -91,7 +103,7 @@ export async function GET() {
         return unavailable("invalid_mirror_contract");
       }
 
-      return NextResponse.json(normalized, {
+      return NextResponse.json({ ...normalized, portal: portalMetadata() }, {
         status: 200,
         headers: {
           "cache-control": "no-store",
@@ -123,6 +135,7 @@ export async function GET() {
     {
       ...demoJarvisState,
       generatedAt: new Date().toISOString(),
+      portal: portalMetadata(),
     },
     {
       status: 200,
