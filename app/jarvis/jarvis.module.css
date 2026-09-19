@@ -274,7 +274,7 @@
 .worklaneHead>div:first-child{min-width:0}
 .worklaneHead small,.worklaneHead strong,.worklaneHead span{display:block}
 .worklaneHead small{font-size:6px;letter-spacing:.14em;color:#52b2e7}
-.worklaneHead strong{margin-top:2px;font-size:11px;color:#dff5ff}
+.worklaneHead strong{margin-top:2px;font-size:12px;color:#dff5ff}
 .worklaneHead span{margin-top:2px;color:#6189a4;font-size:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .worklaneHealth{display:flex;align-items:center;gap:6px;flex:none}
 .worklaneHealth b{font-size:14px;color:#bfeeff}
@@ -332,7 +332,7 @@
   background:transparent;color:#d8ebf7;cursor:pointer
 }
 .taskHorizon button:hover{background:rgba(20,72,111,.24)}
-.taskHorizon strong,.taskHorizon small{display:block}.taskHorizon strong{font-size:7px}.taskHorizon small{margin-top:2px;color:#668aa3;font-size:6px}
+.taskHorizon strong,.taskHorizon small{display:block}.taskHorizon strong{font-size:8px;line-height:1.25}.taskHorizon small{margin-top:2px;color:#6f91a7;font-size:6.5px;line-height:1.3}
 
 .brief,.approvals,.jarvisChat{
   border:1px solid rgba(43,156,226,.28);border-radius:11px;
