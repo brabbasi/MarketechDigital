@@ -316,7 +316,7 @@ export default function JarvisPortal() {
 
           <div className={styles.scene} data-testid="agent-scene">
             <div className={styles.orbitA}/><div className={styles.orbitB}/><div className={styles.orbitC}/>
-            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{agents.map(agent=><line key={agent.id} className={assigned.has(agent.id)?styles.beamActive:styles.beam} x1="50" y1="50" x2={agent.x} y2={agent.y}/>)}</svg>
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{agents.map(agent=><line key={agent.id} data-state={agent.state} data-assigned={assigned.has(agent.id) ? "true" : "false"} className={assigned.has(agent.id)?styles.beamActive:styles.beam} x1="50" y1="50" x2={agent.x} y2={agent.y}/>)}</svg>
             <button className={styles.core} onClick={()=>setSelectedAgentId(null)}><span>J</span><strong>JARVIS</strong><small>COMPANY BRAIN</small><em>{selectedProject.name}</em></button>
             {agents.map(agent=>{
               const related=assigned.has(agent.id);
@@ -327,7 +327,7 @@ export default function JarvisPortal() {
                 </span>
               </button>
             })}
-            <div className={styles.sceneLegend}><span><i className={styles.runningDot}/>working</span><span><i className={styles.reviewDot}/>review</span><span><i className={styles.trainingDot}/>learning</span><span>bright beam = assigned to selected project</span></div>
+            <div className={styles.sceneLegend}><span><i className={styles.runningDot}/>working</span><span><i className={styles.reviewDot}/>review</span><span><i className={styles.trainingDot}/>learning</span><span>moving beam = active assigned work</span></div>
           </div>
 
           <section className={styles.projectWorklane} data-testid="project-worklane">
