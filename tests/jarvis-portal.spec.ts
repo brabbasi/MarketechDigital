@@ -1,6 +1,90 @@
 import { test, expect } from "@playwright/test";
+import { adaptTrustedControlPlaneSnapshot } from "../app/jarvis/trustedMirror";
 
 test.describe("JARVIS Founder Portal", () => {
+
+  test("trusted control-plane mirror adapter is freshness and authority bound", async () => {
+    const nowMs = Date.parse("2026-09-19T19:45:00Z");
+    const fixture = {
+      schema_version: 1,
+      source: "trusted-github-control-plane-sync-v1",
+      generated_at: "2026-09-19T19:44:30Z",
+      repository: "brabbasi/Marketech_Digital_OS",
+      authority: {
+        github_read_only: true,
+        github_mutation_authorized: false,
+        runtime_write_authorized: false,
+        founder_decision_authorized: false,
+        outbound_authorized: false,
+        spend_authorized: false,
+      },
+      projects: [{
+        repository: "brabbasi/Marketech_Digital_OS",
+        present: true,
+        archived: false,
+        default_branch: "main",
+        head_sha: "a".repeat(40),
+        head_committed_at: "2026-09-19T19:40:00Z",
+        open_pr_count: 1,
+        open_prs: [{ number: 66, title: "Trusted Machine Bridge", head_sha: "b".repeat(40) }],
+      }],
+      workforce: {
+        source_ref: "canonical-org",
+        source_sha: "c".repeat(40),
+        workers: [{ id: "ai-reviewer", role: "Independent AI Reviewer", department: "independent_assurance" }],
+      },
+      company: {
+        active_work: [{
+          id: "portal",
+          title: "Founder portal mirror binding",
+          status: "RUNNING",
+          owner: "Engineering",
+          next_action: "Validate exact mirror contract",
+        }],
+      },
+      revenue: {
+        qualified_prospects: 48,
+        draft_ready_pending_review: 12,
+        independently_reviewed_send_ready: 36,
+        founder_approved_sends: 17,
+        outreach_sent: 11,
+        replies: 0,
+        meetings: 0,
+        contracted_revenue_cad: 0,
+        collected_revenue_cad: 0,
+      },
+      finish_chain: {
+        bridge: { pr: 66, title: "Trusted Bridge", status: "NEEDS FOUNDER", status_reason: "Exact-head review passed", head_sha: "1".repeat(40), needs_founder: true },
+        reviewer: { pr: 46, title: "Independent Reviewer", status: "QUEUED · BOOTSTRAP REVIEW", status_reason: "Waiting on bridge", head_sha: "2".repeat(40), needs_founder: false },
+        runtime: { pr: 40, title: "Runtime", status: "QUEUED · REVIEW PENDING", status_reason: "Waiting on reviewer", head_sha: "3".repeat(40), needs_founder: false },
+        autonomy: { pr: 80, title: "Autonomy", status: "QUEUED · REVIEW PENDING", status_reason: "Waiting on runtime", head_sha: "4".repeat(40), needs_founder: false },
+      },
+    };
+
+    const state = adaptTrustedControlPlaneSnapshot(fixture, { nowMs, maxAgeSeconds: 600 });
+    expect(state.source).toBe("mirror");
+    expect(state.mirror?.authoritySafe).toBe(true);
+    expect(state.mirror?.ageSeconds).toBe(30);
+    const jarvis = state.projects.find(project => project.id === "jarvis");
+    expect(jarvis?.progressKnown).toBe(false);
+    expect(jarvis?.now).toContain("main@aaaaaaaaaa");
+    expect(state.tasks.find(task => task.id === "finish-bridge")?.state).toBe("founder");
+    expect(state.agents.find(agent => agent.id === "reviewer")?.state).toBe("review");
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      { ...fixture, generated_at: "2026-09-19T19:20:00Z" },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/stale/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        authority: { ...fixture.authority, github_mutation_authorized: true },
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/authority/);
+  });
+
   test("read model is explicit, read-only and structurally complete", async ({ request }) => {
     const response = await request.get("/api/jarvis/state");
     expect(response.ok()).toBeTruthy();
