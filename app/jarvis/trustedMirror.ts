@@ -9,6 +9,16 @@ import {
 } from "./jarvisState";
 
 const TRUSTED_SOURCE = "trusted-github-control-plane-sync-v1";
+const TRUSTED_REPOSITORY = "brabbasi/Marketech_Digital_OS";
+const EXPECTED_REPOSITORIES = new Set(
+  demoJarvisState.projects.flatMap(project => project.repo ? [project.repo] : []),
+);
+const EXPECTED_FINISH_PRS = {
+  bridge: 66,
+  reviewer: 46,
+  runtime: 40,
+  autonomy: 80,
+} as const;
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -179,14 +189,79 @@ function validateTrustedSnapshot(value: unknown): TrustedSnapshot {
     throw new Error("trusted mirror authority boundary invalid");
   }
 
+  if (root.repository !== TRUSTED_REPOSITORY) {
+    throw new Error("trusted mirror repository identity invalid");
+  }
+
   if (!Array.isArray(root.projects)) {
     throw new Error("trusted mirror projects missing");
   }
-  if (!record(root.workforce) || !Array.isArray((root.workforce as UnknownRecord).workers)) {
-    throw new Error("trusted mirror workforce missing");
+  const projectRepositories = new Set<string>();
+  for (const candidate of root.projects) {
+    const project = record(candidate);
+    const repository = safeString(project?.repository, 180);
+    if (!project || !repository || typeof project.present !== "boolean") {
+      throw new Error("trusted mirror project row invalid");
+    }
+    if (!EXPECTED_REPOSITORIES.has(repository) || projectRepositories.has(repository)) {
+      throw new Error("trusted mirror project catalog identity invalid");
+    }
+    if (project.present === true && !safeSha(project.head_sha)) {
+      throw new Error("trusted mirror present project head invalid");
+    }
+    projectRepositories.add(repository);
   }
-  if (!record(root.finish_chain)) {
+  for (const repository of EXPECTED_REPOSITORIES) {
+    if (!projectRepositories.has(repository)) {
+      throw new Error("trusted mirror project catalog incomplete");
+    }
+  }
+
+  const workforce = record(root.workforce);
+  if (!workforce || !Array.isArray(workforce.workers) || !safeSha(workforce.source_sha)) {
+    throw new Error("trusted mirror workforce missing or unprovenanced");
+  }
+
+  const company = record(root.company);
+  if (!company || !Array.isArray(company.active_work)) {
+    throw new Error("trusted mirror company summary missing");
+  }
+
+  const revenue = record(root.revenue);
+  const revenueFields = [
+    "qualified_prospects",
+    "draft_ready_pending_review",
+    "independently_reviewed_send_ready",
+    "founder_approved_sends",
+    "outreach_sent",
+    "replies",
+    "meetings",
+    "contracted_revenue_cad",
+    "collected_revenue_cad",
+  ] as const;
+  if (!revenue || revenueFields.some(key => (
+    typeof revenue[key] !== "number" ||
+    !Number.isFinite(revenue[key] as number) ||
+    (revenue[key] as number) < 0
+  ))) {
+    throw new Error("trusted mirror revenue summary incomplete or invalid");
+  }
+
+  const finishChain = record(root.finish_chain);
+  if (!finishChain) {
     throw new Error("trusted mirror finish chain missing");
+  }
+  for (const [key, expectedPr] of Object.entries(EXPECTED_FINISH_PRS)) {
+    const row = record(finishChain[key]);
+    if (
+      !row ||
+      row.pr !== expectedPr ||
+      !safeSha(row.head_sha) ||
+      !safeString(row.status, 120) ||
+      typeof row.needs_founder !== "boolean"
+    ) {
+      throw new Error(`trusted mirror finish chain ${key} invalid`);
+    }
   }
 
   return value as TrustedSnapshot;
