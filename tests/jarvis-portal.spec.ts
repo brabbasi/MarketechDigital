@@ -23,18 +23,18 @@ test.describe("JARVIS Founder Portal", () => {
     await page.goto("/jarvis");
     await expect(page.getByText("Agent Constellation")).toBeVisible();
     await expect(page.getByText("PROJECT UNIVERSE")).toBeVisible();
-    await expect(page.getByText("NEEDS YOUR APPROVAL")).toBeVisible();
-    await expect(page.getByText(/READ MODEL/)).toBeVisible();
+    await expect(page.getByTestId("approvals-title")).toBeVisible();
+    await expect(page.getByTestId("read-model-status")).toContainText("READ MODEL");
 
     const initialHeight = await page.evaluate(() => document.documentElement.scrollHeight);
     const viewportHeight = await page.evaluate(() => window.innerHeight);
     expect(initialHeight).toBeLessThanOrEqual(viewportHeight + 16);
 
-    await page.getByRole("button", { name: /Rangrez/ }).click();
+    await page.getByTestId("project-rangrez").click();
     await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
 
-    const relatedCount = await page.locator('[class*="related"]').count();
-    const unrelatedCount = await page.locator('[class*="unrelated"]').count();
+    const relatedCount = await page.locator('button[data-testid^="agent-"]').filter({ has: page.locator('[class*="workerSatellites"]') }).count();
+    const unrelatedCount = await page.locator('button[class*="unrelated"][data-testid^="agent-"]').count();
     expect(relatedCount).toBeGreaterThan(0);
     expect(unrelatedCount).toBeGreaterThan(0);
 
@@ -45,7 +45,7 @@ test.describe("JARVIS Founder Portal", () => {
     test.skip(testInfo.project.name !== "desktop-chromium");
 
     await page.goto("/jarvis");
-    await page.getByRole("button", { name: /Engineering Agent/ }).click();
+    await page.getByTestId("agent-engineering").click();
 
     await expect(page.getByText("AGENT INSPECTOR")).toBeVisible();
     await expect(page.getByText("Workers")).toBeVisible();
@@ -60,8 +60,8 @@ test.describe("JARVIS Founder Portal", () => {
     test.skip(testInfo.project.name !== "desktop-chromium");
 
     await page.goto("/jarvis");
-    const source = page.getByRole("button", { name: /Marketing Agent/ });
-    const target = page.getByRole("button", { name: /Rangrez/ });
+    const source = page.getByTestId("agent-marketing");
+    const target = page.getByTestId("project-rangrez");
     await source.dragTo(target);
 
     await expect(page.getByText("ASSIGN AGENT")).toBeVisible();
@@ -76,7 +76,7 @@ test.describe("JARVIS Founder Portal", () => {
     await page.goto("/jarvis");
     await expect(page.getByText("PROJECT UNIVERSE")).toBeVisible();
     await expect(page.getByText("Agent Constellation")).toBeVisible();
-    await expect(page.getByText("NEEDS YOUR APPROVAL")).toBeVisible();
+    await expect(page.getByTestId("approvals-title")).toBeVisible();
     await expect(page.getByText("ASK JARVIS")).toBeVisible();
 
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
