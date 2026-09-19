@@ -42,8 +42,8 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
     await expect(page.getByTestId("project-worklane")).toContainText("Product convergence + visual QA");
     await expect(page.getByTestId("project-worklane")).toContainText("NEXT");
-    await expect(page.getByTestId("project-worklane")).toContainText("PRIMARY");
-    await expect(page.getByTestId("project-worklane")).toContainText("REVIEWER");
+    await expect(page.getByTestId("project-worklane")).toContainText("Primary");
+    await expect(page.getByTestId("project-worklane")).toContainText("Reviewer");
 
     const relatedCount = await page.locator('button[data-testid^="agent-"][data-assigned="true"]').count();
     const unrelatedCount = await page.locator('button[data-testid^="agent-"][data-assigned="false"]').count();
