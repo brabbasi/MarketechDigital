@@ -6,6 +6,8 @@ on:
       - feature/jarvis-founder-portal-v1
     paths:
       - 'app/jarvis/**'
+      - 'app/GlobalPageHeader.tsx'
+      - 'app/HeaderSignalQuote.tsx'
       - 'app/api/jarvis/**'
       - 'tests/jarvis-portal.spec.ts'
       - 'playwright.config.ts'
@@ -16,6 +18,8 @@ on:
       - main
     paths:
       - 'app/jarvis/**'
+      - 'app/GlobalPageHeader.tsx'
+      - 'app/HeaderSignalQuote.tsx'
       - 'app/api/jarvis/**'
       - 'tests/jarvis-portal.spec.ts'
       - 'playwright.config.ts'
