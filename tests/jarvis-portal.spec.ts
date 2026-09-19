@@ -67,9 +67,11 @@ test.describe("JARVIS Founder Portal", () => {
     expect(state.mirror?.ageSeconds).toBe(30);
     const jarvis = state.projects.find(project => project.id === "jarvis");
     expect(jarvis?.progressKnown).toBe(false);
+    expect(jarvis?.state).toBe("unknown");
     expect(jarvis?.now).toContain("main@aaaaaaaaaa");
     expect(state.tasks.find(task => task.id === "finish-bridge")?.state).toBe("founder");
     expect(state.agents.find(agent => agent.id === "reviewer")?.state).toBe("review");
+    expect(state.agents.find(agent => agent.id === "engineering")?.state).toBe("unknown");
 
     expect(() => adaptTrustedControlPlaneSnapshot(
       { ...fixture, generated_at: "2026-09-19T19:20:00Z" },
