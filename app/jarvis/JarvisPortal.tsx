@@ -36,6 +36,8 @@ export default function JarvisPortal() {
   const [readModelStatus,setReadModelStatus] = useState<"loading"|"demo"|"mirror"|"unavailable">("loading");
   const agents = snapshot?.agents ?? [];
   const tasks = snapshot?.tasks ?? [];
+  const portalBuild = snapshot?.portal?.buildSha || "unknown";
+  const portalEnvironment = snapshot?.portal?.environment || "unknown";
   const [selectedProjectId,setSelectedProjectId] = useState("jarvis");
   const [selectedAgentId,setSelectedAgentId] = useState<string | null>(null);
   const [selectedTaskId,setSelectedTaskId] = useState<string | null>(null);
@@ -75,7 +77,7 @@ export default function JarvisPortal() {
     }
 
     refresh();
-    const timer = window.setInterval(refresh, 15000);
+    const timer = window.setInterval(refresh, 5000);
     return () => {
       cancelled = true;
       window.clearInterval(timer);
@@ -201,7 +203,7 @@ export default function JarvisPortal() {
       <div className={styles.mobileShell} data-testid="mobile-shell">
         {mobileView==="jarvis"&&<section className={styles.mobileHome} data-testid="mobile-home">
           <div className={styles.mobileBrief}>
-            <div><small>FOUNDER SNAPSHOT</small><span>{snapshot.source.toUpperCase()} · READ ONLY{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s`:""}</span></div>
+            <div><small>FOUNDER SNAPSHOT</small><span>{snapshot.source.toUpperCase()} · BUILD {portalBuild.slice(0,8)}{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s`:""}</span></div>
             <h1>Good afternoon, Basit.</h1>
             <p>{snapshot.source==="mirror"?"Trusted mirror only. Unknown activity stays unknown.":"Preview mode for product and interaction QA."}</p>
             <div className={styles.mobilePulse}>
@@ -362,7 +364,7 @@ export default function JarvisPortal() {
 
         <aside className={styles.founderRail}>
           <section className={styles.brief}>
-            <div><small>FOUNDER BRIEF</small><span>{snapshot.source.toUpperCase()} · READ ONLY{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s old`:""}</span></div>
+            <div><small>FOUNDER BRIEF</small><span>{snapshot.source.toUpperCase()} · BUILD {portalBuild.slice(0,8)}{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s old`:""}</span></div>
             <h2>Good afternoon, Basit.</h2>
             <p>{snapshot.source==="mirror"?"This view is derived from the sanitized Trusted Control Plane snapshot. Unexposed activity is shown as unknown instead of invented.":"This is preview data for interaction and visual QA; it is not installed/runtime truth."}</p>
             <div className={styles.briefStats}><b>4<small>finish gates</small></b><b>{snapshot.revenue.qualifiedProspects}<small>prospects</small></b><b>{snapshot.revenue.outboundHeld ? 0 : snapshot.revenue.outreachSent}<small>unsafe sends</small></b></div>
@@ -412,7 +414,7 @@ export default function JarvisPortal() {
         <footer><button onClick={()=>setPendingAssignment(null)}>Cancel</button><button onClick={confirmAssignment}>Assign preview</button></footer>
       </section></div>}
 
-      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s OLD`:""}</span><span>AGENTS → PROJECTS → TASKS → WORKERS → EVIDENCE</span><span>REMOTE AUTHORITY OFF</span></footer>
+      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s OLD`:""}</span><span data-testid="portal-build">BUILD {portalBuild.slice(0,12)} · {portalEnvironment.toUpperCase()} · 5S REFRESH</span><span>REMOTE CONTROLS GATED</span></footer>
     </main>
   );
 }
