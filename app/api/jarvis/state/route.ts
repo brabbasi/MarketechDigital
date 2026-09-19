@@ -1,6 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { demoJarvisState } from "../../../jarvis/jarvisState";
 import { adaptTrustedControlPlaneSnapshot, jarvisStateEndpointEnabled } from "../../../jarvis/trustedMirror";
+import {
+  FOUNDER_SESSION_COOKIE,
+  founderAuthConfigured,
+  founderAuthEnabled,
+  verifyFounderSessionToken,
+} from "../../../jarvis/founderAuth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -48,8 +54,44 @@ function unavailable(reason: string) {
   );
 }
 
-export async function GET() {
-  if (!jarvisStateEndpointEnabled(process.env.VERCEL_ENV)) {
+export async function GET(request: NextRequest) {
+  const production = process.env.VERCEL_ENV === "production";
+  let founderAuthenticated = false;
+
+  if (production) {
+    if (!founderAuthEnabled() || !founderAuthConfigured()) {
+      return NextResponse.json(
+        {
+          status: "unavailable",
+          source: "none",
+          reason: "founder_auth_not_active",
+          portal: portalMetadata(),
+        },
+        {
+          status: 503,
+          headers: { "cache-control": "no-store", "x-robots-tag": "noindex" },
+        },
+      );
+    }
+    const token = request.cookies.get(FOUNDER_SESSION_COOKIE)?.value;
+    founderAuthenticated = await verifyFounderSessionToken(token);
+    if (!founderAuthenticated) {
+      return NextResponse.json(
+        {
+          status: "unauthorized",
+          source: "none",
+          reason: "founder_session_required",
+          portal: portalMetadata(),
+        },
+        {
+          status: 401,
+          headers: { "cache-control": "no-store", "x-robots-tag": "noindex" },
+        },
+      );
+    }
+  }
+
+  if (!jarvisStateEndpointEnabled(process.env.VERCEL_ENV, founderAuthenticated)) {
     return NextResponse.json(
       {
         status: "unavailable",
@@ -59,7 +101,7 @@ export async function GET() {
       },
       {
         status: 503,
-        headers: { "cache-control": "no-store" },
+        headers: { "cache-control": "no-store", "x-robots-tag": "noindex" },
       },
     );
   }
