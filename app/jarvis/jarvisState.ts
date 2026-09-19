@@ -93,7 +93,7 @@ export const demoJarvisState: JarvisState = {
     { id:"delivery", name:"Delivery Operations", short:"DO", department:"Delivery", state:"running", x:78, y:68, load:61, task:"Project worklane continuity", skills:["delivery planning","QA","dependency tracking"], workers:[{name:"Codex Engineering Senior",state:"busy",last:"now"}], history:["Maintained project continuation points","No project silently replaced"] },
     { id:"engineering", name:"Engineering Agent", short:"EN", department:"Engineering", state:"running", x:57, y:82, load:78, task:"JARVIS + product engineering", skills:["Next.js","Python","CI","systems"], workers:[{name:"Codex Engineering Senior",state:"running",last:"now"},{name:"Codebase Memory",state:"restricted",last:"verified"}], history:["Built canonical JARVIS system map","Building remote Founder portal"] },
     { id:"memory", name:"Memory Agent", short:"ME", department:"Knowledge", state:"training", x:34, y:80, load:31, task:"Memory Fabric evaluation", skills:["episodic memory","provenance","retrieval"], workers:[{name:"MemPalace candidate",state:"lab only",last:"evaluation pending"},{name:"Graft",state:"restricted",last:"verified"}], history:["Memory Router contract defined","MemPalace kept behind Lab gate"] },
-    { id:"revenue", name:"Revenue Agent", short:"RV", department:"Revenue", state:"running", x:16, y:63, load:49, task:"Research + pipeline movement", skills:["qualification","research","pipeline"], workers:[{name:"Revenue Assessment Trainee",state:"evaluation",last:"current"}], history:["48 qualified prospects in canonical queue","Outbound remains governed and held"] },
+    { id:"revenue", name:"Revenue Agent", short:"RV", department:"Revenue", state:"running", x:16, y:63, load:49, task:"Research + pipeline movement", skills:["qualification","research","pipeline"], workers:[{name:"Revenue Assessment Trainee",state:"evaluation",last:"current"}], history:["51 qualified prospects in canonical queue","Outbound remains governed and held"] },
     { id:"marketing", name:"Marketing Agent", short:"MK", department:"Growth", state:"ready", x:14, y:35, load:28, task:"SEO + organic growth", skills:["SEO","GEO/AEO","content"], workers:[{name:"Website Evidence Specialist",state:"planned",last:"n/a"}], history:["Website evidence workflows defined","Publishing authority remains gated"] },
     { id:"client", name:"Client Success Agent", short:"CS", department:"Client", state:"ready", x:29, y:18, load:18, task:"Client readiness + support", skills:["onboarding","support","status comms"], workers:[{name:"Client Comms specialist",state:"planned",last:"n/a"}], history:["Client-agent pack canonicalized","No unsupported client state claims"] }
   ],
@@ -144,13 +144,13 @@ export const demoJarvisState: JarvisState = {
       history:["Stage 28 resilience and paper execution QA built","Axiom Intelligence Fabric foundation created","Live trading and capital authority remain off"]
     },
     {
-      id:"tradepilot", name:"TradePilot", area:"Trades opportunity OS", state:"planning", progress:46,
+      id:"tradepilot", name:"TradePilot", area:"Trades opportunity OS", state:"review", progress:46,
       objective:"Turn the canonical TradePilot repository into a useful trades opportunity product without reviving retired lineage.",
-      now:"Reconcile product lineage", next:"Re-establish current product state and roadmap from canonical repo evidence.",
-      blocked:0, repo:"brabbasi/Tradepilot", lastUpdate:"Canonical repo retained; legacy tradepilot-ai retired",
+      now:"Current-main live prospect reactivation is active in PR #5; scoped typecheck + Vercel build are green.", next:"Keep PR #5 canonical, preserve Safety Mode, and verify live Supabase behavior only when the inactive Tradepilot project is deliberately restored.",
+      blocked:1, repo:"brabbasi/Tradepilot", lastUpdate:"PR #5 current-main successor active; Supabase Tradepilot currently INACTIVE; duplicate PR #6 closed",
       agentIds:["delivery","engineering","reviewer"],
       assignments:[{agentId:"delivery",role:"Primary"},{agentId:"engineering",role:"Assist"},{agentId:"reviewer",role:"Reviewer"}],
-      history:["Canonical repo selected","Legacy tradepilot-ai marked noncanonical","Supabase environment gap previously identified"]
+      history:["Canonical repo selected","Legacy tradepilot-ai marked noncanonical","Stale PR #1 preserved as history; current-main successor is PR #5","Duplicate PR #6 closed after reconciliation","Supabase Tradepilot project confirmed INACTIVE; no restore attempted"]
     },
     {
       id:"portfolio", name:"Founder Portfolio", area:"Founder brand", state:"planning", progress:42,
@@ -221,18 +221,18 @@ export const demoJarvisState: JarvisState = {
     { id:"t2", title:"Remote Founder portal v1", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Build secure visual Founder interface without exposing Trusted runtime." },
     { id:"t3", title:"Canonical system map", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"done", detail:"Full living scope map + drift guard created in PR #92." },
     { id:"t4", title:"Capability Lab isolation certification", projectId:"jarvis", project:"JARVIS", agent:"Delivery Operations", state:"blocked", detail:"Repair landed; hosted runner allocation has not executed certification." },
-    { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"12 newest packets await independent review; no outbound." },
+    { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"15 newest packets await independent review; no outbound." },
     { id:"t6", title:"Reviewer install after Bridge", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Governed install only after #66 clean exact-head review." },
     { id:"t7", title:"Founder activation decision", projectId:"jarvis", project:"JARVIS", agent:"Executive Orchestrator", state:"founder", detail:"Example approval surface only; no real action is wired in this preview." },
     { id:"t8", title:"Rangrez product lane", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"live", detail:"Project worklane continues independently from JARVIS architecture." },
     { id:"t9", title:"Rangrez next visual QA pass", projectId:"rangrez", project:"Rangrez", agent:"AI Reviewer", state:"next", detail:"Keep design implementation and device QA as separate acceptance gates." },
     { id:"t10", title:"DeutschPath hint ladder regression", projectId:"deutschpath", project:"DeutschPath", agent:"Engineering Agent", state:"queued", detail:"Known progressive-hint ladder test remains the current defect from latest recorded E2E evidence." },
     { id:"t11", title:"Axiom paper execution QA", projectId:"axiom", project:"Axiom", agent:"Engineering Agent", state:"review", detail:"Research/paper evidence continues; live-capital authority remains disabled." },
-    { id:"t12", title:"TradePilot lineage reconciliation", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"queued", detail:"Recover canonical current state before adding new implementation." }
+    { id:"t12", title:"TradePilot live prospect reactivation", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"review", detail:"PR #5 is the canonical current-main successor. Vercel/scoped typecheck are green; live Supabase verification is blocked because the project is inactive." }
   ],
   revenue: {
-    qualifiedProspects: 48,
-    pendingIndependentReview: 12,
+    qualifiedProspects: 51,
+    pendingIndependentReview: 15,
     reviewedSendReady: 36,
     founderApproved: 17,
     outreachSent: 11,
