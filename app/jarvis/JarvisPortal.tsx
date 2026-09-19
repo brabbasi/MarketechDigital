@@ -1,87 +1,40 @@
 "use client";
 
-import { useMemo, useState, type DragEvent } from "react";
+import { useEffect, useMemo, useState, type DragEvent } from "react";
 import styles from "./jarvis.module.css";
+import {
+  demoJarvisState,
+  type JarvisAgent,
+  type JarvisProject,
+  type JarvisState,
+  type JarvisTask,
+  type TaskState,
+} from "./jarvisState";
 
-type AgentState = "running" | "ready" | "blocked" | "review" | "training";
-type ProjectState = "on_track" | "blocked" | "review" | "planning";
-type TaskState = "live" | "next" | "queued" | "review" | "founder" | "blocked" | "done";
-
-type Agent = {
-  id: string;
-  name: string;
-  short: string;
-  department: string;
-  state: AgentState;
-  x: number;
-  y: number;
-  load: number;
-  task: string;
-  skills: string[];
-  workers: { name: string; state: string; last: string }[];
-  history: string[];
+const stateLabel: Record<JarvisAgent["state"],string> = {
+  running:"RUNNING",
+  ready:"READY",
+  blocked:"BLOCKED",
+  review:"REVIEW",
+  training:"TRAINING"
 };
 
-type Project = {
-  id: string;
-  name: string;
-  area: string;
-  state: ProjectState;
-  progress: number;
-  now: string;
-  blocked: number;
-  repo?: string;
-  agentIds: string[];
+const taskLabel: Record<TaskState,string> = {
+  live:"LIVE NOW",
+  next:"NEXT",
+  queued:"QUEUED",
+  review:"IN REVIEW",
+  founder:"NEEDS FOUNDER",
+  blocked:"BLOCKED",
+  done:"DONE"
 };
-
-type Task = {
-  id: string;
-  title: string;
-  project: string;
-  agent: string;
-  state: TaskState;
-  detail: string;
-};
-
-const agents: Agent[] = [
-  { id:"orchestrator", name:"Executive Orchestrator", short:"EO", department:"Executive", state:"ready", x:50, y:12, load:38, task:"Company priorities + delegation", skills:["mission planning","delegation","founder briefing"], workers:[{name:"Codex Engineering Senior",state:"available",last:"22m ago"}], history:["Reconciled JARVIS finish chain","Preserved parallel company lanes"] },
-  { id:"resource", name:"Agent Resource Manager", short:"RM", department:"Operations", state:"running", x:72, y:20, load:54, task:"Capacity + assignment planning", skills:["workforce planning","capacity","reassignment"], workers:[{name:"Remote Standard Worker",state:"gated",last:"not active"}], history:["Detected stalled Capability Lab lane","Recommended review-preserving reassignment"] },
-  { id:"reviewer", name:"AI Reviewer", short:"AR", department:"Governance", state:"review", x:86, y:43, load:67, task:"Exact-head review queue", skills:["security review","regression","evidence","governance"], workers:[{name:"Remote Critical Reviewer",state:"quota blocked",last:"current"}], history:["Reviewer coverage mandatory across portfolio","PR #66 exact review waiting on provider quota"] },
-  { id:"delivery", name:"Delivery Operations", short:"DO", department:"Delivery", state:"running", x:78, y:68, load:61, task:"Project worklane continuity", skills:["delivery planning","QA","dependency tracking"], workers:[{name:"Codex Engineering Senior",state:"busy",last:"now"}], history:["Maintained project continuation points","No project silently replaced"] },
-  { id:"engineering", name:"Engineering Agent", short:"EN", department:"Engineering", state:"running", x:57, y:82, load:78, task:"JARVIS + product engineering", skills:["Next.js","Python","CI","systems"], workers:[{name:"Codex Engineering Senior",state:"running",last:"now"},{name:"Codebase Memory",state:"restricted",last:"verified"}], history:["Built canonical JARVIS system map","Building remote Founder portal"] },
-  { id:"memory", name:"Memory Agent", short:"ME", department:"Knowledge", state:"training", x:34, y:80, load:31, task:"Memory Fabric evaluation", skills:["episodic memory","provenance","retrieval"], workers:[{name:"MemPalace candidate",state:"lab only",last:"evaluation pending"},{name:"Graft",state:"restricted",last:"verified"}], history:["Memory Router contract defined","MemPalace kept behind Lab gate"] },
-  { id:"revenue", name:"Revenue Agent", short:"RV", department:"Revenue", state:"running", x:16, y:63, load:49, task:"Research + pipeline movement", skills:["qualification","research","pipeline"], workers:[{name:"Revenue Assessment Trainee",state:"evaluation",last:"current"}], history:["48 qualified prospects in canonical queue","Outbound remains governed and held"] },
-  { id:"marketing", name:"Marketing Agent", short:"MK", department:"Growth", state:"ready", x:14, y:35, load:28, task:"SEO + organic growth", skills:["SEO","GEO/AEO","content"], workers:[{name:"Website Evidence Specialist",state:"planned",last:"n/a"}], history:["Website evidence workflows defined","Publishing authority remains gated"] },
-  { id:"client", name:"Client Success Agent", short:"CS", department:"Client", state:"ready", x:29, y:18, load:18, task:"Client readiness + support", skills:["onboarding","support","status comms"], workers:[{name:"Client Comms specialist",state:"planned",last:"n/a"}], history:["Client-agent pack canonicalized","No unsupported client state claims"] },
-];
-
-const initialProjects: Project[] = [
-  { id:"jarvis", name:"Marketech OS / JARVIS", area:"Company OS", state:"review", progress:74, now:"Bridge -> Reviewer -> Runtime -> Autonomy", blocked:1, repo:"brabbasi/Marketech_Digital_OS", agentIds:["orchestrator","resource","reviewer","engineering","delivery","memory"] },
-  { id:"site", name:"Marketech Website", area:"Growth + acquisition", state:"on_track", progress:68, now:"Founder portal + acquisition engine", blocked:1, repo:"brabbasi/MarketechDigital", agentIds:["engineering","marketing","reviewer"] },
-  { id:"rangrez", name:"Rangrez", area:"AI styling", state:"on_track", progress:58, now:"Product convergence + visual QA", blocked:0, repo:"brabbasi/Rangrez", agentIds:["delivery","engineering","reviewer"] },
-  { id:"deutschpath", name:"DeutschPath / Jiya", area:"AI learning", state:"on_track", progress:64, now:"Adaptive learning + release readiness", blocked:0, repo:"brabbasi/deutschpath-ai", agentIds:["delivery","engineering","reviewer"] },
-  { id:"axiom", name:"Axiom", area:"Market intelligence", state:"review", progress:71, now:"Evidence-first research gates", blocked:1, repo:"brabbasi/axiom-market-intelligence", agentIds:["engineering","reviewer"] },
-  { id:"tradepilot", name:"TradePilot", area:"Trades opportunity OS", state:"planning", progress:46, now:"Reconcile product lineage", blocked:0, repo:"brabbasi/Tradepilot", agentIds:["delivery","engineering","reviewer"] },
-  { id:"finance-os", name:"Financial Independence OS", area:"Personal finance product", state:"planning", progress:24, now:"Foundation + privacy architecture", blocked:0, agentIds:["orchestrator","reviewer"] },
-  { id:"leadahead", name:"LeadAhead", area:"Predictive operations", state:"planning", progress:18, now:"Concept + employer-safe scope", blocked:0, agentIds:["orchestrator","reviewer"] },
-];
-
-const tasks: Task[] = [
-  { id:"t1", title:"Trusted Bridge exact-head review", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Engineering green; independent reviewer capacity is the gate." },
-  { id:"t2", title:"Remote Founder portal v1", project:"Website", agent:"Engineering Agent", state:"live", detail:"Build secure visual Founder interface without exposing Trusted runtime." },
-  { id:"t3", title:"Canonical system map", project:"JARVIS", agent:"Engineering Agent", state:"done", detail:"Full living scope map + drift guard created in PR #92." },
-  { id:"t4", title:"Capability Lab isolation certification", project:"JARVIS", agent:"Delivery Operations", state:"blocked", detail:"Repair landed; hosted runner allocation has not executed certification." },
-  { id:"t5", title:"Revenue research review batch", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"12 newest packets await independent review; no outbound." },
-  { id:"t6", title:"Reviewer install after Bridge", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Governed install only after #66 clean exact-head review." },
-  { id:"t7", title:"Founder activation decision", project:"JARVIS", agent:"Executive Orchestrator", state:"founder", detail:"Example approval surface only; no real action is wired in this preview." },
-  { id:"t8", title:"Rangrez product lane", project:"Rangrez", agent:"Delivery Operations", state:"live", detail:"Project worklane continues independently from JARVIS architecture." },
-];
-
-const stateLabel: Record<AgentState,string> = { running:"RUNNING", ready:"READY", blocked:"BLOCKED", review:"REVIEW", training:"TRAINING" };
-const taskLabel: Record<TaskState,string> = { live:"LIVE NOW", next:"NEXT", queued:"QUEUED", review:"IN REVIEW", founder:"NEEDS FOUNDER", blocked:"BLOCKED", done:"DONE" };
 
 export default function JarvisPortal() {
-  const [projects,setProjects] = useState(initialProjects);
+  const [snapshot,setSnapshot] = useState<JarvisState>(demoJarvisState);
+  const [projects,setProjects] = useState<JarvisProject[]>(demoJarvisState.projects);
+  const [readModelStatus,setReadModelStatus] = useState<"loading"|"demo"|"mirror"|"unavailable">("loading");
+  const agents = snapshot.agents;
+  const tasks = snapshot.tasks;
   const [selectedProjectId,setSelectedProjectId] = useState("jarvis");
   const [selectedAgentId,setSelectedAgentId] = useState<string | null>(null);
   const [selectedTaskId,setSelectedTaskId] = useState<string | null>(null);
@@ -90,6 +43,34 @@ export default function JarvisPortal() {
   const [query,setQuery] = useState("");
   const [jarvisAnswer,setJarvisAnswer] = useState("Ask what changed, what is blocked, which agents are working, or what needs your approval.");
   const [approvalState,setApprovalState] = useState<Record<string,string>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function refresh() {
+      try {
+        const response = await fetch("/api/jarvis/state", { cache: "no-store" });
+        if (!response.ok) {
+          if (!cancelled) setReadModelStatus("unavailable");
+          return;
+        }
+        const next = (await response.json()) as JarvisState;
+        if (cancelled) return;
+        setSnapshot(next);
+        setProjects(next.projects);
+        setReadModelStatus(next.source);
+      } catch {
+        if (!cancelled) setReadModelStatus("unavailable");
+      }
+    }
+
+    refresh();
+    const timer = window.setInterval(refresh, 15000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, []);
 
   const selectedProject = useMemo(() => projects.find(p=>p.id===selectedProjectId) || projects[0], [projects,selectedProjectId]);
   const selectedAgent = useMemo(() => agents.find(a=>a.id===selectedAgentId) || null,[selectedAgentId]);
@@ -137,7 +118,7 @@ export default function JarvisPortal() {
       <header className={styles.topbar}>
         <div className={styles.brand}><span className={styles.mark}>M</span><div><strong>MARKETECH DIGITAL</strong><small>JARVIS · COMPANY OS</small></div></div>
         <div className={styles.askTop}><span>⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&askJarvis()} placeholder="Ask JARVIS anything..."/><button onClick={askJarvis}>ASK</button></div>
-        <div className={styles.founder}><i/><div><strong>Founder</strong><small>PRIVATE PREVIEW · NO AUTHORITY</small></div></div>
+        <div className={styles.founder}><i/><div><strong>Founder</strong><small>{readModelStatus.toUpperCase()} READ MODEL · NO AUTHORITY</small></div></div>
       </header>
 
       <div className={styles.layout}>
@@ -187,10 +168,10 @@ export default function JarvisPortal() {
 
         <aside className={styles.founderRail}>
           <section className={styles.brief}>
-            <div><small>FOUNDER BRIEF</small><span>LIVE MODEL PREVIEW</span></div>
+            <div><small>FOUNDER BRIEF</small><span>{snapshot.source.toUpperCase()} · READ ONLY</span></div>
             <h2>Good afternoon, Basit.</h2>
             <p>JARVIS should tell you what changed, who is working, what is blocked and what needs you—without making you inspect every project.</p>
-            <div className={styles.briefStats}><b>4<small>finish gates</small></b><b>48<small>prospects</small></b><b>0<small>unsafe sends</small></b></div>
+            <div className={styles.briefStats}><b>4<small>finish gates</small></b><b>{snapshot.revenue.qualifiedProspects}<small>prospects</small></b><b>{snapshot.revenue.outboundHeld ? 0 : snapshot.revenue.outreachSent}<small>unsafe sends</small></b></div>
           </section>
 
           <section className={styles.approvals}>
@@ -233,7 +214,7 @@ export default function JarvisPortal() {
         <footer><button onClick={()=>setPendingAssignment(null)}>Cancel</button><button onClick={confirmAssignment}>Assign preview</button></footer>
       </section></div>}
 
-      <footer className={styles.footer}><span>PRIVATE FOUNDER PORTAL · DEMO DATA</span><span>AGENTS → PROJECTS → TASKS → WORKERS → EVIDENCE</span><span>REMOTE AUTHORITY OFF</span></footer>
+      <footer className={styles.footer}><span>PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL</span><span>AGENTS → PROJECTS → TASKS → WORKERS → EVIDENCE</span><span>REMOTE AUTHORITY OFF</span></footer>
     </main>
   );
 }
