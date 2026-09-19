@@ -74,7 +74,8 @@ export default function JarvisPortal() {
 
   const selectedProject = useMemo(() => projects.find(p=>p.id===selectedProjectId) || projects[0], [projects,selectedProjectId]);
   const selectedAgent = useMemo(() => agents.find(a=>a.id===selectedAgentId) || null,[selectedAgentId]);
-  const selectedTask = useMemo(() => tasks.find(t=>t.id===selectedTaskId) || null,[selectedTaskId]);
+  const selectedTask = useMemo(() => tasks.find(t=>t.id===selectedTaskId) || null,[tasks,selectedTaskId]);
+  const projectTasks = useMemo(() => tasks.filter(t=>t.projectId===selectedProject.id),[tasks,selectedProject.id]);
   const assigned = new Set(selectedProject.agentIds);
 
   function startDrag(event:DragEvent<HTMLButtonElement>,agentId:string){
@@ -90,7 +91,7 @@ export default function JarvisPortal() {
     if(!pendingAssignment) return;
     setProjects(current=>current.map(project=>{
       if(project.id!==pendingAssignment.projectId || project.agentIds.includes(pendingAssignment.agentId)) return project;
-      return {...project,agentIds:[...project.agentIds,pendingAssignment.agentId]};
+      return {...project,agentIds:[...project.agentIds,pendingAssignment.agentId],assignments:[...project.assignments,{agentId:pendingAssignment.agentId,role:assignmentRole as JarvisProject["assignments"][number]["role"]}]};
     }));
     setSelectedProjectId(pendingAssignment.projectId);
     setPendingAssignment(null);
@@ -140,10 +141,10 @@ export default function JarvisPortal() {
               </button>
             })}
           </div>
-          <section className={styles.projectFocus}>
+          <section className={styles.projectFocus} data-testid="selected-project-summary">
             <small>SELECTED PROJECT</small><h2>{selectedProject.name}</h2>
             <p>{selectedProject.now}</p>
-            <div><span>{selectedProject.agentIds.length} assigned</span><span>{selectedProject.blocked} blocked</span></div>
+            <div><span>{selectedProject.agentIds.length} assigned</span><span>{selectedProject.blocked} blocked</span><span>{projectTasks.length} tasks</span></div>
           </section>
         </aside>
 
@@ -168,6 +169,31 @@ export default function JarvisPortal() {
             })}
             <div className={styles.sceneLegend}><span><i className={styles.runningDot}/>working</span><span><i className={styles.reviewDot}/>review</span><span><i className={styles.trainingDot}/>learning</span><span>bright beam = assigned to selected project</span></div>
           </div>
+
+          <section className={styles.projectWorklane} data-testid="project-worklane">
+            <div className={styles.worklaneHead}>
+              <div><small>PROJECT WORKLANE</small><strong>{selectedProject.name}</strong><span>{selectedProject.lastUpdate}</span></div>
+              <div className={styles.worklaneHealth}><b>{selectedProject.progress}%</b><span className={styles[selectedProject.state]}>{selectedProject.state.replace("_"," ")}</span></div>
+            </div>
+            <div className={styles.worklaneGrid}>
+              <article><small>OBJECTIVE</small><p>{selectedProject.objective}</p></article>
+              <article><small>NOW</small><p>{selectedProject.now}</p></article>
+              <article><small>NEXT</small><p>{selectedProject.next}</p></article>
+            </div>
+            <div className={styles.squadRow}>
+              <small>SQUAD</small>
+              <div>{selectedProject.assignments.map(assignment=>{
+                const agent=agents.find(a=>a.id===assignment.agentId);
+                return <button key={assignment.agentId} onClick={()=>setSelectedAgentId(assignment.agentId)}><b>{agent?.short || "?"}</b><span>{agent?.name || assignment.agentId}</span><em>{assignment.role}</em></button>
+              })}</div>
+            </div>
+            <div className={styles.projectTaskStrip}>
+              {(["live","next","queued","review","founder","blocked","done"] as TaskState[]).map(state=>{
+                const bucket=projectTasks.filter(t=>t.state===state);
+                return <button key={state} disabled={!bucket.length} onClick={()=>bucket[0]&&setSelectedTaskId(bucket[0].id)}><span>{taskLabel[state]}</span><b>{bucket.length}</b>{bucket[0]&&<small>{bucket[0].title}</small>}</button>
+              })}
+            </div>
+          </section>
 
           <div className={styles.taskHorizon} data-testid="task-horizon">
             {(["live","next","queued","review","founder","blocked","done"] as TaskState[]).map(state=><div key={state}><header>{taskLabel[state]} <b>{tasks.filter(t=>t.state===state).length}</b></header>{tasks.filter(t=>t.state===state).slice(0,2).map(task=><button key={task.id} onClick={()=>setSelectedTaskId(task.id)}><strong>{task.title}</strong><small>{task.project} · {task.agent}</small></button>)}</div>)}
@@ -209,6 +235,10 @@ export default function JarvisPortal() {
         <h3>Workers</h3>{selectedAgent.workers.map(w=><div className={styles.historyRow} key={w.name}><b>{w.name}</b><span>{w.state}</span><small>{w.last}</small></div>)}
         <h3>Skills</h3><div className={styles.skillRow}>{selectedAgent.skills.map(s=><span key={s}>{s}</span>)}</div>
         <h3>Recent agent history</h3>{selectedAgent.history.map(h=><div className={styles.historyRow} key={h}><b>{h}</b><span>evidence retained</span></div>)}
+        <h3>Project roles</h3>{projects.filter(p=>p.assignments.some(a=>a.agentId===selectedAgent.id)).map(project=>{
+          const role=project.assignments.find(a=>a.agentId===selectedAgent.id)?.role;
+          return <div className={styles.historyRow} key={project.id}><b>{project.name}</b><span>{role}</span><small>{project.now}</small></div>
+        })}
       </section></div>}
 
       {selectedTask&&<div className={styles.backdrop} onClick={()=>setSelectedTaskId(null)}><section className={styles.drawer} onClick={e=>e.stopPropagation()}>
