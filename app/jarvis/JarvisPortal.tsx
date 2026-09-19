@@ -128,7 +128,7 @@ export default function JarvisPortal() {
           <div className={styles.projectList}>
             {projects.map(project=>{
               const active=project.id===selectedProject.id;
-              return <button key={project.id} className={active?styles.projectActive:""} onClick={()=>setSelectedProjectId(project.id)} onDragOver={e=>e.preventDefault()} onDrop={e=>dropAgent(e,project.id)}>
+              return <button data-testid={`project-${project.id}`} key={project.id} className={active?styles.projectActive:""} onClick={()=>setSelectedProjectId(project.id)} onDragOver={e=>e.preventDefault()} onDrop={e=>dropAgent(e,project.id)}>
                 <div><strong>{project.name}</strong><small>{project.area}</small></div>
                 <span className={styles[project.state]}>{project.progress}%</span>
                 <em>{project.agentIds.length} agents</em>
@@ -159,7 +159,7 @@ export default function JarvisPortal() {
             <button className={styles.core} onClick={()=>setSelectedAgentId(null)}><span>J</span><strong>JARVIS</strong><small>COMPANY BRAIN</small><em>{selectedProject.name}</em></button>
             {agents.map(agent=>{
               const related=assigned.has(agent.id);
-              return <button draggable onDragStart={e=>startDrag(e,agent.id)} onClick={()=>setSelectedAgentId(agent.id)} key={agent.id} className={[styles.agent,styles[agent.state],related?styles.related:styles.unrelated].join(" ")} style={{left:`${agent.x}%`,top:`${agent.y}%`}}>
+              return <button data-testid={`agent-${agent.id}`} draggable onDragStart={e=>startDrag(e,agent.id)} onClick={()=>setSelectedAgentId(agent.id)} key={agent.id} className={[styles.agent,styles[agent.state],related?styles.related:styles.unrelated].join(" ")} style={{left:`${agent.x}%`,top:`${agent.y}%`}}>
                 <span>{agent.short}</span><div><strong>{agent.name}</strong><small>{agent.department} · {stateLabel[agent.state]}</small></div><i>{agent.load}%</i>
                 <span className={styles.workerSatellites} aria-label={`${agent.workers.length} workers`}>
                   {agent.workers.slice(0,3).map((worker,index)=><u key={worker.name} style={{transform:`rotate(${index*120}deg) translateX(27px)`}} title={worker.name}/>)}
@@ -183,7 +183,7 @@ export default function JarvisPortal() {
           </section>
 
           <section className={styles.approvals}>
-            <header><span>NEEDS YOUR APPROVAL</span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
+            <header data-testid="approvals-title"><span>NEEDS YOUR APPROVAL</span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
             {approvalItems.map(item=><div key={item.id} className={approvalState[item.id]?styles.decided:""}>
               <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
               {!approvalState[item.id]&&<span><button onClick={()=>setApprovalState(s=>({...s,[item.id]:"APPROVED PREVIEW"}))}>Approve</button><button onClick={()=>setApprovalState(s=>({...s,[item.id]:"REJECTED PREVIEW"}))}>Reject</button></span>}
@@ -222,7 +222,7 @@ export default function JarvisPortal() {
         <footer><button onClick={()=>setPendingAssignment(null)}>Cancel</button><button onClick={confirmAssignment}>Assign preview</button></footer>
       </section></div>}
 
-      <footer className={styles.footer}><span>PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL</span><span>AGENTS → PROJECTS → TASKS → WORKERS → EVIDENCE</span><span>REMOTE AUTHORITY OFF</span></footer>
+      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL</span><span>AGENTS → PROJECTS → TASKS → WORKERS → EVIDENCE</span><span>REMOTE AUTHORITY OFF</span></footer>
     </main>
   );
 }
