@@ -22,6 +22,7 @@ test.describe("JARVIS Founder Portal", () => {
 
     await page.goto("/jarvis");
     await expect(page.getByText("Agent Constellation")).toBeVisible();
+    await expect(page.locator(".ai-launcher")).toHaveCount(0);
     await expect(page.getByText("PROJECT UNIVERSE")).toBeVisible();
     await expect(page.getByTestId("approvals-title")).toBeVisible();
     await expect(page.getByTestId("read-model-status")).toContainText("READ MODEL");
@@ -84,6 +85,7 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByText("Agent Constellation")).toBeVisible();
     await expect(page.getByTestId("approvals-title")).toBeVisible();
     await expect(page.getByText("ASK JARVIS")).toBeVisible();
+    await expect(page.locator(".ai-launcher")).toHaveCount(0);
 
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
     const viewportWidth = await page.evaluate(() => window.innerWidth);
