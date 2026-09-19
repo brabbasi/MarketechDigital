@@ -20,6 +20,12 @@ const EXPECTED_FINISH_PRS = {
   autonomy: 80,
 } as const;
 
+export function jarvisStateEndpointEnabled(environment: string | undefined): boolean {
+  // Production remains hard-disabled until a separately reviewed Founder
+  // authentication/MFA session gate is implemented in the state route.
+  return environment !== "production";
+}
+
 type UnknownRecord = Record<string, unknown>;
 
 type TrustedProject = {
