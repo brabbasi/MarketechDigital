@@ -1,6 +1,7 @@
 export type AgentState = "running" | "ready" | "blocked" | "review" | "training";
 export type ProjectState = "on_track" | "blocked" | "review" | "planning";
 export type TaskState = "live" | "next" | "queued" | "review" | "founder" | "blocked" | "done";
+export type AssignmentRole = "Primary" | "Assist" | "Specialist" | "Reviewer" | "Observer" | "Shadow";
 
 export type JarvisAgent = {
   id: string;
@@ -23,15 +24,21 @@ export type JarvisProject = {
   area: string;
   state: ProjectState;
   progress: number;
+  objective: string;
   now: string;
+  next: string;
   blocked: number;
   repo?: string;
+  lastUpdate: string;
   agentIds: string[];
+  assignments: { agentId: string; role: AssignmentRole }[];
+  history: string[];
 };
 
 export type JarvisTask = {
   id: string;
   title: string;
+  projectId: string;
   project: string;
   agent: string;
   state: TaskState;
@@ -83,24 +90,137 @@ export const demoJarvisState: JarvisState = {
     { id:"client", name:"Client Success Agent", short:"CS", department:"Client", state:"ready", x:29, y:18, load:18, task:"Client readiness + support", skills:["onboarding","support","status comms"], workers:[{name:"Client Comms specialist",state:"planned",last:"n/a"}], history:["Client-agent pack canonicalized","No unsupported client state claims"] }
   ],
   projects: [
-    { id:"jarvis", name:"Marketech OS / JARVIS", area:"Company OS", state:"review", progress:74, now:"Bridge -> Reviewer -> Runtime -> Autonomy", blocked:1, repo:"brabbasi/Marketech_Digital_OS", agentIds:["orchestrator","resource","reviewer","engineering","delivery","memory"] },
-    { id:"site", name:"Marketech Website", area:"Growth + acquisition", state:"on_track", progress:68, now:"Founder portal + acquisition engine", blocked:1, repo:"brabbasi/MarketechDigital", agentIds:["engineering","marketing","reviewer"] },
-    { id:"rangrez", name:"Rangrez", area:"AI styling", state:"on_track", progress:58, now:"Product convergence + visual QA", blocked:0, repo:"brabbasi/Rangrez", agentIds:["delivery","engineering","reviewer"] },
-    { id:"deutschpath", name:"DeutschPath / Jiya", area:"AI learning", state:"on_track", progress:64, now:"Adaptive learning + release readiness", blocked:0, repo:"brabbasi/deutschpath-ai", agentIds:["delivery","engineering","reviewer"] },
-    { id:"axiom", name:"Axiom", area:"Market intelligence", state:"review", progress:71, now:"Evidence-first research gates", blocked:1, repo:"brabbasi/axiom-market-intelligence", agentIds:["engineering","reviewer"] },
-    { id:"tradepilot", name:"TradePilot", area:"Trades opportunity OS", state:"planning", progress:46, now:"Reconcile product lineage", blocked:0, repo:"brabbasi/Tradepilot", agentIds:["delivery","engineering","reviewer"] },
-    { id:"finance-os", name:"Financial Independence OS", area:"Personal finance product", state:"planning", progress:24, now:"Foundation + privacy architecture", blocked:0, agentIds:["orchestrator","reviewer"] },
-    { id:"leadahead", name:"LeadAhead", area:"Predictive operations", state:"planning", progress:18, now:"Concept + employer-safe scope", blocked:0, agentIds:["orchestrator","reviewer"] }
+    {
+      id:"jarvis", name:"Marketech OS / JARVIS", area:"Company OS", state:"review", progress:74,
+      objective:"Ship a governed autonomous company runtime and Founder cockpit without widening consequential authority.",
+      now:"Bridge -> Reviewer -> Runtime -> Autonomy", next:"Install the independently cleared Reviewer through the Trusted Bridge, then review Runtime.",
+      blocked:1, repo:"brabbasi/Marketech_Digital_OS", lastUpdate:"Canonical map + Founder portal integration lane active",
+      agentIds:["orchestrator","resource","reviewer","engineering","delivery","memory"],
+      assignments:[{agentId:"orchestrator",role:"Primary"},{agentId:"engineering",role:"Assist"},{agentId:"delivery",role:"Assist"},{agentId:"resource",role:"Observer"},{agentId:"reviewer",role:"Reviewer"},{agentId:"memory",role:"Specialist"}],
+      history:["Canonical JARVIS system map created","Phase-A autonomy parent consolidated and engineering-green","Trusted Control Plane Sync tracks #66 -> #46 -> #40 -> #80"]
+    },
+    {
+      id:"site", name:"Marketech Website", area:"Growth + acquisition", state:"on_track", progress:68,
+      objective:"Operate the public agency website as a trustworthy acquisition surface and secure host for the private Founder portal.",
+      now:"Founder portal + acquisition engine", next:"Bind sanitized JARVIS mirror only after auth/data-boundary review.",
+      blocked:1, repo:"brabbasi/MarketechDigital", lastUpdate:"Portal exact-head QA green; private read model remains demo-only",
+      agentIds:["engineering","marketing","reviewer"],
+      assignments:[{agentId:"engineering",role:"Primary"},{agentId:"marketing",role:"Assist"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Inbound acquisition engine independently reviewed","JARVIS portal isolated from public header and public AI assistant","Desktop/mobile browser QA added"]
+    },
+    {
+      id:"rangrez", name:"Rangrez", area:"AI styling", state:"on_track", progress:58,
+      objective:"Converge the styling product into a coherent, device-tested app with reviewed design and implementation changes.",
+      now:"Product convergence + visual QA", next:"Continue approved UI/product lane without losing physical-device QA gates.",
+      blocked:0, repo:"brabbasi/Rangrez", lastUpdate:"Independent delivery lane preserved",
+      agentIds:["delivery","engineering","reviewer"],
+      assignments:[{agentId:"delivery",role:"Primary"},{agentId:"engineering",role:"Assist"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Rangrez retained in canonical project catalog","AI Reviewer coverage required","Design source-of-truth and physical-device QA preserved"]
+    },
+    {
+      id:"deutschpath", name:"DeutschPath / Jiya", area:"AI learning", state:"on_track", progress:64,
+      objective:"Deliver an adaptive German-learning experience with Jiya while preserving progression, memory and release QA.",
+      now:"Adaptive learning + release readiness", next:"Resolve the remaining hint-ladder regression and continue journey convergence.",
+      blocked:0, repo:"brabbasi/deutschpath-ai", lastUpdate:"Project continuation point preserved",
+      agentIds:["delivery","engineering","reviewer"],
+      assignments:[{agentId:"delivery",role:"Primary"},{agentId:"engineering",role:"Assist"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Adaptive state migration approved","Jiya journey redesign applied","47/48 latest E2E checks passed in prior evidence"]
+    },
+    {
+      id:"axiom", name:"Axiom", area:"Market intelligence", state:"review", progress:71,
+      objective:"Build an evidence-first halal market-intelligence and paper-execution research system with no live capital before gates pass.",
+      now:"Evidence-first research gates", next:"Continue research-only readiness and paper QA while live-capital authority stays off.",
+      blocked:1, repo:"brabbasi/axiom-market-intelligence", lastUpdate:"Strict research-only direction remains canonical",
+      agentIds:["engineering","reviewer"],
+      assignments:[{agentId:"engineering",role:"Primary"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Stage 28 resilience and paper execution QA built","Axiom Intelligence Fabric foundation created","Live trading and capital authority remain off"]
+    },
+    {
+      id:"tradepilot", name:"TradePilot", area:"Trades opportunity OS", state:"planning", progress:46,
+      objective:"Turn the canonical TradePilot repository into a useful trades opportunity product without reviving retired lineage.",
+      now:"Reconcile product lineage", next:"Re-establish current product state and roadmap from canonical repo evidence.",
+      blocked:0, repo:"brabbasi/Tradepilot", lastUpdate:"Canonical repo retained; legacy tradepilot-ai retired",
+      agentIds:["delivery","engineering","reviewer"],
+      assignments:[{agentId:"delivery",role:"Primary"},{agentId:"engineering",role:"Assist"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Canonical repo selected","Legacy tradepilot-ai marked noncanonical","Supabase environment gap previously identified"]
+    },
+    {
+      id:"portfolio", name:"Founder Portfolio", area:"Founder brand", state:"planning", progress:42,
+      objective:"Maintain a credible technical portfolio that reflects current projects and capabilities.",
+      now:"Awaiting next bounded content/build pass", next:"Refresh project evidence when higher-priority production lanes clear.",
+      blocked:0, repo:"brabbasi/Basit-Portfolio", lastUpdate:"Visible in canonical catalog",
+      agentIds:["marketing","engineering","reviewer"],
+      assignments:[{agentId:"marketing",role:"Primary"},{agentId:"engineering",role:"Assist"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Next.js rebuild direction retained","Golden-gradient visual direction retained"]
+    },
+    {
+      id:"veilbound", name:"Veilbound", area:"Game / creative", state:"planning", progress:28,
+      objective:"Preserve the project as a durable venture lane with its own continuation point and reviewer coverage.",
+      now:"Catalogued / not the current execution priority", next:"Recover current roadmap before new implementation.",
+      blocked:0, repo:"brabbasi/veilbound-shadows-origin", lastUpdate:"Visible in canonical catalog",
+      agentIds:["delivery","reviewer"],
+      assignments:[{agentId:"delivery",role:"Primary"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Canonical repository retained","No silent retirement"]
+    },
+    {
+      id:"finance-os", name:"Financial Independence OS", area:"Personal finance product", state:"planning", progress:24,
+      objective:"Design a commercializable mobile finance assistant with privacy-first ingestion and autonomous goal support.",
+      now:"Foundation + privacy architecture", next:"Define mobile product boundary, permissions and secure ingestion model.",
+      blocked:0, lastUpdate:"Commercial mobile-first direction preserved",
+      agentIds:["orchestrator","reviewer"],
+      assignments:[{agentId:"orchestrator",role:"Primary"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Commercialization considered from inception","Android + iOS app direction preserved"]
+    },
+    {
+      id:"leadahead", name:"LeadAhead", area:"Predictive operations", state:"planning", progress:18,
+      objective:"Explore an employer-safe predictive operations assistant without exposing private company data or bypassing workplace policy.",
+      now:"Concept + employer-safe scope", next:"Keep concept separate from unauthorized employer-system integration.",
+      blocked:0, lastUpdate:"Concept lane preserved",
+      agentIds:["orchestrator","reviewer"],
+      assignments:[{agentId:"orchestrator",role:"Primary"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Whole-store intelligence concept recorded","Codepuppy/Copilot constraints retained"]
+    },
+    {
+      id:"unframed", name:"UnframedFiles", area:"Incubation", state:"planning", progress:8,
+      objective:"Preserve the venture slot and prevent it from disappearing while inactive.",
+      now:"Parked / catalogued", next:"Define a success metric before active build work.",
+      blocked:0, lastUpdate:"Visible in canonical catalog",
+      agentIds:["orchestrator","reviewer"],
+      assignments:[{agentId:"orchestrator",role:"Primary"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Durable incubation lane created"]
+    },
+    {
+      id:"twoends", name:"TwoEnds", area:"Adaptive clothing", state:"planning", progress:12,
+      objective:"Develop the adaptive garment concept as a distinct product venture.",
+      now:"Concept lane", next:"Validate customer problem and product wedge before engineering.",
+      blocked:0, lastUpdate:"Visible in canonical catalog",
+      agentIds:["orchestrator","reviewer"],
+      assignments:[{agentId:"orchestrator",role:"Primary"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Adaptive clothing concept retained"]
+    },
+    {
+      id:"silent-focus", name:"Silent Focus Vault", area:"Digital product", state:"planning", progress:30,
+      objective:"Package the focus toolkit as a useful low-friction digital product.",
+      now:"Existing concept preserved", next:"Reconcile product assets and distribution state before expansion.",
+      blocked:0, lastUpdate:"Visible in canonical catalog",
+      agentIds:["marketing","reviewer"],
+      assignments:[{agentId:"marketing",role:"Primary"},{agentId:"reviewer",role:"Reviewer"}],
+      history:["Notion + Payhip product concept retained"]
+    }
   ],
   tasks: [
-    { id:"t1", title:"Trusted Bridge exact-head review", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Engineering green; independent reviewer capacity is the gate." },
-    { id:"t2", title:"Remote Founder portal v1", project:"Website", agent:"Engineering Agent", state:"live", detail:"Build secure visual Founder interface without exposing Trusted runtime." },
-    { id:"t3", title:"Canonical system map", project:"JARVIS", agent:"Engineering Agent", state:"done", detail:"Full living scope map + drift guard created in PR #92." },
-    { id:"t4", title:"Capability Lab isolation certification", project:"JARVIS", agent:"Delivery Operations", state:"blocked", detail:"Repair landed; hosted runner allocation has not executed certification." },
-    { id:"t5", title:"Revenue research review batch", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"12 newest packets await independent review; no outbound." },
-    { id:"t6", title:"Reviewer install after Bridge", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Governed install only after #66 clean exact-head review." },
-    { id:"t7", title:"Founder activation decision", project:"JARVIS", agent:"Executive Orchestrator", state:"founder", detail:"Example approval surface only; no real action is wired in this preview." },
-    { id:"t8", title:"Rangrez product lane", project:"Rangrez", agent:"Delivery Operations", state:"live", detail:"Project worklane continues independently from JARVIS architecture." }
+    { id:"t1", title:"Trusted Bridge exact-head review", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Engineering green; independent reviewer capacity is the gate." },
+    { id:"t2", title:"Remote Founder portal v1", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Build secure visual Founder interface without exposing Trusted runtime." },
+    { id:"t3", title:"Canonical system map", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"done", detail:"Full living scope map + drift guard created in PR #92." },
+    { id:"t4", title:"Capability Lab isolation certification", projectId:"jarvis", project:"JARVIS", agent:"Delivery Operations", state:"blocked", detail:"Repair landed; hosted runner allocation has not executed certification." },
+    { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"12 newest packets await independent review; no outbound." },
+    { id:"t6", title:"Reviewer install after Bridge", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Governed install only after #66 clean exact-head review." },
+    { id:"t7", title:"Founder activation decision", projectId:"jarvis", project:"JARVIS", agent:"Executive Orchestrator", state:"founder", detail:"Example approval surface only; no real action is wired in this preview." },
+    { id:"t8", title:"Rangrez product lane", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"live", detail:"Project worklane continues independently from JARVIS architecture." },
+    { id:"t9", title:"Rangrez next visual QA pass", projectId:"rangrez", project:"Rangrez", agent:"AI Reviewer", state:"next", detail:"Keep design implementation and device QA as separate acceptance gates." },
+    { id:"t10", title:"DeutschPath hint ladder regression", projectId:"deutschpath", project:"DeutschPath", agent:"Engineering Agent", state:"queued", detail:"Known progressive-hint ladder test remains the current defect from latest recorded E2E evidence." },
+    { id:"t11", title:"Axiom paper execution QA", projectId:"axiom", project:"Axiom", agent:"Engineering Agent", state:"review", detail:"Research/paper evidence continues; live-capital authority remains disabled." },
+    { id:"t12", title:"TradePilot lineage reconciliation", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"queued", detail:"Recover canonical current state before adding new implementation." }
   ],
   revenue: {
     qualifiedProspects: 48,
