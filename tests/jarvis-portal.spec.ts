@@ -139,6 +139,10 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.projects.every((project: { objective?: string; next?: string; assignments?: unknown[] }) => project.objective && project.next && Array.isArray(project.assignments))).toBe(true);
     expect(payload.tasks.length).toBeGreaterThanOrEqual(6);
     expect(payload.revenue.outboundHeld).toBe(true);
+    expect(payload.revenue.qualifiedProspects).toBe(57);
+    expect(payload.revenue.pendingIndependentReview).toBe(21);
+    expect(payload.portal?.buildSha).toBeTruthy();
+    expect(payload.portal?.environment).toBeTruthy();
   });
 
   test("unavailable read model hides sample company state", async ({ page }, testInfo) => {
@@ -170,6 +174,8 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByText("PROJECT UNIVERSE")).toBeVisible();
     await expect(page.getByTestId("approvals-title")).toBeVisible();
     await expect(page.getByTestId("read-model-status")).toContainText("READ MODEL");
+    await expect(page.getByTestId("portal-build")).toContainText("BUILD");
+    await expect(page.getByTestId("portal-build")).toContainText("5S REFRESH");
 
     const layout = await page.evaluate(() => ({
       scrollHeight: document.documentElement.scrollHeight,
