@@ -150,7 +150,7 @@ export default function JarvisPortal() {
 
         <section className={styles.center}>
           <div className={styles.sceneHeader}>
-            <div><small>LIVE COMPANY VIEW</small><h1>Agent Constellation</h1><p>Drag an agent onto a project to request assistance.</p></div>
+            <div><small>COMPANY VIEW · {readModelStatus.toUpperCase()}</small><h1>Agent Constellation</h1><p>{readModelStatus==="mirror"?"Sanitized trusted mirror. Drag an agent onto a project to request assistance.":"Preview data only. Drag an agent onto a project to rehearse bounded assistance."}</p></div>
             <div className={styles.companyStats}><b>{agents.filter(a=>a.state==="running").length}<small>running</small></b><b>{tasks.filter(t=>t.state==="live").length}<small>live tasks</small></b><b>{tasks.filter(t=>t.state==="founder").length}<small>needs you</small></b></div>
           </div>
 
