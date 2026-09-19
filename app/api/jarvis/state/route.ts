@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { demoJarvisState } from "../../../jarvis/jarvisState";
-import { adaptTrustedControlPlaneSnapshot } from "../../../jarvis/trustedMirror";
+import { adaptTrustedControlPlaneSnapshot, jarvisStateEndpointEnabled } from "../../../jarvis/trustedMirror";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -36,11 +36,23 @@ function unavailable(reason: string) {
 }
 
 export async function GET() {
+  if (!jarvisStateEndpointEnabled(process.env.VERCEL_ENV)) {
+    return NextResponse.json(
+      {
+        status: "unavailable",
+        source: "none",
+        reason: "founder_auth_required",
+      },
+      {
+        status: 503,
+        headers: { "cache-control": "no-store" },
+      },
+    );
+  }
+
   const mirrorUrl = process.env.JARVIS_MIRROR_URL?.trim();
   const mirrorToken = process.env.JARVIS_MIRROR_READ_TOKEN?.trim();
-  const demoAllowed =
-    process.env.JARVIS_DEMO_MODE === "1" ||
-    process.env.VERCEL_ENV !== "production";
+  const demoAllowed = process.env.VERCEL_ENV !== "production";
 
   if (mirrorUrl || mirrorToken) {
     if (!mirrorUrl || !mirrorToken) {
