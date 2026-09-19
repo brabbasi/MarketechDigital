@@ -227,8 +227,8 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByTestId("mobile-nav")).toBeVisible();
     await expect(page.getByTestId("mobile-home")).toBeVisible();
     await expect(page.getByText("FOUNDER SNAPSHOT")).toBeVisible();
-    await expect(page.getByText("NEEDS YOU")).toBeVisible();
-    await expect(page.getByText("ASK JARVIS")).toBeVisible();
+    await expect(page.getByTestId("mobile-home").getByText("NEEDS YOU", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("mobile-home").getByText("ASK JARVIS", { exact: true })).toBeVisible();
     await expect(page.getByText("Agent Constellation")).toBeHidden();
     await expect(page.locator(".ai-launcher")).toHaveCount(0);
 
