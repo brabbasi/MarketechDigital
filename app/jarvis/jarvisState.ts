@@ -1,5 +1,5 @@
-export type AgentState = "running" | "ready" | "blocked" | "review" | "training";
-export type ProjectState = "on_track" | "blocked" | "review" | "planning";
+export type AgentState = "running" | "ready" | "blocked" | "review" | "training" | "unknown";
+export type ProjectState = "on_track" | "blocked" | "review" | "planning" | "unknown";
 export type TaskState = "live" | "next" | "queued" | "review" | "founder" | "blocked" | "done";
 export type AssignmentRole = "Primary" | "Assist" | "Specialist" | "Reviewer" | "Observer" | "Shadow";
 
