@@ -1,0 +1,51 @@
+.shell{
+  min-height:100dvh;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(40,178,224,.12),transparent 34%),
+    radial-gradient(circle at 86% 84%,rgba(88,227,178,.08),transparent 34%),
+    #05080d;
+  color:#edf8f5;
+}
+.card{
+  width:min(520px,100%);
+  border:1px solid rgba(149,215,205,.16);
+  border-radius:20px;
+  background:rgba(8,16,22,.94);
+  box-shadow:0 26px 90px rgba(0,0,0,.38);
+  padding:28px;
+}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.brand>span{
+  display:grid;place-items:center;width:42px;height:42px;border-radius:50%;
+  border:1px solid rgba(91,225,188,.4);color:#71e4c1;font-weight:800;
+  box-shadow:0 0 24px rgba(91,225,188,.12)
+}
+.brand strong,.brand small{display:block}
+.brand small,.eyebrow{font-size:10px;letter-spacing:.14em;color:#78928d}
+.eyebrow{margin:0 0 8px}
+.card h1{margin:0;font-size:clamp(28px,6vw,42px);letter-spacing:-.04em}
+.copy{color:#99aaa8;line-height:1.65;font-size:14px;margin:14px 0 20px}
+.status{
+  padding:12px 14px;border:1px solid rgba(230,190,101,.18);border-radius:12px;
+  background:rgba(230,190,101,.06);color:#dbc58d;font-size:13px;line-height:1.45
+}
+.form{display:grid;gap:16px;margin-top:18px}
+.form label{display:grid;gap:7px;color:#a9bab7;font-size:12px}
+.form input{
+  width:100%;box-sizing:border-box;border:1px solid rgba(149,215,205,.18);
+  border-radius:11px;background:#071017;color:#edf8f5;padding:12px 13px;
+  outline:none;font:inherit
+}
+.form input:focus{border-color:rgba(91,225,188,.55);box-shadow:0 0 0 3px rgba(91,225,188,.08)}
+.primary{
+  display:block;box-sizing:border-box;width:100%;border:1px solid rgba(91,225,188,.34);
+  border-radius:11px;background:rgba(91,225,188,.12);color:#8df2d4;
+  padding:12px 14px;text-align:center;text-decoration:none;font-weight:700;cursor:pointer
+}
+.primary:disabled{opacity:.4;cursor:not-allowed}
+.boundary{display:grid;gap:5px;margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,255,255,.06)}
+.boundary strong{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#8aa09c}
+.boundary span{font-size:11px;color:#677b78;line-height:1.45}
