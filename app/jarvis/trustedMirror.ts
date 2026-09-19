@@ -20,10 +20,13 @@ const EXPECTED_FINISH_PRS = {
   autonomy: 80,
 } as const;
 
-export function jarvisStateEndpointEnabled(environment: string | undefined): boolean {
-  // Production remains hard-disabled until a separately reviewed Founder
-  // authentication/MFA session gate is implemented in the state route.
-  return environment !== "production";
+export function jarvisStateEndpointEnabled(
+  environment: string | undefined,
+  founderAuthenticated = false,
+): boolean {
+  // Preview remains available behind Vercel Preview Protection for QA.
+  // Production requires a separately verified application-layer Founder session.
+  return environment !== "production" || founderAuthenticated;
 }
 
 type UnknownRecord = Record<string, unknown>;
