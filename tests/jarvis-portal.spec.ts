@@ -189,29 +189,47 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByRole("button", { name: "Assign preview" })).toBeVisible();
   });
 
-  test("mobile keeps core Founder actions understandable", async ({ page }, testInfo) => {
+  test("mobile uses focused Founder tabs instead of stacking the desktop cockpit", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "mobile-chromium");
 
     await page.goto("/jarvis");
-    await expect(page.getByText("PROJECT UNIVERSE")).toBeVisible();
-    await expect(page.getByText("Agent Constellation")).toBeVisible();
-    await expect(page.getByTestId("approvals-title")).toBeVisible();
+    await expect(page.getByTestId("mobile-nav")).toBeVisible();
+    await expect(page.getByTestId("mobile-home")).toBeVisible();
+    await expect(page.getByText("FOUNDER SNAPSHOT")).toBeVisible();
+    await expect(page.getByText("NEEDS YOU")).toBeVisible();
     await expect(page.getByText("ASK JARVIS")).toBeVisible();
+    await expect(page.getByText("Agent Constellation")).toBeHidden();
     await expect(page.locator(".ai-launcher")).toHaveCount(0);
 
-    const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
-    const viewportWidth = await page.evaluate(() => window.innerWidth);
-    expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 2);
+    const homeLayout = await page.evaluate(() => ({
+      bodyWidth: document.body.scrollWidth,
+      viewportWidth: window.innerWidth,
+      scrollHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+    }));
+    expect(homeLayout.bodyWidth).toBeLessThanOrEqual(homeLayout.viewportWidth + 2);
+    expect(homeLayout.scrollHeight).toBeLessThanOrEqual(homeLayout.viewportHeight * 1.8);
 
-    const sceneBox = await page.getByTestId("agent-scene").boundingBox();
-    const horizonBox = await page.getByTestId("task-horizon").boundingBox();
-    expect(sceneBox).not.toBeNull();
-    expect(horizonBox).not.toBeNull();
-    const worklaneBox = await page.getByTestId("project-worklane").boundingBox();
-    expect(worklaneBox).not.toBeNull();
-    expect(worklaneBox!.y).toBeGreaterThanOrEqual(sceneBox!.y + sceneBox!.height - 2);
-    expect(horizonBox!.y).toBeGreaterThanOrEqual(worklaneBox!.y + worklaneBox!.height - 2);
+    await page.getByRole("button", { name: "Projects", exact: true }).click();
+    await expect(page.getByTestId("mobile-projects")).toBeVisible();
+    await expect(page.getByTestId("mobile-project-rangrez")).toBeVisible();
 
+    await page.getByRole("button", { name: "Agents", exact: true }).click();
+    await expect(page.getByTestId("mobile-agents")).toBeVisible();
+    await expect(page.getByTestId("mobile-list-agent-engineering")).toBeVisible();
+
+    await page.getByRole("button", { name: "Tasks", exact: true }).click();
+    await expect(page.getByTestId("mobile-tasks")).toBeVisible();
+    await expect(page.getByText("MISSION HORIZON")).toBeVisible();
+
+    await page.getByRole("button", { name: "Approvals", exact: true }).click();
+    await expect(page.getByTestId("mobile-approvals")).toBeVisible();
+
+    await page.getByRole("button", { name: "History", exact: true }).click();
+    await expect(page.getByTestId("mobile-history")).toBeVisible();
+
+    await page.getByRole("button", { name: "JARVIS", exact: true }).click();
+    await expect(page.getByTestId("mobile-home")).toBeVisible();
     await page.screenshot({ path: "artifacts/jarvis-mobile.png", fullPage: true });
   });
 });
