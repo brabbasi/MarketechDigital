@@ -132,6 +132,11 @@ export default function JarvisPortal() {
                 <div><strong>{project.name}</strong><small>{project.area}</small></div>
                 <span className={styles[project.state]}>{project.progress}%</span>
                 <em>{project.agentIds.length} agents</em>
+                <div className={styles.projectProgress}><i style={{width:`${project.progress}%`}}/></div>
+                <div className={styles.projectAgents}>
+                  {project.agentIds.slice(0,5).map(id=><b key={id}>{agents.find(a=>a.id===id)?.short || "?"}</b>)}
+                  {project.agentIds.length>5&&<b>+{project.agentIds.length-5}</b>}
+                </div>
               </button>
             })}
           </div>
@@ -154,8 +159,11 @@ export default function JarvisPortal() {
             <button className={styles.core} onClick={()=>setSelectedAgentId(null)}><span>J</span><strong>JARVIS</strong><small>COMPANY BRAIN</small><em>{selectedProject.name}</em></button>
             {agents.map(agent=>{
               const related=assigned.has(agent.id);
-              return <button draggable onDragStart={e=>startDrag(e,agent.id)} onClick={()=>setSelectedAgentId(agent.id)} key={agent.id} className={[styles.agent,styles[agent.state],related?styles.related:""].join(" ")} style={{left:`${agent.x}%`,top:`${agent.y}%`}}>
+              return <button draggable onDragStart={e=>startDrag(e,agent.id)} onClick={()=>setSelectedAgentId(agent.id)} key={agent.id} className={[styles.agent,styles[agent.state],related?styles.related:styles.unrelated].join(" ")} style={{left:`${agent.x}%`,top:`${agent.y}%`}}>
                 <span>{agent.short}</span><div><strong>{agent.name}</strong><small>{agent.department} · {stateLabel[agent.state]}</small></div><i>{agent.load}%</i>
+                <span className={styles.workerSatellites} aria-label={`${agent.workers.length} workers`}>
+                  {agent.workers.slice(0,3).map((worker,index)=><u key={worker.name} style={{transform:`rotate(${index*120}deg) translateX(27px)`}} title={worker.name}/>)}
+                </span>
               </button>
             })}
             <div className={styles.sceneLegend}><span><i className={styles.runningDot}/>working</span><span><i className={styles.reviewDot}/>review</span><span><i className={styles.trainingDot}/>learning</span><span>bright beam = assigned to selected project</span></div>
