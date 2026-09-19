@@ -53,10 +53,12 @@ export default function HeaderSignalQuote() {
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
+    if (pathname.startsWith("/jarvis")) return;
     setQuote((current) => pickQuote(current));
   }, [pathname]);
 
   useEffect(() => {
+    if (pathname.startsWith("/jarvis")) return;
     let mounted = true;
     const sync = () => {
       const header = findHeaderTarget();
@@ -86,7 +88,7 @@ export default function HeaderSignalQuote() {
     };
   }, [pathname]);
 
-  if (!quote || !host) return null;
+  if (pathname.startsWith("/jarvis") || !quote || !host) return null;
 
   return createPortal(
     <>
