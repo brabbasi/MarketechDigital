@@ -152,8 +152,7 @@ function normalizeStatus(status: unknown): TaskState {
 
 function repoState(project: TrustedProject): ProjectState {
   if (!project.present || project.archived) return "blocked";
-  if ((project.open_pr_count ?? 0) > 0) return "review";
-  return "on_track";
+  return "unknown";
 }
 
 function validateTrustedSnapshot(value: unknown): TrustedSnapshot {
@@ -261,7 +260,7 @@ function workforceAgent(base: JarvisAgent, workforce: TrustedWorkforceRow[], rev
     ...base,
     name: row?.role ?? base.name,
     department: row?.department ?? base.department,
-    state: base.id === "reviewer" && reviewerBusy ? "review" : "ready",
+    state: base.id === "reviewer" && reviewerBusy ? "review" : "unknown",
     load: 0,
     task: "No live agent mission is exposed by the sanitized control-plane mirror.",
     skills: responsibilities.length ? responsibilities.slice(0, 8) : base.skills,
