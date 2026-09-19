@@ -12,7 +12,23 @@ function isJarvisState(value: unknown): value is JarvisState {
     state.authority === "read_only" &&
     Array.isArray(state.agents) &&
     Array.isArray(state.projects) &&
+    state.projects.every(project =>
+      !!project &&
+      typeof project.id === "string" &&
+      typeof project.objective === "string" &&
+      typeof project.now === "string" &&
+      typeof project.next === "string" &&
+      typeof project.lastUpdate === "string" &&
+      Array.isArray(project.agentIds) &&
+      Array.isArray(project.assignments) &&
+      project.assignments.every(assignment =>
+        !!assignment &&
+        typeof assignment.agentId === "string" &&
+        ["Primary","Assist","Specialist","Reviewer","Observer","Shadow"].includes(assignment.role)
+      )
+    ) &&
     Array.isArray(state.tasks) &&
+    state.tasks.every(task => !!task && typeof task.id === "string" && typeof task.projectId === "string") &&
     !!state.revenue &&
     !!state.finishChain
   );
