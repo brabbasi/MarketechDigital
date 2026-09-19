@@ -33,8 +33,8 @@ test.describe("JARVIS Founder Portal", () => {
     await page.getByTestId("project-rangrez").click();
     await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
 
-    const relatedCount = await page.locator('button[data-testid^="agent-"]').filter({ has: page.locator('[class*="workerSatellites"]') }).count();
-    const unrelatedCount = await page.locator('button[class*="unrelated"][data-testid^="agent-"]').count();
+    const relatedCount = await page.locator('button[data-testid^="agent-"][data-assigned="true"]').count();
+    const unrelatedCount = await page.locator('button[data-testid^="agent-"][data-assigned="false"]').count();
     expect(relatedCount).toBeGreaterThan(0);
     expect(unrelatedCount).toBeGreaterThan(0);
 
