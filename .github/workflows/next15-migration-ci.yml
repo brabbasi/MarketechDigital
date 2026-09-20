@@ -1,0 +1,35 @@
+name: Next 15 Migration CI
+
+on:
+  push:
+    branches:
+      - migration/next-15-5-24
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/next15-migration-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: next15-migration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
