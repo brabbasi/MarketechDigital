@@ -225,7 +225,10 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.revenue.qualifiedProspects).toBe(66);
     expect(payload.revenue.pendingIndependentReview).toBe(30);
     expect(payload.tasks.find((task: { id: string; state: string }) => task.id === "t2")?.state).toBe("done");
-    expect(payload.tasks.find((task: { id: string; state: string; detail: string }) => task.id === "t15")?.detail).toContain("activation performed=false");
+    const mirrorTask = payload.tasks.find((task: { id: string; state: string; detail: string }) => task.id === "t15");
+    expect(mirrorTask?.detail).toContain("Store connected=false");
+    expect(mirrorTask?.detail).toContain("write secret configured=false");
+    expect(mirrorTask?.detail).toContain("ingestion enabled=false");
     expect(payload.portal?.buildSha).toBeTruthy();
     expect(payload.portal?.environment).toBeTruthy();
   });
