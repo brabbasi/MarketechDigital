@@ -140,8 +140,8 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.projects.every((project: { objective?: string; next?: string; assignments?: unknown[] }) => project.objective && project.next && Array.isArray(project.assignments))).toBe(true);
     expect(payload.tasks.length).toBeGreaterThanOrEqual(6);
     expect(payload.revenue.outboundHeld).toBe(true);
-    expect(payload.revenue.qualifiedProspects).toBe(57);
-    expect(payload.revenue.pendingIndependentReview).toBe(21);
+    expect(payload.revenue.qualifiedProspects).toBe(60);
+    expect(payload.revenue.pendingIndependentReview).toBe(24);
     expect(payload.portal?.buildSha).toBeTruthy();
     expect(payload.portal?.environment).toBeTruthy();
   });
@@ -199,7 +199,7 @@ test.describe("JARVIS Founder Portal", () => {
 
     await page.getByTestId("project-rangrez").click();
     await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
-    await expect(page.getByTestId("project-worklane")).toContainText("Product source frozen while hosted CI fails before step execution");
+    await expect(page.getByTestId("project-worklane")).toContainText("Product head frozen; normal CI and a separate one-step hosted-runner probe both fail before step 1");
     await expect(page.getByTestId("project-worklane")).toContainText("NEXT");
     await expect(page.getByTestId("project-worklane")).toContainText("Primary");
     await expect(page.getByTestId("project-worklane")).toContainText("Reviewer");
