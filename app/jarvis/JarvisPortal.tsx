@@ -221,7 +221,7 @@ export default function JarvisPortal() {
 
           <div className={styles.mobileAgentWheel}>
             <div className={styles.mobileCore}><b>J</b><span>JARVIS</span></div>
-            {agents.slice(0,6).map(agent=><button data-testid={`mobile-agent-${agent.id}`} key={agent.id} onClick={()=>setSelectedAgentId(agent.id)} className={styles[agent.state]}>
+            {agents.slice(0,6).map(agent=><button data-testid={`mobile-agent-${agent.id}`} title={agent.name} key={agent.id} onClick={()=>setSelectedAgentId(agent.id)} className={styles[agent.state]}>
               <b>{agent.short}</b><span>{agent.name}</span><small>{stateLabel[agent.state]}</small>
             </button>)}
           </div>
@@ -230,7 +230,7 @@ export default function JarvisPortal() {
             <header><span>NEEDS YOU</span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
             {approvalItems.slice(0,2).map(item=><article key={item.id}>
               <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
-              {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Reject</button></span>}
+              {!approvalState[item.id]&&<span className={styles.mobileReviewAction}><button onClick={()=>setMobileView("approvals")}>Review</button></span>}
             </article>)}
             {approvalItems.length>2&&<button className={styles.mobileMore} onClick={()=>setMobileView("approvals")}>View all approvals</button>}
           </section>
@@ -272,7 +272,7 @@ export default function JarvisPortal() {
           <header><div><small>FOUNDER CONTROL</small><h2>Approvals</h2></div><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
           <div className={styles.mobileApprovalList}>{approvalItems.map(item=><article key={item.id}>
             <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
-            {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Reject</button></span>}
+            {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Preview approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Preview reject</button></span>}
           </article>)}</div>
           <p className={styles.mobileSafety}>{snapshot.source==="mirror"?"Read-only mirror. Signed Founder Intents are not active.":"Preview decisions only; no consequential authority."}</p>
         </section>}
@@ -292,7 +292,7 @@ export default function JarvisPortal() {
       <div className={styles.layout}>
         <aside className={styles.projects}>
           <div className={styles.railTitle}><span>PROJECT UNIVERSE</span><b>{projects.length}</b></div>
-          <p>Projects live here. Agents are assigned to them.</p>
+          <p>Choose a project to see what is happening now, what comes next, and which agents own the work.</p>
           <div className={styles.projectList}>
             {projects.map(project=>{
               const active=project.id===selectedProject.id;
@@ -378,14 +378,14 @@ export default function JarvisPortal() {
             <div><small>FOUNDER BRIEF</small><span>{snapshot.source.toUpperCase()} · BUILD {portalBuild.slice(0,8)}{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s old`:""}</span></div>
             <h2>Good afternoon, Basit.</h2>
             <p>{snapshot.source==="mirror"?"This view is derived from the sanitized Trusted Control Plane snapshot. Unexposed activity is shown as unknown instead of invented.":"This is preview data for interaction and visual QA; it is not installed/runtime truth."}</p>
-            <div className={styles.briefStats}><b>4<small>finish gates</small></b><b>{snapshot.revenue.qualifiedProspects}<small>prospects</small></b><b>{snapshot.revenue.outboundHeld ? 0 : snapshot.revenue.outreachSent}<small>unsafe sends</small></b></div>
+            <div className={styles.briefStats}><b>4<small>finish gates</small></b><b>{snapshot.revenue.qualifiedProspects}<small>prospects</small></b><b>{snapshot.revenue.outboundHeld ? 0 : snapshot.revenue.outreachSent}<small>outbound active</small></b></div>
           </section>
 
           <section className={styles.approvals}>
-            <header data-testid="approvals-title"><span>NEEDS YOUR APPROVAL</span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
+            <header data-testid="approvals-title"><span>NEEDS YOUR APPROVAL <i>PREVIEW ONLY</i></span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
             {approvalItems.map(item=><div key={item.id} className={approvalState[item.id]?styles.decided:""}>
               <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
-              {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Reject</button></span>}
+              {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Preview approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Preview reject</button></span>}
             </div>)}
             <p>{snapshot.source==="mirror"?"Read-only mirror. Buttons do not record a decision until signed Founder Intents are activated.":"Preview only. Real buttons will create signed, expiring Founder Intents—never direct shell commands."}</p>
           </section>
