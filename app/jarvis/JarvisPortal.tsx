@@ -156,18 +156,15 @@ export default function JarvisPortal() {
     setQuery("");
   }
 
-  const approvalItems = snapshot?.source==="mirror"
-    ? tasks.filter(task=>task.state==="founder").slice(0,5).map(task=>({
-        id:task.id,
-        title:task.title,
-        meta:`${task.project} · ${task.agent}`,
-        risk:"GATED",
-      }))
-    : [
-        {id:"a1",title:"Phase-A autonomy canary",meta:"JARVIS · exact target required",risk:"LOW"},
-        {id:"a2",title:"Production portal activation",meta:"Website · auth + review required",risk:"MED"},
-        {id:"a3",title:"Skill promotion candidate",meta:"Agent Skill Fabric · reviewer required",risk:"LOW"},
-      ];
+  const approvalItems = tasks
+    .filter(task=>task.state==="founder")
+    .slice(0,5)
+    .map(task=>({
+      id:task.id,
+      title:task.title,
+      meta:`${task.project} · ${task.agent}`,
+      risk:"GATED",
+    }));
 
   function recordApprovalPreview(id:string, decision:"APPROVED PREVIEW"|"REJECTED PREVIEW"){
     if(snapshot?.source==="mirror"){
@@ -239,6 +236,7 @@ export default function JarvisPortal() {
 
           <section className={styles.mobileNeeds}>
             <header><span>APPROVAL PREVIEW</span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
+            {approvalItems.length===0&&<p data-testid="no-founder-approval">No Founder decision required. Current gates are review or infrastructure-held.</p>}
             {approvalItems.slice(0,2).map(item=><article key={item.id}>
               <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
               {!approvalState[item.id]&&<span className={styles.mobileReviewAction}><button onClick={()=>setMobileView("approvals")}>Review</button></span>}
@@ -281,10 +279,13 @@ export default function JarvisPortal() {
 
         {mobileView==="approvals"&&<section className={styles.mobilePanel} data-testid="mobile-approvals">
           <header><div><small>FOUNDER CONTROL</small><h2>Approvals</h2></div><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
-          <div className={styles.mobileApprovalList}>{approvalItems.map(item=><article key={item.id}>
-            <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
-            {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Preview approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Preview reject</button></span>}
-          </article>)}</div>
+          <div className={styles.mobileApprovalList}>
+            {approvalItems.length===0&&<p data-testid="no-founder-approval">No Founder decision required. Current gates are review or infrastructure-held.</p>}
+            {approvalItems.map(item=><article key={item.id}>
+              <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
+              {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Preview approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Preview reject</button></span>}
+            </article>)}
+          </div>
           <p className={styles.mobileSafety}>{snapshot.source==="mirror"?"Read-only mirror. Signed Founder Intents are not active.":"Preview decisions only; no consequential authority."}</p>
         </section>}
 
@@ -418,11 +419,12 @@ export default function JarvisPortal() {
 
           <section className={styles.approvals}>
             <header data-testid="approvals-title"><span>APPROVAL PREVIEW <i>NO ACTION REQUIRED</i></span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
+            {approvalItems.length===0&&<p data-testid="no-founder-approval">No Founder decision required. Current gates are review or infrastructure-held.</p>}
             {approvalItems.map(item=><div key={item.id} className={approvalState[item.id]?styles.decided:""}>
               <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
               {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Preview approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Preview reject</button></span>}
             </div>)}
-            <p>{snapshot.source==="mirror"?"Read-only mirror. Buttons do not record a decision until signed Founder Intents are activated.":"Preview only. Real buttons will create signed, expiring Founder Intents—never direct shell commands."}</p>
+            <p>{approvalItems.length===0?"Approval cards appear only when a real Founder decision enters the governed task state.":snapshot.source==="mirror"?"Read-only mirror. Buttons do not record a decision until signed Founder Intents are activated.":"Preview only. Real buttons will create signed, expiring Founder Intents—never direct shell commands."}</p>
           </section>
 
           <section className={styles.jarvisChat}>
