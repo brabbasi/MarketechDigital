@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@vercel/firewall": "1.2.5",
     "next": "15.5.24",
     "react": "19.1.1",
     "react-dom": "19.1.1"

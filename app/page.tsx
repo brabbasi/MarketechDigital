@@ -662,39 +662,6 @@ function FounderModal({ open, onClose, onOpenContact }: { open: boolean; onClose
   );
 }
 
-function ContactModal({ open, onClose, onSend }: { open: boolean; onClose: () => void; onSend: (name: string, email: string, message: string) => void }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  if (!open) return null;
-  return (
-    <div className="modal-wrap show" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal">
-        <button className="modal-close" onClick={onClose} aria-label="Close contact form">×</button>
-        <div className="modal-inner">
-          <div className="eyebrow"><span className="dot" />Consultation request</div>
-          <h3>Tell me what you need.</h3>
-          <p>
-            This form opens an email draft to <strong>abasitabbasi99@gmail.com</strong>. Once you get your domain live,
-            this can switch to your branded email and a backend contact flow.
-          </p>
-          <div className="form-grid">
-            <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="Your name" />
-            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Work email" />
-          </div>
-          <div className="form-grid">
-            <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={5} placeholder="Project, challenge, or goal" />
-          </div>
-          <div className="hero-actions">
-            <button className="btn btn-primary" onClick={() => onSend(name, email, message)}>Send request →</button>
-            <button className="btn btn-secondary" onClick={onClose}>Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function Page() {
   usePointerGlow();
   const bgCanvasRef = useBackgroundNetwork();
@@ -702,8 +669,6 @@ export default function Page() {
   const heroCanvasRef = useHeroCanvas(mode);
   const [detailState, setDetailState] = useState<DetailState>(null);
   const [founderOpen, setFounderOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
-  const [toast, setToast] = useState("");
 
   useEffect(() => {
     const modes: Array<"signal" | "flow" | "decision"> = ["signal", "flow", "decision"];
@@ -732,17 +697,13 @@ export default function Page() {
     []
   );
 
-  const showToast = (message: string) => {
-    setToast(message);
-    window.setTimeout(() => setToast(""), 2200);
-  };
-
-  const sendEmail = (name: string, email: string, message: string) => {
-    const subject = encodeURIComponent("Marketech Digital Inquiry");
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
-    window.location.href = `mailto:abasitabbasi99@gmail.com?subject=${subject}&body=${body}`;
-    setContactOpen(false);
-    showToast("Opening your email app…");
+  const openContact = (source: "website-contact" | "website-contact-popup" = "website-contact") => {
+    const params = new URLSearchParams({
+      source,
+      medium: "website",
+      campaign: source === "website-contact-popup" ? "site-contact-popup" : ""
+    });
+    window.location.href = `/contact?${params.toString()}`;
   };
 
   return (
@@ -753,30 +714,12 @@ export default function Page() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@graph": [
-              {
-                "@type": "Organization",
-                name: "Marketech Digital",
-                email: "abasitabbasi99@gmail.com",
-                description:
-                  "Marketech Digital helps businesses implement AI strategy, workflow automation, decision intelligence, and growth systems.",
-                founder: { "@type": "Person", name: "Basit Abbasi" }
-              },
-              ...offers.map((offer) => ({
-                "@type": "Service",
-                serviceType: offer.title,
-                provider: { "@type": "Organization", name: "Marketech Digital" },
-                description: offer.overview
-              })),
-              {
-                "@type": "FAQPage",
-                mainEntity: faq.map((item) => ({
-                  "@type": "Question",
-                  name: item.q,
-                  acceptedAnswer: { "@type": "Answer", text: item.a }
-                }))
-              }
-            ]
+            "@type": "FAQPage",
+            mainEntity: faq.map((item) => ({
+              "@type": "Question",
+              name: item.q,
+              acceptedAnswer: { "@type": "Answer", text: item.a }
+            }))
           })
         }}
       />
@@ -793,7 +736,7 @@ export default function Page() {
             <a href="#faq">FAQ</a>
             <a href="#contact">Contact</a>
           </nav>
-          <button className="btn btn-primary" onClick={() => setContactOpen(true)}>Book a Consultation →</button>
+          <button className="btn btn-primary" onClick={() => openContact("website-contact-popup")}>Book a Consultation →</button>
         </div>
       </header>
 
@@ -809,7 +752,7 @@ export default function Page() {
             </p>
             <div className="hero-actions">
               <a className="btn btn-primary" href="#offers">See the offers →</a>
-              <button className="btn btn-secondary" onClick={() => setContactOpen(true)}>Start a conversation</button>
+              <button className="btn btn-secondary" onClick={() => openContact("website-contact-popup")}>Start a conversation</button>
             </div>
             <div className="hero-pills">
               <div className="pill">AI strategy sprint</div>
@@ -897,7 +840,7 @@ export default function Page() {
               <div className="trust-motion" aria-hidden="true" dangerouslySetInnerHTML={{ __html: '<svg viewBox="0 0 600 110"><path d="M20 76C86 74 112 30 180 34C252 38 268 80 340 78C412 76 444 36 580 42" stroke="#59afff" stroke-width="3" fill="none"><animate attributeName="stroke-dasharray" values="0 700;700 0;0 700" dur="7s" repeatCount="indefinite"/></path><path d="M20 88C84 94 126 66 176 64C246 60 270 94 336 92C404 90 454 66 580 74" stroke="#ff6a00" stroke-width="2.6" fill="none"><animate attributeName="stroke-dasharray" values="0 680;680 0;0 680" dur="6s" repeatCount="indefinite"/></path></svg>' }} />
               <div className="hero-actions">
                 <button className="btn btn-primary" onClick={() => setFounderOpen(true)}>View founder details</button>
-                <button className="btn btn-secondary" onClick={() => setContactOpen(true)}>Start a conversation</button>
+                <button className="btn btn-secondary" onClick={() => openContact("website-contact-popup")}>Start a conversation</button>
               </div>
             </div>
           </div>
@@ -924,9 +867,11 @@ export default function Page() {
             <SectionLabel>Contact</SectionLabel>
             <div className="section-head" style={{ marginBottom: 10 }}>
               <h2>Start the conversation.</h2>
-              <p>Send a message directly to Marketech Digital. For now, this form opens your email app to send a message to <strong>abasitabbasi99@gmail.com</strong>.</p>
+              <p>Tell Marketech Digital what you want to build, improve, automate, or grow. Your inquiry continues through our governed contact flow so it can be measured and followed up reliably.</p>
             </div>
-            <ContactFields onSend={sendEmail} onOpenContact={() => setContactOpen(true)} />
+            <div className="hero-actions">
+              <button className="btn btn-primary" onClick={() => openContact("website-contact")}>Continue to inquiry form →</button>
+            </div>
           </div>
         </section>
       </main>
@@ -941,32 +886,8 @@ export default function Page() {
         </div>
       </footer>
 
-      <DetailModal state={detailState} onClose={() => setDetailState(null)} onOpenContact={() => setContactOpen(true)} />
-      <FounderModal open={founderOpen} onClose={() => setFounderOpen(false)} onOpenContact={() => setContactOpen(true)} />
-      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} onSend={sendEmail} />
-      <div className={`toast ${toast ? "show" : ""}`}>{toast}</div>
-    </>
-  );
-}
-
-function ContactFields({ onSend, onOpenContact }: { onSend: (name: string, email: string, message: string) => void; onOpenContact: () => void }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  return (
-    <>
-      <div className="form-grid">
-        <input value={name} onChange={(e) => setName(e.target.value)} id="nameInput" type="text" placeholder="Your name" aria-label="Your name" />
-        <input value={email} onChange={(e) => setEmail(e.target.value)} id="emailInput" type="email" placeholder="Work email" aria-label="Work email" />
-      </div>
-      <div className="form-grid">
-        <textarea value={message} onChange={(e) => setMessage(e.target.value)} id="messageInput" rows={5} placeholder="Tell me what you want to build, improve, or automate." aria-label="Your message" />
-      </div>
-      <div className="contact-flow" aria-hidden="true" dangerouslySetInnerHTML={{ __html: '<svg viewBox="0 0 600 110"><circle cx="78" cy="55" r="12" fill="rgba(255,106,0,.12)" stroke="#ff6a00"/><circle cx="206" cy="55" r="12" fill="rgba(89,175,255,.12)" stroke="#59afff"/><circle cx="336" cy="55" r="12" fill="rgba(255,106,0,.12)" stroke="#ff6a00"/><rect x="428" y="35" width="92" height="40" rx="16" fill="rgba(89,175,255,.08)" stroke="#59afff"/><path d="M90 55H194M218 55H324M348 55H428" stroke="rgba(255,255,255,.28)" stroke-width="3"><animate attributeName="stroke-dasharray" values="0 180;180 0;0 180" dur="4s" repeatCount="indefinite"/></path></svg>' }} />
-      <div className="hero-actions">
-        <button className="btn btn-primary" id="sendMail" onClick={() => onSend(name, email, message)}>Send message →</button>
-        <button className="btn btn-secondary" onClick={onOpenContact}>Open form popup</button>
-      </div>
+      <DetailModal state={detailState} onClose={() => setDetailState(null)} onOpenContact={() => openContact("website-contact-popup")} />
+      <FounderModal open={founderOpen} onClose={() => setFounderOpen(false)} onOpenContact={() => openContact("website-contact-popup")} />
     </>
   );
 }
