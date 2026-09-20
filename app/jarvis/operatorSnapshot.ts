@@ -12,8 +12,8 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
     progress: 80,
-    now: "CI fallback #101 is engineering-green at 0042acf7 with 30 workflows / 0 hard violations / 0 concurrency advisories. Workforce #93 explicitly staffs 56 agents. Core-lane v5 failed again, so v6 now tests a clean Revenue Queue task object while Codebase Memory -> Graft -> Codex remains the installed-reverify worker queue.",
-    next: "Let the v6 clean-object Revenue Queue canary complete naturally and verify it remains enabled; re-verify Codebase Memory exact identity/scope in parallel, then Graft and Codex; restore independent-review capacity; then advance #66 Bridge -> #46 Reviewer -> #40 Runtime -> #80 Autonomy.",
+    now: "CI fallback #101 is engineering-green at 0042acf7 with 30 workflows / 0 hard violations / 0 concurrency advisories. Workforce #93 still staffs 56 agents, but current head 4534d8d2 now correctly marks Codebase Memory blocked_runtime while Company Runtime is quarantined. Core-lane v6 tests a clean Revenue Queue task object; Graft -> Codex remain installed-reverify.",
+    next: "Let the v6 clean-object Revenue Queue canary complete naturally and verify it remains enabled; revalidate workforce #93 exact-head CI; keep Codebase Memory blocked until #66 -> #46 -> #40 Runtime recovery, while Graft and Codex continue their non-runtime re-verification preparation; restore independent-review capacity; then advance #80 Autonomy.",
     blocked: 2,
     lastUpdate: "Capacity hardening is complete and workforce activation is explicit: 56 agents are assigned, 3 installed workers require re-verification, 4 workers require approved auth/scope evidence, and independent review issue #109 remains the finish-chain gate.",
     history: [
@@ -22,7 +22,7 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
       "v6 replaces only Revenue Queue with a clean recurring task object while the historical queue is intentionally retired; durability remains 0/3 until natural recurrence proves the hypothesis.",
       "Trusted finish chain remains #66 -> #46 -> #40 -> #80.",
       "Remote and local dashboard read models are being synchronized as part of this checkpoint.",
-      "Workforce #93 makes stale/queued truth explicit: Codebase Memory, Graft and Codex are installed_reverify; Gemini, Copilot, Claude and Figma are blocked_auth; Reviewer remains blocked_runtime.",
+      "Workforce #93 current head 4534d8d2 makes runtime truth explicit: Codebase Memory is blocked_runtime until governed Runtime recovery; Graft and Codex remain installed_reverify; Gemini, Copilot, Claude and Figma are blocked_auth; Reviewer remains blocked_runtime.",
     ],
   },
   site: {
@@ -99,7 +99,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
       "v6 clean-object canary replaces Revenue Queue only; the historical queue stays intentionally disabled while recurrence is tested.",
       "Durability proof remains 0/3 until natural recurrence survives.",
       "Workforce #93 records 56 explicit agent assignments; employment does not imply autonomous Runtime dispatch.",
-      "Activation priority is Codebase Memory -> Graft -> Codex (installed_reverify), then separately authenticated Gemini/Copilot/Claude/Figma.",
+      "Activation sequencing is now fail-closed: Codebase Memory waits for #66 -> #46 -> #40 Runtime recovery; Graft -> Codex remain installed_reverify; Gemini/Copilot/Claude/Figma require separate approved auth/scope evidence.",
     ],
   },
   reviewer: {
@@ -146,11 +146,11 @@ const operatorTasks: JarvisTask[] = [
   { id:"t15", title:"Signed remote mirror publisher", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"PR #104 remains engineering-green. Store connected=false, write secret configured=false and ingestion enabled=false; operator snapshot is not a substitute for the signed production mirror." },
   { id:"t16", title:"Independent review capacity", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"blocked", detail:"Issue #109 remains canonical for #66/#46/#47/#68/#69/#70/#72/#73/#93/#98/#101/#104 and product Reviewer gates. Passing CI is not independent approval." },
   { id:"t17", title:"Revenue control chain", projectId:"site", project:"Website", agent:"Revenue Agent", state:"review", detail:"Revenue dependency stays #72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding, with #69 CRM and #70 Founder price authority as parallel #72 dependents. Outbound remains held." },
-  { id:"t18", title:"Codebase Memory worker re-verification", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"live", detail:"Priority 1 from workforce #93. Worker is already installed; verify the exact audited v0.10.8 runtime/version/SHA plus disabled UI/daemon posture, then prove one read-only mission lifecycle before dispatch readiness can change." },
+  { id:"t18", title:"Codebase Memory runtime recovery gate", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"Workforce #93 head 4534d8d2 preserves the accepted historical v0.10.8 first-worker proof but now correctly blocks fresh dispatch while Company Runtime is quarantined. After #66 Bridge -> #46 Reviewer -> #40 Runtime recovery clears, require fresh exact identity/scope plus one read-only lifecycle proof." },
   { id:"t19", title:"Graft worker re-verification", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Priority 2 from workforce #93. Verify the graft-safe wrapper SHA and explicit denial of deep/provider modes before any dispatch promotion." },
   { id:"t20", title:"Codex worker re-verification", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"queued", detail:"Priority 3 from workforce #93. Require fresh exact identity, read-only usefulness and denied writes/network/approval escalation before headless dispatch." },
   { id:"t21", title:"Authenticated worker cohort", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"Gemini, Copilot, Claude and Figma are installed/configured capability lanes but remain blocked on approved personal/Marketech authentication plus execution-scope evidence; employer credentials remain prohibited." },
-  { id:"t22", title:"Agent employment registry", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"PR #93 is exact-head engineering-green and records 56 explicit assignments with employment/runtime separation. Independent review is still required before promotion; no new autonomous authority is implied." },
+  { id:"t22", title:"Agent employment registry", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"PR #93 current head 4534d8d2 records 56 explicit assignments and corrects Codebase Memory from installed_reverify to blocked_runtime. Exact-head CI is revalidating this truth correction; independent review remains required before promotion." },
 ];
 
 export const operatorJarvisState: JarvisState = {
