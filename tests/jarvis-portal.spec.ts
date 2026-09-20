@@ -310,9 +310,9 @@ test.describe("JARVIS Founder Portal", () => {
 
     await page.getByTestId("parallel-lane-rangrez").click();
     await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
-    await expect(page.getByTestId("project-worklane")).toContainText("Wardrobe continuity child #28");
+    await expect(page.getByTestId("project-worklane")).toContainText("Wardrobe continuity #28");
     await expect(page.getByTestId("project-worklane")).toContainText("affiliate policy #29");
-    await expect(page.getByTestId("project-worklane")).toContainText("#30 enrolls P27");
+    await expect(page.getByTestId("project-worklane")).toContainText("#30 central Reviewer enrollment");
     await expect(page.getByTestId("project-worklane")).toContainText("NEXT");
     await expect(page.getByTestId("project-worklane")).toContainText("Primary");
     await expect(page.getByTestId("project-worklane")).toContainText("Reviewer");
@@ -336,7 +336,7 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByRole("heading", { name: "Skills" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Recent agent history" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Project roles" })).toBeVisible();
-    await expect(page.getByText("Codebase Memory")).toBeVisible();
+    await expect(page.getByTestId("agent-inspector").getByText("Codebase Memory", { exact: true })).toBeVisible();
 
     await page.screenshot({ path: "artifacts/jarvis-agent-inspector.png", fullPage: true });
   });
