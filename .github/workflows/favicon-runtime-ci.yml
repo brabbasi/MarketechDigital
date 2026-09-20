@@ -1,0 +1,143 @@
+name: Favicon Runtime CI
+
+on:
+  push:
+    branches:
+      - fix/favicon-og-background
+    paths:
+      - 'app/seo-image-assets.tsx'
+      - 'app/og-image.png/route.tsx'
+      - 'app/favicon.ico/route.tsx'
+      - 'app/favicon-16x16.png/route.tsx'
+      - 'app/favicon-32x32.png/route.tsx'
+      - 'app/apple-touch-icon.png/route.tsx'
+      - 'app/android-chrome-192x192.png/route.tsx'
+      - 'app/android-chrome-512x512.png/route.tsx'
+      - '.github/workflows/favicon-runtime-ci.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'app/seo-image-assets.tsx'
+      - 'app/og-image.png/route.tsx'
+      - 'app/favicon.ico/route.tsx'
+      - 'app/favicon-16x16.png/route.tsx'
+      - 'app/favicon-32x32.png/route.tsx'
+      - 'app/apple-touch-icon.png/route.tsx'
+      - 'app/android-chrome-192x192.png/route.tsx'
+      - 'app/android-chrome-512x512.png/route.tsx'
+      - '.github/workflows/favicon-runtime-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: favicon-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install
+        run: npm install --no-audit --no-fund
+
+      - name: Build production app
+        run: npm run build
+
+      - name: Start production server
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup npm start -- -H 127.0.0.1 -p 3000 > "$RUNNER_TEMP/marketech-next.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/marketech-next.pid"
+
+          ready=false
+          for _ in $(seq 1 60); do
+            if curl -fsS --max-time 2 http://127.0.0.1:3000/ >/dev/null; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+
+          if [[ "$ready" != true ]]; then
+            cat "$RUNNER_TEMP/marketech-next.log" >&2 || true
+            exit 1
+          fi
+
+      - name: Prove generated icon routes render without OG errors
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cleanup() {
+            if [[ -f "$RUNNER_TEMP/marketech-next.pid" ]]; then
+              kill "$(cat "$RUNNER_TEMP/marketech-next.pid")" 2>/dev/null || true
+            fi
+          }
+          trap cleanup EXIT
+
+          routes=(
+            "/og-image.png"
+            "/favicon.ico"
+            "/favicon-16x16.png"
+            "/favicon-32x32.png"
+            "/apple-touch-icon.png"
+            "/android-chrome-192x192.png"
+            "/android-chrome-512x512.png"
+          )
+
+          for route in "${routes[@]}"; do
+            header="$RUNNER_TEMP/icon-headers.txt"
+            body="$RUNNER_TEMP/icon-body.bin"
+
+            code="$(curl -sS               --max-time 10               -D "$header"               -o "$body"               -w '%{http_code}'               "http://127.0.0.1:3000$route")"
+
+            [[ "$code" == "200" ]] || {
+              printf 'FAIL: %s returned HTTP %s\n' "$route" "$code" >&2
+              cat "$header" >&2 || true
+              cat "$RUNNER_TEMP/marketech-next.log" >&2 || true
+              exit 1
+            }
+
+            content_type="$(awk 'BEGIN{IGNORECASE=1} /^content-type:/ {gsub("\r",""); sub(/^[^:]*:[[:space:]]*/, ""); print; exit}' "$header")"
+            [[ "$content_type" == image/* ]] || {
+              printf 'FAIL: %s content-type=%s\n' "$route" "$content_type" >&2
+              cat "$RUNNER_TEMP/marketech-next.log" >&2 || true
+              exit 1
+            }
+
+            size="$(wc -c < "$body" | tr -d ' ')"
+            [[ "$size" -gt 100 ]] || {
+              printf 'FAIL: %s rendered only %s bytes\n' "$route" "$size" >&2
+              exit 1
+            }
+
+            printf 'PASS: %s HTTP=200 content-type=%s bytes=%s\n' "$route" "$content_type" "$size"
+          done
+
+          if grep -Fq 'Invalid background image: "#05070d"' "$RUNNER_TEMP/marketech-next.log"; then
+            cat "$RUNNER_TEMP/marketech-next.log" >&2
+            exit 1
+          fi
+
+          echo 'favicon_runtime_routes=PASS'
+
+      - name: Upload server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: favicon-runtime-log
+          path: ${{ runner.temp }}/marketech-next.log
+          if-no-files-found: warn
+          retention-days: 14

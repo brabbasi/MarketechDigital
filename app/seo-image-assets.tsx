@@ -23,7 +23,8 @@ export function MarketechIcon({ size }: IconImageProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: `radial-gradient(circle at 65% 25%, rgba(255,90,0,0.36), transparent 30%), ${brandDark}`,
+        backgroundColor: brandDark,
+        backgroundImage: "radial-gradient(circle at 65% 25%, rgba(255,90,0,0.36), transparent 30%)",
         borderRadius: Math.round(size * 0.22),
         position: "relative",
         overflow: "hidden"
@@ -70,7 +71,7 @@ export function MarketechIcon({ size }: IconImageProps) {
           position: "absolute",
           width: accent,
           height: Math.max(4, Math.round(size * 0.42)),
-          background: `linear-gradient(180deg, ${brandPink}, ${brandOrange})`,
+          backgroundImage: `linear-gradient(180deg, ${brandPink}, ${brandOrange})`,
           borderRadius: Math.round(size * 0.02),
           transform: "rotate(28deg)",
           left: Math.round(size * 0.36),
@@ -82,7 +83,7 @@ export function MarketechIcon({ size }: IconImageProps) {
           position: "absolute",
           width: Math.round(size * 0.26),
           height: Math.round(size * 0.045),
-          background: brandOrange,
+          backgroundColor: brandOrange,
           borderRadius: Math.round(size * 0.02),
           transform: "rotate(-35deg)",
           right: Math.round(size * 0.21),
@@ -102,7 +103,7 @@ export function FaviconCanvas({ size }: IconImageProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: brandDark
+        backgroundColor: brandDark
       }}
     >
       <MarketechIcon size={size} />
@@ -119,7 +120,8 @@ export function OgImage() {
         display: "flex",
         position: "relative",
         overflow: "hidden",
-        background: `radial-gradient(circle at 78% 24%, rgba(255,90,0,0.24), transparent 28%), radial-gradient(circle at 18% 84%, rgba(255,45,143,0.16), transparent 32%), linear-gradient(135deg, #05070d 0%, #0a1020 52%, #05070d 100%)`,
+        backgroundColor: brandDark,
+        backgroundImage: "radial-gradient(circle at 78% 24%, rgba(255,90,0,0.24), transparent 28%), radial-gradient(circle at 18% 84%, rgba(255,45,143,0.16), transparent 32%), linear-gradient(135deg, #05070d 0%, #0a1020 52%, #05070d 100%)",
         color: brandText,
         fontFamily: "Inter, Arial, sans-serif"
       }}
@@ -188,7 +190,7 @@ export function OgImage() {
           display: "flex",
           padding: "18px 24px",
           borderRadius: 999,
-          background: "rgba(255,90,0,0.12)",
+          backgroundColor: "rgba(255,90,0,0.12)",
           border: "1px solid rgba(255,90,0,0.35)",
           color: "#ffd9c7",
           fontSize: 22,
