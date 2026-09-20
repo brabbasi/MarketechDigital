@@ -13,7 +13,7 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
     state: "review",
     progress: 80,
     now: "CI fallback #101 is engineering-green at 0042acf7 with 30 workflows / 0 hard violations / 0 concurrency advisories. Workforce #93 remains review-ready at 28b39784 with Codebase Memory correctly blocked_runtime. All four legacy core worker task objects have now reproduced post-run self-disable; v6 keeps one clean Revenue Queue replacement as the controlled canary while the newer Keeper continues to recur.",
-    next: "Let the clean v6 Revenue Queue complete its first natural :25 run and verify it remains enabled. If it survives, migrate legacy workers one-by-one with the same mission/authority; if it self-disables, move the repair down into scheduler/control-plane state. Keep durability at 0/3 and continue #21/#66/#46/#40, workforce and product lanes in parallel."
+    next: "Let the clean v6 Revenue Queue complete its first natural :25 run and verify it remains enabled. If it survives, migrate legacy workers one-by-one with the same mission/authority; if it self-disables, move the repair down into scheduler/control-plane state. Keep durability at 0/3 and continue #21/#66/#46/#40, workforce and product lanes in parallel.",
     blocked: 2,
     lastUpdate: "Capacity hardening is complete and workforce activation is explicit: 56 agents are assigned, 3 installed workers require re-verification, 4 workers require approved auth/scope evidence, and independent review issue #109 remains the finish-chain gate.",
     history: [
