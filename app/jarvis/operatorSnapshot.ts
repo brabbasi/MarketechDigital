@@ -6,32 +6,38 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-20T20:30:20Z";
+const SNAPSHOT_AT = "2026-09-20T22:20:00Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
-    progress: 80,
-    now: "CI fallback #101 is engineering-green at 0042acf7 with 30 workflows / 0 hard violations / 0 concurrency advisories. Workforce #93 remains review-ready at 28b39784 with Codebase Memory correctly blocked_runtime. All four legacy core worker task objects have now reproduced post-run self-disable; v6 keeps one clean Revenue Queue replacement as the controlled canary while the newer Keeper continues to recur.",
-    next: "Clean Queue PASS #1 remains valid. Clean Conversion cycle 1 is evidence-invalid because a manual restore overlapped natural completion; leave it untouched through the next :27 recurrence before classifying PASS/FAIL or migrating Draft Reviewer. Full-cohort durability remains 0/3 while #21/#66/#46/#40 and product lanes continue in parallel.",
+    progress: 82,
+    now: "Review bootstrap #66 -> #46 remains the critical autonomy gate. Revenue-first commercial unlock is #72 eeee4078 -> #68 1a51a0e7 -> #73 939f601f; #68 is exact-head green with 37 tests and #73 is exact-head green with 64 combined provider/outbound tests. Workforce #93 is frozen at 78af9f41 with Codebase Memory blocked_runtime. Core-lane diagnosis keeps the same existing task objects and tests whether shortening the Reviewer/Resource Manager below the observed 5+ minute fault window stops self-disable.",
+    next: "Observe the shortened clean Reviewer at its natural :30 recurrence and require two consecutive enabled completions before Resource Manager migration. Consume independent review on exact current #66/#46 and repaired commercial heads when capacity permits. Full-cohort durability remains 0/3 and outbound remains held.",
     blocked: 2,
-    lastUpdate: "Capacity hardening is complete and workforce activation is explicit: 56 agents are assigned, 3 installed workers require re-verification, 4 workers require approved auth/scope evidence, and independent review issue #109 remains the finish-chain gate.",
+    lastUpdate: "Revenue executor TOCTOU was repaired before review: #68 now holds serialized authority across transport, and #73 provider CI certifies the inherited outbound suite. No new scheduler task was created.",
     history: [
-      "Private CI capacity policy enforced across 30 workflows with zero hard violations/advisories.",
-      "v5 confirmed that prompt hardening and same-ID schedule re-arm were insufficient; Revenue Queue and Conversion Worker self-disabled again.",
-      "All four legacy core workers have reproduced post-run self-disable. Clean Revenue Queue completed its first natural run at 20:24:25Z and remained enabled. Clean Conversion cycle 1 is AMBIGUOUS because a same-object restore overlapped its 20:28:51Z completion (issue #16 comment 5752458621); it must survive the next untouched :27 recurrence before further migration. Full-cohort durability remains 0/3.",
-      "Trusted finish chain remains #66 -> #46 -> #40 -> #80.",
-      "Remote and local dashboard read models are being synchronized as part of this checkpoint.",
-      "Workforce #93 current head 28b39784 makes runtime truth explicit: Codebase Memory is blocked_runtime until governed Runtime recovery; Graft and Codex remain installed_reverify; Gemini, Copilot, Claude and Figma are blocked_auth; Reviewer remains blocked_runtime.",
+      "Clean Revenue Queue PASS #1 and untouched clean Conversion PASS #2 remain valid.",
+      "Clean Reviewer self-disabled after a 5m49s run; legacy Resource Manager repeated self-disable after roughly 5m17s. Both existing tasks were shortened in place for the next natural-run diagnostic.",
+      "#68 exact 1a51a0e7: Authority Registry + Guarded Outbound self-hosted gates SUCCESS, 37 tests OK including concurrent revocation serialization.",
+      "#73 exact 939f601f: Provider Runtime Binding CI SUCCESS, 64 combined provider/outbound tests OK, provider policy still REVIEW_PENDING.",
+      "Trusted finish chain remains #66 -> #46 -> #40 -> #80. Runtime/autonomy remain OFF.",
+      "Workforce #93 exact 78af9f41 is engineering-green/review-gated: CBM blocked_runtime; Graft/Codex installed_reverify; Gemini/Copilot/Claude blocked_auth."
     ],
   },
   site: {
     state: "review",
-    progress: 79,
-    now: "Founder Portal continues on the rolling preview and consumes the refreshed operator snapshot; material project/workforce/core-lane transitions are represented explicitly instead of waiting on a baked demo refresh.",
-    next: "Keep operator snapshots synchronized on material transitions while #47/#104 remain the governed path to a signed production mirror.",
-    blocked: 1,
-    lastUpdate: "Dashboard-sync habit active: material transitions must refresh both the online operator snapshot and local Trusted project manifest or be reported as a dashboard-sync blocker.",
+    progress: 84,
+    now: "Revenue-first public-site release train is explicit. Inbound PR #11 dd33b705 is CI-green, independently reviewed and already conditionally Founder-approved; only factual production WAF proof remains. Production favicon/OG defect PR #17 b36fe5b2 is exact-head CI SUCCESS + Vercel READY after directly proving /og-image.png and all icon routes render HTTP 200.",
+    next: "Verify #11 production WAF rule without guessing or changing firewall authority. Review #17 exact b36fe5b2 when capacity permits. Keep #16 preview-budget gate and #15 Next 15 migration behind those revenue/reliability gates.",
+    blocked: 2,
+    lastUpdate: "Fresh production telemetry showed 57 favicon/OG renderer errors affecting 22 users on the old live baseline. #17 fixed the renderer and closed the missing /og-image.png CI coverage gap. This portal checkpoint also installs the preview-budget gate so future JARVIS status refreshes do not burn unnecessary Vercel builds.",
+    history: [
+      "PR #11 exact dd33b705 fixes the live email-app/personal-Gmail inquiry flow but still requires factual WAF verification.",
+      "PR #17 exact b36fe5b2: Favicon Runtime CI 35540883666 SUCCESS; /og-image.png returned HTTP 200 image/png; Vercel preview dpl_8NUNhmgxYiGXDawi3YN2brtzVQTh READY.",
+      "PR #16 preview-budget gate permits production and explicit [vercel-preview] checkpoints while suppressing ordinary high-churn JARVIS previews.",
+      "Online portal remains coordination truth; signed Runtime/live-state mirror governance stays separate."
+    ],
   },
   deutschpath: {
     state: "on_track",
@@ -76,29 +82,29 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
   },
   tradepilot: {
     state: "review",
-    progress: 56,
-    now: "PR #5 advanced to 9f6e1a35 and is Vercel READY. The active product lineage now carries the central Reviewer contract directly, while exact-draft approvals remain version-bound and fallback imports remain tenant-safe.",
-    next: "Keep exact head 9f6e1a35 frozen for independent review; perform live database verification only after a separately authorized Supabase restore; keep external send/provider/billing authority off.",
+    progress: 58,
+    now: "PR #5 exact b27957d4 is candidate-hardened and review-required. Duplicate-current-draft ambiguity fails closed; the latest hosted product CI did not execute any steps because private Actions capacity is exhausted, so that red is infrastructure-only rather than a product verdict.",
+    next: "Hold exact source for independent review and resume executable CI through governed capacity. Supabase remains inactive; no live DB/send/provider/billing authority.",
     blocked: 1,
-    lastUpdate: "Standalone Reviewer enrollment PR #4 closed as superseded after its 3 governance files were copied byte-for-byte onto active PR #5. Vercel exact-head build is green; Supabase remains INACTIVE.",
+    lastUpdate: "TradePilot remains source-ready but execution-capacity-blocked; no false product failure is inferred from steps=null hosted runs.",
     history: [
-      "Exact draft review objects are created after transition to needs_approval.",
-      "Approve/reject binds id + needs_approval + exact updated_at and expires stale approvals.",
-      "Fallback prospect imports populate required organization/client IDs from the existing RLS-visible client context.",
-      "Central Reviewer enrollment is now part of the active PR #5 lineage; former standalone PR #4 is closed superseded.",
+      "Exact draft review objects remain immutable/version-bound.",
+      "Duplicate current-draft ambiguity now fails closed.",
+      "Hosted private CI is blocked by the confirmed 3000/3000 monthly Actions allowance.",
+      "Supabase remains inactive and external send/provider authority remains OFF."
     ],
   },
   "finance-os": {
     state: "review",
-    progress: 30,
-    now: "Stage-1 truth hardening PR #117 is engineering-green at bd63f725. Cross-source financial evidence requires stronger anchors, and conflicting records that reuse one tenant-scoped evidence ID now fail closed instead of silently dropping evidence; isolated Lab CI is green.",
-    next: "Hold #117 for independent review. Continue Customer Zero truth-layer engineering only with synthetic/private channels; no personal financial data in Git and no financial-action authority.",
+    progress: 32,
+    now: "Stage-1 truth hardening PR #117 exact 8db00ec9 is isolated-Lab green with 23 tests. Conflicting duplicate evidence IDs fail closed, transfer hints are tenant-scoped, and conflicting user-confirmed responsibility/category truth fails closed.",
+    next: "Hold #117 for independent review. Continue only synthetic/reference truth-layer engineering; no personal financial data in Git and no financial-action authority.",
     blocked: 1,
-    lastUpdate: "Financial Independence OS moved from roadmap-only status to a tested Stage-1 truth-engine successor without introducing customer data, provider integration or money movement.",
+    lastUpdate: "Financial Independence OS is now a tested Stage-1 truth-engine candidate, not merely a roadmap, while preserving zero customer-data and zero money-movement authority.",
     history: [
-      "F1 truth-reference CI 35534941359 passed on isolated Lab.",
-      "Different-account same-merchant/amount evidence now remains separate unless stronger matching evidence exists.",
-      "Posting-lag cross-source evidence needs a shared external reference before automatic reconciliation.",
+      "F1 CI 35536375641 passed with 23 tests.",
+      "Tenant/evidence conflicts fail closed instead of silently collapsing records.",
+      "Synthetic/reference data only; no provider integration or financial action authority."
     ],
   },
   portfolio: {
@@ -120,25 +126,23 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
 const agentOverrides: Record<string, Partial<JarvisAgent>> = {
   resource: {
     state: "running",
-    task: "Core-lane durability + workforce activation + self-hosted CI capacity",
+    task: "Revenue-first orchestration + shortened core-lane recurrence diagnostic",
     history: [
-      "Private CI capacity policy reached 30 workflows / 0 violations / 0 advisories.",
-      "v5 same-ID schedule re-arm still reproduced post-run self-disable on Revenue Queue + Conversion Worker.",
-      "v6 clean-object canary replaces Revenue Queue only; the historical queue stays intentionally disabled while recurrence is tested.",
-      "Legacy Draft Reviewer self-disabled after its 15:30 run and Agent Resource Manager self-disabled after its 15:40 run; both were restored in place. The current cycle is explicitly failed and cannot count toward durability.",
-      "Durability proof remains 0/3 until natural recurrence survives.",
-      "Workforce #93 records 56 explicit agent assignments; employment does not imply autonomous Runtime dispatch.",
-      "Activation sequencing is now fail-closed: Codebase Memory waits for #66 -> #46 -> #40 Runtime recovery; Graft -> Codex remain installed_reverify; Gemini/Copilot/Claude/Figma require separate approved auth/scope evidence.",
+      "Permanent automation rule: reuse/update existing tasks; no new monitor/check task unless absolutely necessary.",
+      "Revenue-first scoreboard is reply -> meeting -> scoped proposal -> contracted CAD -> collected CAD.",
+      "Queue/Conversion clean objects survive; Reviewer and Resource Manager are being tested with smaller bounded runs on the same task objects.",
+      "Commercial chain #72 -> #68 -> #73 is now frozen on repaired current SHAs with exact execution proof on #68/#73.",
+      "Workforce #93 remains review-gated; employment never implies dispatch activation."
     ],
   },
   reviewer: {
     state: "review",
-    task: "Independent-review queue #109 + central Reviewer self-hosting",
+    task: "Exact-head independent-review queue #109",
     history: [
-      "No quota-rejected or stale-head request is treated as approval.",
-      "#66 remains first finish-chain review target, followed by #46 and #40 through the installed Reviewer path.",
-      "Rangrez central Reviewer enrollment successor is #30.",
-      "PR #21 central AI Reviewer is engineering-green at 8fe2b000. Zero-spend staging now formally requires only the internal Reviewer token; OpenAI credentials remain model-phase-only. Loopback self-hosting remains preferred and Vercel optional."
+      "Never reuse stale-SHA PASSes or quota-rejected requests as approval.",
+      "#66 then #46 remain the bootstrap reviews for governed Runtime recovery.",
+      "#68 1a51a0e7, #73 939f601f and public-site #17 b36fe5b2 are current engineering-green/review-ready targets.",
+      "#21 central Reviewer remains engineering-green but NOT deployed and has no model-spend authority."
     ],
   },
   delivery: {
@@ -162,27 +166,26 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
 };
 
 const operatorTasks: JarvisTask[] = [
-  { id:"t1", title:"Trusted Bridge exact-head review", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #66 is engineering-green; independent review capacity issue #109 remains the gate." },
-  { id:"t2", title:"Dashboard read-model synchronization", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Permanent rule: every material company transition refreshes both the online operator snapshot and local Trusted project manifest, or records an explicit sync blocker. This checkpoint includes the v6 recurrence repair." },
-  { id:"t3", title:"Core-lane durability proof", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"Clean Queue PASS #1 remains valid at 20:24:25Z. Clean Conversion cycle 1 is permanently ambiguous because manual restore overlapped its 20:28:51Z natural completion (issue #16 comment 5752458621). No Draft Reviewer migration yet; the next untouched :27 cycle is the deciding canary. Full-cohort durability remains 0/3." },
-  { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000. PR #101 exact head 0042acf7 is engineering-green with 30 workflows / 0 hard violations / 0 concurrency advisories; no runner is installed." },
-  { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"72 qualified prospects; 36 newest packets pending independent review; 36 historical reviewed coverage; 5 evidence-valid Founder-approved held identities; 3 evidence-drift holds; outbound remains held." },
-  { id:"t6", title:"Reviewer install after Bridge", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Sequence remains #66 Bridge -> #46 Reviewer -> fresh #40 Runtime review -> #80 autonomy canary. Runtime and autonomy remain OFF." },
-  { id:"t8", title:"Rangrez P27 child convergence", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"review", detail:"#28 004d14f5 source-contract green; #29 55ef2a8d focused policy 4/4 green; #30 c930394e central Reviewer enrollment open. Hosted red jobs are pre-step infrastructure failures, not product verdicts." },
-  { id:"t10", title:"DeutschPath stale successor reconciliation", projectId:"deutschpath", project:"DeutschPath", agent:"Engineering Agent", state:"done", detail:"PR #22 closed as reconciled/redundant after zero-file diff versus canonical main; missing beta redirect was proven as the former build breaker." },
-  { id:"t11", title:"Axiom evidence + Command Center truth", projectId:"axiom", project:"Axiom", agent:"Engineering Agent", state:"review", detail:"Canonical scorecard remains 50/50 rejects with 0 historical passes and 0 forward survivors. PR #161 5b2d3218 now removes the final stale 0/42 proof card plus Stage29.3 placeholders; exact Vercel preview is READY, hosted proof-ledger job is pre-step blocked. No research semantics or live-capital authority changed." },
-  { id:"t12", title:"TradePilot persistence + Reviewer convergence", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"review", detail:"PR #5 9f6e1a35 is Vercel READY with exact-draft review binding, tenant-safe fallback import and the central Reviewer contract on the active product lineage. Standalone enrollment PR #4 is closed superseded. Supabase remains INACTIVE; no live DB verification claimed." },
-  { id:"t14", title:"Vercel preview budget gate", projectId:"site", project:"Website", agent:"Engineering Agent", state:"review", detail:"High-churn previews stay explicitly gated; public-repo hosted CI remains separate from exhausted private Actions minutes." },
-  { id:"t15", title:"Signed remote mirror publisher", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"PR #104 remains engineering-green. Store connected=false, write secret configured=false and ingestion enabled=false; operator snapshot is not a substitute for the signed production mirror." },
-  { id:"t16", title:"Independent review capacity", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"blocked", detail:"Issue #109 remains canonical for #66/#46/#47/#68/#69/#70/#72/#73/#93/#98/#101/#104 and product Reviewer gates. Passing CI is not independent approval." },
-  { id:"t17", title:"Revenue control chain", projectId:"site", project:"Website", agent:"Revenue Agent", state:"review", detail:"Revenue dependency stays #72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding, with #69 CRM and #70 Founder price authority as parallel #72 dependents. Outbound remains held." },
-  { id:"t18", title:"Codebase Memory runtime recovery gate", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"Workforce #93 head 28b39784 preserves the accepted historical v0.10.8 first-worker proof but now correctly blocks fresh dispatch while Company Runtime is quarantined. After #66 Bridge -> #46 Reviewer -> #40 Runtime recovery clears, require fresh exact identity/scope plus one read-only lifecycle proof." },
-  { id:"t19", title:"Graft worker re-verification", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Priority 2 from workforce #93. Verify the graft-safe wrapper SHA and explicit denial of deep/provider modes before any dispatch promotion." },
-  { id:"t20", title:"Codex worker re-verification", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"queued", detail:"Priority 3 from workforce #93. Require fresh exact identity, read-only usefulness and denied writes/network/approval escalation before headless dispatch." },
-  { id:"t21", title:"Authenticated worker cohort", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"Gemini, Copilot, Claude and Figma are installed/configured capability lanes but remain blocked on approved personal/Marketech authentication plus execution-scope evidence; employer credentials remain prohibited." },
-  { id:"t22", title:"Agent employment registry", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"PR #93 current head 28b39784 records 56 explicit assignments and corrects Codebase Memory from installed_reverify to blocked_runtime. Both exact-head engineering gates are green on the corrected workforce truth; independent review remains required before promotion." },
-  { id:"t23", title:"Central AI Reviewer self-hosted path", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #21 exact head 8fe2b000 is AI Reviewer CI green. Its readiness contract cleanly separates zero-spend staging (internal Reviewer token only) from model credentials. Preferred hosting remains loopback-only Trusted/self-hosted; Vercel is optional. Service is NOT deployed and model-spend authority remains OFF." },
-  { id:"t24", title:"Financial Independence OS F1 truth hardening", projectId:"finance-os", project:"Financial Independence OS", agent:"Delivery Operations", state:"review", detail:"PR #117 bd63f725 is isolated-Lab CI green. Cross-source reconciliation requires stronger anchors, and conflicting reuse of a tenant-scoped evidence ID now fails closed instead of silently losing one record. Synthetic fixtures only; no customer financial data or financial-action authority." },
+  { id:"t1", title:"Trusted Bridge exact-head review", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #66 exact 82691a27 remains engineering-green/frozen; issue #109 independent-review capacity is the gate." },
+  { id:"t2", title:"Trusted Reviewer install path", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"#66 -> #46 -> fresh #40 Runtime review -> #80 autonomy. Runtime/autonomy remain OFF." },
+  { id:"t3", title:"Core-lane shortened-run proof", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"Queue PASS #1 + Conversion PASS #2 remain valid. Clean Reviewer and legacy Resource Manager are shortened in place after 5+ minute self-disable correlation. Require two consecutive shortened Reviewer passes before any RM migration. Full-cohort durability 0/3." },
+  { id:"t4", title:"First paid customer scoreboard", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"live", detail:"72 qualified identities; net-new growth frozen while review backlog >12. Current business scoreboard remains 0 replies / 0 meetings / 0 proposals / CAD 0 contracted / CAD 0 collected." },
+  { id:"t5", title:"Authority Registry", projectId:"jarvis", project:"Revenue", agent:"Engineering Agent", state:"review", detail:"#72 exact eeee4078 is the root for current outbound, price and CRM authority; engineering-green/frozen, independent review required." },
+  { id:"t6", title:"Guarded outbound executor", projectId:"jarvis", project:"Revenue", agent:"Engineering Agent", state:"review", detail:"#68 exact 1a51a0e7 repaired the authority-to-transport TOCTOU race. Authority Registry CI 35541022900 + Guarded Outbound CI 35541022902 SUCCESS; 37 tests OK; outbound held." },
+  { id:"t7", title:"Provider runtime binding", projectId:"jarvis", project:"Revenue", agent:"Engineering Agent", state:"review", detail:"#73 exact 939f601f inherits the serialized outbound guard. Provider Runtime CI 35541178625 SUCCESS; 64 combined tests OK; provider policy REVIEW_PENDING and no adapter/account credentials." },
+  { id:"t8", title:"Founder price authority", projectId:"jarvis", project:"Revenue", agent:"AI Reviewer", state:"review", detail:"#70 exact 391655d9 uses serialized shared-root validation across client-visible price insertion; current exact review still required before any external quote." },
+  { id:"t9", title:"CRM requalification", projectId:"jarvis", project:"Revenue", agent:"AI Reviewer", state:"review", detail:"#69 exact b6784953 uses serialized Founder authority around closed-stage requalification; current exact review still required." },
+  { id:"t10", title:"Inbound acquisition release", projectId:"site", project:"Website", agent:"Engineering Agent", state:"blocked", detail:"#11 exact dd33b705 is CI-green, independently reviewed and already conditionally Founder-approved. Sole remaining gate: factual production WAF proof for POST /api/inquiry at 5 requests / 60s / IP -> 429." },
+  { id:"t11", title:"Production favicon/OG repair", projectId:"site", project:"Website", agent:"AI Reviewer", state:"review", detail:"#17 exact b36fe5b2 is review-ready. Favicon Runtime CI 35540883666 SUCCESS with direct /og-image.png HTTP 200 proof; exact Vercel preview READY. Current production baseline still carries the historical error until release." },
+  { id:"t12", title:"Vercel preview-budget gate", projectId:"site", project:"Website", agent:"Engineering Agent", state:"review", detail:"#16 keeps production builds intact while suppressing ordinary high-churn JARVIS/migration/security/ops previews unless [vercel-preview] is explicitly requested." },
+  { id:"t13", title:"Founder Portal checkpoint", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"This checkpoint consolidates current operator truth + preview-budget gate + favicon/OG repair in one source commit and one intentional Vercel preview." },
+  { id:"t14", title:"Agent employment registry", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"#93 exact 78af9f41 is engineering-green: CBM blocked_runtime; Graft/Codex installed_reverify; Gemini/Copilot/Claude blocked_auth. No dispatch activation." },
+  { id:"t15", title:"Private CI fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"#101 remains engineering-green/frozen/not installed while private GitHub-hosted allowance is 3000/3000 until Oct 1." },
+  { id:"t16", title:"Financial Independence OS F1", projectId:"finance-os", project:"Financial Independence OS", agent:"Delivery Operations", state:"review", detail:"#117 exact 8db00ec9: F1 CI 35536375641 SUCCESS / 23 tests. Synthetic/reference data only; no financial-action authority." },
+  { id:"t17", title:"TradePilot exact-draft hardening", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"review", detail:"#5 exact b27957d4 is review-required; hosted red is steps=null capacity-only. Supabase inactive and send/provider authority OFF." },
+  { id:"t18", title:"Axiom research truth", projectId:"axiom", project:"Axiom", agent:"Engineering Agent", state:"review", detail:"Canonical scorecard remains 50 tested / 50 immutable rejects / 0 historical passes / 0 forward survivors. #161 presentation repair preview READY; production unchanged." },
+  { id:"t19", title:"Rangrez P27 convergence", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"review", detail:"P27 stays frozen; #28/#29 hosted reds are zero-step private-CI capacity failures, not product verdicts; #30 is Reviewer enrollment." },
+  { id:"t20", title:"DeutschPath release gate", projectId:"deutschpath", project:"DeutschPath", agent:"Delivery Operations", state:"review", detail:"Canonical product lineage remains intact; #20 hosted red is a zero-step private-CI capacity failure rather than a product verdict." },
 ];
 
 export const operatorJarvisState: JarvisState = {
