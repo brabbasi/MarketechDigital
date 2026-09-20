@@ -1,13 +1,25 @@
 import { test, expect } from "@playwright/test";
 import { adaptTrustedControlPlaneSnapshot, jarvisStateEndpointEnabled } from "../app/jarvis/trustedMirror";
 import { createHash, createHmac } from "node:crypto";
-import { mirrorIngestEnabled, mirrorStoreConfigured, validateMirrorIngestEnvelope } from "../app/jarvis/mirrorIngest";
+import { mirrorIngestEnabled, mirrorStoreConfigured, readRequestBodyBounded, validateMirrorIngestEnvelope, VERCEL_BLOB_MIRROR_DRIVER } from "../app/jarvis/mirrorIngest";\nimport { mirrorStorageDriver, TRUSTED_MIRROR_BLOB_PATH } from "../app/jarvis/mirrorStore";
 
 test.describe("JARVIS Founder Portal", () => {
 
   test("signed mirror ingestion remains fail-closed until storage is deliberately selected", async ({ request }) => {
     expect(mirrorIngestEnabled({} as NodeJS.ProcessEnv)).toBe(false);
     expect(mirrorStoreConfigured({ JARVIS_MIRROR_STORE_DRIVER: "supabase-v1" } as NodeJS.ProcessEnv)).toBe(false);
+    expect(mirrorStoreConfigured({
+      JARVIS_MIRROR_STORE_DRIVER: VERCEL_BLOB_MIRROR_DRIVER,
+      BLOB_STORE_ID: "store_test",
+    } as NodeJS.ProcessEnv)).toBe(false);
+    const configured = {
+      JARVIS_MIRROR_STORE_DRIVER: VERCEL_BLOB_MIRROR_DRIVER,
+      BLOB_STORE_ID: "store_test",
+      VERCEL_OIDC_TOKEN: "oidc-test-token",
+    } as NodeJS.ProcessEnv;
+    expect(mirrorStoreConfigured(configured)).toBe(true);
+    expect(mirrorStorageDriver(configured)).toBe(VERCEL_BLOB_MIRROR_DRIVER);
+    expect(TRUSTED_MIRROR_BLOB_PATH).toBe("jarvis/trusted-control-plane-snapshot.json");
 
     const response = await request.post("/api/jarvis/mirror-ingest", {
       data: { probe: true },
@@ -54,6 +66,22 @@ test.describe("JARVIS Founder Portal", () => {
     const badSignature = new Headers(headers);
     badSignature.set("x-marketech-signature", `v1=${"2".repeat(64)}`);
     expect(() => validateMirrorIngestEnvelope(body, badSignature, secret, nowMs)).toThrow(/signature/);
+  });
+
+  test("mirror request body reader enforces the hard byte bound", async () => {
+    const small = new Request("https://example.invalid", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ safe: true }),
+    });
+    const body = await readRequestBodyBounded(small, 64);
+    expect(new TextDecoder().decode(body)).toContain("safe");
+
+    const oversized = new Request("https://example.invalid", {
+      method: "POST",
+      body: "x".repeat(65),
+    });
+    await expect(readRequestBodyBounded(oversized, 64)).rejects.toThrow(/size/);
   });
 
   test("production state endpoint requires a verified Founder session", () => {

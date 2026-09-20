@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { demoJarvisState } from "../../../jarvis/jarvisState";
+import {
+  mirrorStoreConfigured,
+  VERCEL_BLOB_MIRROR_DRIVER,
+} from "../../../jarvis/mirrorIngest";
+import { readTrustedMirrorBlob } from "../../../jarvis/mirrorStore";
 import { adaptTrustedControlPlaneSnapshot, jarvisStateEndpointEnabled } from "../../../jarvis/trustedMirror";
 import {
   FOUNDER_SESSION_COOKIE,
@@ -54,6 +59,30 @@ function unavailable(reason: string) {
   );
 }
 
+function mirrorResponse(payload: unknown) {
+  const maxAgeSeconds = maxMirrorAgeSeconds();
+  let normalized;
+  try {
+    normalized = adaptTrustedControlPlaneSnapshot(payload, { maxAgeSeconds });
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "";
+    if (detail.includes("stale") || detail.includes("future")) {
+      return unavailable("mirror_stale_or_clock_invalid");
+    }
+    return unavailable("invalid_mirror_contract");
+  }
+
+  return NextResponse.json({ ...normalized, portal: portalMetadata() }, {
+    status: 200,
+    headers: {
+      "cache-control": "no-store",
+      "x-jarvis-source": "mirror",
+      "x-jarvis-generated-at": normalized.generatedAt,
+      "x-jarvis-mirror-contract": normalized.mirror?.contract ?? "jarvis-state-v1",
+    },
+  });
+}
+
 export async function GET(request: NextRequest) {
   const production = process.env.VERCEL_ENV === "production";
   let founderAuthenticated = false;
@@ -106,9 +135,28 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const mirrorDriver = process.env.JARVIS_MIRROR_STORE_DRIVER?.trim();
   const mirrorUrl = process.env.JARVIS_MIRROR_URL?.trim();
   const mirrorToken = process.env.JARVIS_MIRROR_READ_TOKEN?.trim();
   const demoAllowed = process.env.VERCEL_ENV !== "production";
+
+  if (mirrorDriver && (mirrorUrl || mirrorToken)) {
+    return unavailable("mirror_configuration_conflict");
+  }
+
+  if (mirrorDriver) {
+    if (mirrorDriver !== VERCEL_BLOB_MIRROR_DRIVER || !mirrorStoreConfigured()) {
+      return unavailable("mirror_store_configuration_incomplete");
+    }
+    try {
+      const body = await readTrustedMirrorBlob();
+      if (!body) return unavailable("mirror_blob_missing");
+      const payload: unknown = JSON.parse(new TextDecoder().decode(body));
+      return mirrorResponse(payload);
+    } catch {
+      return unavailable("mirror_blob_read_failed");
+    }
+  }
 
   if (mirrorUrl || mirrorToken) {
     if (!mirrorUrl || !mirrorToken) {
@@ -134,28 +182,7 @@ export async function GET(request: NextRequest) {
       }
 
       const payload: unknown = await response.json();
-      const maxAgeSeconds = maxMirrorAgeSeconds();
-      let normalized;
-
-      try {
-        normalized = adaptTrustedControlPlaneSnapshot(payload, { maxAgeSeconds });
-      } catch (error) {
-        const detail = error instanceof Error ? error.message : "";
-        if (detail.includes("stale") || detail.includes("future")) {
-          return unavailable("mirror_stale_or_clock_invalid");
-        }
-        return unavailable("invalid_mirror_contract");
-      }
-
-      return NextResponse.json({ ...normalized, portal: portalMetadata() }, {
-        status: 200,
-        headers: {
-          "cache-control": "no-store",
-          "x-jarvis-source": "mirror",
-          "x-jarvis-generated-at": normalized.generatedAt,
-          "x-jarvis-mirror-contract": normalized.mirror?.contract ?? "jarvis-state-v1",
-        },
-      });
+      return mirrorResponse(payload);
     } catch {
       return unavailable("mirror_fetch_failed");
     }

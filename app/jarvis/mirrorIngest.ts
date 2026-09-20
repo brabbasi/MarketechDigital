@@ -2,8 +2,7 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 export const MIRROR_INGEST_MAX_BYTES = 512 * 1024;
 export const MIRROR_INGEST_MAX_SKEW_SECONDS = 120;
-
-const SUPPORTED_STORE_DRIVERS = new Set<string>();
+export const VERCEL_BLOB_MIRROR_DRIVER = "vercel-blob-v1";
 
 export type MirrorIngestEnvelope = {
   timestamp: number;
@@ -25,12 +24,57 @@ export function mirrorIngestEnabled(env: NodeJS.ProcessEnv = process.env): boole
 
 export function mirrorStoreConfigured(env: NodeJS.ProcessEnv = process.env): boolean {
   const driver = env.JARVIS_MIRROR_STORE_DRIVER?.trim();
-  return Boolean(driver && SUPPORTED_STORE_DRIVERS.has(driver));
+  const storeId = env.BLOB_STORE_ID?.trim();
+  const oidcToken = env.VERCEL_OIDC_TOKEN?.trim();
+  return driver === VERCEL_BLOB_MIRROR_DRIVER && Boolean(storeId && oidcToken);
 }
 
 export function mirrorWriteSecret(env: NodeJS.ProcessEnv = process.env): string | null {
   const secret = env.JARVIS_MIRROR_WRITE_SECRET?.trim();
   return secret && secret.length >= 32 ? secret : null;
+}
+
+export async function readRequestBodyBounded(
+  request: Request,
+  maxBytes = MIRROR_INGEST_MAX_BYTES,
+): Promise<Uint8Array> {
+  const rawLength = request.headers.get("content-length");
+  if (rawLength) {
+    const parsed = Number.parseInt(rawLength, 10);
+    if (!Number.isSafeInteger(parsed) || parsed <= 0 || parsed > maxBytes) {
+      throw new Error("mirror body size invalid");
+    }
+  }
+
+  if (!request.body) throw new Error("mirror body missing");
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!(value instanceof Uint8Array)) {
+        throw new Error("mirror body chunk invalid");
+      }
+      total += value.byteLength;
+      if (total > maxBytes) {
+        throw new Error("mirror body size invalid");
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  if (total <= 0) throw new Error("mirror body size invalid");
+  const body = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return body;
 }
 
 export function validateMirrorIngestEnvelope(
