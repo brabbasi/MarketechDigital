@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { demoJarvisState } from "../../../jarvis/jarvisState";
+import { operatorJarvisState } from "../../../jarvis/operatorSnapshot";
 import {
   mirrorStoreConfigured,
   VERCEL_BLOB_MIRROR_DRIVER,
@@ -205,15 +205,14 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json(
     {
-      ...demoJarvisState,
-      generatedAt: new Date().toISOString(),
+      ...operatorJarvisState,
       portal: portalMetadata(),
     },
     {
       status: 200,
       headers: {
         "cache-control": "no-store",
-        "x-jarvis-source": "demo",
+        "x-jarvis-source": "operator",
       },
     },
   );

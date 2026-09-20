@@ -33,7 +33,7 @@ const taskLabel: Record<TaskState,string> = {
 export default function JarvisPortal() {
   const [snapshot,setSnapshot] = useState<JarvisState | null>(null);
   const [projects,setProjects] = useState<JarvisProject[]>([]);
-  const [readModelStatus,setReadModelStatus] = useState<"loading"|"demo"|"mirror"|"unavailable">("loading");
+  const [readModelStatus,setReadModelStatus] = useState<"loading"|"demo"|"operator"|"mirror"|"unavailable">("loading");
   const agents = snapshot?.agents ?? [];
   const tasks = snapshot?.tasks ?? [];
   const portalBuild = snapshot?.portal?.buildSha || "unknown";
@@ -93,7 +93,7 @@ export default function JarvisPortal() {
   const ciInfrastructureBlockers = tasks.filter(task =>
     task.state==="blocked" && /\b(ci|runner|infrastructure)\b/i.test(`${task.title} ${task.detail}`)
   ).length;
-  const readFreshness = snapshot?.mirror ? `${snapshot.mirror.ageSeconds}s old` : "5s refresh";
+  const readFreshness = snapshot?.mirror ? `${snapshot.mirror.ageSeconds}s old` : snapshot?.source==="operator" ? `as of ${snapshot.generatedAt.slice(11,16)} UTC` : "preview fixture";
   const parallelLanes = useMemo(() => projects.map(project => {
     const laneTasks = tasks.filter(task => task.projectId === project.id);
     const active = laneTasks.filter(task => task.state === "live" || task.state === "next" || task.state === "queued").length;
@@ -221,7 +221,7 @@ export default function JarvisPortal() {
           <div className={styles.mobileBrief}>
             <div><small>FOUNDER SNAPSHOT</small><span>{snapshot.source.toUpperCase()} · BUILD {portalBuild.slice(0,8)}{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s`:""}</span></div>
             <h1>Good afternoon, Basit.</h1>
-            <p>{snapshot.source==="mirror"?"Trusted mirror only. Unknown activity stays unknown.":"Preview mode for product and interaction QA."}</p>
+            <p>{snapshot.source==="mirror"?"Trusted mirror only. Unknown activity stays unknown.":snapshot.source==="operator"?"Current operator snapshot. Production mirror authority remains off.":"Preview mode for product and interaction QA."}</p>
             <div className={styles.mobilePulse}>
               <b>{tasks.filter(t=>t.state==="live").length}<small>live</small></b>
               <b>{tasks.filter(t=>t.state==="review").length}<small>review</small></b>
@@ -294,8 +294,8 @@ export default function JarvisPortal() {
           <div className={styles.mobileHistoryList}>{selectedProject.history.map(entry=><div key={entry}><b>{entry}</b><small>project evidence retained</small></div>)}</div>
           <article className={styles.mobileProvenance}>
             <small>READ MODEL</small><strong>{snapshot.source.toUpperCase()}</strong>
-            <span>{snapshot.mirror?.contract || "demo-preview-v1"}</span>
-            <span>{snapshot.mirror?.workforceSourceSha ? `workforce ${snapshot.mirror.workforceSourceSha.slice(0,12)}…` : "No live workforce provenance in demo mode"}</span>
+            <span>{snapshot.mirror?.contract || (snapshot.source==="operator" ? "operator-snapshot-v1" : "demo-preview-v1")}</span>
+            <span>{snapshot.mirror?.workforceSourceSha ? `workforce ${snapshot.mirror.workforceSourceSha.slice(0,12)}…` : snapshot.source==="operator" ? "Operator snapshot; live worker provenance remains mirror-gated" : "No live workforce provenance in demo mode"}</span>
           </article>
         </section>}
       </div>
@@ -328,10 +328,10 @@ export default function JarvisPortal() {
 
         <section className={styles.center}>
           <div className={styles.sceneHeader}>
-            <div><small>COMPANY VIEW · {readModelStatus.toUpperCase()}</small><h1>Agent Constellation</h1><p>{readModelStatus==="mirror"?"Sanitized trusted mirror. Drag an agent onto a project to request assistance.":"Preview data only. Drag an agent onto a project to rehearse bounded assistance."}</p></div>
+            <div><small>COMPANY VIEW · {readModelStatus.toUpperCase()}</small><h1>Agent Constellation</h1><p>{readModelStatus==="mirror"?"Sanitized trusted mirror. Drag an agent onto a project to request assistance.":readModelStatus==="operator"?"Current operator snapshot. Project state advances with material company transitions; actions remain preview-only.":"Preview data only. Drag an agent onto a project to rehearse bounded assistance."}</p></div>
             <div className={styles.companyStats}><b>{snapshot.source==="mirror"?"—":agents.filter(a=>a.state==="running").length}<small>{snapshot.source==="mirror"?"activity":"running"}</small></b><b>{tasks.filter(t=>t.state==="live").length}<small>live tasks</small></b><b>{tasks.filter(t=>t.state==="founder").length}<small>needs you</small></b></div>
             <div className={styles.truthStrip} data-testid="founder-truth-strip">
-              <article><small>DATA</small><strong>{snapshot.source==="mirror"?"TRUSTED MIRROR":"PREVIEW"}</strong><span>{readFreshness}</span></article>
+              <article><small>DATA</small><strong>{snapshot.source==="mirror"?"TRUSTED MIRROR":snapshot.source==="operator"?"OPERATOR SNAPSHOT":"PREVIEW"}</strong><span>{readFreshness}</span></article>
               <article><small>REVIEW QUEUE</small><strong>{reviewQueueCount}</strong><span>independent review gates</span></article>
               <article><small>CI BLOCKERS</small><strong>{ciInfrastructureBlockers}</strong><span>infrastructure, not product verdicts</span></article>
               <article><small>CONTROL</small><strong>GATED</strong><span>read-only · MFA staged</span></article>
@@ -412,7 +412,7 @@ export default function JarvisPortal() {
           <section className={styles.brief}>
             <div><small>FOUNDER BRIEF</small><span>{snapshot.source.toUpperCase()} · BUILD {portalBuild.slice(0,8)}{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s old`:""}</span></div>
             <h2>Good afternoon, Basit.</h2>
-            <p>{snapshot.source==="mirror"?"This view is derived from the sanitized Trusted Control Plane snapshot. Unexposed activity is shown as unknown instead of invented.":"This is preview data for interaction and visual QA; it is not installed/runtime truth."}</p>
+            <p>{snapshot.source==="mirror"?"This view is derived from the sanitized Trusted Control Plane snapshot. Unexposed activity is shown as unknown instead of invented.":snapshot.source==="operator"?"This view is the latest sanitized operator checkpoint from connected company work. It is current coordination truth, not production Runtime authority.":"This is preview data for interaction and visual QA; it is not installed/runtime truth."}</p>
             <div className={styles.briefStats}><b>4<small>finish gates</small></b><b>{snapshot.revenue.qualifiedProspects}<small>prospects</small></b><b>{snapshot.revenue.outboundHeld ? 0 : snapshot.revenue.outreachSent}<small>outbound active</small></b></div>
           </section>
 
@@ -460,7 +460,7 @@ export default function JarvisPortal() {
         <footer><button onClick={()=>setPendingAssignment(null)}>Cancel</button><button onClick={confirmAssignment}>Assign preview</button></footer>
       </section></div>}
 
-      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s OLD`:""}</span><span data-testid="portal-build">BUILD {portalBuild.slice(0,12)} · {portalEnvironment.toUpperCase()} · 5S REFRESH</span><span>REMOTE CONTROLS GATED · MFA STAGED</span></footer>
+      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s OLD`:""}</span><span data-testid="portal-build">BUILD {portalBuild.slice(0,12)} · {portalEnvironment.toUpperCase()} · 5S POLL</span><span>REMOTE CONTROLS GATED · MFA STAGED</span></footer>
     </main>
   );
 }

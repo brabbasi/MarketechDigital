@@ -49,7 +49,7 @@ export type JarvisTask = {
 export type JarvisState = {
   schemaVersion: 1;
   generatedAt: string;
-  source: "demo" | "mirror";
+  source: "demo" | "operator" | "mirror";
   authority: "read_only";
   agents: JarvisAgent[];
   projects: JarvisProject[];

@@ -215,11 +215,11 @@ test.describe("JARVIS Founder Portal", () => {
     const response = await request.get("/api/jarvis/state");
     expect(response.ok()).toBeTruthy();
     expect(response.headers()["cache-control"]).toContain("no-store");
-    expect(response.headers()["x-jarvis-source"]).toBe("demo");
+    expect(response.headers()["x-jarvis-source"]).toBe("operator");
 
     const payload = await response.json();
     expect(payload.schemaVersion).toBe(1);
-    expect(payload.source).toBe("demo");
+    expect(payload.source).toBe("operator");
     expect(payload.authority).toBe("read_only");
     expect(payload.agents.length).toBeGreaterThanOrEqual(8);
     expect(payload.projects.length).toBeGreaterThanOrEqual(10);
@@ -234,7 +234,7 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.revenue.knownRequalificationHolds).toBe(3);
     expect(payload.revenue).not.toHaveProperty("reviewedSendReady");
     expect(payload.revenue).not.toHaveProperty("founderApproved");
-    expect(payload.tasks.find((task: { id: string; state: string }) => task.id === "t2")?.state).toBe("done");
+    expect(payload.tasks.find((task: { id: string; state: string }) => task.id === "t2")?.state).toBe("live");
     const mirrorTask = payload.tasks.find((task: { id: string; state: string; detail: string }) => task.id === "t15");
     expect(mirrorTask?.detail).toContain("Store connected=false");
     expect(mirrorTask?.detail).toContain("write secret configured=false");
@@ -296,7 +296,7 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByRole("button", { name: "Approve", exact: true })).toHaveCount(0);
     await expect(page.getByTestId("read-model-status")).toContainText("READ MODEL");
     await expect(page.getByTestId("portal-build")).toContainText("BUILD");
-    await expect(page.getByTestId("portal-build")).toContainText("5S REFRESH");
+    await expect(page.getByTestId("portal-build")).toContainText("5S POLL");
 
     const layout = await page.evaluate(() => ({
       scrollHeight: document.documentElement.scrollHeight,
