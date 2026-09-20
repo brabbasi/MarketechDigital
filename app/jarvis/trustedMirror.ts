@@ -109,7 +109,11 @@ type TrustedSnapshot = {
     qualified_prospects?: number;
     draft_ready_pending_review?: number;
     independently_reviewed_send_ready?: number;
+    historical_independent_review_coverage_unique?: number;
     founder_approved_sends?: number;
+    historical_founder_approved_initial_contacts?: number;
+    current_evidence_valid_founder_approved_execution_held?: number;
+    known_requalification_holds?: number;
     outreach_sent?: number;
     replies?: number;
     meetings?: number;
@@ -481,8 +485,20 @@ export function adaptTrustedControlPlaneSnapshot(
     revenue: {
       qualifiedProspects: safeNumber(revenue.qualified_prospects),
       pendingIndependentReview: safeNumber(revenue.draft_ready_pending_review),
-      reviewedSendReady: safeNumber(revenue.independently_reviewed_send_ready),
-      founderApproved: safeNumber(revenue.founder_approved_sends),
+      historicalReviewedCoverage: safeNumber(
+        revenue.historical_independent_review_coverage_unique ?? revenue.independently_reviewed_send_ready,
+      ),
+      historicalFounderApproved: safeNumber(
+        revenue.historical_founder_approved_initial_contacts ?? revenue.founder_approved_sends,
+      ),
+      currentEvidenceValidFounderApproved:
+        typeof revenue.current_evidence_valid_founder_approved_execution_held === "number"
+          ? safeNumber(revenue.current_evidence_valid_founder_approved_execution_held)
+          : null,
+      knownRequalificationHolds:
+        typeof revenue.known_requalification_holds === "number"
+          ? safeNumber(revenue.known_requalification_holds)
+          : null,
       outreachSent: safeNumber(revenue.outreach_sent),
       replies: safeNumber(revenue.replies),
       meetings: safeNumber(revenue.meetings),

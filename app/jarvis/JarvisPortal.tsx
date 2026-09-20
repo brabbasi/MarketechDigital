@@ -139,7 +139,7 @@ export default function JarvisPortal() {
       answer=`The current read model exposes ${needsFounder.length} item${needsFounder.length===1?"":"s"} needing Founder action. The remote signed-intent path is still off, so this portal does not record a decision yet.`;
     }
     if(normalized.includes("revenue") && snapshot){
-      answer=`The read model shows ${snapshot.revenue.qualifiedProspects} qualified prospects and ${snapshot.revenue.pendingIndependentReview} pending independent review. Outbound is ${snapshot.revenue.outboundHeld?"held":"not marked held"} by the current authority state.`;
+      answer=`The read model shows ${snapshot.revenue.qualifiedProspects} qualified prospects, ${snapshot.revenue.pendingIndependentReview} pending independent review, and ${snapshot.revenue.historicalReviewedCoverage} with historical independent-review coverage. ${snapshot.revenue.currentEvidenceValidFounderApproved===null?"The current evidence-valid Founder-approved subset is not supplied by this mirror.":`${snapshot.revenue.currentEvidenceValidFounderApproved} Founder-approved unsent identities are explicitly revalidated as evidence-valid, with ${snapshot.revenue.knownRequalificationHolds ?? "unknown"} known evidence-drift holds.`} Outbound is ${snapshot.revenue.outboundHeld?"held":"not marked held"} by the current authority state.`;
     }
     setJarvisAnswer(answer);
     setQuery("");

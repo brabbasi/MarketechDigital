@@ -181,6 +181,10 @@ test.describe("JARVIS Founder Portal", () => {
     expect(state.tasks.find(task => task.id === "finish-bridge")?.state).toBe("founder");
     expect(state.agents.find(agent => agent.id === "reviewer")?.state).toBe("review");
     expect(state.agents.find(agent => agent.id === "engineering")?.state).toBe("unknown");
+    expect(state.revenue.historicalReviewedCoverage).toBe(36);
+    expect(state.revenue.historicalFounderApproved).toBe(17);
+    expect(state.revenue.currentEvidenceValidFounderApproved).toBeNull();
+    expect(state.revenue.knownRequalificationHolds).toBeNull();
 
     expect(() => adaptTrustedControlPlaneSnapshot(
       { ...fixture, generated_at: "2026-09-19T19:20:00Z" },
@@ -224,6 +228,12 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.revenue.outboundHeld).toBe(true);
     expect(payload.revenue.qualifiedProspects).toBe(72);
     expect(payload.revenue.pendingIndependentReview).toBe(36);
+    expect(payload.revenue.historicalReviewedCoverage).toBe(36);
+    expect(payload.revenue.historicalFounderApproved).toBe(17);
+    expect(payload.revenue.currentEvidenceValidFounderApproved).toBe(5);
+    expect(payload.revenue.knownRequalificationHolds).toBe(3);
+    expect(payload.revenue).not.toHaveProperty("reviewedSendReady");
+    expect(payload.revenue).not.toHaveProperty("founderApproved");
     expect(payload.tasks.find((task: { id: string; state: string }) => task.id === "t2")?.state).toBe("done");
     const mirrorTask = payload.tasks.find((task: { id: string; state: string; detail: string }) => task.id === "t15");
     expect(mirrorTask?.detail).toContain("Store connected=false");

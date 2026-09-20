@@ -57,8 +57,10 @@ export type JarvisState = {
   revenue: {
     qualifiedProspects: number;
     pendingIndependentReview: number;
-    reviewedSendReady: number;
-    founderApproved: number;
+    historicalReviewedCoverage: number;
+    historicalFounderApproved: number;
+    currentEvidenceValidFounderApproved: number | null;
+    knownRequalificationHolds: number | null;
     outreachSent: number;
     replies: number;
     meetings: number;
@@ -99,7 +101,7 @@ export const demoJarvisState: JarvisState = {
     { id:"delivery", name:"Delivery Operations", short:"DO", department:"Delivery", state:"running", x:78, y:68, load:61, task:"Project worklane continuity", skills:["delivery planning","QA","dependency tracking"], workers:[{name:"Codex Engineering Senior",state:"busy",last:"now"}], history:["Maintained project continuation points","No project silently replaced"] },
     { id:"engineering", name:"Engineering Agent", short:"EN", department:"Engineering", state:"running", x:57, y:82, load:78, task:"Live cockpit + remote Founder portal convergence", skills:["Next.js","Python","CI","systems"], workers:[{name:"Codex Engineering Senior",state:"running",last:"now"},{name:"Codebase Memory",state:"installed-reverify",last:"gated"}], history:["Founder cockpit v9 deployed through Trusted pull lane","Founder Portal rolling Vercel alias is deployed + browser-QA green; exact build SHA is exposed dynamically","Private Vercel Blob mirror driver is implemented behind OIDC/store gates and remains unconnected","Signed sanitized mirror publisher #104 is engineering-green and not activated"] },
     { id:"memory", name:"Memory Agent", short:"ME", department:"Knowledge", state:"training", x:34, y:80, load:31, task:"Memory Fabric evaluation", skills:["episodic memory","provenance","retrieval"], workers:[{name:"MemPalace candidate",state:"lab only",last:"evaluation pending"},{name:"Graft",state:"restricted",last:"verified"}], history:["Memory Router contract defined","MemPalace kept behind Lab gate"] },
-    { id:"revenue", name:"Revenue Agent", short:"RV", department:"Revenue", state:"running", x:16, y:63, load:49, task:"Research + pipeline movement", skills:["qualification","research","pipeline"], workers:[{name:"Revenue Assessment Trainee",state:"evaluation",last:"current"}], history:["72 qualified prospects in canonical queue","36 newest packets await independent review","Five directly traceable outreach threads rechecked with zero replies","Outbound remains governed and held"] },
+    { id:"revenue", name:"Revenue Agent", short:"RV", department:"Revenue", state:"running", x:16, y:63, load:49, task:"Research + pipeline movement", skills:["qualification","research","pipeline"], workers:[{name:"Revenue Assessment Trainee",state:"evaluation",last:"current"}], history:["72 qualified prospects in canonical queue","36 newest packets await independent review","36 is historical independent-review coverage, not current send authority","5 Founder-approved unsent identities explicitly revalidated as evidence-valid; 3 known evidence-drift holds","Outbound remains governed and held"] },
     { id:"marketing", name:"Marketing Agent", short:"MK", department:"Growth", state:"ready", x:14, y:35, load:28, task:"SEO + organic growth", skills:["SEO","GEO/AEO","content"], workers:[{name:"Website Evidence Specialist",state:"planned",last:"n/a"}], history:["Website evidence workflows defined","Publishing authority remains gated"] },
     { id:"client", name:"Client Success Agent", short:"CS", department:"Client", state:"ready", x:29, y:18, load:18, task:"Client readiness + support", skills:["onboarding","support","status comms"], workers:[{name:"Client Comms specialist",state:"planned",last:"n/a"}], history:["Client-agent pack canonicalized","No unsupported client state claims"] }
   ],
@@ -227,7 +229,7 @@ export const demoJarvisState: JarvisState = {
     { id:"t2", title:"Remote Founder portal delivery checkpoint", projectId:"site", project:"Website", agent:"Engineering Agent", state:"done", detail:"Rolling Vercel alias is deployed and QA-green; exact build SHA is shown dynamically in Founder Truth. Next 15.5.24 and fail-closed private Blob mirror driver remain green." },
     { id:"t3", title:"Canonical system map", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"done", detail:"Full living scope map + drift guard created in PR #92." },
     { id:"t4", title:"Cursor capability refresh review", projectId:"jarvis", project:"JARVIS", agent:"Delivery Operations", state:"review", detail:"PR #98 discovery + full isolated Lab audit are green for build 2026.09.18-9a7762b; independent review remains required before promotion." },
-    { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"36 newest packets await independent review; 72 qualified total; five direct outreach threads rechecked with zero replies; no outbound." },
+    { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"36 newest packets await independent review; 36 historical review coverage; 5 explicitly revalidated Founder-approved/held; 3 known evidence-drift holds; 72 qualified total; no outbound." },
     { id:"t6", title:"Reviewer install after Bridge", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Governed install only after clean exact-head reviews of both #66 Bridge and #46 Reviewer, followed by fresh short-lived Founder exact-ref approvals." },
     { id:"t7", title:"Founder activation decision", projectId:"jarvis", project:"JARVIS", agent:"Executive Orchestrator", state:"founder", detail:"Example approval surface only; no real action is wired in this preview." },
     { id:"t8", title:"Rangrez CI evidence recovery", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"blocked", detail:"Private Actions allowance is exhausted at 3000/3000 minutes; reset October 1. #101 is the review-gated self-hosted alternative." },
@@ -243,8 +245,10 @@ export const demoJarvisState: JarvisState = {
   revenue: {
     qualifiedProspects: 72,
     pendingIndependentReview: 36,
-    reviewedSendReady: 36,
-    founderApproved: 17,
+    historicalReviewedCoverage: 36,
+    historicalFounderApproved: 17,
+    currentEvidenceValidFounderApproved: 5,
+    knownRequalificationHolds: 3,
     outreachSent: 11,
     replies: 0,
     meetings: 0,
