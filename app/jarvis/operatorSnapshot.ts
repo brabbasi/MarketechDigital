@@ -6,7 +6,7 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-20T19:25:21Z";
+const SNAPSHOT_AT = "2026-09-20T19:27:35Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
@@ -94,7 +94,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
     task: "Core-lane durability + workforce activation + self-hosted CI capacity",
     history: [
       "Private CI capacity policy reached 30 workflows / 0 violations / 0 advisories.",
-      "All four perpetual company lanes restored after post-run self-disable.",
+      "v5 same-ID schedule re-arm still reproduced post-run self-disable on Revenue Queue + Conversion Worker; both were restored.",
       "Durability proof remains 0/3 until natural recurrence survives.",
       "Workforce #93 records 56 explicit agent assignments; employment does not imply autonomous Runtime dispatch.",
       "Activation priority is Codebase Memory -> Graft -> Codex (installed_reverify), then separately authenticated Gemini/Copilot/Claude/Figma.",
@@ -132,7 +132,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
 const operatorTasks: JarvisTask[] = [
   { id:"t1", title:"Trusted Bridge exact-head review", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #66 is engineering-green; independent review capacity issue #109 remains the gate." },
   { id:"t2", title:"Dashboard read-model synchronization", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Permanent rule: every material company transition refreshes both the online operator snapshot and local Trusted project manifest, or records an explicit sync blocker. Current online build: 90db5dca." },
-  { id:"t3", title:"Core-lane durability proof", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"live", detail:"All four exact recurring company lanes are enabled after post-run self-disable. Durability is 0/3 until three later natural cycles survive without restoration." },
+  { id:"t3", title:"Core-lane durability proof", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"v5 recurrence test reproduced the defect: Revenue Queue and Conversion Worker ran, self-disabled, and were restored in place. Durability reset/stays 0/3 while the scheduler/lifecycle root cause remains open." },
   { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000. PR #101 exact head 0042acf7 is engineering-green with 30 workflows / 0 hard violations / 0 concurrency advisories; no runner is installed." },
   { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"72 qualified prospects; 36 newest packets pending independent review; 36 historical reviewed coverage; 5 evidence-valid Founder-approved held identities; 3 evidence-drift holds; outbound remains held." },
   { id:"t6", title:"Reviewer install after Bridge", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Sequence remains #66 Bridge -> #46 Reviewer -> fresh #40 Runtime review -> #80 autonomy canary. Runtime and autonomy remain OFF." },
