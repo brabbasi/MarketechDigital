@@ -77,14 +77,15 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
   tradepilot: {
     state: "review",
     progress: 56,
-    now: "PR #5 is frozen at cb3eaca1 and Vercel READY. Exact-draft approvals now fail closed on version drift, and fallback imports bind to the authenticated RLS-visible tenant context.",
-    next: "Perform live database verification only after a separately authorized Supabase restore; keep external send/provider/billing authority off.",
+    now: "PR #5 advanced to 9f6e1a35 and is Vercel READY. The active product lineage now carries the central Reviewer contract directly, while exact-draft approvals remain version-bound and fallback imports remain tenant-safe.",
+    next: "Keep exact head 9f6e1a35 frozen for independent review; perform live database verification only after a separately authorized Supabase restore; keep external send/provider/billing authority off.",
     blocked: 1,
-    lastUpdate: "Vercel exact-head build green; Supabase Tradepilot remains INACTIVE and was not restored.",
+    lastUpdate: "Standalone Reviewer enrollment PR #4 closed as superseded after its 3 governance files were copied byte-for-byte onto active PR #5. Vercel exact-head build is green; Supabase remains INACTIVE.",
     history: [
       "Exact draft review objects are created after transition to needs_approval.",
       "Approve/reject binds id + needs_approval + exact updated_at and expires stale approvals.",
       "Fallback prospect imports populate required organization/client IDs from the existing RLS-visible client context.",
+      "Central Reviewer enrollment is now part of the active PR #5 lineage; former standalone PR #4 is closed superseded.",
     ],
   },
   portfolio: {
@@ -157,7 +158,7 @@ const operatorTasks: JarvisTask[] = [
   { id:"t8", title:"Rangrez P27 child convergence", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"review", detail:"#28 004d14f5 source-contract green; #29 55ef2a8d focused policy 4/4 green; #30 c930394e central Reviewer enrollment open. Hosted red jobs are pre-step infrastructure failures, not product verdicts." },
   { id:"t10", title:"DeutschPath stale successor reconciliation", projectId:"deutschpath", project:"DeutschPath", agent:"Engineering Agent", state:"done", detail:"PR #22 closed as reconciled/redundant after zero-file diff versus canonical main; missing beta redirect was proven as the former build breaker." },
   { id:"t11", title:"Axiom evidence + Command Center truth", projectId:"axiom", project:"Axiom", agent:"Engineering Agent", state:"review", detail:"Canonical scorecard remains 50/50 rejects with 0 historical passes and 0 forward survivors. PR #161 fd3b6343 repairs stale 42/42 + Stage29.3 UI text; Vercel preview READY, hosted proof-ledger job pre-step blocked. No research semantics or live-capital authority changed." },
-  { id:"t12", title:"TradePilot persistence hardening", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"review", detail:"PR #5 cb3eaca1 is Vercel READY with exact-draft review binding + tenant-safe fallback import. Supabase remains INACTIVE; no live DB verification claimed." },
+  { id:"t12", title:"TradePilot persistence + Reviewer convergence", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"review", detail:"PR #5 9f6e1a35 is Vercel READY with exact-draft review binding, tenant-safe fallback import and the central Reviewer contract on the active product lineage. Standalone enrollment PR #4 is closed superseded. Supabase remains INACTIVE; no live DB verification claimed." },
   { id:"t14", title:"Vercel preview budget gate", projectId:"site", project:"Website", agent:"Engineering Agent", state:"review", detail:"High-churn previews stay explicitly gated; public-repo hosted CI remains separate from exhausted private Actions minutes." },
   { id:"t15", title:"Signed remote mirror publisher", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"PR #104 remains engineering-green. Store connected=false, write secret configured=false and ingestion enabled=false; operator snapshot is not a substitute for the signed production mirror." },
   { id:"t16", title:"Independent review capacity", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"blocked", detail:"Issue #109 remains canonical for #66/#46/#47/#68/#69/#70/#72/#73/#93/#98/#101/#104 and product Reviewer gates. Passing CI is not independent approval." },
