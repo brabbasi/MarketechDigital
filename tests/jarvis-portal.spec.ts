@@ -222,8 +222,8 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.projects.every((project: { objective?: string; next?: string; assignments?: unknown[] }) => project.objective && project.next && Array.isArray(project.assignments))).toBe(true);
     expect(payload.tasks.length).toBeGreaterThanOrEqual(6);
     expect(payload.revenue.outboundHeld).toBe(true);
-    expect(payload.revenue.qualifiedProspects).toBe(66);
-    expect(payload.revenue.pendingIndependentReview).toBe(30);
+    expect(payload.revenue.qualifiedProspects).toBe(69);
+    expect(payload.revenue.pendingIndependentReview).toBe(33);
     expect(payload.tasks.find((task: { id: string; state: string }) => task.id === "t2")?.state).toBe("done");
     const mirrorTask = payload.tasks.find((task: { id: string; state: string; detail: string }) => task.id === "t15");
     expect(mirrorTask?.detail).toContain("Store connected=false");
