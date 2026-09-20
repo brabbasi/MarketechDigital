@@ -6,6 +6,7 @@ on:
       - fix/favicon-og-background
     paths:
       - 'app/seo-image-assets.tsx'
+      - 'app/og-image.png/route.tsx'
       - 'app/favicon.ico/route.tsx'
       - 'app/favicon-16x16.png/route.tsx'
       - 'app/favicon-32x32.png/route.tsx'
@@ -18,6 +19,7 @@ on:
       - main
     paths:
       - 'app/seo-image-assets.tsx'
+      - 'app/og-image.png/route.tsx'
       - 'app/favicon.ico/route.tsx'
       - 'app/favicon-16x16.png/route.tsx'
       - 'app/favicon-32x32.png/route.tsx'
@@ -86,6 +88,7 @@ jobs:
           trap cleanup EXIT
 
           routes=(
+            "/og-image.png"
             "/favicon.ico"
             "/favicon-16x16.png"
             "/favicon-32x32.png"
