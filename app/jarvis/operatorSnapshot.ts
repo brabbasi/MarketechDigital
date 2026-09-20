@@ -6,7 +6,7 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-20T19:48:30Z";
+const SNAPSHOT_AT = "2026-09-20T19:56:00Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
@@ -58,6 +58,20 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
       "Legacy affiliate-admin #22 closed; server-authoritative policy preserved in #29.",
       "Legacy partner catalog #23 closed; only ranked verified alternatives requirement retained.",
       "P27 Reviewer enrollment moved from obsolete repo-local hosted Action to central Marketech Reviewer contract in #30.",
+    ],
+  },
+  axiom: {
+    state: "review",
+    progress: 72,
+    now: "Canonical research scorecard remains 50 tested / 50 immutable rejects / 0 historical passes / 0 forward survivors. Presentation-truth repair PR #161 is READY on Vercel at fd3b6343; its GitHub proof-ledger job failed before step 1 (steps=null), so that red is infrastructure-only.",
+    next: "Keep Stage29.7.3 performance-gated behind independent novelty adjudication and central Reviewer deployment. Do not merge/deploy #161 to production until its review/release gate clears; live capital remains OFF.",
+    blocked: 1,
+    lastUpdate: "Axiom Command Center stale Stage29.3 / 42-of-42 presentation debt repaired on bounded PR #161 without changing research, broker, paper or capital semantics.",
+    history: [
+      "Canonical scorecard stays 50 tested / 50 rejects / 0 passes / 0 forward survivors.",
+      "PR #161 changes only index.html, proof.html and dashboard/v2.js; Vercel preview is READY.",
+      "GitHub proof-ledger run failed pre-step with steps=null; no product test executed.",
+      "Stage29.7.3 remains blocked on independent adjudication; no performance exposure or capital authority was added.",
     ],
   },
   tradepilot: {
@@ -142,7 +156,7 @@ const operatorTasks: JarvisTask[] = [
   { id:"t6", title:"Reviewer install after Bridge", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Sequence remains #66 Bridge -> #46 Reviewer -> fresh #40 Runtime review -> #80 autonomy canary. Runtime and autonomy remain OFF." },
   { id:"t8", title:"Rangrez P27 child convergence", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"review", detail:"#28 004d14f5 source-contract green; #29 55ef2a8d focused policy 4/4 green; #30 c930394e central Reviewer enrollment open. Hosted red jobs are pre-step infrastructure failures, not product verdicts." },
   { id:"t10", title:"DeutschPath stale successor reconciliation", projectId:"deutschpath", project:"DeutschPath", agent:"Engineering Agent", state:"done", detail:"PR #22 closed as reconciled/redundant after zero-file diff versus canonical main; missing beta redirect was proven as the former build breaker." },
-  { id:"t11", title:"Axiom paper execution QA", projectId:"axiom", project:"Axiom", agent:"Engineering Agent", state:"review", detail:"Research/paper evidence continues; live-capital authority remains disabled." },
+  { id:"t11", title:"Axiom evidence + Command Center truth", projectId:"axiom", project:"Axiom", agent:"Engineering Agent", state:"review", detail:"Canonical scorecard remains 50/50 rejects with 0 historical passes and 0 forward survivors. PR #161 fd3b6343 repairs stale 42/42 + Stage29.3 UI text; Vercel preview READY, hosted proof-ledger job pre-step blocked. No research semantics or live-capital authority changed." },
   { id:"t12", title:"TradePilot persistence hardening", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"review", detail:"PR #5 cb3eaca1 is Vercel READY with exact-draft review binding + tenant-safe fallback import. Supabase remains INACTIVE; no live DB verification claimed." },
   { id:"t14", title:"Vercel preview budget gate", projectId:"site", project:"Website", agent:"Engineering Agent", state:"review", detail:"High-churn previews stay explicitly gated; public-repo hosted CI remains separate from exhausted private Actions minutes." },
   { id:"t15", title:"Signed remote mirror publisher", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"PR #104 remains engineering-green. Store connected=false, write secret configured=false and ingestion enabled=false; operator snapshot is not a substitute for the signed production mirror." },
