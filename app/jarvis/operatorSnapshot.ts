@@ -6,20 +6,20 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-20T19:46:30Z";
+const SNAPSHOT_AT = "2026-09-20T19:48:30Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
     progress: 80,
-    now: "CI fallback #101 is engineering-green at 0042acf7 with 30 workflows / 0 hard violations / 0 concurrency advisories. Workforce #93 remains review-ready at 28b39784 with Codebase Memory correctly blocked_runtime. Core-lane v6 clean Revenue Queue canary is still awaiting its first natural run; meanwhile the legacy Draft Reviewer reproduced the post-run self-disable defect at 15:33 ET and was restored in place.",
-    next: "Let the v6 clean-object Revenue Queue canary complete naturally and verify it remains enabled; treat the 15:33 Draft Reviewer self-disable as a failed cycle and keep durability at 0/3; keep Codebase Memory blocked until #66 -> #46 -> #40 Runtime recovery; continue Graft/Codex preparation and independent-review recovery in parallel.",
+    now: "CI fallback #101 is engineering-green at 0042acf7 with 30 workflows / 0 hard violations / 0 concurrency advisories. Workforce #93 remains review-ready at 28b39784 with Codebase Memory correctly blocked_runtime. All four legacy core worker task objects have now reproduced post-run self-disable; v6 keeps one clean Revenue Queue replacement as the controlled canary while the newer Keeper continues to recur."
+    next: "Let the clean v6 Revenue Queue complete its first natural :25 run and verify it remains enabled. If it survives, migrate legacy workers one-by-one with the same mission/authority; if it self-disables, move the repair down into scheduler/control-plane state. Keep durability at 0/3 and continue #21/#66/#46/#40, workforce and product lanes in parallel."
     blocked: 2,
     lastUpdate: "Capacity hardening is complete and workforce activation is explicit: 56 agents are assigned, 3 installed workers require re-verification, 4 workers require approved auth/scope evidence, and independent review issue #109 remains the finish-chain gate.",
     history: [
       "Private CI capacity policy enforced across 30 workflows with zero hard violations/advisories.",
       "v5 confirmed that prompt hardening and same-ID schedule re-arm were insufficient; Revenue Queue and Conversion Worker self-disabled again.",
-      "v6 replaces only Revenue Queue with a clean recurring task object while the historical queue is intentionally retired; the legacy Draft Reviewer self-disabled again after its 15:30 run and was restored, so durability remains 0/3.",
+      "All four legacy core workers have now reproduced post-run self-disable at least once. v6 replaces only Revenue Queue first; Draft Reviewer and Resource Manager both failed again this cycle and were restored. Durability remains 0/3."
       "Trusted finish chain remains #66 -> #46 -> #40 -> #80.",
       "Remote and local dashboard read models are being synchronized as part of this checkpoint.",
       "Workforce #93 current head 28b39784 makes runtime truth explicit: Codebase Memory is blocked_runtime until governed Runtime recovery; Graft and Codex remain installed_reverify; Gemini, Copilot, Claude and Figma are blocked_auth; Reviewer remains blocked_runtime.",
@@ -97,7 +97,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
       "Private CI capacity policy reached 30 workflows / 0 violations / 0 advisories.",
       "v5 same-ID schedule re-arm still reproduced post-run self-disable on Revenue Queue + Conversion Worker.",
       "v6 clean-object canary replaces Revenue Queue only; the historical queue stays intentionally disabled while recurrence is tested.",
-      "Legacy Draft Reviewer self-disabled again after its 15:30 run and was restored in place; this cycle is explicitly failed and cannot count toward durability.",
+      "Legacy Draft Reviewer self-disabled after its 15:30 run and Agent Resource Manager self-disabled after its 15:40 run; both were restored in place. The current cycle is explicitly failed and cannot count toward durability."
       "Durability proof remains 0/3 until natural recurrence survives.",
       "Workforce #93 records 56 explicit agent assignments; employment does not imply autonomous Runtime dispatch.",
       "Activation sequencing is now fail-closed: Codebase Memory waits for #66 -> #46 -> #40 Runtime recovery; Graft -> Codex remain installed_reverify; Gemini/Copilot/Claude/Figma require separate approved auth/scope evidence.",
@@ -136,7 +136,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
 const operatorTasks: JarvisTask[] = [
   { id:"t1", title:"Trusted Bridge exact-head review", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #66 is engineering-green; independent review capacity issue #109 remains the gate." },
   { id:"t2", title:"Dashboard read-model synchronization", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Permanent rule: every material company transition refreshes both the online operator snapshot and local Trusted project manifest, or records an explicit sync blocker. This checkpoint includes the v6 recurrence repair." },
-  { id:"t3", title:"Core-lane durability proof", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"v6 controlled experiment remains active. The clean Revenue Queue replacement has not reached its first natural run yet. The legacy Draft Reviewer ran at 15:30 ET, then self-disabled and required restoration, so the current cycle failed and durability remains 0/3." },
+  { id:"t3", title:"Core-lane durability proof", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"All four legacy core worker objects have now reproduced post-run self-disable. In this cycle Draft Reviewer failed after :30 and Resource Manager failed after :40; both were restored. The clean v6 Revenue Queue replacement still awaits its first natural :25 run. Durability remains 0/3." },
   { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000. PR #101 exact head 0042acf7 is engineering-green with 30 workflows / 0 hard violations / 0 concurrency advisories; no runner is installed." },
   { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"72 qualified prospects; 36 newest packets pending independent review; 36 historical reviewed coverage; 5 evidence-valid Founder-approved held identities; 3 evidence-drift holds; outbound remains held." },
   { id:"t6", title:"Reviewer install after Bridge", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Sequence remains #66 Bridge -> #46 Reviewer -> fresh #40 Runtime review -> #80 autonomy canary. Runtime and autonomy remain OFF." },
