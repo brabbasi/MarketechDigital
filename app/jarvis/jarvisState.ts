@@ -94,12 +94,12 @@ export const demoJarvisState: JarvisState = {
   authority: "read_only",
   agents: [
     { id:"orchestrator", name:"Executive Orchestrator", short:"EO", department:"Executive", state:"ready", x:50, y:12, load:38, task:"Company priorities + parallel lane continuity", skills:["mission planning","delegation","founder briefing"], workers:[{name:"Codex Engineering Senior",state:"available",last:"current"}], history:["Reconciled JARVIS finish chain","Preserved parallel company lanes","Founder cockpit v9 verified live locally"] },
-    { id:"resource", name:"Agent Resource Manager", short:"RM", department:"Operations", state:"running", x:72, y:20, load:54, task:"56-agent employment + activation planning", skills:["workforce planning","capacity","reassignment"], workers:[{name:"Remote Standard Worker",state:"gated",last:"not active"}], history:["56 registered agents / 56 explicit assignments proven","Installed worker activation queue remains gated by exact re-verification"] },
-    { id:"reviewer", name:"AI Reviewer", short:"AR", department:"Governance", state:"review", x:86, y:43, load:67, task:"Exact-head review queue", skills:["security review","regression","evidence","governance"], workers:[{name:"Remote Critical Reviewer",state:"quota blocked",last:"current"}], history:["Reviewer coverage mandatory across portfolio","PR #66 exact review waiting on provider quota"] },
+    { id:"resource", name:"Agent Resource Manager", short:"RM", department:"Operations", state:"running", x:72, y:20, load:54, task:"56-agent employment + private-CI capacity planning", skills:["workforce planning","capacity","reassignment"], workers:[{name:"Remote Standard Worker",state:"gated",last:"not active"}], history:["56 registered agents / 56 explicit assignments proven","Private product CI fallback #101 engineering-green / not installed","Installed worker activation queue remains gated by exact re-verification"] },
+    { id:"reviewer", name:"AI Reviewer", short:"AR", department:"Governance", state:"review", x:86, y:43, load:67, task:"Exact-head review queue", skills:["security review","regression","evidence","governance"], workers:[{name:"Remote Critical Reviewer",state:"quota blocked",last:"current"}], history:["Reviewer coverage mandatory across portfolio","Codex review quota currently blocks #15/#16/#98/#101 independent verdicts","PR #66 exact review remains gated"] },
     { id:"delivery", name:"Delivery Operations", short:"DO", department:"Delivery", state:"running", x:78, y:68, load:61, task:"Project worklane continuity", skills:["delivery planning","QA","dependency tracking"], workers:[{name:"Codex Engineering Senior",state:"busy",last:"now"}], history:["Maintained project continuation points","No project silently replaced"] },
-    { id:"engineering", name:"Engineering Agent", short:"EN", department:"Engineering", state:"running", x:57, y:82, load:78, task:"Live cockpit + remote Founder portal convergence", skills:["Next.js","Python","CI","systems"], workers:[{name:"Codex Engineering Senior",state:"running",last:"now"},{name:"Codebase Memory",state:"installed-reverify",last:"gated"}], history:["Founder cockpit v9 deployed through Trusted pull lane","Remote Founder portal branch preview tracks current branch"] },
+    { id:"engineering", name:"Engineering Agent", short:"EN", department:"Engineering", state:"running", x:57, y:82, load:78, task:"Live cockpit + remote Founder portal convergence", skills:["Next.js","Python","CI","systems"], workers:[{name:"Codex Engineering Senior",state:"running",last:"now"},{name:"Codebase Memory",state:"installed-reverify",last:"gated"}], history:["Founder cockpit v9 deployed through Trusted pull lane","Founder Portal Next 15 + MFA engineering head is QA-green","Remote Vercel alias is behind because the daily preview-build cap is exhausted"] },
     { id:"memory", name:"Memory Agent", short:"ME", department:"Knowledge", state:"training", x:34, y:80, load:31, task:"Memory Fabric evaluation", skills:["episodic memory","provenance","retrieval"], workers:[{name:"MemPalace candidate",state:"lab only",last:"evaluation pending"},{name:"Graft",state:"restricted",last:"verified"}], history:["Memory Router contract defined","MemPalace kept behind Lab gate"] },
-    { id:"revenue", name:"Revenue Agent", short:"RV", department:"Revenue", state:"running", x:16, y:63, load:49, task:"Research + pipeline movement", skills:["qualification","research","pipeline"], workers:[{name:"Revenue Assessment Trainee",state:"evaluation",last:"current"}], history:["57 qualified prospects in canonical queue","Outbound remains governed and held"] },
+    { id:"revenue", name:"Revenue Agent", short:"RV", department:"Revenue", state:"running", x:16, y:63, load:49, task:"Research + pipeline movement", skills:["qualification","research","pipeline"], workers:[{name:"Revenue Assessment Trainee",state:"evaluation",last:"current"}], history:["60 qualified prospects in canonical queue","Outbound remains governed and held"] },
     { id:"marketing", name:"Marketing Agent", short:"MK", department:"Growth", state:"ready", x:14, y:35, load:28, task:"SEO + organic growth", skills:["SEO","GEO/AEO","content"], workers:[{name:"Website Evidence Specialist",state:"planned",last:"n/a"}], history:["Website evidence workflows defined","Publishing authority remains gated"] },
     { id:"client", name:"Client Success Agent", short:"CS", department:"Client", state:"ready", x:29, y:18, load:18, task:"Client readiness + support", skills:["onboarding","support","status comms"], workers:[{name:"Client Comms specialist",state:"planned",last:"n/a"}], history:["Client-agent pack canonicalized","No unsupported client state claims"] }
   ],
@@ -107,35 +107,35 @@ export const demoJarvisState: JarvisState = {
     {
       id:"jarvis", name:"Marketech OS / JARVIS", area:"Company OS", state:"review", progress:74,
       objective:"Ship a governed autonomous company runtime and Founder cockpit without widening consequential authority.",
-      now:"Cockpit v9 live; workforce #93 engineering-green; governed finish chain remains gated", next:"Independent review of #93 and continued #66 -> #46 -> #40 -> #80 progression without bypassing authority gates.",
-      blocked:1, repo:"brabbasi/Marketech_Digital_OS", lastUpdate:"Cockpit v9 live locally; workforce #93 both exact-head engineering gates green; remote portal convergence active",
+      now:"Cockpit v9 live; #93 workforce, #98 Cursor refresh and #101 private-CI fallback are engineering-green", next:"Independent reviews remain the gate; preserve #66 -> #46 -> #40 -> #80 and issue #100 private-CI recovery without bypassing authority.",
+      blocked:1, repo:"brabbasi/Marketech_Digital_OS", lastUpdate:"Cockpit v9 live; Cursor refresh #98 and private-CI fallback #101 exact-head green; review capacity remains the shared gate",
       agentIds:["orchestrator","resource","reviewer","engineering","delivery","memory"],
       assignments:[{agentId:"orchestrator",role:"Primary"},{agentId:"engineering",role:"Assist"},{agentId:"delivery",role:"Assist"},{agentId:"resource",role:"Observer"},{agentId:"reviewer",role:"Reviewer"},{agentId:"memory",role:"Specialist"}],
-      history:["Canonical JARVIS system map created","Phase-A autonomy #80 engineering-green and not activated","Workforce #93 proves 56/56 employment assignments","Founder cockpit v9 verified live locally","Trusted finish chain remains #66 -> #46 -> #40 -> #80"]
+      history:["Canonical JARVIS system map created","Phase-A autonomy #80 engineering-green and not activated","Workforce #93 proves 56/56 employment assignments","Cursor refresh #98 passes isolated Lab discovery + no-network version probe","Private product CI blocker consolidated in issue #100 with #101 fallback","Founder cockpit v9 verified live locally","Trusted finish chain remains #66 -> #46 -> #40 -> #80"]
     },
     {
-      id:"site", name:"Marketech Website", area:"Growth + acquisition", state:"on_track", progress:68,
+      id:"site", name:"Marketech Website", area:"Growth + acquisition", state:"review", progress:71,
       objective:"Operate the public agency website as a trustworthy acquisition surface and secure host for the private Founder portal.",
-      now:"Rolling Founder branch preview + acquisition engine", next:"Bind the sanitized JARVIS cloud mirror after reviewed Founder authentication and publication boundary.",
-      blocked:1, repo:"brabbasi/MarketechDigital", lastUpdate:"Rolling Vercel branch preview is current; exact build identity is now visible; private read model remains preview-only until mirror/auth gates clear",
+      now:"Founder Portal engineering head is Next 15.5.24 + MFA QA-green; remote alias is delivery-quota blocked", next:"Clear independent review and Vercel preview-budget gate #16, then produce one deliberate remote preview checkpoint before mirror/auth activation.",
+      blocked:2, repo:"brabbasi/MarketechDigital", lastUpdate:"PR #13 exact engineering head is green; Vercel alias remains older because the daily build cap rejected newer previews; #16 is engineering-green/review-gated",
       agentIds:["engineering","marketing","reviewer"],
       assignments:[{agentId:"engineering",role:"Primary"},{agentId:"marketing",role:"Assist"},{agentId:"reviewer",role:"Reviewer"}],
       history:["Inbound acquisition engine independently reviewed","JARVIS portal isolated from public header and public AI assistant","Desktop/mobile browser QA added"]
     },
     {
-      id:"rangrez", name:"Rangrez", area:"AI styling", state:"review", progress:58,
+      id:"rangrez", name:"Rangrez", area:"AI styling", state:"blocked", progress:58,
       objective:"Converge the styling product into a coherent, device-tested app with reviewed design and implementation changes.",
-      now:"Product source frozen while hosted CI fails before step execution", next:"Obtain a functioning runner allocation, then resume product/device QA only from executed evidence.",
-      blocked:0, repo:"brabbasi/Rangrez", lastUpdate:"PR #29 hosted CI retried twice and failed pre-step with no logs; classified as infrastructure, not product failure",
+      now:"Product head frozen; normal CI and a separate one-step hosted-runner probe both fail before step 1", next:"Clear shared private-repo CI blocker #100 or install the separately reviewed #101 repo-scoped runner fallback; then execute the frozen product tests.",
+      blocked:1, repo:"brabbasi/Rangrez", lastUpdate:"PR #29 unchanged; independent minimal probe 35478838899 also fails pre-step, tying the red to shared issue #100 rather than Rangrez code",
       agentIds:["delivery","engineering","reviewer"],
       assignments:[{agentId:"delivery",role:"Primary"},{agentId:"engineering",role:"Assist"},{agentId:"reviewer",role:"Reviewer"}],
       history:["Rangrez retained in canonical project catalog","AI Reviewer coverage required","Design source-of-truth and physical-device QA preserved"]
     },
     {
-      id:"deutschpath", name:"DeutschPath / Jiya", area:"AI learning", state:"review", progress:64,
+      id:"deutschpath", name:"DeutschPath / Jiya", area:"AI learning", state:"blocked", progress:64,
       objective:"Deliver an adaptive German-learning experience with Jiya while preserving progression, memory and release QA.",
-      now:"Release source frozen while hosted CI fails before step execution", next:"Obtain a functioning runner allocation; only executed test failures should reopen product debugging.",
-      blocked:0, repo:"brabbasi/deutschpath-ai", lastUpdate:"PR #22 hosted release CI retried twice and failed pre-step with no logs; no new product-test verdict",
+      now:"Release head frozen; normal CI and a separate one-step hosted-runner probe both fail before step 1", next:"Clear shared private-repo CI blocker #100 or install the separately reviewed #101 repo-scoped runner fallback; only executed test failures reopen product debugging.",
+      blocked:1, repo:"brabbasi/deutschpath-ai", lastUpdate:"PR #22 unchanged; independent minimal probe 35478818930 also fails pre-step, confirming infrastructure blockage via issue #100",
       agentIds:["delivery","engineering","reviewer"],
       assignments:[{agentId:"delivery",role:"Primary"},{agentId:"engineering",role:"Assist"},{agentId:"reviewer",role:"Reviewer"}],
       history:["Adaptive state migration approved","Jiya journey redesign applied","47/48 latest E2E checks passed in prior evidence"]
@@ -152,8 +152,8 @@ export const demoJarvisState: JarvisState = {
     {
       id:"tradepilot", name:"TradePilot", area:"Trades opportunity OS", state:"review", progress:46,
       objective:"Turn the canonical TradePilot repository into a useful trades opportunity product without reviving retired lineage.",
-      now:"PR #5 remains canonical; hosted Product CI retried twice and failed before executing a step.", next:"Restore runner evidence first, preserve Safety Mode, and verify Supabase only through the governed inactive-project path.",
-      blocked:1, repo:"brabbasi/Tradepilot", lastUpdate:"PR #5 source frozen; hosted CI red is classified as pre-step infrastructure failure; Supabase Tradepilot remains INACTIVE",
+      now:"PR #5 remains canonical and frozen; normal CI plus minimal hosted-runner probe both fail before step 1.", next:"Clear shared private-repo CI blocker #100 or install the separately reviewed #101 repo-scoped runner fallback; preserve Safety Mode and inactive Supabase boundary.",
+      blocked:2, repo:"brabbasi/Tradepilot", lastUpdate:"PR #5 unchanged; minimal probe 35478833768 also fails pre-step under shared issue #100; Supabase Tradepilot remains INACTIVE",
       agentIds:["delivery","engineering","reviewer"],
       assignments:[{agentId:"delivery",role:"Primary"},{agentId:"engineering",role:"Assist"},{agentId:"reviewer",role:"Reviewer"}],
       history:["Canonical repo selected","Legacy tradepilot-ai marked noncanonical","Stale PR #1 preserved as history; current-main successor is PR #5","Duplicate PR #6 closed after reconciliation","Supabase Tradepilot project confirmed INACTIVE; no restore attempted"]
@@ -224,21 +224,23 @@ export const demoJarvisState: JarvisState = {
   ],
   tasks: [
     { id:"t1", title:"Trusted Bridge exact-head review", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Engineering green; independent reviewer capacity is the gate." },
-    { id:"t2", title:"Remote Founder portal branch preview", projectId:"site", project:"Website", agent:"Engineering Agent", state:"review", detail:"Rolling branch alias tracks current preview; exact build identity shown; secure live mirror/auth still gated." },
+    { id:"t2", title:"Remote Founder portal delivery checkpoint", projectId:"site", project:"Website", agent:"Engineering Agent", state:"blocked", detail:"Next 15.5.24 + Founder MFA engineering head is QA-green; Vercel remote alias is older because the daily build cap blocks a new exact-head preview." },
     { id:"t3", title:"Canonical system map", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"done", detail:"Full living scope map + drift guard created in PR #92." },
-    { id:"t4", title:"Capability Lab isolation certification", projectId:"jarvis", project:"JARVIS", agent:"Delivery Operations", state:"blocked", detail:"Repair landed; hosted runner allocation has not executed certification." },
-    { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"21 newest packets await independent review; no outbound." },
+    { id:"t4", title:"Cursor capability refresh review", projectId:"jarvis", project:"JARVIS", agent:"Delivery Operations", state:"review", detail:"PR #98 discovery + full isolated Lab audit are green for build 2026.09.18-9a7762b; independent review remains required before promotion." },
+    { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"24 newest packets await independent review; 60 qualified total; no outbound." },
     { id:"t6", title:"Reviewer install after Bridge", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Governed install only after #66 clean exact-head review." },
     { id:"t7", title:"Founder activation decision", projectId:"jarvis", project:"JARVIS", agent:"Executive Orchestrator", state:"founder", detail:"Example approval surface only; no real action is wired in this preview." },
-    { id:"t8", title:"Rangrez CI evidence recovery", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"blocked", detail:"Hosted CI failed before step 1 twice; source remains frozen until executable runner evidence exists." },
+    { id:"t8", title:"Rangrez CI evidence recovery", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"blocked", detail:"Normal CI and minimal probe 35478838899 fail before step 1; shared infrastructure issue #100 owns recovery." },
     { id:"t9", title:"Rangrez next visual QA pass", projectId:"rangrez", project:"Rangrez", agent:"AI Reviewer", state:"next", detail:"Keep design implementation and device QA as separate acceptance gates." },
-    { id:"t10", title:"DeutschPath release CI evidence recovery", projectId:"deutschpath", project:"DeutschPath", agent:"Engineering Agent", state:"blocked", detail:"Hosted CI failed before executing checkout/tests twice; no current product-test failure is inferred." },
+    { id:"t10", title:"DeutschPath release CI evidence recovery", projectId:"deutschpath", project:"DeutschPath", agent:"Engineering Agent", state:"blocked", detail:"Normal release CI and minimal probe 35478818930 fail before step 1; shared infrastructure issue #100 owns recovery." },
     { id:"t11", title:"Axiom paper execution QA", projectId:"axiom", project:"Axiom", agent:"Engineering Agent", state:"review", detail:"Research/paper evidence continues; live-capital authority remains disabled." },
-    { id:"t12", title:"TradePilot CI evidence recovery", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"blocked", detail:"PR #5 remains canonical. Hosted Product CI failed pre-step twice; Supabase verification remains separately blocked by inactive project state." }
+    { id:"t12", title:"TradePilot CI evidence recovery", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"blocked", detail:"PR #5 stays canonical. Normal CI and minimal probe 35478833768 fail before step 1; issue #100 owns runner recovery while Supabase stays inactive." },
+    { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"PR #101 is engineering-green and defines one pinned repository-scoped self-hosted runner per affected private repo; no runner is installed." },
+    { id:"t14", title:"Vercel preview budget gate", projectId:"site", project:"Website", agent:"Engineering Agent", state:"review", detail:"PR #16 exact-head CI is green; high-churn previews will require explicit [vercel-preview] checkpoints after independent review." }
   ],
   revenue: {
-    qualifiedProspects: 57,
-    pendingIndependentReview: 21,
+    qualifiedProspects: 60,
+    pendingIndependentReview: 24,
     reviewedSendReady: 36,
     founderApproved: 17,
     outreachSent: 11,
