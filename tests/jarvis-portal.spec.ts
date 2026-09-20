@@ -310,7 +310,9 @@ test.describe("JARVIS Founder Portal", () => {
 
     await page.getByTestId("parallel-lane-rangrez").click();
     await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
-    await expect(page.getByTestId("project-worklane")).toContainText("3000/3000 private Actions minutes");
+    await expect(page.getByTestId("project-worklane")).toContainText("3000/3000");
+    await expect(page.getByTestId("project-worklane")).toContainText("infrastructure-held");
+    await expect(page.getByTestId("project-worklane")).toContainText("not a Rangrez product failure");
     await expect(page.getByTestId("project-worklane")).toContainText("NEXT");
     await expect(page.getByTestId("project-worklane")).toContainText("Primary");
     await expect(page.getByTestId("project-worklane")).toContainText("Reviewer");
