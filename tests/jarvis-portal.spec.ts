@@ -229,6 +229,7 @@ test.describe("JARVIS Founder Portal", () => {
     expect(mirrorTask?.detail).toContain("Store connected=false");
     expect(mirrorTask?.detail).toContain("write secret configured=false");
     expect(mirrorTask?.detail).toContain("ingestion enabled=false");
+    expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t13")?.detail).toContain("3000/3000");
     expect(payload.portal?.buildSha).toBeTruthy();
     expect(payload.portal?.environment).toBeTruthy();
   });
