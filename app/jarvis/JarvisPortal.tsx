@@ -433,7 +433,7 @@ export default function JarvisPortal() {
         </aside>
       </div>
 
-      {selectedAgent&&<div className={styles.backdrop} onClick={()=>setSelectedAgentId(null)}><section className={styles.drawer} onClick={e=>e.stopPropagation()}>
+      {selectedAgent&&<div className={styles.backdrop} onClick={()=>setSelectedAgentId(null)}><section className={styles.drawer} data-testid="agent-inspector" onClick={e=>e.stopPropagation()}>
         <button className={styles.close} onClick={()=>setSelectedAgentId(null)}>×</button>
         <small>AGENT INSPECTOR</small><h2>{selectedAgent.name}</h2><p>{selectedAgent.department} · {stateLabel[selectedAgent.state]} · load {selectedAgent.load}%</p>
         <div className={styles.drawerGrid}>
