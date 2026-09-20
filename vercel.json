@@ -1,4 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ]; then exit 1; fi; case \"$VERCEL_GIT_COMMIT_REF\" in feature/jarvis-founder-portal-v1|migration/*|security/*|ops/*) git log -1 --pretty=%B | grep -Fq '[vercel-preview]' && exit 1 || exit 0 ;; *) exit 1 ;; esac"
+  "ignoreCommand": "bash scripts/vercel-ignore-build.sh"
 }
