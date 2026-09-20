@@ -142,6 +142,8 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.revenue.outboundHeld).toBe(true);
     expect(payload.revenue.qualifiedProspects).toBe(60);
     expect(payload.revenue.pendingIndependentReview).toBe(24);
+    expect(payload.tasks.find((task: { id: string; state: string }) => task.id === "t2")?.state).toBe("done");
+    expect(payload.tasks.find((task: { id: string; state: string; detail: string }) => task.id === "t15")?.detail).toContain("activation performed=false");
     expect(payload.portal?.buildSha).toBeTruthy();
     expect(payload.portal?.environment).toBeTruthy();
   });
