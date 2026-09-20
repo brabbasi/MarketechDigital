@@ -94,6 +94,17 @@ export default function JarvisPortal() {
     task.state==="blocked" && /\b(ci|runner|infrastructure)\b/i.test(`${task.title} ${task.detail}`)
   ).length;
   const readFreshness = snapshot?.mirror ? `${snapshot.mirror.ageSeconds}s old` : "5s refresh";
+  const parallelLanes = useMemo(() => projects.map(project => {
+    const laneTasks = tasks.filter(task => task.projectId === project.id);
+    const active = laneTasks.filter(task => task.state === "live" || task.state === "next" || task.state === "queued").length;
+    const review = laneTasks.filter(task => task.state === "review").length;
+    const founder = laneTasks.filter(task => task.state === "founder").length;
+    const blocked = laneTasks.filter(task => task.state === "blocked").length;
+    const done = laneTasks.filter(task => task.state === "done").length;
+    const laneState: TaskState = founder ? "founder" : blocked ? "blocked" : review ? "review" : active ? "live" : done ? "done" : "queued";
+    return { project, active, review, founder, blocked, done, total: laneTasks.length, laneState };
+  }).filter(lane => lane.total > 0 || lane.project.agentIds.length > 0), [projects,tasks]);
+  const activeParallelLanes = parallelLanes.filter(lane => lane.active || lane.review || lane.founder || lane.blocked).length;
 
   function startDrag(event:DragEvent<HTMLButtonElement>,agentId:string){
     event.dataTransfer.setData("text/agent-id",agentId);
@@ -326,6 +337,30 @@ export default function JarvisPortal() {
               <article><small>CONTROL</small><strong>GATED</strong><span>read-only · MFA staged</span></article>
             </div>
           </div>
+
+          <section className={styles.parallelLanes} data-testid="parallel-lanes">
+            <header>
+              <div><small>PARALLEL LANES</small><strong>{activeParallelLanes} active / gated streams</strong></div>
+              <span>Each lane keeps its own NOW · REVIEW · BLOCKED · DONE truth</span>
+            </header>
+            <div className={styles.parallelLaneTrack}>
+              {parallelLanes.map(lane=><button
+                data-testid={`parallel-lane-${lane.project.id}`}
+                key={lane.project.id}
+                className={lane.project.id===selectedProject.id?styles.parallelLaneSelected:""}
+                onClick={()=>setSelectedProjectId(lane.project.id)}
+              >
+                <div><strong>{lane.project.name}</strong><small className={styles[lane.project.state]}>{lane.project.state.replace("_"," ")}</small></div>
+                <p>{lane.project.now}</p>
+                <span>
+                  <b>{lane.active}<small>NOW</small></b>
+                  <b>{lane.review}<small>REVIEW</small></b>
+                  <b>{lane.blocked}<small>BLOCKED</small></b>
+                  <b>{lane.done}<small>DONE</small></b>
+                </span>
+              </button>)}
+            </div>
+          </section>
 
           <div className={styles.scene} data-testid="agent-scene">
             <div className={styles.orbitA}/><div className={styles.orbitB}/><div className={styles.orbitC}/>

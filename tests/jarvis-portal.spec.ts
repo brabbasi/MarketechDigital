@@ -286,6 +286,10 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByTestId("founder-truth-strip")).toContainText("GATED");
     await expect(page.locator(".ai-launcher")).toHaveCount(0);
     await expect(page.getByText("PROJECT UNIVERSE")).toBeVisible();
+    await expect(page.getByTestId("parallel-lanes")).toBeVisible();
+    await expect(page.getByTestId("parallel-lanes")).toContainText("PARALLEL LANES");
+    await expect(page.getByTestId("parallel-lane-jarvis")).toBeVisible();
+    await expect(page.getByTestId("parallel-lane-rangrez")).toBeVisible();
     await expect(page.getByTestId("approvals-title")).toBeVisible();
     await expect(page.getByTestId("approvals-title")).toContainText("PREVIEW ONLY");
     await expect(page.getByRole("button", { name: "Preview approve", exact: true }).first()).toBeVisible();
@@ -304,7 +308,7 @@ test.describe("JARVIS Founder Portal", () => {
     expect(layout.scrollHeight).toBeLessThanOrEqual(layout.viewportHeight + 16);
     expect(layout.bodyOverflowX).not.toBe("scroll");
 
-    await page.getByTestId("project-rangrez").click();
+    await page.getByTestId("parallel-lane-rangrez").click();
     await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
     await expect(page.getByTestId("project-worklane")).toContainText("3000/3000 private Actions minutes");
     await expect(page.getByTestId("project-worklane")).toContainText("NEXT");
