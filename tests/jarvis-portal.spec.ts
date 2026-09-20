@@ -240,6 +240,8 @@ test.describe("JARVIS Founder Portal", () => {
     expect(mirrorTask?.detail).toContain("write secret configured=false");
     expect(mirrorTask?.detail).toContain("ingestion enabled=false");
     expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t13")?.detail).toContain("3000/3000");
+    expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t16")?.detail).toContain("#68/#69/#70/#72/#73");
+    expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t17")?.detail).toContain("#72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding");
     expect(payload.portal?.buildSha).toBeTruthy();
     expect(payload.portal?.environment).toBeTruthy();
   });
