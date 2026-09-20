@@ -414,7 +414,7 @@ export default function JarvisPortal() {
         <footer><button onClick={()=>setPendingAssignment(null)}>Cancel</button><button onClick={confirmAssignment}>Assign preview</button></footer>
       </section></div>}
 
-      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s OLD`:""}</span><span data-testid="portal-build">BUILD {portalBuild.slice(0,12)} · {portalEnvironment.toUpperCase()} · 5S REFRESH</span><span>REMOTE CONTROLS GATED</span></footer>
+      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s OLD`:""}</span><span data-testid="portal-build">BUILD {portalBuild.slice(0,12)} · {portalEnvironment.toUpperCase()} · 5S REFRESH</span><span>REMOTE CONTROLS GATED · MFA STAGED</span></footer>
     </main>
   );
 }
