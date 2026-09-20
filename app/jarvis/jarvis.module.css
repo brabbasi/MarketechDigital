@@ -785,7 +785,7 @@
   }
   .mobileNeeds article button:first-child,.mobileApprovalList article button:first-child{background:rgba(12,71,58,.38);color:#b9dfd1;border-color:rgba(55,174,139,.22)}
   .mobileNeeds article button:last-child,.mobileApprovalList article button:last-child{background:rgba(79,31,43,.34);color:#dfbcc3;border-color:rgba(183,86,105,.2)}
-  .mobileNeeds .mobileReviewAction button{background:#08233a;color:#a7d8f1;border-color:rgba(61,161,216,.24)}
+  .mobileNeeds article>span.mobileReviewAction>button:first-child:last-child{background:#08233a;color:#a7d8f1;border-color:rgba(61,161,216,.28)}
   .mobileMore{
     width:100%;height:30px;margin-top:4px;border:1px solid rgba(47,143,205,.18);border-radius:7px;
     background:#071e33;color:#80b9da;font-size:7px
