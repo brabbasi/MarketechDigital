@@ -1,7 +1,60 @@
 import { test, expect } from "@playwright/test";
 import { adaptTrustedControlPlaneSnapshot, jarvisStateEndpointEnabled } from "../app/jarvis/trustedMirror";
+import { createHash, createHmac } from "node:crypto";
+import { mirrorIngestEnabled, mirrorStoreConfigured, validateMirrorIngestEnvelope } from "../app/jarvis/mirrorIngest";
 
 test.describe("JARVIS Founder Portal", () => {
+
+  test("signed mirror ingestion remains fail-closed until storage is deliberately selected", async ({ request }) => {
+    expect(mirrorIngestEnabled({} as NodeJS.ProcessEnv)).toBe(false);
+    expect(mirrorStoreConfigured({ JARVIS_MIRROR_STORE_DRIVER: "supabase-v1" } as NodeJS.ProcessEnv)).toBe(false);
+
+    const response = await request.post("/api/jarvis/mirror-ingest", {
+      data: { probe: true },
+      headers: { "content-type": "application/json" },
+    });
+    expect(response.status()).toBe(503);
+    const payload = await response.json();
+    expect(payload.reason).toBe("mirror_ingest_not_active");
+  });
+
+  test("mirror ingestion envelope binds timestamp, digest, idempotency and HMAC", () => {
+    const nowMs = Date.parse("2026-09-20T14:55:00Z");
+    const timestamp = Math.floor(nowMs / 1000);
+    const body = Buffer.from(JSON.stringify({ safe: true }), "utf8");
+    const secret = "k".repeat(64);
+    const digest = createHash("sha256").update(body).digest("hex");
+    const signature = createHmac("sha256", secret)
+      .update(`${timestamp}.${digest}`)
+      .digest("hex");
+    const headers = new Headers({
+      "content-type": "application/json",
+      "x-marketech-timestamp": String(timestamp),
+      "x-marketech-content-sha256": digest,
+      "x-marketech-signature": `v1=${signature}`,
+      "idempotency-key": digest,
+    });
+
+    const envelope = validateMirrorIngestEnvelope(body, headers, secret, nowMs);
+    expect(envelope.contentSha256).toBe(digest);
+    expect(envelope.idempotencyKey).toBe(digest);
+
+    const stale = new Headers(headers);
+    stale.set("x-marketech-timestamp", String(timestamp - 121));
+    expect(() => validateMirrorIngestEnvelope(body, stale, secret, nowMs)).toThrow(/replay window/);
+
+    const badDigest = new Headers(headers);
+    badDigest.set("x-marketech-content-sha256", "0".repeat(64));
+    expect(() => validateMirrorIngestEnvelope(body, badDigest, secret, nowMs)).toThrow(/digest mismatch/);
+
+    const badIdempotency = new Headers(headers);
+    badIdempotency.set("idempotency-key", "1".repeat(64));
+    expect(() => validateMirrorIngestEnvelope(body, badIdempotency, secret, nowMs)).toThrow(/idempotency/);
+
+    const badSignature = new Headers(headers);
+    badSignature.set("x-marketech-signature", `v1=${"2".repeat(64)}`);
+    expect(() => validateMirrorIngestEnvelope(body, badSignature, secret, nowMs)).toThrow(/signature/);
+  });
 
   test("production state endpoint requires a verified Founder session", () => {
     expect(jarvisStateEndpointEnabled("production", false)).toBe(false);
