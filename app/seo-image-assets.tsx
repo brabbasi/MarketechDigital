@@ -102,7 +102,7 @@ export function FaviconCanvas({ size }: IconImageProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: brandDark
+        backgroundColor: brandDark
       }}
     >
       <MarketechIcon size={size} />
