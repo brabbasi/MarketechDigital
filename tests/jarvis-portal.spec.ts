@@ -293,7 +293,9 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByTestId("approvals-title")).toBeVisible();
     await expect(page.getByTestId("approvals-title")).toContainText("APPROVAL PREVIEW");
     await expect(page.getByTestId("approvals-title")).toContainText("NO ACTION REQUIRED");
-    await expect(page.getByRole("button", { name: "Preview approve", exact: true }).first()).toBeVisible();
+    const desktopApprovals = page.getByTestId("approvals-title").locator("..");
+    await expect(desktopApprovals.getByTestId("no-founder-approval")).toBeVisible();
+    await expect(desktopApprovals.getByRole("button", { name: "Preview approve", exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Approve", exact: true })).toHaveCount(0);
     await expect(page.getByTestId("read-model-status")).toContainText("READ MODEL");
     await expect(page.getByTestId("portal-build")).toContainText("BUILD");
@@ -364,7 +366,8 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByTestId("mobile-home")).toBeVisible();
     await expect(page.getByText("FOUNDER SNAPSHOT")).toBeVisible();
     await expect(page.getByTestId("mobile-home").getByText("APPROVAL PREVIEW", { exact: true })).toBeVisible();
-    await expect(page.getByTestId("mobile-home").getByRole("button", { name: "Review", exact: true }).first()).toBeVisible();
+    await expect(page.getByTestId("mobile-home").getByTestId("no-founder-approval")).toBeVisible();
+    await expect(page.getByTestId("mobile-home").getByRole("button", { name: "Review", exact: true })).toHaveCount(0);
     await expect(page.getByTestId("mobile-home").getByRole("button", { name: "Approve", exact: true })).toHaveCount(0);
     await expect(page.getByTestId("mobile-home").getByText("ASK JARVIS", { exact: true })).toBeVisible();
     await expect(page.getByText("Agent Constellation")).toBeHidden();
@@ -393,6 +396,8 @@ test.describe("JARVIS Founder Portal", () => {
 
     await page.getByRole("button", { name: "Approvals", exact: true }).click();
     await expect(page.getByTestId("mobile-approvals")).toBeVisible();
+    await expect(page.getByTestId("mobile-approvals").getByTestId("no-founder-approval")).toBeVisible();
+    await expect(page.getByTestId("mobile-approvals").getByRole("button", { name: "Preview approve", exact: true })).toHaveCount(0);
 
     await page.getByRole("button", { name: "History", exact: true }).click();
     await expect(page.getByTestId("mobile-history")).toBeVisible();
