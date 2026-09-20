@@ -158,7 +158,7 @@
   min-width:0;min-height:0;padding:12px 13px 10px;
   display:grid;grid-template-rows:auto minmax(260px,1fr) auto 118px;gap:8px
 }
-.sceneHeader{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;padding:0 4px}
+.sceneHeader{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px 14px;padding:0 4px}
 .sceneHeader>div:first-child small{color:#45aee9;font-size:7px;letter-spacing:.17em}
 .sceneHeader h1{margin:3px 0 1px;font-size:21px;letter-spacing:.06em;font-weight:650}
 .sceneHeader p{margin:0;color:#6c8fa8;font-size:8px}
@@ -853,4 +853,46 @@
     min-height:34px;
     font-size:5px;
   }
+}
+
+/* Founder truth strip: concise operational truth before visual detail. */
+.truthStrip{
+  grid-column:1/3;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+}
+.truthStrip article{
+  min-width:0;
+  padding:7px 9px;
+  border:1px solid rgba(47,145,207,.17);
+  border-radius:8px;
+  background:linear-gradient(145deg,rgba(6,28,47,.72),rgba(3,15,26,.78));
+}
+.truthStrip small,.truthStrip strong,.truthStrip span{display:block}
+.truthStrip small{
+  color:#5d95b7;
+  font-size:6px;
+  letter-spacing:.09em;
+}
+.truthStrip strong{
+  margin-top:3px;
+  color:#d9f4ff;
+  font-size:10px;
+  letter-spacing:.02em;
+}
+.truthStrip span{
+  margin-top:2px;
+  color:#66889e;
+  font-size:6px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@media(max-width:1260px){
+  .truthStrip{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:980px){
+  .sceneHeader{grid-template-columns:1fr}
+  .truthStrip{grid-column:1}
 }

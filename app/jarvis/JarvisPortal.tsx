@@ -89,6 +89,11 @@ export default function JarvisPortal() {
   const selectedTask = useMemo(() => tasks.find(t=>t.id===selectedTaskId) || null,[tasks,selectedTaskId]);
   const projectTasks = useMemo(() => selectedProject ? tasks.filter(t=>t.projectId===selectedProject.id) : [],[tasks,selectedProject]);
   const assigned = new Set(selectedProject?.agentIds ?? []);
+  const reviewQueueCount = tasks.filter(task=>task.state==="review").length;
+  const ciInfrastructureBlockers = tasks.filter(task =>
+    task.state==="blocked" && /\b(ci|runner|infrastructure)\b/i.test(`${task.title} ${task.detail}`)
+  ).length;
+  const readFreshness = snapshot?.mirror ? `${snapshot.mirror.ageSeconds}s old` : "5s refresh";
 
   function startDrag(event:DragEvent<HTMLButtonElement>,agentId:string){
     event.dataTransfer.setData("text/agent-id",agentId);
@@ -314,6 +319,12 @@ export default function JarvisPortal() {
           <div className={styles.sceneHeader}>
             <div><small>COMPANY VIEW · {readModelStatus.toUpperCase()}</small><h1>Agent Constellation</h1><p>{readModelStatus==="mirror"?"Sanitized trusted mirror. Drag an agent onto a project to request assistance.":"Preview data only. Drag an agent onto a project to rehearse bounded assistance."}</p></div>
             <div className={styles.companyStats}><b>{snapshot.source==="mirror"?"—":agents.filter(a=>a.state==="running").length}<small>{snapshot.source==="mirror"?"activity":"running"}</small></b><b>{tasks.filter(t=>t.state==="live").length}<small>live tasks</small></b><b>{tasks.filter(t=>t.state==="founder").length}<small>needs you</small></b></div>
+            <div className={styles.truthStrip} data-testid="founder-truth-strip">
+              <article><small>DATA</small><strong>{snapshot.source==="mirror"?"TRUSTED MIRROR":"PREVIEW"}</strong><span>{readFreshness}</span></article>
+              <article><small>REVIEW QUEUE</small><strong>{reviewQueueCount}</strong><span>independent review gates</span></article>
+              <article><small>CI BLOCKERS</small><strong>{ciInfrastructureBlockers}</strong><span>infrastructure, not product verdicts</span></article>
+              <article><small>CONTROL</small><strong>GATED</strong><span>read-only · MFA staged</span></article>
+            </div>
           </div>
 
           <div className={styles.scene} data-testid="agent-scene">

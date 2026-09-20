@@ -180,6 +180,10 @@ test.describe("JARVIS Founder Portal", () => {
 
     await page.goto("/jarvis");
     await expect(page.getByText("Agent Constellation")).toBeVisible();
+    await expect(page.getByTestId("founder-truth-strip")).toBeVisible();
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("REVIEW QUEUE");
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("CI BLOCKERS");
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("GATED");
     await expect(page.locator(".ai-launcher")).toHaveCount(0);
     await expect(page.getByText("PROJECT UNIVERSE")).toBeVisible();
     await expect(page.getByTestId("approvals-title")).toBeVisible();
