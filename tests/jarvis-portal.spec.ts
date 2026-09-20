@@ -291,7 +291,7 @@ test.describe("JARVIS Founder Portal", () => {
 
     await page.getByTestId("project-rangrez").click();
     await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
-    await expect(page.getByTestId("project-worklane")).toContainText("Product head frozen; normal CI and a separate one-step hosted-runner probe both fail before step 1");
+    await expect(page.getByTestId("project-worklane")).toContainText("3000/3000 private Actions minutes");
     await expect(page.getByTestId("project-worklane")).toContainText("NEXT");
     await expect(page.getByTestId("project-worklane")).toContainText("Primary");
     await expect(page.getByTestId("project-worklane")).toContainText("Reviewer");
