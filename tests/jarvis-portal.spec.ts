@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { adaptTrustedControlPlaneSnapshot, jarvisStateEndpointEnabled } from "../app/jarvis/trustedMirror";
 import { createHash, createHmac } from "node:crypto";
-import { mirrorIngestEnabled, mirrorStoreConfigured, readRequestBodyBounded, validateMirrorIngestEnvelope, VERCEL_BLOB_MIRROR_DRIVER } from "../app/jarvis/mirrorIngest";\nimport { mirrorStorageDriver, TRUSTED_MIRROR_BLOB_PATH } from "../app/jarvis/mirrorStore";
+import { mirrorIngestEnabled, mirrorStoreConfigured, readRequestBodyBounded, validateMirrorIngestEnvelope, VERCEL_BLOB_MIRROR_DRIVER } from "../app/jarvis/mirrorIngest";
+import { mirrorStorageDriver, TRUSTED_MIRROR_BLOB_PATH } from "../app/jarvis/mirrorStore";
 
 test.describe("JARVIS Founder Portal", () => {
 
