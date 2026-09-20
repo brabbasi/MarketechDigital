@@ -6,7 +6,7 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-20T19:02:58Z";
+const SNAPSHOT_AT = "2026-09-20T19:25:21Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
@@ -26,10 +26,10 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
   site: {
     state: "review",
     progress: 79,
-    now: "Founder Portal preview now consumes a current operator snapshot instead of the stale baked demo; the rolling Vercel alias remains read-only and production mirror authority stays off.",
+    now: "Founder Portal is deployed at 90db5dca and consuming the refreshed operator snapshot; project transitions from DeutschPath, TradePilot and Rangrez are represented explicitly instead of waiting on a baked demo refresh.",
     next: "Keep operator snapshots synchronized on material transitions while #47/#104 remain the governed path to a signed production mirror.",
     blocked: 1,
-    lastUpdate: "Online cockpit read model upgraded from stale demo fallback to explicit operator snapshot with honest as-of semantics.",
+    lastUpdate: "Dashboard-sync habit active: material transitions must refresh both the online operator snapshot and local Trusted project manifest or be reported as a dashboard-sync blocker.",
   },
   deutschpath: {
     state: "on_track",
@@ -47,10 +47,10 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
   rangrez: {
     state: "review",
     progress: 67,
-    now: "P27 stays frozen. Wardrobe continuity child #28 is source-contract green after preserving Load more across empty category filters; affiliate policy #29 is 4/4 focused-test green; #30 enrolls P27 in the central Reviewer fabric.",
+    now: "P27 stays frozen. Wardrobe continuity #28 is source-contract green at 004d14f5 after preserving Load more across empty category filters; affiliate policy #29 is 4/4 focused-test green at 55ef2a8d; #30 central Reviewer enrollment is c930394e.",
     next: "Hold exact product heads for independent review; keep live Supabase/device/Spatial Closet release gates separate and do not revive closed legacy #4/#22/#23 implementations.",
     blocked: 1,
-    lastUpdate: "Legacy #4/#22/#23 closed with useful deltas preserved in safer P27 children; #30 central Reviewer successor opened.",
+    lastUpdate: "Legacy #4/#22/#23 closed; #28/#29 carry the preserved capabilities safely; #30 carries central Reviewer enrollment. Hosted red jobs remain pre-step infrastructure failures, not product verdicts.",
     history: [
       "Legacy wardrobe delete branch #4 closed; non-destructive continuity preserved in #28.",
       "Legacy affiliate-admin #22 closed; server-authoritative policy preserved in #29.",
@@ -128,12 +128,12 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
 
 const operatorTasks: JarvisTask[] = [
   { id:"t1", title:"Trusted Bridge exact-head review", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #66 is engineering-green; independent review capacity issue #109 remains the gate." },
-  { id:"t2", title:"Dashboard read-model synchronization", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Replace stale baked preview data with a current operator snapshot online and refresh the Trusted local project manifest in the same material transition." },
+  { id:"t2", title:"Dashboard read-model synchronization", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Permanent rule: every material company transition refreshes both the online operator snapshot and local Trusted project manifest, or records an explicit sync blocker. Current online build: 90db5dca." },
   { id:"t3", title:"Core-lane durability proof", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"live", detail:"All four exact recurring company lanes are enabled after post-run self-disable. Durability is 0/3 until three later natural cycles survive without restoration." },
   { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000. PR #101 exact head 0042acf7 is engineering-green with 30 workflows / 0 hard violations / 0 concurrency advisories; no runner is installed." },
   { id:"t5", title:"Revenue research review batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"72 qualified prospects; 36 newest packets pending independent review; 36 historical reviewed coverage; 5 evidence-valid Founder-approved held identities; 3 evidence-drift holds; outbound remains held." },
   { id:"t6", title:"Reviewer install after Bridge", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"Sequence remains #66 Bridge -> #46 Reviewer -> fresh #40 Runtime review -> #80 autonomy canary. Runtime and autonomy remain OFF." },
-  { id:"t8", title:"Rangrez P27 child convergence", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"review", detail:"#28 source-contract green; #29 focused policy 4/4 green; #30 central Reviewer enrollment open. Hosted red jobs are pre-step infrastructure failures, not product verdicts." },
+  { id:"t8", title:"Rangrez P27 child convergence", projectId:"rangrez", project:"Rangrez", agent:"Delivery Operations", state:"review", detail:"#28 004d14f5 source-contract green; #29 55ef2a8d focused policy 4/4 green; #30 c930394e central Reviewer enrollment open. Hosted red jobs are pre-step infrastructure failures, not product verdicts." },
   { id:"t10", title:"DeutschPath stale successor reconciliation", projectId:"deutschpath", project:"DeutschPath", agent:"Engineering Agent", state:"done", detail:"PR #22 closed as reconciled/redundant after zero-file diff versus canonical main; missing beta redirect was proven as the former build breaker." },
   { id:"t11", title:"Axiom paper execution QA", projectId:"axiom", project:"Axiom", agent:"Engineering Agent", state:"review", detail:"Research/paper evidence continues; live-capital authority remains disabled." },
   { id:"t12", title:"TradePilot persistence hardening", projectId:"tradepilot", project:"TradePilot", agent:"Delivery Operations", state:"review", detail:"PR #5 cb3eaca1 is Vercel READY with exact-draft review binding + tenant-safe fallback import. Supabase remains INACTIVE; no live DB verification claimed." },
