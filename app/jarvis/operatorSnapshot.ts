@@ -6,7 +6,7 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-20T19:31:30Z";
+const SNAPSHOT_AT = "2026-09-20T19:46:30Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
@@ -105,11 +105,12 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
   },
   reviewer: {
     state: "review",
-    task: "Independent-review queue #109",
+    task: "Independent-review queue #109 + central Reviewer self-hosting",
     history: [
       "No quota-rejected or stale-head request is treated as approval.",
       "#66 remains first finish-chain review target, followed by #46 and #40 through the installed Reviewer path.",
       "Rangrez central Reviewer enrollment successor is #30.",
+      "PR #21 central AI Reviewer is now engineering-green at ffca1fc5 with loopback self-hosting as the preferred zero-spend staging path; Vercel is optional fallback only."
     ],
   },
   delivery: {
@@ -152,6 +153,7 @@ const operatorTasks: JarvisTask[] = [
   { id:"t20", title:"Codex worker re-verification", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"queued", detail:"Priority 3 from workforce #93. Require fresh exact identity, read-only usefulness and denied writes/network/approval escalation before headless dispatch." },
   { id:"t21", title:"Authenticated worker cohort", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"Gemini, Copilot, Claude and Figma are installed/configured capability lanes but remain blocked on approved personal/Marketech authentication plus execution-scope evidence; employer credentials remain prohibited." },
   { id:"t22", title:"Agent employment registry", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"PR #93 current head 28b39784 records 56 explicit assignments and corrects Codebase Memory from installed_reverify to blocked_runtime. Both exact-head engineering gates are green on the corrected workforce truth; independent review remains required before promotion." },
+  { id:"t23", title:"Central AI Reviewer self-hosted path", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #21 exact head ffca1fc5 is AI Reviewer CI green. Preferred hosting is now the existing governed Trusted/self-hosted plane with loopback-only binding and zero-spend validation before any OpenAI key/model call. Dedicated Vercel project is optional, not required. Service is NOT deployed and model-spend authority remains OFF." },
 ];
 
 export const operatorJarvisState: JarvisState = {
