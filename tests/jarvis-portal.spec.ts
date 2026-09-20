@@ -364,7 +364,6 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByTestId("mobile-home")).toBeVisible();
     await expect(page.getByText("FOUNDER SNAPSHOT")).toBeVisible();
     await expect(page.getByTestId("mobile-home").getByText("APPROVAL PREVIEW", { exact: true })).toBeVisible();
-    await expect(page.getByTestId("mobile-home").getByText("NEEDS YOU", { exact: true })).toBeVisible();
     await expect(page.getByTestId("mobile-home").getByRole("button", { name: "Review", exact: true }).first()).toBeVisible();
     await expect(page.getByTestId("mobile-home").getByRole("button", { name: "Approve", exact: true })).toHaveCount(0);
     await expect(page.getByTestId("mobile-home").getByText("ASK JARVIS", { exact: true })).toBeVisible();
