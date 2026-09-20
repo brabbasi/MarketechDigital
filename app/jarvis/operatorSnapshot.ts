@@ -19,7 +19,7 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
     history: [
       "Private CI capacity policy enforced across 30 workflows with zero hard violations/advisories.",
       "v5 confirmed that prompt hardening and same-ID schedule re-arm were insufficient; Revenue Queue and Conversion Worker self-disabled again.",
-      "All four legacy core workers have now reproduced post-run self-disable at least once. v6 replaces only Revenue Queue first; Draft Reviewer and Resource Manager both failed again this cycle and were restored. Durability remains 0/3."
+      "All four legacy core workers have now reproduced post-run self-disable at least once. v6 replaces only Revenue Queue first; Draft Reviewer and Resource Manager both failed again this cycle and were restored. Durability remains 0/3.",
       "Trusted finish chain remains #66 -> #46 -> #40 -> #80.",
       "Remote and local dashboard read models are being synchronized as part of this checkpoint.",
       "Workforce #93 current head 28b39784 makes runtime truth explicit: Codebase Memory is blocked_runtime until governed Runtime recovery; Graft and Codex remain installed_reverify; Gemini, Copilot, Claude and Figma are blocked_auth; Reviewer remains blocked_runtime.",
@@ -97,7 +97,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
       "Private CI capacity policy reached 30 workflows / 0 violations / 0 advisories.",
       "v5 same-ID schedule re-arm still reproduced post-run self-disable on Revenue Queue + Conversion Worker.",
       "v6 clean-object canary replaces Revenue Queue only; the historical queue stays intentionally disabled while recurrence is tested.",
-      "Legacy Draft Reviewer self-disabled after its 15:30 run and Agent Resource Manager self-disabled after its 15:40 run; both were restored in place. The current cycle is explicitly failed and cannot count toward durability."
+      "Legacy Draft Reviewer self-disabled after its 15:30 run and Agent Resource Manager self-disabled after its 15:40 run; both were restored in place. The current cycle is explicitly failed and cannot count toward durability.",
       "Durability proof remains 0/3 until natural recurrence survives.",
       "Workforce #93 records 56 explicit agent assignments; employment does not imply autonomous Runtime dispatch.",
       "Activation sequencing is now fail-closed: Codebase Memory waits for #66 -> #46 -> #40 Runtime recovery; Graft -> Codex remain installed_reverify; Gemini/Copilot/Claude/Figma require separate approved auth/scope evidence.",
