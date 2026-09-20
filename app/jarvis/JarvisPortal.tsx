@@ -238,12 +238,12 @@ export default function JarvisPortal() {
           </div>
 
           <section className={styles.mobileNeeds}>
-            <header><span>NEEDS YOU</span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
+            <header><span>APPROVAL PREVIEW</span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
             {approvalItems.slice(0,2).map(item=><article key={item.id}>
               <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
               {!approvalState[item.id]&&<span className={styles.mobileReviewAction}><button onClick={()=>setMobileView("approvals")}>Review</button></span>}
             </article>)}
-            {approvalItems.length>2&&<button className={styles.mobileMore} onClick={()=>setMobileView("approvals")}>View all approvals</button>}
+            {approvalItems.length>2&&<button className={styles.mobileMore} onClick={()=>setMobileView("approvals")}>View all preview approvals</button>}
           </section>
 
           <section className={styles.mobileAsk}>
@@ -417,7 +417,7 @@ export default function JarvisPortal() {
           </section>
 
           <section className={styles.approvals}>
-            <header data-testid="approvals-title"><span>NEEDS YOUR APPROVAL <i>PREVIEW ONLY</i></span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
+            <header data-testid="approvals-title"><span>APPROVAL PREVIEW <i>NO ACTION REQUIRED</i></span><b>{approvalItems.filter(a=>!approvalState[a.id]).length}</b></header>
             {approvalItems.map(item=><div key={item.id} className={approvalState[item.id]?styles.decided:""}>
               <div><strong>{item.title}</strong><small>{item.meta}</small></div><em>{approvalState[item.id]||item.risk}</em>
               {!approvalState[item.id]&&<span><button onClick={()=>recordApprovalPreview(item.id,"APPROVED PREVIEW")}>Preview approve</button><button onClick={()=>recordApprovalPreview(item.id,"REJECTED PREVIEW")}>Preview reject</button></span>}
