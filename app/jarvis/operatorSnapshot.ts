@@ -6,7 +6,7 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-20T20:12:00Z";
+const SNAPSHOT_AT = "2026-09-20T20:16:00Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
@@ -86,6 +86,19 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
       "Approve/reject binds id + needs_approval + exact updated_at and expires stale approvals.",
       "Fallback prospect imports populate required organization/client IDs from the existing RLS-visible client context.",
       "Central Reviewer enrollment is now part of the active PR #5 lineage; former standalone PR #4 is closed superseded.",
+    ],
+  },
+  "finance-os": {
+    state: "review",
+    progress: 30,
+    now: "Stage-1 truth hardening PR #117 is engineering-green at a8644159. Cross-source financial evidence no longer auto-merges on merchant/amount proximity alone; isolated Lab F1 tests passed using synthetic fixtures only.",
+    next: "Hold #117 for independent review. Continue Customer Zero truth-layer engineering only with synthetic/private channels; no personal financial data in Git and no financial-action authority.",
+    blocked: 1,
+    lastUpdate: "Financial Independence OS moved from roadmap-only status to a tested Stage-1 truth-engine successor without introducing customer data, provider integration or money movement.",
+    history: [
+      "F1 truth-reference CI 35534941359 passed on isolated Lab.",
+      "Different-account same-merchant/amount evidence now remains separate unless stronger matching evidence exists.",
+      "Posting-lag cross-source evidence needs a shared external reference before automatic reconciliation.",
     ],
   },
   portfolio: {
@@ -168,7 +181,8 @@ const operatorTasks: JarvisTask[] = [
   { id:"t20", title:"Codex worker re-verification", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"queued", detail:"Priority 3 from workforce #93. Require fresh exact identity, read-only usefulness and denied writes/network/approval escalation before headless dispatch." },
   { id:"t21", title:"Authenticated worker cohort", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"Gemini, Copilot, Claude and Figma are installed/configured capability lanes but remain blocked on approved personal/Marketech authentication plus execution-scope evidence; employer credentials remain prohibited." },
   { id:"t22", title:"Agent employment registry", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"PR #93 current head 28b39784 records 56 explicit assignments and corrects Codebase Memory from installed_reverify to blocked_runtime. Both exact-head engineering gates are green on the corrected workforce truth; independent review remains required before promotion." },
-  { id:"t23", title:"Central AI Reviewer self-hosted path", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #21 exact head 8fe2b000 is AI Reviewer CI green. Its readiness contract now cleanly separates zero-spend staging (internal Reviewer token only) from model credentials. Preferred hosting remains loopback-only Trusted/self-hosted; Vercel is optional. Service is NOT deployed and model-spend authority remains OFF." },
+  { id:"t23", title:"Central AI Reviewer self-hosted path", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #21 exact head 8fe2b000 is AI Reviewer CI green. Its readiness contract cleanly separates zero-spend staging (internal Reviewer token only) from model credentials. Preferred hosting remains loopback-only Trusted/self-hosted; Vercel is optional. Service is NOT deployed and model-spend authority remains OFF." },
+  { id:"t24", title:"Financial Independence OS F1 truth hardening", projectId:"finance-os", project:"Financial Independence OS", agent:"Delivery Operations", state:"review", detail:"PR #117 a8644159 is isolated-Lab CI green. Cross-source evidence requires a stronger matching anchor before automatic reconciliation. Synthetic fixtures only; no customer financial data or financial-action authority." },
 ];
 
 export const operatorJarvisState: JarvisState = {
