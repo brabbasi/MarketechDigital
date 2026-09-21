@@ -242,7 +242,7 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t13")?.detail).toContain("3000/3000");
     const reviewQueueTask = payload.tasks.find((task: { id: string; detail: string }) => task.id === "t16");
     expect(reviewQueueTask?.detail).toContain("Issue #109 is canonical");
-    expect(reviewQueueTask?.detail).toContain("current #66/#46 heads are not review-ready");
+    expect(reviewQueueTask?.detail).toContain("stale-SHA review is never approval");
     expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t17")?.detail).toContain("#72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding");
     expect(payload.portal?.buildSha).toBeTruthy();
     expect(payload.portal?.environment).toBeTruthy();
