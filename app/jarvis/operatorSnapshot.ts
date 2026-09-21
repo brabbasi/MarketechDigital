@@ -6,23 +6,23 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-20T22:20:00Z";
+const SNAPSHOT_AT = "2026-09-21T22:28:01Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
     progress: 82,
-    now: "Review bootstrap #66 -> #46 remains the critical autonomy gate. Revenue-first commercial unlock is #72 eeee4078 -> #68 1a51a0e7 -> #73 939f601f; #68 is exact-head green with 37 tests and #73 is exact-head green with 64 combined provider/outbound tests. Workforce #93 is frozen at 78af9f41 with Codebase Memory blocked_runtime. Core-lane diagnosis keeps the same existing task objects and tests whether shortening the Reviewer/Resource Manager below the observed 5+ minute fault window stops self-disable.",
-    next: "Observe the shortened clean Reviewer at its natural :30 recurrence and require two consecutive enabled completions before Resource Manager migration. Consume independent review on exact current #66/#46 and repaired commercial heads when capacity permits. Full-cohort durability remains 0/3 and outbound remains held.",
+    now: "P0 finish chain remains #66 -> #46 -> #40 -> #80, but the current heads are source-repaired and waiting on their own exact-head certification. #66 exact 2e441055 repairs two fresh-review P1 lifecycle findings: journal-transition failure cleanup/recovery and exact pristine no-Reviewer filesystem rollback. #46 exact 81be7a44 repairs the fresh-review P2 that could leave an unactivated release behind when predecessor-state capture failed. #40 exact 6e9148fd remains engineering-green with Runtime OFF/quarantined. Revenue-first commercial unlock remains #72 eeee4078 -> #68 1a51a0e7 -> #73 939f601f; outbound is held.",
+    next: "Let the self-hosted runner drain current exact-head certification without further P0 head churn. Only after #66 2e441055 is green should its repaired P1 threads be closed with exact-head evidence and a fresh review requested; repeat for #46 81be7a44, then use the live Reviewer for #40. Keep Runtime/autonomy and outbound OFF.",
     blocked: 2,
-    lastUpdate: "Revenue executor TOCTOU was repaired before review: #68 now holds serialized authority across transport, and #73 provider CI certifies the inherited outbound suite. No new scheduler task was created.",
+    lastUpdate: "Fresh independent review materially changed both P0 candidates. #66 moved to 2e441055 after bounded P1 recovery hardening; #46 moved to 81be7a44 after bounded P2 cleanup-order repair. Canonical review queue #109 and the Control Center manifest are synchronized to these heads; local Trusted cockpit consumption remains stale/unproven until a newer heartbeat exists.",
     history: [
-      "Clean Revenue Queue PASS #1 and untouched clean Conversion PASS #2 remain valid.",
-      "Clean Reviewer self-disabled after a 5m49s run; legacy Resource Manager repeated self-disable after roughly 5m17s. Both existing tasks were shortened in place for the next natural-run diagnostic.",
-      "#68 exact 1a51a0e7: Authority Registry + Guarded Outbound self-hosted gates SUCCESS, 37 tests OK including concurrent revocation serialization.",
-      "#73 exact 939f601f: Provider Runtime Binding CI SUCCESS, 64 combined provider/outbound tests OK, provider policy still REVIEW_PENDING.",
-      "Trusted finish chain remains #66 -> #46 -> #40 -> #80. Runtime/autonomy remain OFF.",
-      "Workforce #93 exact 78af9f41 is engineering-green/review-gated: CBM blocked_runtime; Graft/Codex installed_reverify; Gemini/Copilot/Claude blocked_auth."
+      "#66 predecessor 3f621e4a received two fresh P1 findings; current 2e441055 adds fail-closed journal-write cleanup/recovery plus exact pristine filesystem rollback and adversarial coverage.",
+      "#46 predecessor 25b5c908 received one fresh P2 finding; current 81be7a44 keeps unactivated-release cleanup armed through predecessor-state capture and proves the ownership handoff order.",
+      "Control Center manifest commit 33ef3ce9 carries the new P0 heads but does not claim local consumption; latest verified local Trusted heartbeat remains 2026-09-21T02:32:21Z.",
+      "Read-only Scheduled Task recurrence remains durable; no replacement worker-object migration is needed while those same task objects keep advancing.",
+      "Baytree R03 is the repaired immutable revenue successor at maintenance@baytreepm.com; independent review is pending and no Founder/send authority is inherited.",
+      "Trusted finish chain remains #66 -> #46 -> #40 -> #80. Runtime/autonomy remain OFF."
     ],
   },
   site: {
@@ -126,12 +126,12 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
 const agentOverrides: Record<string, Partial<JarvisAgent>> = {
   resource: {
     state: "running",
-    task: "Revenue-first orchestration + shortened core-lane recurrence diagnostic",
+    task: "Revenue-first orchestration + durable read-only recurrence",
     history: [
       "Permanent automation rule: reuse/update existing tasks; no new monitor/check task unless absolutely necessary.",
       "Revenue-first scoreboard is reply -> meeting -> scoped proposal -> contracted CAD -> collected CAD.",
-      "Queue/Conversion clean objects survive; Reviewer and Resource Manager are being tested with smaller bounded runs on the same task objects.",
-      "Commercial chain #72 -> #68 -> #73 is now frozen on repaired current SHAs with exact execution proof on #68/#73.",
+      "The same read-only Queue, Conversion, Reviewer, Resource Manager, Keeper and Finish Watch objects continue recurring at the 10-task ceiling; the earlier migration experiment is cancelled while this remains stable.",
+      "Commercial chain #72 -> #68 -> #73 remains review-gated; outbound is held.",
       "Workforce #93 remains review-gated; employment never implies dispatch activation."
     ],
   },
@@ -140,8 +140,8 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
     task: "Exact-head independent-review queue #109",
     history: [
       "Never reuse stale-SHA PASSes or quota-rejected requests as approval.",
-      "#66 then #46 remain the bootstrap reviews for governed Runtime recovery.",
-      "#68 1a51a0e7, #73 939f601f and public-site #17 b36fe5b2 are current engineering-green/review-ready targets.",
+      "#66 2e441055 then #46 81be7a44 remain the bootstrap gates for governed Runtime recovery; both must finish exact-head CI before another review.",
+      "#68 1a51a0e7, #73 939f601f and public-site #17 b36fe5b2 remain downstream review targets.",
       "#21 central Reviewer remains engineering-green but NOT deployed and has no model-spend authority."
     ],
   },
@@ -158,24 +158,24 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
     state: "running",
     task: "Founder cockpit state + workforce synchronization",
     history: [
-      "Online portal stale-demo root cause identified.",
-      "Preview read model moved to explicit operator snapshot semantics.",
-      "Local Trusted manifest is synchronized separately without widening Runtime authority.",
+      "Online portal operator snapshot is refreshed on material company transitions instead of silently lagging behind the work.",
+      "Preview read model remains explicit operator-snapshot coordination truth, never production Runtime authority.",
+      "Control Center manifest commit 33ef3ce9 is synchronized separately; local Trusted consumption remains stale/unproven until a newer heartbeat.",
     ],
   },
 };
 
 const operatorTasks: JarvisTask[] = [
-  { id:"t1", title:"Trusted Bridge exact-head review", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #66 exact 82691a27 remains engineering-green; independent review capacity issue #109 remains the gate." },
+  { id:"t1", title:"Trusted Bridge P1 repair certification", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"queued", detail:"PR #66 exact 2e441055 has the two fresh-review P1 repairs in source. Current exact-head Bridge/Action Guard/Phase-0/AI Reviewer/Observability certification is queued; do not reuse predecessor CI/review or request re-review until green." },
   { id:"t2", title:"Dashboard read-model synchronization", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Permanent rule: material company transitions refresh the online operator snapshot and local Trusted project manifest, or record an explicit sync blocker. This checkpoint is revenue-first and exact-head bound." },
-  { id:"t3", title:"Core-lane shortened-run proof", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"blocked", detail:"Queue PASS #1 + Conversion PASS #2 remain valid. Clean Reviewer and legacy Resource Manager are shortened in place after 5+ minute self-disable correlation. Require two consecutive shortened Reviewer passes before any RM migration. Full-cohort durability 0/3." },
+  { id:"t3", title:"Read-only scheduler durability", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"live", detail:"The same strict read-only core task objects continue recurring naturally at the 10-task ceiling. Earlier worker-object migration is cancelled/not needed unless a real read-only recurrence regression appears." },
   { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000 until Oct 1. PR #101 is engineering-green/frozen/not installed; no runner token or installation authority exists." },
   { id:"t15", title:"Signed remote mirror publisher", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"PR #104 remains engineering-green/not activated. Store connected=false; write secret configured=false; ingestion enabled=false. The operator snapshot remains coordination truth only and does not substitute for the signed Runtime/live-state mirror." },
-  { id:"t16", title:"Independent review capacity", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"blocked", detail:"Issue #109 remains canonical for #66/#46/#47/#68/#69/#70/#72/#73/#93/#101/#104 and product review gates. Passing CI or stale-SHA review is not approval." },
+  { id:"t16", title:"Independent review queue", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Issue #109 is canonical. Fresh Codex review capacity is functioning, but current #66/#46 heads are not review-ready until their own exact-head certification clears. Passing CI or stale-SHA review is never approval." },
   { id:"t17", title:"Revenue control chain", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"review", detail:"Revenue dependency is #72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding, with #69 CRM and #70 Founder price authority after #72 as needed. #68 exact 1a51a0e7 and #73 exact 939f601f are engineering-green/review-ready; outbound remains held." },
 
-  { id:"t25", title:"Trusted Reviewer install path", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"#66 -> #46 -> fresh #40 Runtime review -> #80 autonomy. Runtime/autonomy remain OFF." },
-  { id:"t26", title:"First paid customer scoreboard", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"live", detail:"72 qualified identities; net-new growth frozen while review backlog >12. Current business scoreboard remains 0 replies / 0 meetings / 0 proposals / CAD 0 contracted / CAD 0 collected." },
+  { id:"t25", title:"Trusted Reviewer P2 repair certification", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"queued", detail:"#46 exact 81be7a44 repairs the fresh-review cleanup-order P2. Its exact-head Reviewer CI is queued behind the same self-hosted runner backlog; installation remains behind a clean #66 -> clean #46 review chain and fresh Founder exact-ref gates." },
+  { id:"t26", title:"First paid customer scoreboard", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"live", detail:"72 qualified identities; net-new growth frozen while review backlog >12. Baytree R03 is the repaired review-pending successor at maintenance@baytreepm.com. Business scoreboard remains 0 replies / 0 meetings / 0 proposals / CAD 0 contracted / CAD 0 collected; outbound held." },
   { id:"t27", title:"Authority Registry", projectId:"jarvis", project:"Revenue", agent:"Engineering Agent", state:"review", detail:"#72 exact eeee4078 is the verifier-only root for outbound, price and CRM authority. Engineering-green/frozen; current independent review required." },
   { id:"t28", title:"Guarded outbound executor", projectId:"jarvis", project:"Revenue", agent:"Engineering Agent", state:"review", detail:"#68 exact 1a51a0e7 closes the authority-to-transport TOCTOU race. Authority Registry CI 35541022900 + Guarded Outbound CI 35541022902 SUCCESS; 37 tests OK; outbound held." },
   { id:"t29", title:"Provider runtime binding", projectId:"jarvis", project:"Revenue", agent:"Engineering Agent", state:"review", detail:"#73 exact 939f601f inherits the serialized outbound guard. Provider Runtime CI 35541178625 SUCCESS; 64 combined tests OK; production provider policy remains REVIEW_PENDING." },
@@ -201,8 +201,8 @@ export const operatorJarvisState: JarvisState = {
   projects: demoJarvisState.projects.map(project => ({ ...project, ...(projectOverrides[project.id] ?? {}) })),
   tasks: operatorTasks,
   finishChain: {
-    bridge: "engineering_green_review_blocked",
-    reviewer: "engineering_green_review_blocked",
+    bridge: "p1_repaired_exact_head_ci_queued",
+    reviewer: "p2_repaired_exact_head_ci_queued",
     runtime: "engineering_green_runtime_off",
     autonomy: "engineering_green_not_activated",
   },
