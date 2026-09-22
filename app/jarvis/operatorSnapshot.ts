@@ -6,18 +6,18 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-22T20:50:00Z";
+const SNAPSHOT_AT = "2026-09-22T20:54:00Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
     progress: 82,
-    now: "P0 finish chain remains #66 -> #46 -> #40 -> #80. Current exact #66 head 289d22a4 repairs the latest Codex P2 by binding durable action_generation.journaled_at to the request started_at before cleanup. AI Reviewer CI 35782656180 is SUCCESS; Bridge 35782656158, Action Guard 35782656281, Phase-0 35782656152 and Observability 35782656159 are queued on the isolated Lab at this checkpoint. The predecessor e3c18d4f review is stale for authorization. Bridge is not installed. #46 exact 0ddb5e8e remains CI-green and independently clean; Reviewer is not installed. #40 exact 6e9148fd remains engineering-green with Runtime OFF/quarantined. Revenue-first commercial unlock remains #72 eeee4078 -> #68 1a51a0e7 -> #73 939f601f; outbound is held.",
-    next: "Drain exact-head certification for #66 289d22a4. If all required gates pass, request fresh independent review on that exact SHA. Only a clean current-head verdict can advance to the bounded Founder Bridge-install decision. Keep #46 exact 0ddb5e8e frozen clean behind #66 and #40 Runtime OFF. Outbound and spend remain OFF.",
+    now: "P0 finish chain remains #66 -> #46 -> #40 -> #80. Current exact #66 head 289d22a4 is fully engineering-green: Trusted Machine Bridge CI 35782656158, Action Guard 35782656281, Phase-0 35782656152, AI Reviewer CI 35782656180 and Observability 35782656159 all SUCCESS. The latest timestamp-order P2 is repaired/resolved and fresh exact-head Codex re-review 5783987526 is requested. Bridge is not installed. #46 exact 0ddb5e8e remains CI-green and independently clean; Reviewer is not installed. #40 exact 6e9148fd remains engineering-green with Runtime OFF/quarantined. Revenue-first commercial unlock remains #72 eeee4078 -> #68 1a51a0e7 -> #73 939f601f; outbound is held.",
+    next: "Consume fresh exact-head Codex re-review 5783987526 for #66 289d22a4. If clean and the SHA remains unchanged, surface the bounded Founder exact-head Bridge install decision. Keep #46 exact 0ddb5e8e frozen clean behind #66; install it only through the live Bridge, then use the live Reviewer to review #40 before any Runtime/autonomy decision. Outbound and spend remain OFF.",
     blocked: 2,
-    lastUpdate: "#66 advanced to 289d22a4 after fresh review found one remaining request/action timestamp-order P2 on e3c18d4f. The repair and regressions are committed; exact-head certification is draining through the isolated Lab. #46 exact 0ddb5e8e remains independently clean. The online operator snapshot is refreshed at each material P0 transition while the signed live mirror remains inactive.",
+    lastUpdate: "#66 289d22a4 is now fully engineering-green after closing the request/action timestamp-order P2; all required exact-head gates passed and fresh Codex re-review 5783987526 is requested. #46 exact 0ddb5e8e remains independently clean. The online operator snapshot is refreshed at each material P0 transition while the signed live mirror remains inactive.",
     history: [
-      "#66 exact 289d22a4 additionally requires action_generation.journaled_at to be at/after request started_at and rejects invalid/future request-start timestamps before cleanup; current-head certification is draining.",
+      "#66 exact 289d22a4 requires action_generation.journaled_at to be at/after request started_at and rejects invalid/future request-start timestamps before cleanup; all five required exact-head engineering gates are SUCCESS and fresh review 5783987526 is requested.",
       "#46 exact 0ddb5e8e is Trusted Independent Review Executor CI green and fresh Codex review 5768921053 found no major issues; it remains NOT installed behind #66.",
       "Control Center manifest commit d6c690fd carries the current P0 heads but does not claim local consumption; latest verified local Trusted heartbeat remains 2026-09-21T02:32:21Z.",
       "Read-only Scheduled Task recurrence remains durable; no replacement worker-object migration is needed while those same task objects keep advancing.",
@@ -140,7 +140,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
     task: "Exact-head independent-review queue #109",
     history: [
       "Never reuse stale-SHA PASSes or quota-rejected requests as approval.",
-      "#66 289d22a4 repairs the newest request/action timeline P2 and is in exact-head certification; AI Reviewer CI is green while the remaining required Lab gates are queued. #46 0ddb5e8e remains exact-head CI green with clean fresh Codex review 5768921053.",
+      "#66 289d22a4 is fully engineering-green after repairing the newest request/action timeline P2; fresh exact-head Codex review 5783987526 is requested. #46 0ddb5e8e remains exact-head CI green with clean fresh Codex review 5768921053.",
       "#68 1a51a0e7, #73 939f601f and public-site #17 b36fe5b2 remain downstream review targets.",
       "#21 central Reviewer remains engineering-green but NOT deployed and has no model-spend authority."
     ],
@@ -166,12 +166,12 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
 };
 
 const operatorTasks: JarvisTask[] = [
-  { id:"t1", title:"Trusted Bridge exact-head certification", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #66 exact 289d22a4 repairs the newest timestamp-order P2. AI Reviewer CI 35782656180 is SUCCESS; Bridge 35782656158, Action Guard 35782656281, Phase-0 35782656152 and Observability 35782656159 are queued on the isolated Lab. Fresh independent review is required after full exact-head certification. Bridge remains NOT installed." },
+  { id:"t1", title:"Trusted Bridge exact-head re-review", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"PR #66 exact 289d22a4 is fully engineering-green: Bridge 35782656158, Action Guard 35782656281, Phase-0 35782656152, AI Reviewer CI 35782656180 and Observability 35782656159 all SUCCESS. The latest timestamp-order P2 is repaired/resolved and fresh exact-head Codex re-review 5783987526 is requested. Bridge remains NOT installed." },
   { id:"t2", title:"Dashboard read-model synchronization", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Permanent rule: material company transitions refresh the online operator snapshot and local Trusted project manifest, or record an explicit sync blocker. This checkpoint is revenue-first and exact-head bound." },
   { id:"t3", title:"Read-only scheduler durability", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"live", detail:"The same strict read-only core task objects continue recurring naturally at the 10-task ceiling. Earlier worker-object migration is cancelled/not needed unless a real read-only recurrence regression appears." },
   { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000 until Oct 1. PR #101 is engineering-green/frozen/not installed; no runner token or installation authority exists." },
   { id:"t15", title:"Signed remote mirror publisher", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"PR #104 remains engineering-green/not activated. Store connected=false; write secret configured=false; ingestion enabled=false. The operator snapshot remains coordination truth only and does not substitute for the signed Runtime/live-state mirror." },
-  { id:"t16", title:"Independent review queue", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Issue #109 is canonical. #66 289d22a4 is the only current candidate and is certification-in-progress after repairing the latest review P2; #46 0ddb5e8e is exact-head CI green and independently clean. Passing predecessor CI or stale-SHA review is never approval, and neither component is installed." },
+  { id:"t16", title:"Independent review queue", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Issue #109 is canonical. #66 289d22a4 is fully engineering-green with fresh exact-head Codex re-review 5783987526 requested; #46 0ddb5e8e is exact-head CI green and independently clean. Passing predecessor CI or stale-SHA review is never approval, and neither component is installed." },
   { id:"t17", title:"Revenue control chain", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"review", detail:"Revenue dependency is #72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding, with #69 CRM and #70 Founder price authority after #72 as needed. #68 exact 1a51a0e7 and #73 exact 939f601f are engineering-green/review-ready; outbound remains held." },
 
   { id:"t25", title:"Trusted Reviewer exact-head clean", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"#46 exact 0ddb5e8e is Trusted Independent Review Executor CI 35666846080 SUCCESS and fresh Codex review 5768921053 found no major issues. Both rollback/cutover temp selectors are per-process unique, failed candidate cleanup remains fail-closed, and complete PR-file pagination is preserved. Reviewer remains NOT installed behind #66." },
@@ -201,7 +201,7 @@ export const operatorJarvisState: JarvisState = {
   projects: demoJarvisState.projects.map(project => ({ ...project, ...(projectOverrides[project.id] ?? {}) })),
   tasks: operatorTasks,
   finishChain: {
-    bridge: "exact_head_repaired_certification_in_progress",
+    bridge: "exact_head_engineering_green_review_requested",
     reviewer: "exact_head_review_clean_not_installed",
     runtime: "engineering_green_runtime_off",
     autonomy: "engineering_green_not_activated",
