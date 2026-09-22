@@ -6,18 +6,18 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-22T21:15:00Z";
+const SNAPSHOT_AT = "2026-09-22T21:30:00Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
     progress: 82,
-    now: "P0 finish chain remains #66 -> #46 -> #40 -> #80. Fresh Codex review of predecessor #66 head ec430d53 found two additional recovery defects: a P1 orphaned target Reviewer launch after a crash during health checks, and a P2 rollback error when a stopped predecessor originally had no Reviewer state directory. Both are repaired on current exact #66 head 4fe57697, including bounded exact-target launch reaping, equivalent interrupted predecessor-restart recovery, and exact absent-state-root restoration. Fresh exact-head CI is running. Bridge is not installed. #46 exact 0ddb5e8e remains CI-green and independently clean; Reviewer is not installed. #40 exact 6e9148fd remains engineering-green with Runtime OFF/quarantined. Revenue-first commercial unlock remains #72 eeee4078 -> #68 1a51a0e7 -> #73 939f601f; outbound is held.",
-    next: "Require all exact-head #66 certification gates to pass on 4fe57697. Then resolve the two ec430d53 review findings with exact-head evidence and request a fresh Codex review bound only to 4fe57697. Only a clean review on an unchanged SHA may advance to a separate Founder Bridge-install decision. Keep #46 exact 0ddb5e8e frozen clean behind #66; Runtime/autonomy/outbound/spend remain OFF.",
+    now: "P0 finish chain remains #66 -> #46 -> #40 -> #80. Fresh Codex review of predecessor #66 head ec430d53 found two additional recovery defects: a P1 orphaned target Reviewer launch after a crash during health checks, and a P2 rollback error when a stopped predecessor originally had no Reviewer state directory. Both are repaired on current exact #66 head 42dde3ab, including bounded exact-target launch reaping, equivalent interrupted predecessor-restart recovery, and exact absent-state-root restoration. Fresh exact-head CI is running. Bridge is not installed. #46 exact 0ddb5e8e remains CI-green and independently clean; Reviewer is not installed. #40 exact 6e9148fd remains engineering-green with Runtime OFF/quarantined. Revenue-first commercial unlock remains #72 eeee4078 -> #68 1a51a0e7 -> #73 939f601f; outbound is held.",
+    next: "All five required #66 gates are green on 42dde3ab. Both ec430d53 review findings are resolved with exact-head evidence. Consume fresh Codex review 5784477490 bound only to 42dde3ab; only a clean verdict on this unchanged SHA may advance to a separate Founder Bridge-install decision. Keep #46 exact 0ddb5e8e frozen clean behind #66; Runtime/autonomy/outbound/spend remain OFF.",
     blocked: 2,
-    lastUpdate: "#66 predecessor ec430d53 received fresh P1/P2 recovery findings. Both are repaired on current exact 4fe57697 and fresh exact-head certification is running; predecessor review evidence is stale and no Founder approval/install exists. #46 exact 0ddb5e8e remains independently clean. The online operator snapshot is refreshed at material P0 transitions while the signed live mirror remains inactive.",
+    lastUpdate: "#66 predecessor ec430d53 received fresh P1/P2 recovery findings. Both are repaired on current exact 42dde3ab and all five required exact-head gates are green and fresh Codex review 5784477490 is requested; predecessor review evidence is stale and no Founder approval/install exists. #46 exact 0ddb5e8e remains independently clean. The online operator snapshot is refreshed at material P0 transitions while the signed live mirror remains inactive.",
     history: [
-      "#66 predecessor ec430d53 passed engineering gates but fresh Codex review found P1 orphan-launch recovery and P2 absent-state rollback defects. Current exact 4fe57697 repairs both plus the adjacent interrupted predecessor-restart case; exact-head certification is running and all ec430d53 authorization evidence is stale.",
+      "#66 predecessor ec430d53 passed engineering gates but fresh Codex review found P1 orphan-launch recovery and P2 absent-state rollback defects. Current exact 42dde3ab repairs both plus the adjacent interrupted predecessor-restart case; exact-head certification is running and all ec430d53 authorization evidence is stale.",
       "#46 exact 0ddb5e8e is Trusted Independent Review Executor CI green and fresh Codex review 5768921053 found no major issues; it remains NOT installed behind #66.",
       "Control Center manifest commit d6c690fd carries the current P0 heads but does not claim local consumption; latest verified local Trusted heartbeat remains 2026-09-21T02:32:21Z.",
       "Read-only Scheduled Task recurrence remains durable; no replacement worker-object migration is needed while those same task objects keep advancing.",
@@ -140,7 +140,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
     task: "Exact-head independent-review queue #109",
     history: [
       "Never reuse stale-SHA PASSes or quota-rejected requests as approval.",
-      "#66 4fe57697 is the current repaired head after the newest P1/P2 recovery findings; fresh exact-head certification is running and predecessor ec430d53 review evidence is stale. #46 0ddb5e8e remains exact-head CI green with clean fresh Codex review 5768921053.",
+      "#66 42dde3ab is the current repaired head after the newest P1/P2 recovery findings; all five required exact-head gates are green and fresh Codex review 5784477490 is requested and predecessor ec430d53 review evidence is stale. #46 0ddb5e8e remains exact-head CI green with clean fresh Codex review 5768921053.",
       "#68 1a51a0e7, #73 939f601f and public-site #17 b36fe5b2 remain downstream review targets.",
       "#21 central Reviewer remains engineering-green but NOT deployed and has no model-spend authority."
     ],
@@ -166,12 +166,12 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
 };
 
 const operatorTasks: JarvisTask[] = [
-  { id:"t1", title:"Trusted Bridge recovery repair certification", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Fresh review of #66 predecessor ec430d53 found P1 interrupted target-Reviewer launch recovery and P2 absent predecessor-state restoration defects. Current exact 4fe57697 repairs both, plus interrupted predecessor restart recovery; fresh exact-head CI is running. Bridge remains NOT installed." },
+  { id:"t1", title:"Trusted Bridge recovery repair certification", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Fresh review of #66 predecessor ec430d53 found P1 interrupted target-Reviewer launch recovery and P2 absent predecessor-state restoration defects. Current exact 42dde3ab repairs both, plus interrupted predecessor restart recovery; fresh exact-head CI is running. Bridge remains NOT installed." },
   { id:"t2", title:"Dashboard read-model synchronization", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Permanent rule: material company transitions refresh the online operator snapshot and local Trusted project manifest, or record an explicit sync blocker. This checkpoint is revenue-first and exact-head bound." },
   { id:"t3", title:"Read-only scheduler durability", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"live", detail:"The same strict read-only core task objects continue recurring naturally at the 10-task ceiling. Earlier worker-object migration is cancelled/not needed unless a real read-only recurrence regression appears." },
   { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000 until Oct 1. PR #101 is engineering-green/frozen/not installed; no runner token or installation authority exists." },
   { id:"t15", title:"Signed remote mirror publisher", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"PR #104 remains engineering-green/not activated. Store connected=false; write secret configured=false; ingestion enabled=false. The operator snapshot remains coordination truth only and does not substitute for the signed Runtime/live-state mirror." },
-  { id:"t16", title:"Independent review queue", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Issue #109 is canonical. #66 current exact 4fe57697 carries the newest P1/P2 recovery repairs and is in exact-head certification; stale-SHA review is never approval, including ec430d53 and all earlier evidence. #46 0ddb5e8e is exact-head CI green and independently clean. Neither component is installed." },
+  { id:"t16", title:"Independent review queue", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Issue #109 is canonical. #66 current exact 42dde3ab carries the newest P1/P2 recovery repairs and has all five required exact-head gates green and fresh Codex review 5784477490 requested; stale-SHA review is never approval, including ec430d53 and all earlier evidence. #46 0ddb5e8e is exact-head CI green and independently clean. Neither component is installed." },
   { id:"t17", title:"Revenue control chain", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"review", detail:"Revenue dependency is #72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding, with #69 CRM and #70 Founder price authority after #72 as needed. #68 exact 1a51a0e7 and #73 exact 939f601f are engineering-green/review-ready; outbound remains held." },
 
   { id:"t25", title:"Trusted Reviewer exact-head clean", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"#46 exact 0ddb5e8e is Trusted Independent Review Executor CI 35666846080 SUCCESS and fresh Codex review 5768921053 found no major issues. Both rollback/cutover temp selectors are per-process unique, failed candidate cleanup remains fail-closed, and complete PR-file pagination is preserved. Reviewer remains NOT installed behind #66." },
@@ -201,7 +201,7 @@ export const operatorJarvisState: JarvisState = {
   projects: demoJarvisState.projects.map(project => ({ ...project, ...(projectOverrides[project.id] ?? {}) })),
   tasks: operatorTasks,
   finishChain: {
-    bridge: "latest_review_findings_repaired_exact_head_ci_running",
+    bridge: "exact_head_green_fresh_review_requested",
     reviewer: "exact_head_review_clean_not_installed",
     runtime: "engineering_green_runtime_off",
     autonomy: "engineering_green_not_activated",
