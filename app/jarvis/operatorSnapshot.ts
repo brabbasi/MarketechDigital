@@ -6,16 +6,16 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-23T23:56:00Z";
+const SNAPSHOT_AT = "2026-09-23T23:59:00Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
     progress: 82,
-    now: "P0 finish chain remains #66 -> #46 -> #40 -> #80. Fresh exact-head review of #66 predecessor 949296f5 found one final P1: request-level fallback fences could not durably bind a different predecessor ref. Current exact #66 head 9b026ad8 preserves the target/predecessor recovery-fence repair and adds the private-permission regression-fixture correction. All five required exact-head gates are SUCCESS and fresh Codex review 5804916051 is requested. Bridge remains not installed. In parallel, MemPalace #36 exact d137e14a is green across sealed no-network, isolated install, Portfolio and Web Intelligence audits; fresh Codex review 5804908860 is active. Issue #123 remains the durable capability ledger. Hermes #121 is pinned to v2026.9.21 / d337b736 and AwesomeLLMApps #122 to c6228784. #46 remains clean/not installed and #40 remains Runtime OFF.",
-    next: "Consume fresh Codex review 5804916051 on unchanged 9b026ad8. The predecessor-fence P1 is resolved with exact-run evidence and all five required gates are green; only a clean exact-head verdict may advance to the separate Founder Bridge-install decision. In parallel, consume fresh Codex review 5804908860 on unchanged MemPalace d137e14a; all four active exact-head audit lanes are green. Continue Hermes/AwesomeLLMApps bounded extraction through #121/#122/#123. Runtime/autonomy/outbound/spend remain OFF.",
+    now: "P0 finish chain remains #66 -> #46 -> #40 -> #80. Fresh exact-head review of #66 predecessor 949296f5 found one final P1: request-level fallback fences could not durably bind a different predecessor ref. Current exact #66 head 9b026ad8 preserves the target/predecessor recovery-fence repair and adds the private-permission regression-fixture correction. All five required exact-head gates are SUCCESS and Codex review 5804928344 is clean on exact `9b026ad8`. The repair/re-review loop is closed. Bridge remains not installed and is now waiting on the separate Founder exact-head installation approval. In parallel, MemPalace #36 exact d137e14a is green across sealed no-network, isolated install, Portfolio and Web Intelligence audits; fresh Codex review 5804908860 is active. Issue #123 remains the durable capability ledger. Hermes #121 is pinned to v2026.9.21 / d337b736 and AwesomeLLMApps #122 to c6228784. #46 remains clean/not installed and #40 remains Runtime OFF.",
+    next: "Founder decision is now the next #66 gate: explicitly approve or reject installation of Trusted Bridge exact `9b026ad85d217b92862202051a6c2879189dc2c4`. If approved, perform only the governed Bridge bootstrap, prove live Bridge health, then install clean #46 through the Bridge before #40 review. In parallel, consume fresh Codex review 5804908860 on unchanged MemPalace d137e14a; all four active exact-head audit lanes are green. Continue Hermes/AwesomeLLMApps bounded extraction through #121/#122/#123. Runtime/autonomy/outbound/spend remain OFF.",
     blocked: 2,
-    lastUpdate: "#66 exact 9b026ad8 is fully engineering-green; the predecessor-ref fallback-fence P1 is resolved, all five required gates are SUCCESS, and fresh Codex review 5804916051 is active. MemPalace #36 exact d137e14a is exact-head green and under fresh independent review 5804908860. Hermes/AwesomeLLMApps remain durably pinned under #121/#122/#123. No Bridge, Reviewer, Runtime, real memory corpus or external authority has been activated.",
+    lastUpdate: "#66 exact 9b026ad8 is fully engineering-green and fresh exact-head Codex review 5804928344 found no major issues. Repair/re-review is closed; Bridge install is now Founder-approval pending. MemPalace #36 exact d137e14a is exact-head green and under fresh independent review 5804908860. Hermes/AwesomeLLMApps remain durably pinned under #121/#122/#123. No Bridge, Reviewer, Runtime, real memory corpus or external authority has been activated.",
     history: [
       "#66 head 42dde3ab passed engineering gates but fresh Codex review found two P1 crash-convergence defects: incomplete full-session reaping and unsafe selector/target cleanup ordering. Current exact 1c7d3227 repairs both with full validated-session identity tracking and selector-first rollback; exact-head certification is running and all 42dde3ab authorization evidence is stale.",
       "#46 exact 0ddb5e8e is Trusted Independent Review Executor CI green and fresh Codex review 5768921053 found no major issues; it remains NOT installed behind #66.",
@@ -140,7 +140,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
     task: "Exact-head independent-review queue #109",
     history: [
       "Never reuse stale-SHA PASSes or quota-rejected requests as approval.",
-      "#66 9b026ad8 is the current exact-head candidate: target/predecessor request-fence role binding and retry reconciliation are implemented; all five required gates are SUCCESS and fresh Codex review 5804916051 is active. #46 0ddb5e8e remains exact-head CI green with clean fresh Codex review 5768921053.",
+      "#66 9b026ad8 is exact-head clean: target/predecessor request-fence role binding and retry reconciliation are implemented; all five required gates are SUCCESS and Codex review 5804928344 is clean. Founder Bridge-install approval is the remaining gate. #46 0ddb5e8e remains exact-head CI green with clean fresh Codex review 5768921053.",
       "#68 1a51a0e7, #73 939f601f and public-site #17 b36fe5b2 remain downstream review targets.",
       "#21 central Reviewer remains engineering-green but NOT deployed and has no model-spend authority."
     ],
@@ -166,7 +166,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
 };
 
 const operatorTasks: JarvisTask[] = [
-  { id:"t1", title:"Trusted Bridge exact-head review", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"#66 exact 9b026ad8 carries explicit target/predecessor request-fence role binding and predecessor retry regressions. Bridge 35934666086, Action Guard 35934666092, Phase-0 35934666099, AI Reviewer CI 35934666134 and Observability 35934666077 are all SUCCESS. The latest P1 thread is resolved and fresh Codex review 5804916051 is active. Bridge remains NOT installed." },
+  { id:"t1", title:"Trusted Bridge Founder install gate", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"#66 exact 9b026ad8 is fully certified: Bridge 35935770046, Action Guard 35935770327, Phase-0 35935770170, AI Reviewer CI 35935770104 and Observability 35935770034 are SUCCESS; Codex review 5804928344 found no major issues. Repair/re-review is closed. Bridge remains NOT installed pending explicit Founder approval of this exact SHA." },
   { id:"t2", title:"Dashboard read-model synchronization", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Permanent rule: material company transitions refresh the online operator snapshot and local Trusted project manifest, or record an explicit sync blocker. This checkpoint is revenue-first and exact-head bound." },
   { id:"t3", title:"Read-only scheduler durability", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"live", detail:"The same strict read-only core task objects continue recurring naturally at the 10-task ceiling. Earlier worker-object migration is cancelled/not needed unless a real read-only recurrence regression appears." },
   { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000 until Oct 1. PR #101 is engineering-green/frozen/not installed; no runner token or installation authority exists." },
@@ -205,7 +205,7 @@ export const operatorJarvisState: JarvisState = {
   projects: demoJarvisState.projects.map(project => ({ ...project, ...(projectOverrides[project.id] ?? {}) })),
   tasks: operatorTasks,
   finishChain: {
-    bridge: "exact_head_green_fresh_review_active",
+    bridge: "exact_head_review_clean_founder_approval_pending",
     reviewer: "exact_head_review_clean_not_installed",
     runtime: "engineering_green_runtime_off",
     autonomy: "engineering_green_not_activated",
