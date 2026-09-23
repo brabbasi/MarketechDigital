@@ -6,16 +6,16 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-23T20:54:00Z";
+const SNAPSHOT_AT = "2026-09-23T20:58:00Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
     progress: 82,
-    now: "P0 finish chain remains #66 -> #46 -> #40 -> #80. Fresh Codex review of predecessor #66 head ab65ff73 found one remaining P1: if durable launch-session journaling itself failed after the Reviewer spawned a descendant that changed PGID, that descendant could survive without recovery evidence. Fresh Codex review of exact #66 head 057f58ed found a new P1: unproven full-session cleanup after launch-journal failure could still fall into ordinary rollback. Current exact #66 head 6bba545a repairs this by promoting unproven cleanup to a distinct fail-closed recovery-pending state that cannot enter predecessor rollback, with a regression asserting rollback is never attempted. Fresh exact-head certification is queued. Bridge is not installed. #46 exact 0ddb5e8e remains CI-green and independently clean; Reviewer is not installed. #40 exact 6e9148fd remains engineering-green with Runtime OFF/quarantined.",
-    next: "Require all five exact-head #66 gates to pass on 6bba545a. Then resolve the 057f58ed P1 with exact-head evidence and request a fresh Codex review bound only to unchanged 6bba545a. Only a clean verdict may advance to the separate Founder Bridge-install decision. Only a clean verdict may advance to the governed Bridge-install step. Keep #46 exact 0ddb5e8e frozen clean behind #66; Runtime/autonomy/outbound/spend remain OFF.",
+    now: "P0 finish chain remains #66 -> #46 -> #40 -> #80. Fresh Codex review of predecessor #66 head ab65ff73 found one remaining P1: if durable launch-session journaling itself failed after the Reviewer spawned a descendant that changed PGID, that descendant could survive without recovery evidence. Fresh Codex review of predecessor #66 head 057f58ed found a P1 in unproven launch cleanup. Current exact #66 head 6bba545a repairs it by promoting unproven cleanup to fail-closed recovery-pending and forbidding predecessor rollback. All five exact-head gates are SUCCESS and the P1 is resolved; fresh Codex review 5802822751 is requested. Bridge is not installed. #46 exact 0ddb5e8e remains CI-green and independently clean; Reviewer is not installed. #40 exact 6e9148fd remains engineering-green with Runtime OFF/quarantined.",
+    next: "Consume fresh Codex review 5802822751 bound only to unchanged 6bba545a. All five required exact-head gates are green and the latest P1 thread is resolved. Only a clean exact-head verdict may advance to the separate Founder Bridge-install decision. Only a clean verdict may advance to the governed Bridge-install step. Keep #46 exact 0ddb5e8e frozen clean behind #66; Runtime/autonomy/outbound/spend remain OFF.",
     blocked: 2,
-    lastUpdate: "#66 predecessor 057f58ed passed all five gates but fresh Codex review found a new P1 in the unproven-cleanup rollback path. Current exact 6bba545a contains the fail-closed repair and regression; fresh exact-head certification is queued. No Bridge install has occurred. #46 exact 0ddb5e8e remains independently clean.",
+    lastUpdate: "#66 exact 6bba545a is fully engineering-green after the fail-closed unproven-cleanup repair; the latest P1 is resolved and fresh Codex review 5802822751 is requested. No Bridge install has occurred. #46 exact 0ddb5e8e remains independently clean.",
     history: [
       "#66 head 42dde3ab passed engineering gates but fresh Codex review found two P1 crash-convergence defects: incomplete full-session reaping and unsafe selector/target cleanup ordering. Current exact 1c7d3227 repairs both with full validated-session identity tracking and selector-first rollback; exact-head certification is running and all 42dde3ab authorization evidence is stale.",
       "#46 exact 0ddb5e8e is Trusted Independent Review Executor CI green and fresh Codex review 5768921053 found no major issues; it remains NOT installed behind #66.",
@@ -140,7 +140,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
     task: "Exact-head independent-review queue #109",
     history: [
       "Never reuse stale-SHA PASSes or quota-rejected requests as approval.",
-      "#66 6bba545a is the current exact-head candidate: unproven launch cleanup now returns recovery-pending without entering rollback, with regression coverage; fresh exact-head certification is queued and all 057f58ed authorization evidence is stale. #46 0ddb5e8e remains exact-head CI green with clean fresh Codex review 5768921053.",
+      "#66 6bba545a is the current exact-head candidate: unproven launch cleanup returns recovery-pending without entering rollback, all five required gates are SUCCESS, the latest P1 is resolved, and fresh Codex review 5802822751 is requested. #46 0ddb5e8e remains exact-head CI green with clean fresh Codex review 5768921053.",
       "#68 1a51a0e7, #73 939f601f and public-site #17 b36fe5b2 remain downstream review targets.",
       "#21 central Reviewer remains engineering-green but NOT deployed and has no model-spend authority."
     ],
@@ -166,7 +166,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
 };
 
 const operatorTasks: JarvisTask[] = [
-  { id:"t1", title:"Trusted Bridge durable-session repair", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Fresh review of #66 exact 057f58ed found a P1 in the unproven-cleanup path. Current exact 6bba545a prevents rollback whenever full-session cleanup is not proven and carries a regression that asserts predecessor rollback is never attempted in that state. Fresh exact-head certification is queued. Bridge remains NOT installed." },
+  { id:"t1", title:"Trusted Bridge durable-session repair", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Fresh review of #66 exact 057f58ed found a P1 in the unproven-cleanup path. Current exact 6bba545a prevents rollback whenever full-session cleanup is not proven; all five exact-head gates are SUCCESS, the P1 is resolved, and fresh Codex review 5802822751 is requested. Bridge remains NOT installed." },
   { id:"t2", title:"Dashboard read-model synchronization", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Permanent rule: material company transitions refresh the online operator snapshot and local Trusted project manifest, or record an explicit sync blocker. This checkpoint is revenue-first and exact-head bound." },
   { id:"t3", title:"Read-only scheduler durability", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"live", detail:"The same strict read-only core task objects continue recurring naturally at the 10-task ceiling. Earlier worker-object migration is cancelled/not needed unless a real read-only recurrence regression appears." },
   { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000 until Oct 1. PR #101 is engineering-green/frozen/not installed; no runner token or installation authority exists." },
@@ -201,7 +201,7 @@ export const operatorJarvisState: JarvisState = {
   projects: demoJarvisState.projects.map(project => ({ ...project, ...(projectOverrides[project.id] ?? {}) })),
   tasks: operatorTasks,
   finishChain: {
-    bridge: "latest_p1_repaired_exact_head_ci_queued",
+    bridge: "exact_head_green_fresh_review_requested",
     reviewer: "exact_head_review_clean_not_installed",
     runtime: "engineering_green_runtime_off",
     autonomy: "engineering_green_not_activated",
