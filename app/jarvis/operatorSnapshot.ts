@@ -6,21 +6,22 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-26T19:38:30Z";
+const SNAPSHOT_AT = "2026-09-26T20:10:06Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
     progress: 94,
-    now: "Trusted Bridge #66 is LIVE at d34b4e45 and Trusted Reviewer #46 is LIVE at fd07e217. Runtime #40 is frozen at c743f1ff with both engineering CIs green, but Runtime remains OFF because legitimate semantic-review capacity is exhausted. Hosted Codex confirmed the code-review usage limit at comment 5849112468; the installed Reviewer also reaches its governed sandbox then returns no verdict. Phase A #80 fa684dd8 remains engineering-green and OFF. Parallel lanes are moving: #77 Revenue worker QA passed again; #93 Workforce truth is green; #132 MemPalace, #133 Hermes, and #134 dependency helper are green after fresh hardening. The Founder Portal deployment gate is repaired. The signed live-mirror lane also advanced: #47 exact c7201dc4 closes its three fresh review blockers and is self-hosted CI green; stacked #104 exact c709a3e2 is current on that repaired base with both Trusted Sync and Publisher CIs green. Neither is installed/activated.",
-    next: "Keep #40 exact c743f1ff frozen and first in line for legitimate semantic review. In parallel, consume fresh independent review for #47 c7201dc4; only after #47 passes may stacked #104 c709a3e2 receive its own fresh review, then a separately Founder-approved private-store/credential canary can prove the automatic signed mirror. Continue bounded revenue, workforce, memory and dependency QA without widening authority.",
+    now: "Trusted Bridge #66 and Trusted Reviewer #46 are LIVE. Codex review capacity is available again. Fresh hosted review of #40 predecessor c743f1ff found one real P1: legacy schema-2 floor normalization could trust a durable present marker whose paired backup was lost across power failure. That P1 is repaired at new frozen #40 exact de5d9c4b. Activation Closure CI 36268497807 and Continuation CI 36268497919 are both SUCCESS; hosted and installed Trusted semantic reviews are now running on de5d9c4b. Runtime remains OFF. Multi-provider Reviewer failover PR #135 exact f54db7a is also CI-green, encoding that provider quota blocks only the review gate and non-review work continues.",
+    next: "Freeze #40 exact de5d9c4b and consume the two active semantic-review paths. On legitimate exact-head PASS, request fresh Founder exact-ref approval for governed Runtime maintenance recovery; do not activate before that approval. Keep #135 multi-provider Reviewer failover review-ready so future Codex quota/outage can route to another already-approved independent provider instead of pausing JARVIS.",
     blocked: 1,
-    lastUpdate: "2026-09-26 19:38Z: #47 c7201dc4 repaired dedicated read-only GitHub auth, merged-stage activation truth and ordered finish-chain persistence; CI 36266659495 SUCCESS. #104 c709a3e2 is stacked behind_by=0 with Publisher CI 36266710404 and inherited Sync CI 36266710415 SUCCESS. #40 remains engineering-green/off behind semantic review capacity.",
+    lastUpdate: "2026-09-26 20:10Z: Codex capacity returned. Exact #40 c743f1ff review found P1 4112605017; repair de5d9c4b makes legacy floor backup normalization crash-idempotent. Fresh CIs 36268497807 and 36268497919 SUCCESS. Hosted review 5849490745 + Trusted review request 5849491263 are active. Reviewer failover #135 f54db7a CI 36268318092 SUCCESS.",
     history: [
       "Bridge #66 d34b4e45 is installed and live with finite Trusted Reviewer install authority only.",
       "Reviewer #46 fd07e217 is installed/live/restricted and fails closed when Codex cannot produce a verdict.",
-      "#40 c743f1ff: Continuation CI 36260436446 SUCCESS and Activation Closure CI 36260436382 SUCCESS; Runtime remains OFF pending legitimate exact-head semantic PASS.",
-      "Hosted Codex review request 5849110274 was rejected at 5849112468 because the code-review usage limit is reached.",
+      "#40 de5d9c4b: Continuation CI 36268497919 SUCCESS and Activation Closure CI 36268497807 SUCCESS; Runtime remains OFF pending legitimate exact-head semantic PASS.",
+      "Codex capacity returned and found P1 4112605017 on c743f1ff; the new de5d9c4b repair durably publishes the paired legacy floor backup before its presence marker and reconstructs interrupted normalization.",
+      "#135 f54db7a multi-provider Reviewer failover is CI-green. It is not installed and provisions no provider credential/spend; it makes non-review-work continuity an explicit invariant.",
       "#77 Revenue Autonomous Workers ce12bb47 passed the fresh self-hosted QA rerun; business-worker runtime remains unactivated.",
       "#93 Workforce ce870d5d, #132 MemPalace ef5c4f4f, #133 Hermes 1ba352b0 and #134 dependency helper 01d2fdcc are engineering-green.",
       "#47 c7201dc4 closes the current read-model review findings and is CI-green; fresh exact-head independent review is requested.",
@@ -188,7 +189,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
 const operatorTasks: JarvisTask[] = [
   { id:"t1", title:"Trusted Bridge #66 LIVE", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"done", detail:"Trusted Bridge exact d34b4e45b9f9f4fd084a97a6a1715935872306c9 is installed and live. No Runtime, outbound, spend or Founder-decision authority was widened." },
   { id:"t18", title:"Trusted Reviewer #46 LIVE", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"done", detail:"Trusted Reviewer exact fd07e21738145b8aac78c9fac7fe59e99db967cc is installed/live/restricted. It fails closed when Codex cannot return a semantic verdict." },
-  { id:"t19", title:"Runtime #40 semantic PASS", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"blocked", detail:"#40 exact c743f1ffc468170ceca8d7710899716c26c08844 is engineering-green: Continuation CI 36260436446 SUCCESS and Activation Closure CI 36260436382 SUCCESS. Hosted Codex comment 5849112468 confirms code-review usage limits; local Trusted Reviewer also has no current semantic capacity. Runtime remains OFF." },
+  { id:"t19", title:"Runtime #40 semantic PASS", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"#40 exact de5d9c4b2da55226143ee34ba559c5d3c08c6b9d is engineering-green: Activation Closure CI 36268497807 SUCCESS and Continuation CI 36268497919 SUCCESS. It repairs hosted P1 4112605017. Hosted semantic review 5849490745 and installed Trusted Reviewer request 5849491263 are active. Runtime remains OFF until legitimate PASS + fresh Founder exact-ref approval." },
   { id:"t20", title:"Phase A #80 activation", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"#80 exact fa684dd8e368788053feb764250d91b3e7cf073e is engineering-green and OFF. It starts only after #40 receives a legitimate semantic PASS and live Runtime continuation is proven." },
   { id:"t2", title:"Dashboard auto-sync + Founder-first redesign", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Dedicated JARVIS branch builds are now always eligible on Vercel. Current pass replaces stale operator truth and prioritizes Working Now / Blocked / Next Unlock / Recent Proof over jargon-heavy status density." },
   { id:"t21", title:"Revenue worker exact-head QA", projectId:"jarvis", project:"Revenue", agent:"Lab Audit Runner", state:"done", detail:"#77 exact ce12bb476b882baa252c50b2b60f85ece2c68abe passed fresh self-hosted Revenue Autonomous Workers QA attempt 2. Queue/history/continuity and no-outbound authority checks passed." },
@@ -199,7 +200,7 @@ const operatorTasks: JarvisTask[] = [
   { id:"t26", title:"Revenue research + drafting batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"Internal prospect research, evidence, ICP, assessment, drafting and pipeline analysis are queued. No email/SMS/DM/call, paid enrichment, booking, pricing commitment or outbound authority is enabled." },
   { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000 until Oct 1. Self-hosted Lab QA is usable for bounded lanes; broader runner fallback remains governed." },
   { id:"t15", title:"Signed live mirror chain", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"#47 exact c7201dc40407bb403a7fdf2ad55ff369fb23ae5a closes the dedicated-read-only-credential, merged-stage-truth and ordered-chain review blockers; Trusted Control Plane Sync CI 36266659495 SUCCESS. #104 exact c709a3e271e1cce0f1e42f70217dc22e1817d5b4 is stacked behind_by=0 with Publisher CI 36266710404 SUCCESS and inherited Sync CI 36266710415 SUCCESS. Fresh #47 independent review requested in comment 5849261783. Store connected=false; write secret configured=false; ingestion enabled=false; publication/activation performed=false." },
-  { id:"t16", title:"Independent review capacity", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"blocked", detail:"Issue #109 is canonical; stale-SHA review is never approval. Fresh hosted review on #40 was rejected at 5849112468 because Codex code-review usage limits are reached. Exact #40 remains frozen and first in line when capacity returns." },
+  { id:"t16", title:"Reviewer provider resilience", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Codex capacity is available again. PR #135 exact f54db7a63e6d699b1621d4e90a332244f254bbbd is CI-green and defines capacity-only failover to the next already-authenticated, scope-verified, independent Reviewer provider while non-review work continues. Gemini/Claude remain blocked_auth and are not yet authoritative Reviewer transports." },
   { id:"t17", title:"Revenue control chain", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"review", detail:"Revenue dependency remains #72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding. Outbound remains held; no passing engineering CI substitutes for independent review." }
 ];
 
@@ -212,8 +213,8 @@ export const operatorJarvisState: JarvisState = {
   tasks: operatorTasks,
   finishChain: {
     bridge: "live",
-    reviewer: "live_restricted_review_capacity_blocked",
-    runtime: "engineering_green_semantic_review_capacity_blocked_off",
+    reviewer: "live_restricted_reviewing_exact_runtime_head",
+    runtime: "engineering_green_exact_head_under_semantic_review_off",
     autonomy: "engineering_green_waiting_on_runtime_off",
   },
 };
