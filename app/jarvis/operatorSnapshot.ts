@@ -6,16 +6,16 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-26T19:25:00Z";
+const SNAPSHOT_AT = "2026-09-26T19:38:30Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
     progress: 94,
-    now: "Trusted Bridge #66 is LIVE at d34b4e45 and Trusted Reviewer #46 is LIVE at fd07e217. Runtime #40 is frozen at c743f1ff with both engineering CIs green, but Runtime remains OFF because legitimate semantic-review capacity is exhausted. Hosted Codex confirmed the code-review usage limit at comment 5849112468; the installed Reviewer also reaches its governed sandbox then returns no verdict. Phase A #80 fa684dd8 remains engineering-green and OFF. Parallel lanes are moving: #77 Revenue worker QA passed again; #93 Workforce truth is green; #132 MemPalace, #133 Hermes, and #134 dependency helper are green after fresh hardening. The Founder Portal deployment gate was repaired so this dedicated JARVIS branch no longer silently skips updates when a commit lacks [vercel-preview].",
-    next: "Keep #40 exact c743f1ff frozen and first in line for legitimate semantic review when capacity returns. On PASS: governed Runtime recovery -> live event-driven continuation proof -> #80 review -> Founder-gated Phase A. In parallel, continue bounded revenue, workforce, memory and dependency QA, and keep the Founder Portal synchronized on every material transition.",
+    now: "Trusted Bridge #66 is LIVE at d34b4e45 and Trusted Reviewer #46 is LIVE at fd07e217. Runtime #40 is frozen at c743f1ff with both engineering CIs green, but Runtime remains OFF because legitimate semantic-review capacity is exhausted. Hosted Codex confirmed the code-review usage limit at comment 5849112468; the installed Reviewer also reaches its governed sandbox then returns no verdict. Phase A #80 fa684dd8 remains engineering-green and OFF. Parallel lanes are moving: #77 Revenue worker QA passed again; #93 Workforce truth is green; #132 MemPalace, #133 Hermes, and #134 dependency helper are green after fresh hardening. The Founder Portal deployment gate is repaired. The signed live-mirror lane also advanced: #47 exact c7201dc4 closes its three fresh review blockers and is self-hosted CI green; stacked #104 exact c709a3e2 is current on that repaired base with both Trusted Sync and Publisher CIs green. Neither is installed/activated.",
+    next: "Keep #40 exact c743f1ff frozen and first in line for legitimate semantic review. In parallel, consume fresh independent review for #47 c7201dc4; only after #47 passes may stacked #104 c709a3e2 receive its own fresh review, then a separately Founder-approved private-store/credential canary can prove the automatic signed mirror. Continue bounded revenue, workforce, memory and dependency QA without widening authority.",
     blocked: 1,
-    lastUpdate: "2026-09-26: #40 engineering green but semantic review capacity blocked; #77 QA passed; #93 workforce ce870d5d green; #132 ef5c4f4f green; #133 1ba352b0 green; #134 01d2fdcc green. Portal auto-deploy skip repaired at b0e4571c.",
+    lastUpdate: "2026-09-26 19:38Z: #47 c7201dc4 repaired dedicated read-only GitHub auth, merged-stage activation truth and ordered finish-chain persistence; CI 36266659495 SUCCESS. #104 c709a3e2 is stacked behind_by=0 with Publisher CI 36266710404 and inherited Sync CI 36266710415 SUCCESS. #40 remains engineering-green/off behind semantic review capacity.",
     history: [
       "Bridge #66 d34b4e45 is installed and live with finite Trusted Reviewer install authority only.",
       "Reviewer #46 fd07e217 is installed/live/restricted and fails closed when Codex cannot produce a verdict.",
@@ -23,7 +23,9 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
       "Hosted Codex review request 5849110274 was rejected at 5849112468 because the code-review usage limit is reached.",
       "#77 Revenue Autonomous Workers ce12bb47 passed the fresh self-hosted QA rerun; business-worker runtime remains unactivated.",
       "#93 Workforce ce870d5d, #132 MemPalace ef5c4f4f, #133 Hermes 1ba352b0 and #134 dependency helper 01d2fdcc are engineering-green.",
-      "Founder Portal branch builds are now always eligible so operator-truth commits cannot be silently canceled by the preview-budget tag gate."
+      "#47 c7201dc4 closes the current read-model review findings and is CI-green; fresh exact-head independent review is requested.",
+      "#104 c709a3e2 is rebased by true merge onto repaired #47 and both sync/publisher CIs are green; publisher remains inactive.",
+      "Founder Portal branch builds are always eligible so operator-truth commits cannot be silently canceled by the preview-budget tag gate."
     ],
   },
   site: {
@@ -196,7 +198,7 @@ const operatorTasks: JarvisTask[] = [
   { id:"t25", title:"Dependency helper hardening", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"#134 exact 01d2fdcc82dd31cb619d7fd99bee68d34e074879 is CI-green. PEP 735 and Poetry dependency-group incompleteness is explicit instead of silently skipped." },
   { id:"t26", title:"Revenue research + drafting batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"Internal prospect research, evidence, ICP, assessment, drafting and pipeline analysis are queued. No email/SMS/DM/call, paid enrichment, booking, pricing commitment or outbound authority is enabled." },
   { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000 until Oct 1. Self-hosted Lab QA is usable for bounded lanes; broader runner fallback remains governed." },
-  { id:"t15", title:"Signed remote mirror publisher", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"PR #104 remains engineering-green/not activated. Store connected=false; write secret configured=false; ingestion enabled=false. Operator snapshot remains coordination truth only." },
+  { id:"t15", title:"Signed live mirror chain", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"#47 exact c7201dc40407bb403a7fdf2ad55ff369fb23ae5a closes the dedicated-read-only-credential, merged-stage-truth and ordered-chain review blockers; Trusted Control Plane Sync CI 36266659495 SUCCESS. #104 exact c709a3e271e1cce0f1e42f70217dc22e1817d5b4 is stacked behind_by=0 with Publisher CI 36266710404 SUCCESS and inherited Sync CI 36266710415 SUCCESS. Fresh #47 independent review requested in comment 5849261783. Store connected=false; write secret configured=false; ingestion enabled=false; publication/activation performed=false." },
   { id:"t16", title:"Independent review capacity", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"blocked", detail:"Issue #109 is canonical; stale-SHA review is never approval. Fresh hosted review on #40 was rejected at 5849112468 because Codex code-review usage limits are reached. Exact #40 remains frozen and first in line when capacity returns." },
   { id:"t17", title:"Revenue control chain", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"review", detail:"Revenue dependency remains #72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding. Outbound remains held; no passing engineering CI substitutes for independent review." }
 ];
