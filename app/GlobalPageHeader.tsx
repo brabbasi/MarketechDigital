@@ -17,7 +17,7 @@ const pageNavItems = [
 
 export default function GlobalPageHeader() {
   const pathname = usePathname();
-  if (pathname === "/" || pathname === "/about" || pathname === "/founder") return null;
+  if (pathname === "/" || pathname === "/about" || pathname === "/founder" || pathname.startsWith("/jarvis")) return null;
 
   return (
     <header className="standard-page-header-shell">

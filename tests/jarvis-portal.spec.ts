@@ -1,0 +1,411 @@
+import { test, expect } from "@playwright/test";
+import { adaptTrustedControlPlaneSnapshot, jarvisStateEndpointEnabled } from "../app/jarvis/trustedMirror";
+import { createHash, createHmac } from "node:crypto";
+import { mirrorIngestEnabled, mirrorStoreConfigured, readRequestBodyBounded, validateMirrorIngestEnvelope, VERCEL_BLOB_MIRROR_DRIVER } from "../app/jarvis/mirrorIngest";
+import { mirrorStorageDriver, TRUSTED_MIRROR_BLOB_PATH } from "../app/jarvis/mirrorStore";
+
+test.describe("JARVIS Founder Portal", () => {
+
+  test("signed mirror ingestion remains fail-closed until storage is deliberately selected", async ({ request }) => {
+    expect(mirrorIngestEnabled({} as NodeJS.ProcessEnv)).toBe(false);
+    expect(mirrorStoreConfigured({ JARVIS_MIRROR_STORE_DRIVER: "supabase-v1" } as NodeJS.ProcessEnv)).toBe(false);
+    expect(mirrorStoreConfigured({
+      JARVIS_MIRROR_STORE_DRIVER: VERCEL_BLOB_MIRROR_DRIVER,
+      BLOB_STORE_ID: "store_test",
+    } as NodeJS.ProcessEnv)).toBe(false);
+    const configured = {
+      JARVIS_MIRROR_STORE_DRIVER: VERCEL_BLOB_MIRROR_DRIVER,
+      BLOB_STORE_ID: "store_test",
+      VERCEL_OIDC_TOKEN: "oidc-test-token",
+    } as NodeJS.ProcessEnv;
+    expect(mirrorStoreConfigured(configured)).toBe(true);
+    expect(mirrorStorageDriver(configured)).toBe(VERCEL_BLOB_MIRROR_DRIVER);
+    expect(TRUSTED_MIRROR_BLOB_PATH).toBe("jarvis/trusted-control-plane-snapshot.json");
+
+    const response = await request.post("/api/jarvis/mirror-ingest", {
+      data: { probe: true },
+      headers: { "content-type": "application/json" },
+    });
+    expect(response.status()).toBe(503);
+    const payload = await response.json();
+    expect(payload.reason).toBe("mirror_ingest_not_active");
+  });
+
+  test("mirror ingestion envelope binds timestamp, digest, idempotency and HMAC", () => {
+    const nowMs = Date.parse("2026-09-20T14:55:00Z");
+    const timestamp = Math.floor(nowMs / 1000);
+    const body = Buffer.from(JSON.stringify({ safe: true }), "utf8");
+    const secret = "k".repeat(64);
+    const digest = createHash("sha256").update(body).digest("hex");
+    const signature = createHmac("sha256", secret)
+      .update(`${timestamp}.${digest}`)
+      .digest("hex");
+    const headers = new Headers({
+      "content-type": "application/json",
+      "x-marketech-timestamp": String(timestamp),
+      "x-marketech-content-sha256": digest,
+      "x-marketech-signature": `v1=${signature}`,
+      "idempotency-key": digest,
+    });
+
+    const envelope = validateMirrorIngestEnvelope(body, headers, secret, nowMs);
+    expect(envelope.contentSha256).toBe(digest);
+    expect(envelope.idempotencyKey).toBe(digest);
+
+    const stale = new Headers(headers);
+    stale.set("x-marketech-timestamp", String(timestamp - 121));
+    expect(() => validateMirrorIngestEnvelope(body, stale, secret, nowMs)).toThrow(/replay window/);
+
+    const badDigest = new Headers(headers);
+    badDigest.set("x-marketech-content-sha256", "0".repeat(64));
+    expect(() => validateMirrorIngestEnvelope(body, badDigest, secret, nowMs)).toThrow(/digest mismatch/);
+
+    const badIdempotency = new Headers(headers);
+    badIdempotency.set("idempotency-key", "1".repeat(64));
+    expect(() => validateMirrorIngestEnvelope(body, badIdempotency, secret, nowMs)).toThrow(/idempotency/);
+
+    const badSignature = new Headers(headers);
+    badSignature.set("x-marketech-signature", `v1=${"2".repeat(64)}`);
+    expect(() => validateMirrorIngestEnvelope(body, badSignature, secret, nowMs)).toThrow(/signature/);
+  });
+
+  test("mirror request body reader enforces the hard byte bound", async () => {
+    const small = new Request("https://example.invalid", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ safe: true }),
+    });
+    const body = await readRequestBodyBounded(small, 64);
+    expect(new TextDecoder().decode(body)).toContain("safe");
+
+    const oversized = new Request("https://example.invalid", {
+      method: "POST",
+      body: "x".repeat(65),
+    });
+    await expect(readRequestBodyBounded(oversized, 64)).rejects.toThrow(/size/);
+  });
+
+  test("production state endpoint requires a verified Founder session", () => {
+    expect(jarvisStateEndpointEnabled("production", false)).toBe(false);
+    expect(jarvisStateEndpointEnabled("production", true)).toBe(true);
+    expect(jarvisStateEndpointEnabled("preview", false)).toBe(true);
+    expect(jarvisStateEndpointEnabled(undefined, false)).toBe(true);
+  });
+
+  test("trusted control-plane mirror adapter is freshness and authority bound", async () => {
+    const nowMs = Date.parse("2026-09-19T19:45:00Z");
+    const fixture = {
+      schema_version: 1,
+      source: "trusted-github-control-plane-sync-v1",
+      generated_at: "2026-09-19T19:44:30Z",
+      repository: "brabbasi/Marketech_Digital_OS",
+      authority: {
+        github_read_only: true,
+        github_mutation_authorized: false,
+        runtime_write_authorized: false,
+        founder_decision_authorized: false,
+        outbound_authorized: false,
+        spend_authorized: false,
+      },
+      projects: [
+        {
+          repository: "brabbasi/Marketech_Digital_OS",
+          present: true,
+          archived: false,
+          default_branch: "main",
+          head_sha: "a".repeat(40),
+          head_committed_at: "2026-09-19T19:40:00Z",
+          open_pr_count: 1,
+          open_prs: [{ number: 66, title: "Trusted Machine Bridge", head_sha: "b".repeat(40) }],
+        },
+        ...[
+          "brabbasi/MarketechDigital",
+          "brabbasi/Rangrez",
+          "brabbasi/deutschpath-ai",
+          "brabbasi/axiom-market-intelligence",
+          "brabbasi/Tradepilot",
+          "brabbasi/Basit-Portfolio",
+          "brabbasi/veilbound-shadows-origin",
+        ].map((repository, index) => ({
+          repository,
+          present: true,
+          archived: false,
+          default_branch: "main",
+          head_sha: String(index + 1).repeat(40),
+          head_committed_at: "2026-09-19T19:40:00Z",
+          open_pr_count: 0,
+          open_prs: [],
+        })),
+      ],
+      workforce: {
+        source_ref: "canonical-org",
+        source_sha: "c".repeat(40),
+        workers: [{ id: "ai-reviewer", role: "Independent AI Reviewer", department: "independent_assurance" }],
+      },
+      company: {
+        active_work: [{
+          id: "portal",
+          title: "Founder portal mirror binding",
+          status: "RUNNING",
+          owner: "Engineering",
+          next_action: "Validate exact mirror contract",
+        }],
+      },
+      revenue: {
+        qualified_prospects: 48,
+        draft_ready_pending_review: 12,
+        independently_reviewed_send_ready: 36,
+        founder_approved_sends: 17,
+        outreach_sent: 11,
+        replies: 0,
+        meetings: 0,
+        contracted_revenue_cad: 0,
+        collected_revenue_cad: 0,
+      },
+      finish_chain: {
+        bridge: { pr: 66, title: "Trusted Bridge", status: "NEEDS FOUNDER", status_reason: "Exact-head review passed", head_sha: "1".repeat(40), needs_founder: true },
+        reviewer: { pr: 46, title: "Independent Reviewer", status: "QUEUED · BOOTSTRAP REVIEW", status_reason: "Waiting on bridge", head_sha: "2".repeat(40), needs_founder: false },
+        runtime: { pr: 40, title: "Runtime", status: "QUEUED · REVIEW PENDING", status_reason: "Waiting on reviewer", head_sha: "3".repeat(40), needs_founder: false },
+        autonomy: { pr: 80, title: "Autonomy", status: "QUEUED · REVIEW PENDING", status_reason: "Waiting on runtime", head_sha: "4".repeat(40), needs_founder: false },
+      },
+    };
+
+    const state = adaptTrustedControlPlaneSnapshot(fixture, { nowMs, maxAgeSeconds: 600 });
+    expect(state.source).toBe("mirror");
+    expect(state.mirror?.authoritySafe).toBe(true);
+    expect(state.mirror?.ageSeconds).toBe(30);
+    const jarvis = state.projects.find(project => project.id === "jarvis");
+    expect(jarvis?.progressKnown).toBe(false);
+    expect(jarvis?.state).toBe("unknown");
+    expect(jarvis?.now).toContain("main@aaaaaaaaaa");
+    expect(state.tasks.find(task => task.id === "finish-bridge")?.state).toBe("founder");
+    expect(state.agents.find(agent => agent.id === "reviewer")?.state).toBe("review");
+    expect(state.agents.find(agent => agent.id === "engineering")?.state).toBe("unknown");
+    expect(state.revenue.historicalReviewedCoverage).toBe(36);
+    expect(state.revenue.historicalFounderApproved).toBe(17);
+    expect(state.revenue.currentEvidenceValidFounderApproved).toBeNull();
+    expect(state.revenue.knownRequalificationHolds).toBeNull();
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      { ...fixture, generated_at: "2026-09-19T19:20:00Z" },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/stale/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        authority: { ...fixture.authority, github_mutation_authorized: true },
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/authority/);
+
+    const { autonomy: _removedAutonomy, ...partialFinishChain } = fixture.finish_chain;
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      { ...fixture, finish_chain: partialFinishChain },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/finish chain autonomy/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      { ...fixture, projects: fixture.projects.slice(0, -1) },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/project catalog incomplete/);
+  });
+
+  test("read model is explicit, read-only and structurally complete", async ({ request }) => {
+    const response = await request.get("/api/jarvis/state");
+    expect(response.ok()).toBeTruthy();
+    expect(response.headers()["cache-control"]).toContain("no-store");
+    expect(response.headers()["x-jarvis-source"]).toBe("operator");
+
+    const payload = await response.json();
+    expect(payload.schemaVersion).toBe(1);
+    expect(payload.source).toBe("operator");
+    expect(payload.authority).toBe("read_only");
+    expect(payload.agents.length).toBeGreaterThanOrEqual(8);
+    expect(payload.projects.length).toBeGreaterThanOrEqual(10);
+    expect(payload.projects.every((project: { objective?: string; next?: string; assignments?: unknown[] }) => project.objective && project.next && Array.isArray(project.assignments))).toBe(true);
+    expect(payload.tasks.length).toBeGreaterThanOrEqual(6);
+    expect(payload.revenue.outboundHeld).toBe(true);
+    expect(payload.revenue.qualifiedProspects).toBe(72);
+    expect(payload.revenue.pendingIndependentReview).toBe(36);
+    expect(payload.revenue.historicalReviewedCoverage).toBe(36);
+    expect(payload.revenue.historicalFounderApproved).toBe(17);
+    expect(payload.revenue.currentEvidenceValidFounderApproved).toBe(5);
+    expect(payload.revenue.knownRequalificationHolds).toBe(3);
+    expect(payload.revenue).not.toHaveProperty("reviewedSendReady");
+    expect(payload.revenue).not.toHaveProperty("founderApproved");
+    expect(payload.tasks.find((task: { id: string; state: string }) => task.id === "t2")?.state).toBe("live");
+    const mirrorTask = payload.tasks.find((task: { id: string; state: string; detail: string }) => task.id === "t15");
+    expect(mirrorTask?.detail).toContain("Store connected=false");
+    expect(mirrorTask?.detail).toContain("write secret configured=false");
+    expect(mirrorTask?.detail).toContain("ingestion enabled=false");
+    expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t13")?.detail).toContain("3000/3000");
+    const reviewQueueTask = payload.tasks.find((task: { id: string; detail: string }) => task.id === "t16");
+    expect(reviewQueueTask?.detail).toContain("Issue #109 is canonical");
+    expect(reviewQueueTask?.detail).toContain("stale-SHA review is never approval");
+    expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t17")?.detail).toContain("#72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding");
+    expect(payload.portal?.buildSha).toBeTruthy();
+    expect(payload.portal?.environment).toBeTruthy();
+  });
+
+  test("Founder login remains staged and fail-closed in preview QA", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.goto("/jarvis/login");
+    await expect(page.getByRole("heading", { name: "Founder authentication" })).toBeVisible();
+    await expect(page.getByTestId("founder-auth-status")).toContainText("staged but not activated");
+    await expect(page.getByRole("button", { name: "Verify Founder" })).toBeDisabled();
+  });
+
+  test("unavailable read model hides sample company state", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.route("**/api/jarvis/state", async route => {
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ status: "unavailable", source: "mirror", reason: "qa_forced_unavailable" }),
+      });
+    });
+
+    await page.goto("/jarvis");
+    await expect(page.getByTestId("read-model-gate")).toBeVisible();
+    await expect(page.getByText("JARVIS will not show demo data as live state.")).toBeVisible();
+    await expect(page.getByText("Agent Constellation")).toHaveCount(0);
+    await expect(page.getByTestId("project-rangrez")).toHaveCount(0);
+    await expect(page.getByTestId("read-model-status")).toContainText("UNAVAILABLE");
+    await page.screenshot({ path: "artifacts/jarvis-read-model-unavailable.png", fullPage: true });
+  });
+
+  test("desktop cockpit stays compact and makes project-to-agent focus obvious", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.goto("/jarvis");
+    await expect(page.getByText("Agent Constellation")).toBeVisible();
+    await expect(page.getByTestId("founder-truth-strip")).toBeVisible();
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("REVIEW QUEUE");
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("CI BLOCKERS");
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("GATED");
+    await expect(page.locator(".ai-launcher")).toHaveCount(0);
+    await expect(page.getByText("PROJECT UNIVERSE")).toBeVisible();
+    await expect(page.getByTestId("parallel-lanes")).toBeVisible();
+    await expect(page.getByTestId("parallel-lanes")).toContainText("PARALLEL LANES");
+    await expect(page.getByTestId("parallel-lane-jarvis")).toBeVisible();
+    await expect(page.getByTestId("parallel-lane-rangrez")).toBeVisible();
+    await expect(page.getByTestId("approvals-title")).toBeVisible();
+    await expect(page.getByTestId("approvals-title")).toContainText("APPROVAL PREVIEW");
+    await expect(page.getByTestId("approvals-title")).toContainText("NO ACTION REQUIRED");
+    const desktopApprovals = page.getByTestId("approvals-title").locator("..");
+    await expect(desktopApprovals.getByTestId("no-founder-approval")).toBeVisible();
+    await expect(desktopApprovals.getByRole("button", { name: "Preview approve", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Approve", exact: true })).toHaveCount(0);
+    await expect(page.getByTestId("read-model-status")).toContainText("READ MODEL");
+    await expect(page.getByTestId("portal-build")).toContainText("BUILD");
+    await expect(page.getByTestId("portal-build")).toContainText("5S POLL");
+
+    const layout = await page.evaluate(() => ({
+      scrollHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+      publicHeaderPresent: !!document.querySelector(".standard-page-header-shell"),
+      bodyOverflowX: getComputedStyle(document.body).overflowX,
+    }));
+    expect(layout.publicHeaderPresent).toBe(false);
+    expect(layout.scrollHeight).toBeLessThanOrEqual(layout.viewportHeight + 16);
+    expect(layout.bodyOverflowX).not.toBe("scroll");
+
+    await page.getByTestId("parallel-lane-rangrez").click();
+    await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
+    await expect(page.getByTestId("project-worklane")).toContainText("Wardrobe continuity #28");
+    await expect(page.getByTestId("project-worklane")).toContainText("affiliate policy #29");
+    await expect(page.getByTestId("project-worklane")).toContainText("#30 central Reviewer enrollment");
+    await expect(page.getByTestId("project-worklane")).toContainText("NEXT");
+    await expect(page.getByTestId("project-worklane")).toContainText("Primary");
+    await expect(page.getByTestId("project-worklane")).toContainText("Reviewer");
+
+    const relatedCount = await page.locator('button[data-testid^="agent-"][data-assigned="true"]').count();
+    const unrelatedCount = await page.locator('button[data-testid^="agent-"][data-assigned="false"]').count();
+    expect(relatedCount).toBeGreaterThan(0);
+    expect(unrelatedCount).toBeGreaterThan(0);
+
+    await page.screenshot({ path: "artifacts/jarvis-desktop-rangrez.png", fullPage: true });
+  });
+
+  test("agent inspector exposes worker, skill and history layers", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.goto("/jarvis");
+    await page.getByTestId("agent-engineering").click();
+
+    await expect(page.getByText("AGENT INSPECTOR")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Workers" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Skills" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Recent agent history" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Project roles" })).toBeVisible();
+    await expect(page.getByTestId("agent-inspector").getByText("Codebase Memory", { exact: true })).toBeVisible();
+
+    await page.screenshot({ path: "artifacts/jarvis-agent-inspector.png", fullPage: true });
+  });
+
+  test("dragging an agent to a project requests bounded assignment instead of mutating silently", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.goto("/jarvis");
+    const source = page.getByTestId("agent-marketing");
+    const target = page.getByTestId("project-rangrez");
+    await source.dragTo(target);
+
+    await expect(page.getByText("ASSIGN AGENT")).toBeVisible();
+    await expect(page.getByText("Scope validation")).toBeVisible();
+    await expect(page.getByText(/No new production, financial or credential authority/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Assign preview" })).toBeVisible();
+  });
+
+  test("mobile uses focused Founder tabs instead of stacking the desktop cockpit", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "mobile-chromium");
+
+    await page.goto("/jarvis");
+    await expect(page.getByTestId("mobile-nav")).toBeVisible();
+    await expect(page.getByTestId("mobile-home")).toBeVisible();
+    await expect(page.getByText("FOUNDER SNAPSHOT")).toBeVisible();
+    await expect(page.getByTestId("mobile-home").getByText("APPROVAL PREVIEW", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("mobile-home").getByTestId("no-founder-approval")).toBeVisible();
+    await expect(page.getByTestId("mobile-home").getByRole("button", { name: "Review", exact: true })).toHaveCount(0);
+    await expect(page.getByTestId("mobile-home").getByRole("button", { name: "Approve", exact: true })).toHaveCount(0);
+    await expect(page.getByTestId("mobile-home").getByText("ASK JARVIS", { exact: true })).toBeVisible();
+    await expect(page.getByText("Agent Constellation")).toBeHidden();
+    await expect(page.locator(".ai-launcher")).toHaveCount(0);
+
+    const homeLayout = await page.evaluate(() => ({
+      bodyWidth: document.body.scrollWidth,
+      viewportWidth: window.innerWidth,
+      scrollHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+    }));
+    expect(homeLayout.bodyWidth).toBeLessThanOrEqual(homeLayout.viewportWidth + 2);
+    expect(homeLayout.scrollHeight).toBeLessThanOrEqual(homeLayout.viewportHeight * 1.8);
+
+    await page.getByRole("button", { name: "Projects", exact: true }).click();
+    await expect(page.getByTestId("mobile-projects")).toBeVisible();
+    await expect(page.getByTestId("mobile-project-rangrez")).toBeVisible();
+
+    await page.getByRole("button", { name: "Agents", exact: true }).click();
+    await expect(page.getByTestId("mobile-agents")).toBeVisible();
+    await expect(page.getByTestId("mobile-list-agent-engineering")).toBeVisible();
+
+    await page.getByRole("button", { name: "Tasks", exact: true }).click();
+    await expect(page.getByTestId("mobile-tasks")).toBeVisible();
+    await expect(page.getByText("MISSION HORIZON")).toBeVisible();
+
+    await page.getByRole("button", { name: "Approvals", exact: true }).click();
+    await expect(page.getByTestId("mobile-approvals")).toBeVisible();
+    await expect(page.getByTestId("mobile-approvals").getByTestId("no-founder-approval")).toBeVisible();
+    await expect(page.getByTestId("mobile-approvals").getByRole("button", { name: "Preview approve", exact: true })).toHaveCount(0);
+
+    await page.getByRole("button", { name: "History", exact: true }).click();
+    await expect(page.getByTestId("mobile-history")).toBeVisible();
+
+    await page.getByRole("button", { name: "JARVIS", exact: true }).click();
+    await expect(page.getByTestId("mobile-home")).toBeVisible();
+    await page.screenshot({ path: "artifacts/jarvis-mobile.png", fullPage: true });
+  });
+});
