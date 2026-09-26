@@ -62,7 +62,9 @@ jobs:
 
           # Vercel contract: 0 = ignore/skip build, 1 = continue build.
           expect_code 1 main "normal production commit"
-          expect_code 0 feature/jarvis-founder-portal-v1 "ordinary JARVIS checkpoint"
+          # The dedicated Founder portal branch is operational read-model infrastructure.
+          # Every commit must remain build-eligible so dashboard truth cannot silently lag.
+          expect_code 1 feature/jarvis-founder-portal-v1 "ordinary JARVIS checkpoint"
           expect_code 1 feature/jarvis-founder-portal-v1 "Founder checkpoint [vercel-preview]"
           expect_code 0 migration/next-15-5-24 "ordinary migration work"
           expect_code 1 migration/next-15-5-24 "migration preview [vercel-preview]"
