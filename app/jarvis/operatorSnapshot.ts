@@ -127,41 +127,58 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
 const agentOverrides: Record<string, Partial<JarvisAgent>> = {
   resource: {
     state: "running",
-    task: "Revenue-first orchestration + durable read-only recurrence",
+    task: "Safe queue orchestration while Runtime activation is held",
     history: [
-      "Permanent automation rule: reuse/update existing tasks; no new monitor/check task unless absolutely necessary.",
-      "Revenue-first scoreboard is reply -> meeting -> scoped proposal -> contracted CAD -> collected CAD.",
-      "The same read-only Queue, Conversion, Reviewer, Resource Manager, Keeper and Finish Watch objects continue recurring at the 10-task ceiling; the earlier migration experiment is cancelled while this remains stable.",
-      "Commercial chain #72 -> #68 -> #73 remains review-gated; outbound is held.",
-      "Workforce #93 remains review-gated; employment never implies dispatch activation."
+      "Bounded internal work can be queued and self-hosted QA can run; general autonomous Runtime dispatch is still OFF.",
+      "#77 revenue-preparation work is queued without outbound authority.",
+      "Codebase Memory and broader workers remain behind #40 -> #80 rather than being falsely labeled active.",
+      "Workforce truth is current at #93 ce870d5d."
     ],
   },
   reviewer: {
-    state: "review",
-    task: "Exact-head independent-review queue #109",
+    state: "blocked",
+    task: "#40 exact-head semantic review capacity",
     history: [
       "Never reuse stale-SHA PASSes or quota-rejected requests as approval.",
-      "#66 9b026ad8 was exact-head clean but its governed Windows bootstrap failed closed before deployment due confirmed trailing-CR Bash exit framing. Current repair 3e2654dd fixes payload termination and adds private bounded diagnostics; fresh exact-head certification is running. #46 0ddb5e8e remains exact-head CI green with clean fresh Codex review 5768921053.",
-      "#68 1a51a0e7, #73 939f601f and public-site #17 b36fe5b2 remain downstream review targets.",
-      "#21 central Reviewer remains engineering-green but NOT deployed and has no model-spend authority."
+      "Trusted Reviewer fd07e217 is live and healthy at the control-plane boundary.",
+      "Current #40 attempts pass Reviewer preflight/sandbox but return no semantic verdict.",
+      "Hosted Codex independently confirmed code-review usage limits at comment 5849112468."
     ],
   },
   delivery: {
     state: "running",
-    task: "Parallel product reconciliation",
+    task: "Parallel product and QA reconciliation",
     history: [
-      "DeutschPath stale successor removed after zero-diff reconciliation.",
-      "TradePilot exact-draft and tenant persistence defects repaired.",
-      "Rangrez legacy branches #4/#22/#23 closed with useful deltas preserved safely.",
+      "#77 Revenue worker QA passed on the self-hosted Lab lane.",
+      "#93 Workforce truth was reconciled to live Bridge/Reviewer state.",
+      "Product lanes remain individually gated; no red infrastructure result is treated as a product verdict."
     ],
   },
   engineering: {
     state: "running",
-    task: "Founder cockpit state + workforce synchronization",
+    task: "Founder cockpit auto-sync + current-state redesign",
     history: [
-      "Online portal operator snapshot is refreshed on material company transitions instead of silently lagging behind the work.",
-      "Preview read model remains explicit operator-snapshot coordination truth, never production Runtime authority.",
-      "Control Center manifest commit d6c690fd is synchronized separately; local Trusted consumption remains stale/unproven until a newer heartbeat.",
+      "JARVIS dedicated branch now always builds on Vercel; missing [vercel-preview] no longer silently cancels dashboard updates.",
+      "Founder view now prioritizes Working Now, Blocked, Next Unlock and Recent Proof.",
+      "Preview operator state remains coordination truth only; it does not create Runtime authority."
+    ],
+  },
+  memory: {
+    state: "review",
+    task: "MemPalace IF-3 + Hermes lifecycle hardening",
+    history: [
+      "#132 ef5c4f4f hardened boolean, timezone and record-size boundaries and is CI-green.",
+      "#133 1ba352b0 is synchronized to that hardened parent and CI-green.",
+      "No real-corpus writer, provider authentication or memory-store write authority is active."
+    ],
+  },
+  revenue: {
+    state: "review",
+    task: "Revenue worker QA passed; internal business batch queued",
+    history: [
+      "#77 ce12bb47 passed fresh self-hosted Revenue Autonomous Workers QA.",
+      "Prospect research and drafting are queued internally with outbound OFF.",
+      "No worker claim/lease/result is labeled executed until the actual Runtime worker cycle proves it."
     ],
   },
 };
