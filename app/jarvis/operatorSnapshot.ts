@@ -6,21 +6,21 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-26T20:10:06Z";
+const SNAPSHOT_AT = "2026-09-26T20:16:58Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
     progress: 94,
-    now: "Trusted Bridge #66 and Trusted Reviewer #46 are LIVE. Codex review capacity is available again. Fresh hosted review of #40 predecessor c743f1ff found one real P1: legacy schema-2 floor normalization could trust a durable present marker whose paired backup was lost across power failure. That P1 is repaired at new frozen #40 exact de5d9c4b. Activation Closure CI 36268497807 and Continuation CI 36268497919 are both SUCCESS; hosted and installed Trusted semantic reviews are now running on de5d9c4b. Runtime remains OFF. Multi-provider Reviewer failover PR #135 exact f54db7a is also CI-green, encoding that provider quota blocks only the review gate and non-review work continues.",
-    next: "Freeze #40 exact de5d9c4b and consume the two active semantic-review paths. On legitimate exact-head PASS, request fresh Founder exact-ref approval for governed Runtime maintenance recovery; do not activate before that approval. Keep #135 multi-provider Reviewer failover review-ready so future Codex quota/outage can route to another already-approved independent provider instead of pausing JARVIS.",
+    now: "Trusted Bridge #66 and Trusted Reviewer #46 are LIVE. Codex review capacity is available again. Fresh semantic review found two real legacy-normalization P1s: crash-idempotent backup publication and predecessor-capability validation before trusting a completed marker. Both are repaired at frozen #40 exact 934b9bc5. Continuation CI 36268923966 and Activation Closure CI 36268923980 are both SUCCESS; hosted and installed Trusted semantic reviews are now running on 934b9bc5. Runtime remains OFF. Multi-provider Reviewer failover PR #135 exact f54db7a is also CI-green, encoding that provider quota blocks only the review gate and non-review work continues.",
+    next: "Freeze #40 exact 934b9bc5 and consume hosted review 5849539318 plus Trusted Reviewer request 5849539796. On legitimate exact-head PASS, request fresh Founder exact-ref approval for governed Runtime maintenance recovery; do not activate before that approval. Keep #135 multi-provider Reviewer failover review-ready so future provider quota/outage blocks only the affected review gate.",
     blocked: 1,
-    lastUpdate: "2026-09-26 20:10Z: Codex capacity returned. Exact #40 c743f1ff review found P1 4112605017; repair de5d9c4b makes legacy floor backup normalization crash-idempotent. Fresh CIs 36268497807 and 36268497919 SUCCESS. Hosted review 5849490745 + Trusted review request 5849491263 are active. Reviewer failover #135 f54db7a CI 36268318092 SUCCESS.",
+    lastUpdate: "2026-09-26 20:16Z: #40 exact 934b9bc5 closes P1 4112605017 and P1 4112628072. Continuation CI 36268923966 SUCCESS; Activation Closure CI 36268923980 SUCCESS. Hosted review 5849539318 + Trusted review request 5849539796 are active. Reviewer failover #135 f54db7a remains CI-green.",
     history: [
       "Bridge #66 d34b4e45 is installed and live with finite Trusted Reviewer install authority only.",
       "Reviewer #46 fd07e217 is installed/live/restricted and fails closed when Codex cannot produce a verdict.",
-      "#40 de5d9c4b: Continuation CI 36268497919 SUCCESS and Activation Closure CI 36268497807 SUCCESS; Runtime remains OFF pending legitimate exact-head semantic PASS.",
-      "Codex capacity returned and found P1 4112605017 on c743f1ff; the new de5d9c4b repair durably publishes the paired legacy floor backup before its presence marker and reconstructs interrupted normalization.",
+      "#40 934b9bc5: Continuation CI 36268923966 SUCCESS and Activation Closure CI 36268923980 SUCCESS; Runtime remains OFF pending legitimate exact-head semantic PASS.",
+      "Restored semantic review found P1 4112605017 and P1 4112628072. The current state machine durably publishes backup before marker, reconstructs interrupted normalization, and validates predecessor enforcement before trusting present/absent completion state.",
       "#135 f54db7a multi-provider Reviewer failover is CI-green. It is not installed and provisions no provider credential/spend; it makes non-review-work continuity an explicit invariant.",
       "#77 Revenue Autonomous Workers ce12bb47 passed the fresh self-hosted QA rerun; business-worker runtime remains unactivated.",
       "#93 Workforce ce870d5d, #132 MemPalace ef5c4f4f, #133 Hermes 1ba352b0 and #134 dependency helper 01d2fdcc are engineering-green.",
@@ -189,7 +189,7 @@ const agentOverrides: Record<string, Partial<JarvisAgent>> = {
 const operatorTasks: JarvisTask[] = [
   { id:"t1", title:"Trusted Bridge #66 LIVE", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"done", detail:"Trusted Bridge exact d34b4e45b9f9f4fd084a97a6a1715935872306c9 is installed and live. No Runtime, outbound, spend or Founder-decision authority was widened." },
   { id:"t18", title:"Trusted Reviewer #46 LIVE", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"done", detail:"Trusted Reviewer exact fd07e21738145b8aac78c9fac7fe59e99db967cc is installed/live/restricted. It fails closed when Codex cannot return a semantic verdict." },
-  { id:"t19", title:"Runtime #40 semantic PASS", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"#40 exact de5d9c4b2da55226143ee34ba559c5d3c08c6b9d is engineering-green: Activation Closure CI 36268497807 SUCCESS and Continuation CI 36268497919 SUCCESS. It repairs hosted P1 4112605017. Hosted semantic review 5849490745 and installed Trusted Reviewer request 5849491263 are active. Runtime remains OFF until legitimate PASS + fresh Founder exact-ref approval." },
+  { id:"t19", title:"Runtime #40 semantic PASS", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"#40 exact 934b9bc58cb874b6e408a3b88aaa24a4edb83e34 is engineering-green: Continuation CI 36268923966 SUCCESS and Activation Closure CI 36268923980 SUCCESS. It repairs P1 4112605017 and P1 4112628072. Hosted semantic review 5849539318 and installed Trusted Reviewer request 5849539796 are active. Runtime remains OFF until legitimate PASS + fresh Founder exact-ref approval." },
   { id:"t20", title:"Phase A #80 activation", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"#80 exact fa684dd8e368788053feb764250d91b3e7cf073e is engineering-green and OFF. It starts only after #40 receives a legitimate semantic PASS and live Runtime continuation is proven." },
   { id:"t2", title:"Dashboard auto-sync + Founder-first redesign", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Dedicated JARVIS branch builds are now always eligible on Vercel. Current pass replaces stale operator truth and prioritizes Working Now / Blocked / Next Unlock / Recent Proof over jargon-heavy status density." },
   { id:"t21", title:"Revenue worker exact-head QA", projectId:"jarvis", project:"Revenue", agent:"Lab Audit Runner", state:"done", detail:"#77 exact ce12bb476b882baa252c50b2b60f85ece2c68abe passed fresh self-hosted Revenue Autonomous Workers QA attempt 2. Queue/history/continuity and no-outbound authority checks passed." },
