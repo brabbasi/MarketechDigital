@@ -105,6 +105,11 @@ export default function JarvisPortal() {
     return { project, active, review, founder, blocked, done, total: laneTasks.length, laneState };
   }).filter(lane => lane.total > 0 || lane.project.agentIds.length > 0), [projects,tasks]);
   const activeParallelLanes = parallelLanes.filter(lane => lane.active || lane.review || lane.founder || lane.blocked).length;
+  const workingNow = tasks.filter(task=>task.state==="live").slice(0,3);
+  const blockedNow = tasks.filter(task=>task.state==="blocked").slice(0,3);
+  const nextUnlock = tasks.find(task=>task.state==="next") || blockedNow[0] || tasks.find(task=>task.state==="review") || null;
+  const recentProof = tasks.filter(task=>task.state==="done").slice(0,3);
+  const autonomyHeld = /off|blocked|waiting|review/i.test(snapshot?.finishChain.runtime ?? "");
 
   function startDrag(event:DragEvent<HTMLButtonElement>,agentId:string){
     event.dataTransfer.setData("text/agent-id",agentId);
@@ -225,6 +230,10 @@ export default function JarvisPortal() {
               <b>{tasks.filter(t=>t.state==="blocked").length}<small>blocked</small></b>
               <b>{tasks.filter(t=>t.state==="founder").length}<small>needs you</small></b>
             </div>
+            <div className={styles.mobileCritical}>
+              <div><small>BLOCKED NOW</small><strong>{blockedNow[0]?.title || "No exposed blocker"}</strong></div>
+              <div><small>NEXT UNLOCK</small><strong>{nextUnlock?.title || "No next gate exposed"}</strong></div>
+            </div>
           </div>
 
           <div className={styles.mobileAgentWheel}>
@@ -329,20 +338,20 @@ export default function JarvisPortal() {
 
         <section className={styles.center}>
           <div className={styles.sceneHeader}>
-            <div><small>COMPANY VIEW · {readModelStatus.toUpperCase()}</small><h1>Agent Constellation</h1><p>{readModelStatus==="mirror"?"Sanitized trusted mirror. Drag an agent onto a project to request assistance.":readModelStatus==="operator"?"Current operator snapshot. Project state advances with material company transitions; actions remain preview-only.":"Preview data only. Drag an agent onto a project to rehearse bounded assistance."}</p></div>
-            <div className={styles.companyStats}><b>{snapshot.source==="mirror"?"—":agents.filter(a=>a.state==="running").length}<small>{snapshot.source==="mirror"?"activity":"running"}</small></b><b>{tasks.filter(t=>t.state==="live").length}<small>live tasks</small></b><b>{tasks.filter(t=>t.state==="founder").length}<small>needs you</small></b></div>
+            <div><small>FOUNDER COMMAND DECK · {readModelStatus.toUpperCase()}</small><h1>{autonomyHeld?"Autonomy is held at one gate":"JARVIS operating state"}</h1><p>{readModelStatus==="mirror"?"Trusted company mirror. Unknown activity stays unknown.":readModelStatus==="operator"?"Plain-language operating truth: what is working, what is blocked, and what unlocks next.":"Preview data only; no consequential authority."}</p></div>
+            <div className={styles.companyStats}><b>{workingNow.length}<small>working now</small></b><b>{blockedNow.length}<small>blocked</small></b><b>{recentProof.length}<small>recent proof</small></b></div>
             <div className={styles.truthStrip} data-testid="founder-truth-strip">
-              <article><small>DATA</small><strong>{snapshot.source==="mirror"?"TRUSTED MIRROR":snapshot.source==="operator"?"OPERATOR SNAPSHOT":"PREVIEW"}</strong><span>{readFreshness}</span></article>
-              <article><small>REVIEW QUEUE</small><strong>{reviewQueueCount}</strong><span>independent review gates</span></article>
-              <article><small>CI BLOCKERS</small><strong>{ciInfrastructureBlockers}</strong><span>infrastructure, not product verdicts</span></article>
-              <article><small>CONTROL</small><strong>GATED</strong><span>read-only · MFA staged</span></article>
+              <article><small>AUTONOMY</small><strong>{autonomyHeld?"BLOCKED":"READY"}</strong><span>{autonomyHeld?"Semantic review capacity · GATED":"Runtime gate clear"}</span></article>
+              <article><small>WORKING NOW · REVIEW QUEUE {reviewQueueCount}</small><strong>{workingNow.length || "—"}</strong><span>{workingNow.map(task=>task.title).join(" · ") || "No live internal work exposed"}</span></article>
+              <article><small>BLOCKED · CI BLOCKERS {ciInfrastructureBlockers}</small><strong>{blockedNow.length}</strong><span>{blockedNow.map(task=>task.title).join(" · ") || "No exposed blocker"}</span></article>
+              <article><small>NEXT UNLOCK</small><strong>{nextUnlock?.title.includes("#40")?"#40 PASS":"GATED"}</strong><span>{nextUnlock?.title || "No next gate exposed"} · GATED</span></article>
             </div>
           </div>
 
           <section className={styles.parallelLanes} data-testid="parallel-lanes">
             <header>
-              <div><small>PARALLEL LANES</small><strong>{activeParallelLanes} active / gated streams</strong></div>
-              <span>Each lane keeps its own NOW · REVIEW · BLOCKED · DONE truth</span>
+              <div><small>PARALLEL LANES · WORKSTREAMS</small><strong>{activeParallelLanes} active / gated streams</strong></div>
+              <span>Click a workstream to focus. Details stay below.</span>
             </header>
             <div className={styles.parallelLaneTrack}>
               {parallelLanes.map(lane=><button
@@ -364,6 +373,7 @@ export default function JarvisPortal() {
           </section>
 
           <div className={styles.scene} data-testid="agent-scene">
+            <div className={styles.sceneMode}><strong>Agent Constellation</strong><span>Agents around JARVIS · click for work history</span></div>
             <div className={styles.orbitA}/><div className={styles.orbitB}/><div className={styles.orbitC}/>
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{agents.map(agent=><line key={agent.id} data-state={agent.state} data-assigned={assigned.has(agent.id) ? "true" : "false"} className={assigned.has(agent.id)?styles.beamActive:styles.beam} x1="50" y1="50" x2={agent.x} y2={agent.y}/>)}</svg>
             <button className={styles.core} onClick={()=>setSelectedAgentId(null)}><span>J</span><strong>JARVIS</strong><small>COMPANY BRAIN</small><em>{selectedProject.name}</em></button>
@@ -413,7 +423,7 @@ export default function JarvisPortal() {
           <section className={styles.brief}>
             <div><small>FOUNDER BRIEF</small><span>{snapshot.source.toUpperCase()} · BUILD {portalBuild.slice(0,8)}{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s old`:""}</span></div>
             <h2>Good afternoon, Basit.</h2>
-            <p>{snapshot.source==="mirror"?"This view is derived from the sanitized Trusted Control Plane snapshot. Unexposed activity is shown as unknown instead of invented.":snapshot.source==="operator"?"This view is the latest sanitized operator checkpoint from connected company work. It is current coordination truth, not production Runtime authority.":"This is preview data for interaction and visual QA; it is not installed/runtime truth."}</p>
+            <p>{snapshot.source==="mirror"?"Trusted mirror. Unknown work stays unknown.":snapshot.source==="operator"?"Bridge + Reviewer are live. Runtime is engineering-green but held by semantic-review capacity; parallel QA continues.":"Preview only; no installed/runtime authority."}</p>
             <div className={styles.briefStats}><b>4<small>finish gates</small></b><b>{snapshot.revenue.qualifiedProspects}<small>prospects</small></b><b>{snapshot.revenue.outboundHeld ? 0 : snapshot.revenue.outreachSent}<small>outbound active</small></b></div>
           </section>
 
