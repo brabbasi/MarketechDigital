@@ -350,9 +350,31 @@ function workforceAgent(base: JarvisAgent, workforce: TrustedWorkforceRow[], rev
     department: row?.department ?? base.department,
     state: base.id === "reviewer" && reviewerBusy ? "review" : "unknown",
     load: 0,
-    task: "No live agent mission is exposed by the sanitized control-plane mirror.",
+    task: "No live agent mission is exposed by the current sanitized control-plane mirror.",
     skills: responsibilities.length ? responsibilities.slice(0, 8) : base.skills,
     workers: [],
+    progress: {
+      known: false,
+      label: "Live mission progress not exposed by current mirror",
+      source: "trusted_mirror_without_agent_mission",
+      exact: false,
+    },
+    resume: row ? {
+      agentId: row.id,
+      jobTitle: row.role ?? base.name,
+      mission: responsibilities.length ? responsibilities.join(" · ") : undefined,
+    } : {
+      agentId: base.id,
+      jobTitle: base.name,
+    },
+    learning: {
+      status: "not_exposed_by_current_mirror",
+      selfLearningActive: false,
+      promotionEvidenceCount: 0,
+      learningFocus: [],
+      competencies: [],
+      note: "The current signed mirror does not expose governed skill-promotion evidence. No self-learning claim is inferred.",
+    },
     history: row
       ? [`Canonical workforce identity: ${row.id}`, "Live worker activity is not inferred from org membership."]
       : ["Canonical portal role; no matching workforce identity exposed by the current mirror."],
@@ -472,6 +494,12 @@ export function adaptTrustedControlPlaneSnapshot(
     generatedAt: snapshot.generated_at,
     source: "mirror",
     authority: "read_only",
+    readModel: {
+      liveConnected: true,
+      mode: "trusted_live_mirror",
+      label: "TRUSTED LIVE MIRROR",
+      reason: "Signed sanitized Trusted control-plane snapshot passed freshness and authority validation.",
+    },
     mirror: {
       contract: TRUSTED_SOURCE,
       ageSeconds: Math.max(ageSeconds, 0),
