@@ -6,27 +6,28 @@ import {
   type JarvisTask,
 } from "./jarvisState";
 
-const SNAPSHOT_AT = "2026-09-26T20:16:58Z";
+const SNAPSHOT_AT = "2026-10-02T16:06:08Z";
 
 const projectOverrides: Record<string, Partial<JarvisProject>> = {
   jarvis: {
     state: "review",
-    progress: 94,
-    now: "Trusted Bridge #66 and Trusted Reviewer #46 are LIVE. Codex review capacity is available again. Fresh semantic review found two real legacy-normalization P1s: crash-idempotent backup publication and predecessor-capability validation before trusting a completed marker. Both are repaired at frozen #40 exact 934b9bc5. Continuation CI 36268923966 and Activation Closure CI 36268923980 are both SUCCESS; hosted and installed Trusted semantic reviews are now running on 934b9bc5. Runtime remains OFF. Multi-provider Reviewer failover PR #135 exact f54db7a is also CI-green, encoding that provider quota blocks only the review gate and non-review work continues.",
-    next: "Freeze #40 exact 934b9bc5 and consume hosted review 5849539318 plus Trusted Reviewer request 5849539796. On legitimate exact-head PASS, request fresh Founder exact-ref approval for governed Runtime maintenance recovery; do not activate before that approval. Keep #135 multi-provider Reviewer failover review-ready so future provider quota/outage blocks only the affected review gate.",
+    progress: 0,
+    progressKnown: false,
+    now: "Bridge #66 and Trusted Reviewer #46 are LIVE. Multi-provider failover #135 is engineering-green with Copilot Auto corrected semantic 6/6 and USD 0/no-paid-overage qualification. Draft immutable install successor #138 exact 86fd524b is engineering-green and host/session compatible but remains uninstalled because a fresh independent Codex review is quota-blocked. Runtime #40 exact 577bcf09 and Phase A #80 exact 2079a2b4 are green and OFF.",
+    next: "Keep #135/#138 frozen until a genuine independent exact-head review is available. After #138 independent review plus fresh Founder exact-ref install approval, use its immutable cutover/rollback path. Then obtain legitimate semantic PASS and governed live acceptance for #40 before any #80 activation.",
     blocked: 1,
-    lastUpdate: "2026-09-26 20:16Z: #40 exact 934b9bc5 closes P1 4112605017 and P1 4112628072. Continuation CI 36268923966 SUCCESS; Activation Closure CI 36268923980 SUCCESS. Hosted review 5849539318 + Trusted review request 5849539796 are active. Reviewer failover #135 f54db7a remains CI-green.",
+    lastUpdate: "2026-10-02: local Control Center source 3cf2b40c is CI-green with evidence-backed employee profiles/progress; hosted portal remains a static fallback until the signed mirror is connected.",
     history: [
-      "Bridge #66 d34b4e45 is installed and live with finite Trusted Reviewer install authority only.",
-      "Reviewer #46 fd07e217 is installed/live/restricted and fails closed when Codex cannot produce a verdict.",
-      "#40 934b9bc5: Continuation CI 36268923966 SUCCESS and Activation Closure CI 36268923980 SUCCESS; Runtime remains OFF pending legitimate exact-head semantic PASS.",
-      "Restored semantic review found P1 4112605017 and P1 4112628072. The current state machine durably publishes backup before marker, reconstructs interrupted normalization, and validates predecessor enforcement before trusting present/absent completion state.",
-      "#135 f54db7a multi-provider Reviewer failover is CI-green. It is not installed and provisions no provider credential/spend; it makes non-review-work continuity an explicit invariant.",
-      "#77 Revenue Autonomous Workers ce12bb47 passed the fresh self-hosted QA rerun; business-worker runtime remains unactivated.",
-      "#93 Workforce ce870d5d, #132 MemPalace ef5c4f4f, #133 Hermes 1ba352b0 and #134 dependency helper 01d2fdcc are engineering-green.",
-      "#47 c7201dc4 closes the current read-model review findings and is CI-green; fresh exact-head independent review is requested.",
-      "#104 c709a3e2 is rebased by true merge onto repaired #47 and both sync/publisher CIs are green; publisher remains inactive.",
-      "Founder Portal branch builds are always eligible so operator-truth commits cannot be silently canceled by the preview-budget tag gate."
+      "Bridge #66 d34b4e45 is installed/live and bounded.",
+      "Reviewer #46 fd07e217 is installed/live/restricted.",
+      "#135 901bc2db is engineering-green and records Copilot Auto 6/6 semantic qualification; it is not installed.",
+      "#138 86fd524b is engineering-green; Trusted Reviewer CI 36956082888 and install-preflight CI 36956080258 are SUCCESS; no cutover occurred.",
+      "Founder-host zero-inference Copilot server session preflight passed with protocol v3, zero tools, no prompt and no model call.",
+      "Current #40 577bcf09 review packet is 781459/1048576 bytes, SHA-256 99ac8031aaa1f8dc80526cfe7642f14a2b937fb1a1a828dd857034c0c9b0b118, untruncated, with no model call.",
+      "#80 2079a2b4 is directly based on current #40; Phase A CI 36953444710 and Worker Launcher CI 36953444714 are SUCCESS; Phase A remains OFF.",
+      "#93 af4a38bc reconciles 56 registry agents / 56 employment assignments / zero gaps.",
+      "#139 d6623bec synthetic memory continuity is green; real corpus and production memory writer remain OFF.",
+      "No static fallback percentage is treated as live progress; automatic live truth requires the signed Trusted mirror."
     ],
   },
   site: {
@@ -127,94 +128,111 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
   },
 };
 
+const staticProgress = {
+  known: false,
+  label: "Live progress unavailable in static fallback",
+  source: "static_operator_fallback",
+  exact: false,
+} as const;
+
+const unprovenLearning = {
+  status: "governed_learning_not_yet_proven",
+  selfLearningActive: false,
+  promotionEvidenceCount: 0,
+  learningFocus: [],
+  competencies: [],
+  note: "Skill Fabric exists, but the governed promotion-evidence registry currently has zero proven promotions. Do not claim autonomous improvement yet.",
+} as const;
+
 const agentOverrides: Record<string, Partial<JarvisAgent>> = {
+  orchestrator: {
+    state: "ready",
+    task: "Founder-visible company coordination; live mission telemetry requires the signed mirror",
+    progress: staticProgress,
+    learning: unprovenLearning,
+    resume: { agentId:"coo-jarvis", jobTitle:"Executive Orchestrator", mission:"Coordinate company priorities, worklanes and Founder escalation without inventing authority." },
+    history: ["Static fallback only; current live mission state is intentionally not inferred.", "56/56 workforce reconciliation is proven in #93.", "Automatic live profile telemetry is being moved to the signed mirror path."],
+  },
   resource: {
-    state: "running",
-    task: "Safe queue orchestration while Runtime activation is held",
-    history: [
-      "Bounded internal work can be queued and self-hosted QA can run; general autonomous Runtime dispatch is still OFF.",
-      "#77 revenue-preparation work is queued without outbound authority.",
-      "Codebase Memory and broader workers remain behind #40 -> #80 rather than being falsely labeled active.",
-      "Workforce truth is current at #93 ce870d5d."
-    ],
+    state: "ready",
+    task: "56/56 workforce reconciliation is proven; autonomous Runtime dispatch remains gated",
+    progress: staticProgress,
+    learning: unprovenLearning,
+    resume: { agentId:"agent-resource-manager", jobTitle:"Agent Resource Manager", mission:"Maintain workforce assignments, capacity and activation gates." },
+    history: ["#93 af4a38bc reconciles 56 registry agents / 56 employment assignments / zero gaps.", "Static fallback does not claim workers are currently executing.", "Only evidence-backed Runtime missions may produce a live progress bar."],
   },
   reviewer: {
     state: "blocked",
-    task: "#40 exact-head semantic review capacity",
-    history: [
-      "Never reuse stale-SHA PASSes or quota-rejected requests as approval.",
-      "Trusted Reviewer fd07e217 is live and healthy at the control-plane boundary.",
-      "Current #40 attempts pass Reviewer preflight/sandbox but return no semantic verdict.",
-      "Hosted Codex independently confirmed code-review usage limits at comment 5849112468."
-    ],
+    task: "Fresh exact-head independent review capacity for #135/#138",
+    progress: staticProgress,
+    learning: unprovenLearning,
+    resume: { agentId:"ai-reviewer", jobTitle:"Independent AI Reviewer", mission:"Independently review exact evidence and fail closed on stale, ambiguous or authority-widening claims." },
+    history: ["Trusted Reviewer #46 fd07e217 is live/restricted.", "Copilot Auto semantic qualification is corrected 6/6 with USD 0/no-paid-overage proof.", "Fresh Codex exact-head review remains quota-blocked; Copilot may not self-approve its own install."],
   },
   delivery: {
-    state: "running",
-    task: "Parallel product and QA reconciliation",
-    history: [
-      "#77 Revenue worker QA passed on the self-hosted Lab lane.",
-      "#93 Workforce truth was reconciled to live Bridge/Reviewer state.",
-      "Product lanes remain individually gated; no red infrastructure result is treated as a product verdict."
-    ],
+    state: "ready",
+    task: "Parallel delivery lanes continue while autonomy activation remains gated",
+    progress: staticProgress,
+    learning: unprovenLearning,
+    resume: { agentId:"portfolio-delivery-manager", jobTitle:"Delivery Operations", mission:"Preserve project continuity, QA evidence and bounded delivery lanes." },
   },
   engineering: {
     state: "running",
-    task: "Founder cockpit auto-sync + current-state redesign",
-    history: [
-      "JARVIS dedicated branch now always builds on Vercel; missing [vercel-preview] no longer silently cancels dashboard updates.",
-      "Founder view now prioritizes Working Now, Blocked, Next Unlock and Recent Proof.",
-      "Preview operator state remains coordination truth only; it does not create Runtime authority."
-    ],
+    task: "Founder cockpit live employee profiles + trusted mirror convergence",
+    progress: staticProgress,
+    learning: unprovenLearning,
+    resume: { agentId:"platform-engineering-manager", jobTitle:"Engineering Agent", mission:"Build and verify Marketech operating infrastructure without widening consequential authority." },
+    history: ["Local Control Center source 3cf2b40c is CI-green with evidence-backed employee profiles and truthful progress.", "Hosted /jarvis is being changed to label operator data STATIC FALLBACK / NOT LIVE.", "#138 Trusted fallback release surface is engineering-green and uninstalled."],
   },
   memory: {
     state: "review",
-    task: "MemPalace IF-3 + Hermes lifecycle hardening",
-    history: [
-      "#132 ef5c4f4f hardened boolean, timezone and record-size boundaries and is CI-green.",
-      "#133 1ba352b0 is synchronized to that hardened parent and CI-green.",
-      "No real-corpus writer, provider authentication or memory-store write authority is active."
-    ],
+    task: "Memory continuity is synthetic-proven; real-corpus writer remains OFF",
+    progress: staticProgress,
+    learning: unprovenLearning,
+    resume: { agentId:"memory-agent", jobTitle:"Memory Agent", mission:"Maintain durable, provenance-bound organizational memory under governed write authority." },
+    history: ["#139 d6623bec synthetic continuity canary is green.", "Real corpus and production memory writer remain OFF.", "No self-learning claim is made from synthetic continuity alone."],
   },
   revenue: {
     state: "review",
-    task: "Revenue worker QA passed; internal business batch queued",
-    history: [
-      "#77 ce12bb47 passed fresh self-hosted Revenue Autonomous Workers QA.",
-      "Prospect research and drafting are queued internally with outbound OFF.",
-      "No worker claim/lease/result is labeled executed until the actual Runtime worker cycle proves it."
-    ],
+    task: "Revenue preparation remains internal while outbound authority is OFF",
+    progress: staticProgress,
+    learning: unprovenLearning,
+    resume: { agentId:"revenue-manager", jobTitle:"Revenue Agent", mission:"Research, qualify and prepare revenue opportunities without unauthorized outbound action." },
+    history: ["Revenue workers #77 remain engineering-green.", "Outbound authority remains held.", "Static fallback does not claim an active revenue worker unless the live mirror proves a mission."],
   },
 };
 
 const operatorTasks: JarvisTask[] = [
-  { id:"t1", title:"Trusted Bridge #66 LIVE", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"done", detail:"Trusted Bridge exact d34b4e45b9f9f4fd084a97a6a1715935872306c9 is installed and live. No Runtime, outbound, spend or Founder-decision authority was widened." },
-  { id:"t18", title:"Trusted Reviewer #46 LIVE", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"done", detail:"Trusted Reviewer exact fd07e21738145b8aac78c9fac7fe59e99db967cc is installed/live/restricted. It fails closed when Codex cannot return a semantic verdict." },
-  { id:"t19", title:"Runtime #40 semantic PASS", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"#40 exact 934b9bc58cb874b6e408a3b88aaa24a4edb83e34 is engineering-green: Continuation CI 36268923966 SUCCESS and Activation Closure CI 36268923980 SUCCESS. It repairs P1 4112605017 and P1 4112628072. Hosted semantic review 5849539318 and installed Trusted Reviewer request 5849539796 are active. Runtime remains OFF until legitimate PASS + fresh Founder exact-ref approval." },
-  { id:"t20", title:"Phase A #80 activation", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"#80 exact fa684dd8e368788053feb764250d91b3e7cf073e is engineering-green and OFF. It starts only after #40 receives a legitimate semantic PASS and live Runtime continuation is proven." },
-  { id:"t2", title:"Dashboard auto-sync + Founder-first redesign", projectId:"site", project:"Website", agent:"Engineering Agent", state:"live", detail:"Dedicated JARVIS branch builds are now always eligible on Vercel. Current pass replaces stale operator truth and prioritizes Working Now / Blocked / Next Unlock / Recent Proof over jargon-heavy status density." },
-  { id:"t21", title:"Revenue worker exact-head QA", projectId:"jarvis", project:"Revenue", agent:"Lab Audit Runner", state:"done", detail:"#77 exact ce12bb476b882baa252c50b2b60f85ece2c68abe passed fresh self-hosted Revenue Autonomous Workers QA attempt 2. Queue/history/continuity and no-outbound authority checks passed." },
-  { id:"t22", title:"Workforce truth reconciliation", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"done", detail:"#93 exact ce870d5d87354a0b1794e9a290fc93d721d129e2 is green. Bridge and Reviewer are now represented as live; Codebase Memory correctly remains blocked on #40." },
-  { id:"t23", title:"MemPalace IF-3 hardening", projectId:"jarvis", project:"JARVIS", agent:"Memory Router Specialist", state:"review", detail:"#132 exact ef5c4f4f95f16f0a2e8cea63b128043a94776c37 is CI-green after boolean, timezone and record-boundary hardening. No real-corpus writer is active." },
-  { id:"t24", title:"Hermes memory lifecycle hardening", projectId:"jarvis", project:"JARVIS", agent:"Memory Router Specialist", state:"review", detail:"#133 exact 1ba352b0acdc553897e504cf3d8f0bcaf6b4c4bf is CI-green and synchronized to the hardened #132 parent. Provider/write authority remains OFF." },
-  { id:"t25", title:"Dependency helper hardening", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"#134 exact 01d2fdcc82dd31cb619d7fd99bee68d34e074879 is CI-green. PEP 735 and Poetry dependency-group incompleteness is explicit instead of silently skipped." },
-  { id:"t26", title:"Revenue research + drafting batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"Internal prospect research, evidence, ICP, assessment, drafting and pipeline analysis are queued. No email/SMS/DM/call, paid enrichment, booking, pricing commitment or outbound authority is enabled." },
-  { id:"t13", title:"Private product CI runner fallback", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"review", detail:"GitHub-hosted private reserve remains 3000/3000 until Oct 1. Self-hosted Lab QA is usable for bounded lanes; broader runner fallback remains governed." },
-  { id:"t15", title:"Signed live mirror chain", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"#47 exact c7201dc40407bb403a7fdf2ad55ff369fb23ae5a closes the dedicated-read-only-credential, merged-stage-truth and ordered-chain review blockers; Trusted Control Plane Sync CI 36266659495 SUCCESS. #104 exact c709a3e271e1cce0f1e42f70217dc22e1817d5b4 is stacked behind_by=0 with Publisher CI 36266710404 SUCCESS and inherited Sync CI 36266710415 SUCCESS. Fresh #47 independent review requested in comment 5849261783. Store connected=false; write secret configured=false; ingestion enabled=false; publication/activation performed=false." },
-  { id:"t16", title:"Reviewer provider resilience", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"Issue #109 is canonical; stale-SHA review is never approval. Codex capacity is available again. PR #135 exact f54db7a63e6d699b1621d4e90a332244f254bbbd is CI-green and defines capacity-only failover to the next already-authenticated, scope-verified, independent Reviewer provider while non-review work continues. Gemini/Claude remain blocked_auth and are not yet authoritative Reviewer transports." },
-  { id:"t17", title:"Revenue control chain", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"review", detail:"Revenue dependency remains #72 authority root -> #68 guarded outbound executor -> #73 provider runtime binding. Outbound remains held; no passing engineering CI substitutes for independent review." }
+  { id:"t1", title:"Trusted Bridge #66 LIVE", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"done", detail:"Trusted Bridge exact d34b4e45b9f9f4fd084a97a6a1715935872306c9 is installed and live." },
+  { id:"t18", title:"Trusted Reviewer #46 LIVE", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"done", detail:"Trusted Reviewer exact fd07e21738145b8aac78c9fac7fe59e99db967cc is installed/live/restricted." },
+  { id:"t16", title:"Reviewer failover #135 qualified", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"#135 exact 901bc2db6f80c04b835d84188be5ecfdc3d0e5ad is engineering-green. Copilot Auto corrected semantic qualification is 6/6 with final evidence de6cee06...; no install or Reviewer-authority widening occurred." },
+  { id:"t27", title:"Immutable Copilot install successor #138", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"#138 exact 86fd524b35389edaaef0bc088d5e9a1b367f4892 is engineering-green. Trusted Reviewer CI 36956082888 and install preflight CI 36956080258 are SUCCESS. Fresh independent exact-head Codex review remains quota-blocked; no cutover occurred." },
+  { id:"t19", title:"Runtime #40 semantic PASS", projectId:"jarvis", project:"JARVIS", agent:"AI Reviewer", state:"review", detail:"#40 exact 577bcf090746300007ed7c4c8f9069dd80164cca is engineering-green and OFF. Its complete bounded review packet is 781459 bytes with no truncation/model call. Legitimate semantic PASS + fresh Founder exact-ref approval are still required." },
+  { id:"t20", title:"Phase A #80 activation", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"next", detail:"#80 exact 2079a2b4f9157c4920c8ddcb60ae940b5f6227ca is directly based on current #40 and both Phase A suites are green. It remains OFF until live #40 acceptance and separate review/Founder gates." },
+  { id:"t22", title:"Workforce truth reconciliation", projectId:"jarvis", project:"JARVIS", agent:"Agent Resource Manager", state:"done", detail:"#93 exact af4a38bc3a2f01d179898a691fc0b61b0156e7b3 proves 56 registry agents / 56 employment assignments / zero gaps." },
+  { id:"t28", title:"Founder cockpit employee profiles", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"Local Control Center exact source 3cf2b40c is CI-green with evidence-backed task progress, resume/profile, learning evidence and durable agent history. Deployment-manifest promotion is being certified." },
+  { id:"t29", title:"Memory continuity #139", projectId:"jarvis", project:"JARVIS", agent:"Memory Agent", state:"review", detail:"#139 d6623bec is synthetic-continuity green. Real corpus and production memory writer remain OFF." },
+  { id:"t26", title:"Revenue research + drafting batch", projectId:"jarvis", project:"Revenue", agent:"Revenue Agent", state:"queued", detail:"Internal research/drafting may continue; outbound/send/spend/client commitment authority remains OFF." },
+  { id:"t15", title:"Signed live mirror chain", projectId:"jarvis", project:"JARVIS", agent:"Engineering Agent", state:"review", detail:"#104 remains engineering-green but publisher/storage activation is still OFF. Until the signed mirror is connected, hosted /jarvis operator data is explicitly STATIC FALLBACK / NOT LIVE." },
 ];
 
 export const operatorJarvisState: JarvisState = {
   ...demoJarvisState,
   source: "operator",
   generatedAt: SNAPSHOT_AT,
+  readModel: {
+    liveConnected: false,
+    mode: "static_operator_fallback",
+    label: "STATIC FALLBACK · NOT LIVE",
+    reason: "The signed Trusted control-plane mirror is not connected. This snapshot is coordination context only.",
+  },
   agents: demoJarvisState.agents.map(agent => ({ ...agent, ...(agentOverrides[agent.id] ?? {}) })),
-  projects: demoJarvisState.projects.map(project => ({ ...project, ...(projectOverrides[project.id] ?? {}) })),
+  projects: demoJarvisState.projects.map(project => ({ ...project, ...(projectOverrides[project.id] ?? {}), progressKnown: false })),
   tasks: operatorTasks,
   finishChain: {
     bridge: "live",
-    reviewer: "live_restricted_reviewing_exact_runtime_head",
-    runtime: "engineering_green_exact_head_under_semantic_review_off",
-    autonomy: "engineering_green_waiting_on_runtime_off",
+    reviewer: "live_restricted_independent_review_capacity_blocked",
+    runtime: "engineering_green_577bcf09_off_pending_semantic_pass",
+    autonomy: "engineering_green_2079a2b4_off_waiting_on_runtime",
   },
 };
