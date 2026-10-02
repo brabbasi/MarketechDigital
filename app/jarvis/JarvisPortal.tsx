@@ -49,6 +49,30 @@ export default function JarvisPortal() {
   const [mobileView,setMobileView] = useState<"jarvis"|"agents"|"projects"|"tasks"|"approvals"|"history">("jarvis");
 
   useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prior = {
+      htmlHeight: html.style.height,
+      htmlOverflow: html.style.overflow,
+      bodyHeight: body.style.height,
+      bodyMinHeight: body.style.minHeight,
+      bodyOverflow: body.style.overflow,
+    };
+    html.style.height = "100%";
+    html.style.overflow = "hidden";
+    body.style.height = "100%";
+    body.style.minHeight = "0";
+    body.style.overflow = "hidden";
+    return () => {
+      html.style.height = prior.htmlHeight;
+      html.style.overflow = prior.htmlOverflow;
+      body.style.height = prior.bodyHeight;
+      body.style.minHeight = prior.bodyMinHeight;
+      body.style.overflow = prior.bodyOverflow;
+    };
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
 
     async function refresh() {
