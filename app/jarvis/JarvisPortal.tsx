@@ -232,19 +232,18 @@ export default function JarvisPortal() {
         <div className={styles.brand}><span className={styles.mark}>M</span><div><strong>MARKETECH DIGITAL</strong><small>JARVIS · COMPANY OS</small></div></div>
         <div className={styles.askTop}><span>⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&askJarvis()} placeholder="Ask JARVIS anything..."/><button onClick={askJarvis}>ASK</button></div>
         <div className={styles.founder}><i/><div><strong>Founder</strong><small>{readModelStatus.toUpperCase()} READ MODEL · NO AUTHORITY</small></div></div>
+        <section className={[styles.liveSourceBanner,sourceLive?styles.liveSourceConnected:styles.liveSourceOffline].join(" ")} data-testid="live-source-banner">
+          <div>
+            <small>{sourceLive?"LIVE COMPANY TELEMETRY":"DASHBOARD SOURCE"}</small>
+            <strong>{sourceLive?"TRUSTED LIVE MIRROR CONNECTED":"STATIC FALLBACK · NOT LIVE"}</strong>
+            <span>{sourceLive?"Agent missions, evidence and progress may update from the signed Trusted mirror.":"No live agent mission telemetry; progress stays unknown until the signed mirror is connected."}</span>
+          </div>
+          <aside>
+            <b>{sourceLive?"AUTO-REFRESH LIVE":"LIVE SYNC OFF"}</b>
+            <small>{sourceLive?readFreshness:"#104 signed mirror activation pending"}</small>
+          </aside>
+        </section>
       </header>
-
-      <section className={[styles.liveSourceBanner,sourceLive?styles.liveSourceConnected:styles.liveSourceOffline].join(" ")} data-testid="live-source-banner">
-        <div>
-          <small>{sourceLive?"LIVE COMPANY TELEMETRY":"DASHBOARD SOURCE"}</small>
-          <strong>{sourceLive?"TRUSTED LIVE MIRROR CONNECTED":"STATIC FALLBACK · NOT LIVE"}</strong>
-          <span>{sourceLive?"Agent missions, evidence and progress may update from the signed Trusted mirror.":"This page is not receiving live agent mission telemetry. Progress remains unknown instead of being guessed until the signed mirror is connected."}</span>
-        </div>
-        <aside>
-          <b>{sourceLive?"AUTO-REFRESH LIVE":"LIVE SYNC OFF"}</b>
-          <small>{sourceLive?readFreshness:"#104 signed mirror activation pending"}</small>
-        </aside>
-      </section>
 
       <nav className={styles.mobileNav} data-testid="mobile-nav" aria-label="JARVIS mobile sections">
         {([
