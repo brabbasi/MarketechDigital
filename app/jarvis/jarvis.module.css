@@ -44,8 +44,10 @@
   height:70px;
   display:grid;
   grid-template-columns:280px minmax(320px,650px) 1fr;
+  grid-template-rows:50px 20px;
   align-items:center;
-  gap:18px;
+  column-gap:18px;
+  row-gap:0;
   padding:0 18px;
   border-bottom:1px solid rgba(42,150,222,.32);
   background:linear-gradient(90deg,rgba(2,9,18,.97),rgba(5,20,38,.9),rgba(2,9,18,.97));
@@ -1100,45 +1102,59 @@
 
 /* Main-screen live source truth and per-agent progress. */
 .liveSourceBanner{
-  position:relative;
+  grid-column:1/-1;
+  grid-row:2;
+  min-width:0;
+  align-self:stretch;
   z-index:5;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:18px;
-  margin:0 18px 10px;
-  padding:10px 13px;
-  border-radius:10px;
-  border:1px solid rgba(73,185,230,.18);
+  gap:12px;
+  margin:0 -18px;
+  padding:0 18px;
+  border-top:1px solid rgba(73,185,230,.14);
+  border-radius:0;
   background:linear-gradient(90deg,rgba(5,25,40,.94),rgba(8,18,30,.9));
-  box-shadow:0 8px 26px rgba(0,0,0,.16);
+  box-shadow:none;
 }
 .liveSourceBanner>div{
-  display:grid;
-  gap:3px;
   min-width:0;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  white-space:nowrap;
+  overflow:hidden;
 }
 .liveSourceBanner small{
+  flex:0 0 auto;
   color:#6f9eb7;
-  font-size:6px;
+  font-size:5.5px;
   letter-spacing:.12em;
 }
 .liveSourceBanner strong{
-  font-size:10px;
+  flex:0 0 auto;
+  font-size:7px;
   letter-spacing:.06em;
 }
 .liveSourceBanner span{
-  color:#8aa6b6;
-  font-size:7px;
-  line-height:1.35;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#7898aa;
+  font-size:6px;
+  line-height:1;
 }
 .liveSourceBanner aside{
-  display:grid;
-  gap:3px;
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
   text-align:right;
   white-space:nowrap;
 }
-.liveSourceBanner aside b{font-size:8px}
+.liveSourceBanner aside b{font-size:6px}
+.liveSourceBanner aside small{font-size:5px;letter-spacing:0}
 .liveSourceConnected{
   border-color:rgba(49,216,172,.28);
   box-shadow:0 0 24px rgba(49,216,172,.08);
@@ -1179,15 +1195,20 @@
 }
 @media(max-width:900px){
   .liveSourceBanner{
-    margin:0 10px 8px;
-    align-items:flex-start;
+    margin:0 -11px;
+    padding:0 11px;
   }
-  .liveSourceBanner aside{white-space:normal}
+  .liveSourceBanner span{display:none}
+  .liveSourceBanner aside{white-space:nowrap}
 }
 @media(max-width:640px){
+  .topbar{grid-template-rows:38px 20px}
   .liveSourceBanner{
-    display:grid;
     grid-template-columns:1fr;
+    margin:0 -10px;
+    padding:0 10px;
   }
-  .liveSourceBanner aside{text-align:left}
+  .liveSourceBanner>div{gap:6px}
+  .liveSourceBanner>div small{display:none}
+  .liveSourceBanner aside small{display:none}
 }
