@@ -128,21 +128,21 @@ const projectOverrides: Record<string, Partial<JarvisProject>> = {
   },
 };
 
-const staticProgress = {
+const staticProgress: NonNullable<JarvisAgent["progress"]> = {
   known: false,
   label: "Live progress unavailable in static fallback",
   source: "static_operator_fallback",
   exact: false,
-} as const;
+};
 
-const unprovenLearning = {
+const unprovenLearning: NonNullable<JarvisAgent["learning"]> = {
   status: "governed_learning_not_yet_proven",
   selfLearningActive: false,
   promotionEvidenceCount: 0,
   learningFocus: [],
   competencies: [],
   note: "Skill Fabric exists, but the governed promotion-evidence registry currently has zero proven promotions. Do not claim autonomous improvement yet.",
-} as const;
+};
 
 const agentOverrides: Record<string, Partial<JarvisAgent>> = {
   orchestrator: {
