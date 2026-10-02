@@ -93,7 +93,10 @@ export default function JarvisPortal() {
   const ciInfrastructureBlockers = tasks.filter(task =>
     task.state==="blocked" && /\b(ci|runner|infrastructure)\b/i.test(`${task.title} ${task.detail}`)
   ).length;
-  const readFreshness = snapshot?.mirror ? `${snapshot.mirror.ageSeconds}s old` : snapshot?.source==="operator" ? `as of ${snapshot.generatedAt.slice(11,16)} UTC` : "preview fixture";
+  const sourceLive = snapshot?.readModel?.liveConnected === true || snapshot?.source==="mirror";
+  const sourceLabel = snapshot?.readModel?.label || (snapshot?.source==="mirror" ? "TRUSTED LIVE MIRROR" : snapshot?.source==="operator" ? "STATIC FALLBACK · NOT LIVE" : "PREVIEW FIXTURE");
+  const sourceReason = snapshot?.readModel?.reason || (sourceLive ? "Signed Trusted mirror connected." : "No live signed mirror is connected.");
+  const readFreshness = snapshot?.mirror ? `${snapshot.mirror.ageSeconds}s old` : snapshot?.source==="operator" ? `static as of ${snapshot.generatedAt.slice(11,16)} UTC` : "preview fixture";
   const parallelLanes = useMemo(() => projects.map(project => {
     const laneTasks = tasks.filter(task => task.projectId === project.id);
     const active = laneTasks.filter(task => task.state === "live" || task.state === "next" || task.state === "queued").length;
@@ -379,8 +382,8 @@ export default function JarvisPortal() {
             <button className={styles.core} onClick={()=>setSelectedAgentId(null)}><span>J</span><strong>JARVIS</strong><small>COMPANY BRAIN</small><em>{selectedProject.name}</em></button>
             {agents.map(agent=>{
               const related=assigned.has(agent.id);
-              return <button data-testid={`agent-${agent.id}`} data-assigned={related ? "true" : "false"} draggable onDragStart={e=>startDrag(e,agent.id)} onClick={()=>setSelectedAgentId(agent.id)} key={agent.id} className={[styles.agent,styles[agent.state],related?styles.related:styles.unrelated].join(" ")} style={{left:`${agent.x}%`,top:`${agent.y}%`}}>
-                <span>{agent.short}</span><div><strong>{agent.name}</strong><small>{agent.department} · {stateLabel[agent.state]}</small></div><i>{agent.load}%</i>
+              return <button data-testid={`agent-${agent.id}`} data-assigned={related ? "true" : "false"} data-progress-known={agent.progress?.known===true ? "true" : "false"} draggable onDragStart={e=>startDrag(e,agent.id)} onClick={()=>setSelectedAgentId(agent.id)} key={agent.id} className={[styles.agent,styles[agent.state],related?styles.related:styles.unrelated].join(" ")} style={{left:`${agent.x}%`,top:`${agent.y}%`}}>
+                <span>{agent.short}</span><div><strong>{agent.name}</strong><small>{agent.department} · {stateLabel[agent.state]}</small></div><i>{agent.progress?.known===true && Number.isFinite(agent.progress?.percent) ? Math.round(Number(agent.progress.percent)) + "%" : "—"}</i>
                 <span className={styles.workerSatellites} aria-label={`${agent.workers.length} workers`}>
                   {agent.workers.slice(0,3).map((worker,index)=><u key={worker.name} style={{transform:`rotate(${index*120}deg) translateX(27px)`}} title={worker.name}/>)}
                 </span>
@@ -421,9 +424,9 @@ export default function JarvisPortal() {
 
         <aside className={styles.founderRail}>
           <section className={styles.brief}>
-            <div><small>FOUNDER BRIEF</small><span>{snapshot.source.toUpperCase()} · BUILD {portalBuild.slice(0,8)}{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s old`:""}</span></div>
+            <div><small>FOUNDER BRIEF</small><span data-testid="jarvis-source-label">{sourceLabel} · BUILD {portalBuild.slice(0,8)}{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s old`:""}</span></div>
             <h2>Good afternoon, Basit.</h2>
-            <p>{snapshot.source==="mirror"?"Trusted mirror. Unknown work stays unknown.":snapshot.source==="operator"?"Bridge + Reviewer are live. Runtime is engineering-green but held by semantic-review capacity; parallel QA continues.":"Preview only; no installed/runtime authority."}</p>
+            <p>{sourceLive?"Trusted live read model. Unknown work stays unknown.":sourceReason + " Static coordination context is never presented as live agent activity."}</p>
             <div className={styles.briefStats}><b>4<small>finish gates</small></b><b>{snapshot.revenue.qualifiedProspects}<small>prospects</small></b><b>{snapshot.revenue.outboundHeld ? 0 : snapshot.revenue.outreachSent}<small>outbound active</small></b></div>
           </section>
 
@@ -472,7 +475,7 @@ export default function JarvisPortal() {
         <footer><button onClick={()=>setPendingAssignment(null)}>Cancel</button><button onClick={confirmAssignment}>Assign preview</button></footer>
       </section></div>}
 
-      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s OLD`:""}</span><span data-testid="portal-build">BUILD {portalBuild.slice(0,12)} · {portalEnvironment.toUpperCase()} · 5S POLL</span><span>REMOTE CONTROLS GATED · MFA STAGED</span></footer>
+      <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {sourceLabel} · {readFreshness.toUpperCase()}</span><span data-testid="portal-build">BUILD {portalBuild.slice(0,12)} · {portalEnvironment.toUpperCase()} · 5S POLL</span><span>REMOTE CONTROLS GATED · MFA STAGED</span></footer>
     </main>
   );
 }
