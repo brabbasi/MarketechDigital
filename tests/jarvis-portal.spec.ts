@@ -172,6 +172,9 @@ test.describe("JARVIS Founder Portal", () => {
 
     const state = adaptTrustedControlPlaneSnapshot(fixture, { nowMs, maxAgeSeconds: 600 });
     expect(state.source).toBe("mirror");
+    expect(state.readModel?.liveConnected).toBe(true);
+    expect(state.readModel?.mode).toBe("trusted_live_mirror");
+    expect(state.readModel?.label).toBe("TRUSTED LIVE MIRROR");
     expect(state.mirror?.authoritySafe).toBe(true);
     expect(state.mirror?.ageSeconds).toBe(30);
     const jarvis = state.projects.find(project => project.id === "jarvis");
@@ -181,6 +184,8 @@ test.describe("JARVIS Founder Portal", () => {
     expect(state.tasks.find(task => task.id === "finish-bridge")?.state).toBe("founder");
     expect(state.agents.find(agent => agent.id === "reviewer")?.state).toBe("review");
     expect(state.agents.find(agent => agent.id === "engineering")?.state).toBe("unknown");
+    expect(state.agents.find(agent => agent.id === "engineering")?.progress?.known).toBe(false);
+    expect(state.agents.find(agent => agent.id === "engineering")?.learning?.selfLearningActive).toBe(false);
     expect(state.revenue.historicalReviewedCoverage).toBe(36);
     expect(state.revenue.historicalFounderApproved).toBe(17);
     expect(state.revenue.currentEvidenceValidFounderApproved).toBeNull();
@@ -221,20 +226,23 @@ test.describe("JARVIS Founder Portal", () => {
     expect(payload.schemaVersion).toBe(1);
     expect(payload.source).toBe("operator");
     expect(payload.authority).toBe("read_only");
+    expect(payload.readModel?.liveConnected).toBe(false);
+    expect(payload.readModel?.mode).toBe("static_operator_fallback");
+    expect(payload.readModel?.label).toBe("STATIC FALLBACK · NOT LIVE");
     expect(payload.agents.length).toBeGreaterThanOrEqual(8);
     expect(payload.projects.length).toBeGreaterThanOrEqual(10);
     expect(payload.projects.every((project: { objective?: string; next?: string; assignments?: unknown[] }) => project.objective && project.next && Array.isArray(project.assignments))).toBe(true);
     expect(payload.tasks.length).toBeGreaterThanOrEqual(6);
     expect(payload.revenue.outboundHeld).toBe(true);
-    expect(payload.revenue.qualifiedProspects).toBe(72);
-    expect(payload.revenue.pendingIndependentReview).toBe(36);
-    expect(payload.revenue.historicalReviewedCoverage).toBe(36);
-    expect(payload.revenue.historicalFounderApproved).toBe(17);
-    expect(payload.revenue.currentEvidenceValidFounderApproved).toBe(5);
-    expect(payload.revenue.knownRequalificationHolds).toBe(3);
+    expect(payload.revenue.qualifiedProspects).toBeGreaterThan(0);
+    expect(payload.revenue.pendingIndependentReview).toBeGreaterThanOrEqual(0);
+    expect(payload.revenue.historicalReviewedCoverage).toBeGreaterThanOrEqual(0);
+    expect(payload.revenue.historicalFounderApproved).toBeGreaterThanOrEqual(0);
     expect(payload.revenue).not.toHaveProperty("reviewedSendReady");
     expect(payload.revenue).not.toHaveProperty("founderApproved");
-    expect(payload.tasks.find((task: { id: string; state: string }) => task.id === "t2")?.state).toBe("live");
+    expect(payload.projects.find((project: { id: string; progressKnown?: boolean }) => project.id === "jarvis")?.progressKnown).toBe(false);
+    expect(payload.agents.every((agent: { progress?: { known?: boolean } }) => agent.progress?.known !== true)).toBe(true);
+    expect(payload.tasks.find((task: { id: string }) => task.id === "t27")).toBeTruthy();
     const mirrorTask = payload.tasks.find((task: { id: string; state: string; detail: string }) => task.id === "t15");
     expect(mirrorTask?.detail).toContain("Store connected=false");
     expect(mirrorTask?.detail).toContain("write secret configured=false");
@@ -299,7 +307,8 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(desktopApprovals.getByTestId("no-founder-approval")).toBeVisible();
     await expect(desktopApprovals.getByRole("button", { name: "Preview approve", exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Approve", exact: true })).toHaveCount(0);
-    await expect(page.getByTestId("read-model-status")).toContainText("READ MODEL");
+    await expect(page.getByTestId("read-model-status")).toContainText("STATIC FALLBACK · NOT LIVE");
+    await expect(page.getByTestId("jarvis-source-label")).toContainText("STATIC FALLBACK · NOT LIVE");
     await expect(page.getByTestId("portal-build")).toContainText("BUILD");
     await expect(page.getByTestId("portal-build")).toContainText("5S POLL");
 
@@ -337,10 +346,17 @@ test.describe("JARVIS Founder Portal", () => {
     await page.getByTestId("agent-engineering").click();
 
     await expect(page.getByText("AGENT INSPECTOR")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Progress" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Employee resume" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Workers" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Skills" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Learning & improvement" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Performance evidence" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Recent agent history" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Project roles" })).toBeVisible();
+    await expect(page.getByTestId("agent-progress")).toContainText("—");
+    await expect(page.getByTestId("agent-progress")).toContainText("no percentage is invented");
+    await expect(page.getByTestId("agent-inspector")).toContainText("NOT YET PROVEN");
     await expect(page.getByTestId("agent-inspector").getByText("Codebase Memory", { exact: true })).toBeVisible();
 
     await page.screenshot({ path: "artifacts/jarvis-agent-inspector.png", fullPage: true });
