@@ -1005,3 +1005,94 @@
   -webkit-box-orient:vertical;
   overflow:hidden;
 }
+
+
+/* Founder employee profile: evidence-backed progress, resume, learning and performance. */
+.agentProgress{
+  display:grid;
+  gap:6px;
+  padding:9px 10px;
+  border:1px solid rgba(54,154,214,.16);
+  border-radius:8px;
+  background:rgba(4,20,34,.72);
+}
+.agentProgress>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.agentProgress span{color:#8cb4c9;font-size:7px}
+.agentProgress b{color:#d9f6ff;font-size:10px}
+.agentProgress>i{
+  display:block;
+  height:5px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(90,129,153,.15);
+}
+.agentProgress>i>u{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#2ebcf5,#31d8ac);
+  box-shadow:0 0 10px rgba(52,203,225,.22);
+  text-decoration:none;
+}
+.agentProgress>small{color:#638499;font-size:7px;line-height:1.4}
+.profileGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.profileGrid article{
+  min-width:0;
+  padding:8px;
+  border:1px solid rgba(50,143,202,.14);
+  border-radius:7px;
+  background:#051827;
+}
+.profileGrid small,.profileGrid strong{display:block}
+.profileGrid small{color:#5f96b4;font-size:6px;letter-spacing:.08em}
+.profileGrid strong{
+  margin-top:3px;
+  color:#d6eef9;
+  font-size:8px;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+.profileNote{
+  display:grid;
+  gap:4px;
+  padding:9px;
+  border:1px solid rgba(53,149,207,.14);
+  border-radius:7px;
+  background:rgba(5,24,39,.8);
+}
+.profileNote b{color:#8fd0ed;font-size:7px;letter-spacing:.08em;text-transform:uppercase}
+.profileNote span{color:#91aebf;font-size:8px;line-height:1.45}
+.learningBox{
+  display:grid;
+  gap:6px;
+  padding:9px 10px;
+  border:1px solid rgba(129,98,221,.16);
+  border-radius:8px;
+  background:rgba(32,22,66,.18);
+}
+.learningBox>div:not(.skillRow){
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  color:#839eaf;
+  font-size:7px;
+}
+.learningBox>div:not(.skillRow)>b{color:#cdbfff;font-size:7px}
+.learningBox p{
+  margin:0;
+  color:#7b8e9d;
+  font-size:7px;
+  line-height:1.45;
+}
+@media(max-width:640px){
+  .profileGrid{grid-template-columns:1fr}
+}
