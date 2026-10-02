@@ -1096,3 +1096,98 @@
 @media(max-width:640px){
   .profileGrid{grid-template-columns:1fr}
 }
+
+
+/* Main-screen live source truth and per-agent progress. */
+.liveSourceBanner{
+  position:relative;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin:0 18px 10px;
+  padding:10px 13px;
+  border-radius:10px;
+  border:1px solid rgba(73,185,230,.18);
+  background:linear-gradient(90deg,rgba(5,25,40,.94),rgba(8,18,30,.9));
+  box-shadow:0 8px 26px rgba(0,0,0,.16);
+}
+.liveSourceBanner>div{
+  display:grid;
+  gap:3px;
+  min-width:0;
+}
+.liveSourceBanner small{
+  color:#6f9eb7;
+  font-size:6px;
+  letter-spacing:.12em;
+}
+.liveSourceBanner strong{
+  font-size:10px;
+  letter-spacing:.06em;
+}
+.liveSourceBanner span{
+  color:#8aa6b6;
+  font-size:7px;
+  line-height:1.35;
+}
+.liveSourceBanner aside{
+  display:grid;
+  gap:3px;
+  text-align:right;
+  white-space:nowrap;
+}
+.liveSourceBanner aside b{font-size:8px}
+.liveSourceConnected{
+  border-color:rgba(49,216,172,.28);
+  box-shadow:0 0 24px rgba(49,216,172,.08);
+}
+.liveSourceConnected strong,.liveSourceConnected aside b{color:#4de0b8}
+.liveSourceOffline{
+  border-color:rgba(255,185,75,.34);
+  background:linear-gradient(90deg,rgba(40,27,9,.94),rgba(22,20,18,.92));
+  box-shadow:0 0 28px rgba(255,179,58,.07);
+}
+.liveSourceOffline strong,.liveSourceOffline aside b{color:#ffc56d}
+.agentProgressMini{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:5px;
+  height:3px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(103,139,159,.12);
+  pointer-events:none;
+}
+.agentProgressMini u{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  text-decoration:none;
+  background:linear-gradient(90deg,#2ebcf5,#31d8ac);
+  transition:width .35s ease;
+}
+.agentProgressMiniUnknown{
+  border:1px dashed rgba(146,164,178,.18);
+  background:transparent;
+}
+.agentProgressMiniUnknown u{display:none}
+.agentProgressMiniKnown{
+  box-shadow:0 0 8px rgba(51,207,214,.15);
+}
+@media(max-width:900px){
+  .liveSourceBanner{
+    margin:0 10px 8px;
+    align-items:flex-start;
+  }
+  .liveSourceBanner aside{white-space:normal}
+}
+@media(max-width:640px){
+  .liveSourceBanner{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+  .liveSourceBanner aside{text-align:left}
+}
