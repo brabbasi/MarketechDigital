@@ -450,13 +450,43 @@ export default function JarvisPortal() {
 
       {selectedAgent&&<div className={styles.backdrop} onClick={()=>setSelectedAgentId(null)}><section className={styles.drawer} data-testid="agent-inspector" onClick={e=>e.stopPropagation()}>
         <button className={styles.close} onClick={()=>setSelectedAgentId(null)}>×</button>
-        <small>AGENT INSPECTOR</small><h2>{selectedAgent.name}</h2><p>{selectedAgent.department} · {stateLabel[selectedAgent.state]} · load {selectedAgent.load}%</p>
+        <small>AGENT INSPECTOR</small><h2>{selectedAgent.name}</h2><p>{selectedAgent.department} · {stateLabel[selectedAgent.state]} · {sourceLive?"LIVE SOURCE":"STATIC FALLBACK"}</p>
         <div className={styles.drawerGrid}>
           <article><small>CURRENT WORK</small><strong>{selectedAgent.task}</strong></article>
           <article><small>PROJECTS</small><strong>{projects.filter(p=>p.agentIds.includes(selectedAgent.id)).map(p=>p.name).join(", ")||"Unassigned"}</strong></article>
         </div>
+        <h3>Progress</h3>
+        <div className={styles.agentProgress} data-testid="agent-progress">
+          <div><span>{selectedAgent.progress?.label || "Progress evidence unavailable"}</span><b>{selectedAgent.progress?.known===true && Number.isFinite(selectedAgent.progress?.percent)?Math.round(Number(selectedAgent.progress.percent))+"%":"—"}</b></div>
+          <i><u style={{width:selectedAgent.progress?.known===true && Number.isFinite(selectedAgent.progress?.percent)?Math.max(0,Math.min(100,Number(selectedAgent.progress.percent)))+"%":"0%"}}/></i>
+          <small>{selectedAgent.progress?.known===true?(selectedAgent.progress?.exact?"Exact checkpoint evidence":"Workflow-stage evidence · "+(selectedAgent.progress?.source||"unknown")):"No live/checkpoint evidence; no percentage is invented."}</small>
+        </div>
+        <h3>Employee resume</h3>
+        <div className={styles.profileGrid}>
+          <article><small>AGENT ID</small><strong>{selectedAgent.resume?.agentId || selectedAgent.id}</strong></article>
+          <article><small>JOB</small><strong>{selectedAgent.resume?.jobTitle || selectedAgent.name}</strong></article>
+          <article><small>JOB CODE</small><strong>{selectedAgent.resume?.jobCode || "Not assigned"}</strong></article>
+          <article><small>WORKFORCE CLASS</small><strong>{selectedAgent.resume?.workforceClass || "Not exposed"}</strong></article>
+          <article><small>MATURITY</small><strong>{selectedAgent.resume?.maturity || "Not exposed"}</strong></article>
+          <article><small>REPORTS TO</small><strong>{selectedAgent.resume?.reportsTo || "Not exposed"}</strong></article>
+        </div>
+        {selectedAgent.resume?.mission&&<div className={styles.profileNote}><b>Mission</b><span>{selectedAgent.resume.mission}</span></div>}
+        <h3>Skills</h3><div className={styles.skillRow}>{selectedAgent.skills.map(skill=><span key={skill}>{skill}</span>)}</div>
+        <h3>Learning & improvement</h3>
+        <div className={styles.learningBox}>
+          <div><span>Self-learning</span><b>{selectedAgent.learning?.selfLearningActive?"PROVEN":"NOT YET PROVEN"}</b></div>
+          <div><span>Promoted-skill evidence</span><b>{selectedAgent.learning?.promotionEvidenceCount ?? 0}</b></div>
+          <p>{selectedAgent.learning?.note || "No governed learning evidence is exposed by this read model."}</p>
+          {!!selectedAgent.learning?.competencies?.length&&<div className={styles.skillRow}>{selectedAgent.learning.competencies.map(skill=><span key={skill}>{skill}</span>)}</div>}
+        </div>
+        <h3>Performance evidence</h3>
+        <div className={styles.profileGrid}>
+          <article><small>ACTIVE TASKS</small><strong>{selectedAgent.performance?.activeTaskCount ?? "—"}</strong></article>
+          <article><small>COMPLETED HISTORY</small><strong>{selectedAgent.performance?.completedHistoryCount ?? "—"}</strong></article>
+          <article><small>BLOCKED TASKS</small><strong>{selectedAgent.performance?.blockedTaskCount ?? "—"}</strong></article>
+          <article><small>HISTORY EVENTS</small><strong>{selectedAgent.performance?.historyEventCount ?? selectedAgent.history.length}</strong></article>
+        </div>
         <h3>Workers</h3>{selectedAgent.workers.map(w=><div className={styles.historyRow} key={w.name}><b>{w.name}</b><span>{w.state}</span><small>{w.last}</small></div>)}
-        <h3>Skills</h3><div className={styles.skillRow}>{selectedAgent.skills.map(s=><span key={s}>{s}</span>)}</div>
         <h3>Recent agent history</h3>{selectedAgent.history.map(h=><div className={styles.historyRow} key={h}><b>{h}</b><span>evidence retained</span></div>)}
         <h3>Project roles</h3>{projects.filter(p=>p.assignments.some(a=>a.agentId===selectedAgent.id)).map(project=>{
           const role=project.assignments.find(a=>a.agentId===selectedAgent.id)?.role;
