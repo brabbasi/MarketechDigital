@@ -309,6 +309,10 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByRole("button", { name: "Approve", exact: true })).toHaveCount(0);
     await expect(page.getByTestId("read-model-status")).toContainText("STATIC FALLBACK · NOT LIVE");
     await expect(page.getByTestId("jarvis-source-label")).toContainText("STATIC FALLBACK · NOT LIVE");
+    await expect(page.getByTestId("live-source-banner")).toBeVisible();
+    await expect(page.getByTestId("live-source-banner")).toContainText("STATIC FALLBACK · NOT LIVE");
+    await expect(page.getByTestId("live-source-banner")).toContainText("LIVE SYNC OFF");
+    await expect(page.getByTestId("live-source-banner")).toContainText("#104 signed mirror activation pending");
     await expect(page.getByTestId("portal-build")).toContainText("BUILD");
     await expect(page.getByTestId("portal-build")).toContainText("5S POLL");
 
@@ -356,6 +360,7 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByRole("heading", { name: "Project roles" })).toBeVisible();
     await expect(page.getByTestId("agent-progress")).toContainText("—");
     await expect(page.getByTestId("agent-progress")).toContainText("no percentage is invented");
+    await expect(page.getByTestId("agent-engineering")).toHaveAttribute("data-progress-known","false");
     await expect(page.getByTestId("agent-inspector")).toContainText("NOT YET PROVEN");
     await expect(page.getByTestId("agent-inspector").getByText("Codebase Memory", { exact: true })).toBeVisible();
 
