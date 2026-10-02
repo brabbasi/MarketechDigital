@@ -210,6 +210,18 @@ export default function JarvisPortal() {
         <div className={styles.founder}><i/><div><strong>Founder</strong><small>{readModelStatus.toUpperCase()} READ MODEL · NO AUTHORITY</small></div></div>
       </header>
 
+      <section className={[styles.liveSourceBanner,sourceLive?styles.liveSourceConnected:styles.liveSourceOffline].join(" ")} data-testid="live-source-banner">
+        <div>
+          <small>{sourceLive?"LIVE COMPANY TELEMETRY":"DASHBOARD SOURCE"}</small>
+          <strong>{sourceLive?"TRUSTED LIVE MIRROR CONNECTED":"STATIC FALLBACK · NOT LIVE"}</strong>
+          <span>{sourceLive?"Agent missions, evidence and progress may update from the signed Trusted mirror.":"This page is not receiving live agent mission telemetry. Progress remains unknown instead of being guessed until the signed mirror is connected."}</span>
+        </div>
+        <aside>
+          <b>{sourceLive?"AUTO-REFRESH LIVE":"LIVE SYNC OFF"}</b>
+          <small>{sourceLive?readFreshness:"#104 signed mirror activation pending"}</small>
+        </aside>
+      </section>
+
       <nav className={styles.mobileNav} data-testid="mobile-nav" aria-label="JARVIS mobile sections">
         {([
           ["jarvis","JARVIS"],
@@ -226,7 +238,7 @@ export default function JarvisPortal() {
           <div className={styles.mobileBrief}>
             <div><small>FOUNDER SNAPSHOT</small><span>{snapshot.source.toUpperCase()} · BUILD {portalBuild.slice(0,8)}{snapshot.mirror?` · ${snapshot.mirror.ageSeconds}s`:""}</span></div>
             <h1>Good afternoon, Basit.</h1>
-            <p>{snapshot.source==="mirror"?"Trusted mirror only. Unknown activity stays unknown.":snapshot.source==="operator"?"Current operator snapshot. Production mirror authority remains off.":"Preview mode for product and interaction QA."}</p>
+            <p>{sourceLive?"Trusted live mirror connected. Unknown activity stays unknown.":"STATIC FALLBACK · NOT LIVE. The signed mirror is not connected, so agent activity/progress is not inferred."}</p>
             <div className={styles.mobilePulse}>
               <b>{tasks.filter(t=>t.state==="live").length}<small>live</small></b>
               <b>{tasks.filter(t=>t.state==="review").length}<small>review</small></b>
@@ -376,7 +388,7 @@ export default function JarvisPortal() {
           </section>
 
           <div className={styles.scene} data-testid="agent-scene">
-            <div className={styles.sceneMode}><strong>Agent Constellation</strong><span>Agents around JARVIS · click for work history</span></div>
+            <div className={styles.sceneMode}><strong>Agent Constellation</strong><span>{sourceLive?"Live evidence drives progress · click any employee":"Static fallback · agent progress is intentionally blank until live evidence arrives"}</span></div>
             <div className={styles.orbitA}/><div className={styles.orbitB}/><div className={styles.orbitC}/>
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{agents.map(agent=><line key={agent.id} data-state={agent.state} data-assigned={assigned.has(agent.id) ? "true" : "false"} className={assigned.has(agent.id)?styles.beamActive:styles.beam} x1="50" y1="50" x2={agent.x} y2={agent.y}/>)}</svg>
             <button className={styles.core} onClick={()=>setSelectedAgentId(null)}><span>J</span><strong>JARVIS</strong><small>COMPANY BRAIN</small><em>{selectedProject.name}</em></button>
@@ -384,6 +396,9 @@ export default function JarvisPortal() {
               const related=assigned.has(agent.id);
               return <button data-testid={`agent-${agent.id}`} data-assigned={related ? "true" : "false"} data-progress-known={agent.progress?.known===true ? "true" : "false"} draggable onDragStart={e=>startDrag(e,agent.id)} onClick={()=>setSelectedAgentId(agent.id)} key={agent.id} className={[styles.agent,styles[agent.state],related?styles.related:styles.unrelated].join(" ")} style={{left:`${agent.x}%`,top:`${agent.y}%`}}>
                 <span>{agent.short}</span><div><strong>{agent.name}</strong><small>{agent.department} · {stateLabel[agent.state]}</small></div><i>{agent.progress?.known===true && Number.isFinite(agent.progress?.percent) ? Math.round(Number(agent.progress.percent)) + "%" : "—"}</i>
+                <span className={[styles.agentProgressMini,agent.progress?.known===true?styles.agentProgressMiniKnown:styles.agentProgressMiniUnknown].join(" ")} aria-label={agent.progress?.known===true?"Evidence-backed agent progress":"Agent progress unknown"}>
+                  <u style={{width:agent.progress?.known===true && Number.isFinite(agent.progress?.percent)?Math.max(0,Math.min(100,Number(agent.progress.percent)))+"%":"0%"}}/>
+                </span>
                 <span className={styles.workerSatellites} aria-label={`${agent.workers.length} workers`}>
                   {agent.workers.slice(0,3).map((worker,index)=><u key={worker.name} style={{transform:`rotate(${index*120}deg) translateX(27px)`}} title={worker.name}/>)}
                 </span>
