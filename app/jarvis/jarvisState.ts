@@ -3,6 +3,44 @@ export type ProjectState = "on_track" | "blocked" | "review" | "planning" | "unk
 export type TaskState = "live" | "next" | "queued" | "review" | "founder" | "blocked" | "done";
 export type AssignmentRole = "Primary" | "Assist" | "Specialist" | "Reviewer" | "Observer" | "Shadow";
 
+export type AgentProgress = {
+  known: boolean;
+  percent?: number;
+  label: string;
+  source: string;
+  exact?: boolean;
+};
+
+export type AgentLearning = {
+  status: string;
+  selfLearningActive: boolean;
+  promotionEvidenceCount: number;
+  lastImprovementAt?: string;
+  learningFocus: string[];
+  competencies: string[];
+  note: string;
+};
+
+export type AgentPerformance = {
+  activeTaskCount: number;
+  completedHistoryCount: number;
+  blockedTaskCount: number;
+  historyEventCount: number;
+  evidenceSource: string;
+};
+
+export type AgentResume = {
+  agentId: string;
+  jobCode?: string;
+  jobTitle?: string;
+  workforceClass?: string;
+  maturity?: string;
+  reportsTo?: string;
+  mission?: string;
+  allowedMissionKinds?: string[];
+  lastActivityAt?: string;
+};
+
 export type JarvisAgent = {
   id: string;
   name: string;
@@ -16,6 +54,10 @@ export type JarvisAgent = {
   skills: string[];
   workers: { name: string; state: string; last: string }[];
   history: string[];
+  progress?: AgentProgress;
+  resume?: AgentResume;
+  learning?: AgentLearning;
+  performance?: AgentPerformance;
 };
 
 export type JarvisProject = {
@@ -51,6 +93,12 @@ export type JarvisState = {
   generatedAt: string;
   source: "demo" | "operator" | "mirror";
   authority: "read_only";
+  readModel?: {
+    liveConnected: boolean;
+    mode: "trusted_live_mirror" | "static_operator_fallback" | "demo";
+    label: string;
+    reason?: string;
+  };
   agents: JarvisAgent[];
   projects: JarvisProject[];
   tasks: JarvisTask[];
