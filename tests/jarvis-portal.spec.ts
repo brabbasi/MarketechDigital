@@ -9,17 +9,17 @@ test.describe("JARVIS Founder Portal", () => {
   test("signed mirror ingestion remains fail-closed until storage is deliberately selected", async ({ request }) => {
     expect(mirrorIngestEnabled({} as NodeJS.ProcessEnv)).toBe(false);
     expect(mirrorStoreConfigured({ JARVIS_MIRROR_STORE_DRIVER: "supabase-v1" } as NodeJS.ProcessEnv)).toBe(false);
-    expect(mirrorStoreConfigured({
+    const selected = {
       JARVIS_MIRROR_STORE_DRIVER: VERCEL_BLOB_MIRROR_DRIVER,
       BLOB_STORE_ID: "store_test",
-    } as NodeJS.ProcessEnv)).toBe(false);
+    } as NodeJS.ProcessEnv;
+    expect(mirrorStoreConfigured(selected)).toBe(true);
+    expect(mirrorStorageDriver(selected)).toBe(VERCEL_BLOB_MIRROR_DRIVER);
     const configured = {
-      JARVIS_MIRROR_STORE_DRIVER: VERCEL_BLOB_MIRROR_DRIVER,
-      BLOB_STORE_ID: "store_test",
+      ...selected,
       VERCEL_OIDC_TOKEN: "oidc-test-token",
     } as NodeJS.ProcessEnv;
     expect(mirrorStoreConfigured(configured)).toBe(true);
-    expect(mirrorStorageDriver(configured)).toBe(VERCEL_BLOB_MIRROR_DRIVER);
     expect(TRUSTED_MIRROR_BLOB_PATH).toBe("jarvis/trusted-control-plane-snapshot.json");
 
     const response = await request.post("/api/jarvis/mirror-ingest", {
