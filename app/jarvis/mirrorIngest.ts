@@ -25,8 +25,7 @@ export function mirrorIngestEnabled(env: NodeJS.ProcessEnv = process.env): boole
 export function mirrorStoreConfigured(env: NodeJS.ProcessEnv = process.env): boolean {
   const driver = env.JARVIS_MIRROR_STORE_DRIVER?.trim();
   const storeId = env.BLOB_STORE_ID?.trim();
-  const oidcToken = env.VERCEL_OIDC_TOKEN?.trim();
-  return driver === VERCEL_BLOB_MIRROR_DRIVER && Boolean(storeId && oidcToken);
+  return driver === VERCEL_BLOB_MIRROR_DRIVER && Boolean(storeId);
 }
 
 export function mirrorWriteSecret(env: NodeJS.ProcessEnv = process.env): string | null {
