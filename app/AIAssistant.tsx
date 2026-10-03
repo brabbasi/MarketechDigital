@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 
 type UiMessage = {
   role: "user" | "assistant" | "bot";
@@ -30,6 +31,7 @@ function modeLabel(mode: AssistantMode, reason?: string) {
 }
 
 export default function AIAssistant() {
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -99,7 +101,7 @@ export default function AIAssistant() {
     send();
   }
 
-  if (!mounted) return null;
+  if (!mounted || pathname.startsWith("/jarvis")) return null;
 
   return (
     <>

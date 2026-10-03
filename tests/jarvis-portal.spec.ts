@@ -1,0 +1,631 @@
+import { test, expect } from "@playwright/test";
+import { adaptTrustedControlPlaneSnapshot, jarvisStateEndpointEnabled } from "../app/jarvis/trustedMirror";
+import { createHash, createHmac } from "node:crypto";
+import { mirrorIngestEnabled, mirrorStoreConfigured, readRequestBodyBounded, validateMirrorIngestEnvelope, VERCEL_BLOB_MIRROR_DRIVER } from "../app/jarvis/mirrorIngest";
+import { mirrorStorageDriver, TRUSTED_MIRROR_BLOB_PATH } from "../app/jarvis/mirrorStore";
+
+test.describe("JARVIS Founder Portal", () => {
+
+  test("signed mirror ingestion remains fail-closed until storage is deliberately selected", async ({ request }) => {
+    expect(mirrorIngestEnabled({} as NodeJS.ProcessEnv)).toBe(false);
+    expect(mirrorStoreConfigured({ JARVIS_MIRROR_STORE_DRIVER: "supabase-v1" } as NodeJS.ProcessEnv)).toBe(false);
+    const selected = {
+      JARVIS_MIRROR_STORE_DRIVER: VERCEL_BLOB_MIRROR_DRIVER,
+      BLOB_STORE_ID: "store_test",
+    } as NodeJS.ProcessEnv;
+    expect(mirrorStoreConfigured(selected)).toBe(true);
+    expect(mirrorStorageDriver(selected)).toBe(VERCEL_BLOB_MIRROR_DRIVER);
+    const configured = {
+      ...selected,
+      VERCEL_OIDC_TOKEN: "oidc-test-token",
+    } as NodeJS.ProcessEnv;
+    expect(mirrorStoreConfigured(configured)).toBe(true);
+    expect(TRUSTED_MIRROR_BLOB_PATH).toBe("jarvis/trusted-control-plane-snapshot.json");
+
+    const response = await request.post("/api/jarvis/mirror-ingest", {
+      data: { probe: true },
+      headers: { "content-type": "application/json" },
+    });
+    expect(response.status()).toBe(503);
+    const payload = await response.json();
+    expect(payload.reason).toBe("mirror_ingest_not_active");
+  });
+
+  test("mirror ingestion envelope binds timestamp, digest, idempotency and HMAC", () => {
+    const nowMs = Date.parse("2026-09-20T14:55:00Z");
+    const timestamp = Math.floor(nowMs / 1000);
+    const body = Buffer.from(JSON.stringify({ safe: true }), "utf8");
+    const secret = "k".repeat(64);
+    const digest = createHash("sha256").update(body).digest("hex");
+    const signature = createHmac("sha256", secret)
+      .update(`${timestamp}.${digest}`)
+      .digest("hex");
+    const headers = new Headers({
+      "content-type": "application/json",
+      "x-marketech-timestamp": String(timestamp),
+      "x-marketech-content-sha256": digest,
+      "x-marketech-signature": `v1=${signature}`,
+      "idempotency-key": digest,
+    });
+
+    const envelope = validateMirrorIngestEnvelope(body, headers, secret, nowMs);
+    expect(envelope.contentSha256).toBe(digest);
+    expect(envelope.idempotencyKey).toBe(digest);
+
+    const stale = new Headers(headers);
+    stale.set("x-marketech-timestamp", String(timestamp - 121));
+    expect(() => validateMirrorIngestEnvelope(body, stale, secret, nowMs)).toThrow(/replay window/);
+
+    const badDigest = new Headers(headers);
+    badDigest.set("x-marketech-content-sha256", "0".repeat(64));
+    expect(() => validateMirrorIngestEnvelope(body, badDigest, secret, nowMs)).toThrow(/digest mismatch/);
+
+    const badIdempotency = new Headers(headers);
+    badIdempotency.set("idempotency-key", "1".repeat(64));
+    expect(() => validateMirrorIngestEnvelope(body, badIdempotency, secret, nowMs)).toThrow(/idempotency/);
+
+    const badSignature = new Headers(headers);
+    badSignature.set("x-marketech-signature", `v1=${"2".repeat(64)}`);
+    expect(() => validateMirrorIngestEnvelope(body, badSignature, secret, nowMs)).toThrow(/signature/);
+  });
+
+  test("mirror request body reader enforces the hard byte bound", async () => {
+    const small = new Request("https://example.invalid", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ safe: true }),
+    });
+    const body = await readRequestBodyBounded(small, 64);
+    expect(new TextDecoder().decode(body)).toContain("safe");
+
+    const oversized = new Request("https://example.invalid", {
+      method: "POST",
+      body: "x".repeat(65),
+    });
+    await expect(readRequestBodyBounded(oversized, 64)).rejects.toThrow(/size/);
+  });
+
+  test("production state endpoint requires a verified Founder session", () => {
+    expect(jarvisStateEndpointEnabled("production", false)).toBe(false);
+    expect(jarvisStateEndpointEnabled("production", true)).toBe(true);
+    expect(jarvisStateEndpointEnabled("preview", false)).toBe(true);
+    expect(jarvisStateEndpointEnabled(undefined, false)).toBe(true);
+  });
+
+  test("trusted control-plane mirror adapter is freshness and authority bound", async () => {
+    const nowMs = Date.parse("2026-09-19T19:45:00Z");
+    const fixture = {
+      schema_version: 1,
+      source: "trusted-github-control-plane-sync-v1",
+      generated_at: "2026-09-19T19:44:30Z",
+      repository: "brabbasi/Marketech_Digital_OS",
+      authority: {
+        github_read_only: true,
+        github_mutation_authorized: false,
+        runtime_write_authorized: false,
+        founder_decision_authorized: false,
+        outbound_authorized: false,
+        spend_authorized: false,
+      },
+      projects: [
+        {
+          repository: "brabbasi/Marketech_Digital_OS",
+          present: true,
+          archived: false,
+          default_branch: "main",
+          head_sha: "a".repeat(40),
+          head_committed_at: "2026-09-19T19:40:00Z",
+          open_pr_count: 1,
+          open_prs: [{ number: 66, title: "Trusted Machine Bridge", head_sha: "b".repeat(40) }],
+        },
+        ...[
+          "brabbasi/MarketechDigital",
+          "brabbasi/Rangrez",
+          "brabbasi/deutschpath-ai",
+          "brabbasi/axiom-market-intelligence",
+          "brabbasi/Tradepilot",
+          "brabbasi/Basit-Portfolio",
+          "brabbasi/veilbound-shadows-origin",
+        ].map((repository, index) => ({
+          repository,
+          present: true,
+          archived: false,
+          default_branch: "main",
+          head_sha: String(index + 1).repeat(40),
+          head_committed_at: "2026-09-19T19:40:00Z",
+          open_pr_count: 0,
+          open_prs: [],
+        })),
+        {
+          repository: "brabbasi/client-launchpad",
+          present: true,
+          archived: false,
+          default_branch: "main",
+          head_sha: "9".repeat(40),
+          head_committed_at: "2026-09-19T19:41:00Z",
+          open_pr_count: 0,
+          open_prs: [],
+        },
+      ],
+      workforce: {
+        source_ref: "canonical-org",
+        source_sha: "c".repeat(40),
+        workers: [{ id: "ai-reviewer", role: "Independent AI Reviewer", department: "independent_assurance" }],
+      },
+      mirror_schema_version: 2,
+      workforce_live: {
+        schema_version: 2,
+        source: "local_control_center_sanitized_workforce",
+        control_center_deployment_sha: "d".repeat(40),
+        connected: true,
+        registered_agents: 56,
+        assigned_agents: 56,
+        profile_count: 56,
+        skill_profiled_agents: 19,
+        self_learning_agents_proven: 1,
+        promotion_evidence_records: 1,
+        authority: {
+          runtime_write_authorized: false,
+          founder_decision_authorized: false,
+          outbound_authorized: false,
+          spend_authorized: false,
+          provider_credentials_exposed: false,
+        },
+        profiles: Array.from({ length: 56 }, (_, index) => {
+          const reviewer = index === 0;
+          return {
+            agent_id: reviewer ? "ai-reviewer" : `agent-${String(index + 1).padStart(2, "0")}`,
+            name: reviewer ? "Independent AI Reviewer" : `Agent ${index + 1}`,
+            department: reviewer ? "independent_assurance" : "operations",
+            kind: reviewer ? "reviewer" : "specialist",
+            workforce_class: "canonical",
+            maturity: reviewer ? "senior" : "operational",
+            reports_to: reviewer ? "coo-jarvis" : "agent-resource-manager",
+            mission: reviewer ? "Review exact evidence independently." : "Execute bounded internal work.",
+            job_code: reviewer ? "REV-001" : `OPS-${String(index + 1).padStart(3, "0")}`,
+            job_title: reviewer ? "Independent AI Reviewer" : "Operations Specialist",
+            employment_state: "employed",
+            runtime_dispatch: !reviewer,
+            projects: ["jarvis"],
+            worklane: "company-os",
+            current_work: reviewer ? "Review exact candidate" : null,
+            blocker: null,
+            current_task: reviewer ? {
+              id: "review-138",
+              title: "Review immutable Copilot Reviewer successor",
+              status: "review",
+              status_reason: null,
+              next_action: "Return independent verdict",
+              project_id: "jarvis",
+              updated_at: "2026-09-19T19:44:20Z",
+              source: "trusted_control_plane",
+            } : null,
+            progress: reviewer ? {
+              known: true,
+              percent: 80,
+              label: "Review / verification",
+              source: "lifecycle_stage",
+              exact: false,
+            } : {
+              known: false,
+              percent: null,
+              label: "No checkpoint evidence",
+              source: "none",
+              exact: false,
+            },
+            last_activity_at: reviewer ? "2026-09-19T19:44:20Z" : null,
+            performance: {
+              active_task_count: reviewer ? 1 : 0,
+              completed_history_count: reviewer ? 7 : 0,
+              blocked_task_count: 0,
+              history_event_count: reviewer ? 8 : 0,
+              evidence_source: "runtime_and_trusted_control_plane",
+            },
+            learning: reviewer ? {
+              status: "proven_improvement",
+              self_learning_active: true,
+              promotion_evidence_count: 1,
+              last_improvement_at: "2026-09-19T19:30:00Z",
+              learning_focus: ["semantic-review"],
+              competency_domains: ["evidence-review", "governance"],
+              note: "Evidence-backed skill improvement exists.",
+            } : {
+              status: "learning_contract_declared",
+              self_learning_active: false,
+              promotion_evidence_count: 0,
+              last_improvement_at: null,
+              learning_focus: ["bounded-operations"],
+              competency_domains: [],
+              note: "No governed skill-promotion evidence exists yet.",
+            },
+            recent_history: reviewer ? [{
+              kind: "review",
+              title: "Prior exact-head review completed",
+              status: "completed",
+              detail: "Evidence retained.",
+              at: "2026-09-19T19:20:00Z",
+              project_id: "jarvis",
+              head: "e".repeat(40),
+              source: "trusted_control_plane",
+            }] : [],
+          };
+        }),
+      },
+      company: {
+        active_work: [{
+          id: "portal",
+          title: "Founder portal mirror binding",
+          status: "RUNNING",
+          owner: "Engineering",
+          next_action: "Validate exact mirror contract",
+        }],
+      },
+      revenue: {
+        qualified_prospects: 48,
+        draft_ready_pending_review: 12,
+        independently_reviewed_send_ready: 36,
+        founder_approved_sends: 17,
+        outreach_sent: 11,
+        replies: 0,
+        meetings: 0,
+        contracted_revenue_cad: 0,
+        collected_revenue_cad: 0,
+      },
+      finish_chain: {
+        bridge: { pr: 66, title: "Trusted Bridge", status: "NEEDS FOUNDER", status_reason: "Exact-head review passed", head_sha: "1".repeat(40), needs_founder: true },
+        reviewer: { pr: 46, title: "Independent Reviewer", status: "QUEUED · BOOTSTRAP REVIEW", status_reason: "Waiting on bridge", head_sha: "2".repeat(40), needs_founder: false },
+        runtime: { pr: 40, title: "Runtime", status: "QUEUED · REVIEW PENDING", status_reason: "Waiting on reviewer", head_sha: "3".repeat(40), needs_founder: false },
+        autonomy: { pr: 80, title: "Autonomy", status: "QUEUED · REVIEW PENDING", status_reason: "Waiting on runtime", head_sha: "4".repeat(40), needs_founder: false },
+      },
+    };
+
+    const state = adaptTrustedControlPlaneSnapshot(fixture, { nowMs, maxAgeSeconds: 600 });
+    expect(state.source).toBe("mirror");
+    expect(state.readModel?.liveConnected).toBe(true);
+    expect(state.readModel?.mode).toBe("trusted_live_mirror");
+    expect(state.readModel?.label).toBe("TRUSTED LIVE MIRROR");
+    expect(state.mirror?.authoritySafe).toBe(true);
+    expect(state.mirror?.ageSeconds).toBe(30);
+    const jarvis = state.projects.find(project => project.id === "jarvis");
+    expect(jarvis?.progressKnown).toBe(false);
+    expect(jarvis?.state).toBe("unknown");
+    expect(jarvis?.now).toContain("main@aaaaaaaaaa");
+    const dynamicProject = state.projects.find(project => project.repo === "brabbasi/client-launchpad");
+    expect(dynamicProject?.id).toBe("repo-client-launchpad");
+    expect(dynamicProject?.name).toBe("client-launchpad");
+    expect(dynamicProject?.progressKnown).toBe(false);
+    expect(dynamicProject?.now).toContain("main@9999999999");
+    expect(state.tasks.find(task => task.id === "finish-bridge")?.state).toBe("founder");
+    expect(state.agents).toHaveLength(56);
+    const reviewerAgent = state.agents.find(agent => agent.id === "ai-reviewer");
+    expect(reviewerAgent?.state).toBe("review");
+    expect(reviewerAgent?.progress?.known).toBe(true);
+    expect(reviewerAgent?.progress?.percent).toBe(80);
+    expect(reviewerAgent?.resume?.jobCode).toBe("REV-001");
+    expect(reviewerAgent?.resume?.mission).toContain("Review exact evidence");
+    expect(reviewerAgent?.learning?.selfLearningActive).toBe(true);
+    expect(reviewerAgent?.learning?.promotionEvidenceCount).toBe(1);
+    expect(reviewerAgent?.performance?.completedHistoryCount).toBe(7);
+    expect(reviewerAgent?.history[0]).toContain("Prior exact-head review completed");
+    const unknownAgent = state.agents.find(agent => agent.id === "agent-02");
+    expect(unknownAgent?.progress?.known).toBe(false);
+    expect(unknownAgent?.progress).not.toHaveProperty("percent");
+    expect(unknownAgent?.learning?.selfLearningActive).toBe(false);
+
+    const { workforce_live: _workforceLive, mirror_schema_version: _mirrorSchema, ...legacyFixture } = fixture;
+    const legacyState = adaptTrustedControlPlaneSnapshot(legacyFixture, { nowMs, maxAgeSeconds: 600 });
+    expect(legacyState.agents.find(agent => agent.id === "reviewer")?.state).toBe("review");
+    expect(legacyState.agents.find(agent => agent.id === "engineering")?.progress?.known).toBe(false);
+
+    expect(state.revenue.historicalReviewedCoverage).toBe(36);
+    expect(state.revenue.historicalFounderApproved).toBe(17);
+    expect(state.revenue.currentEvidenceValidFounderApproved).toBeNull();
+    expect(state.revenue.knownRequalificationHolds).toBeNull();
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      { ...fixture, generated_at: "2026-09-19T19:20:00Z" },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/stale/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        authority: { ...fixture.authority, github_mutation_authorized: true },
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/authority/);
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        workforce_live: {
+          ...fixture.workforce_live,
+          authority: { ...fixture.workforce_live.authority, outbound_authorized: true },
+        },
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/live workforce authority/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        workforce_live: {
+          ...fixture.workforce_live,
+          self_learning_agents_proven: 2,
+        },
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/self-learning count mismatch/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        workforce_live: {
+          ...fixture.workforce_live,
+          profiles: fixture.workforce_live.profiles.map((profile, index) =>
+            index === 0
+              ? {
+                  ...profile,
+                  learning: {
+                    ...profile.learning,
+                    self_learning_active: true,
+                    promotion_evidence_count: 0,
+                  },
+                }
+              : profile,
+          ),
+        },
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/self-learning lacks promotion evidence/);
+
+    const { autonomy: _removedAutonomy, ...partialFinishChain } = fixture.finish_chain;
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      { ...fixture, finish_chain: partialFinishChain },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/finish chain autonomy/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        projects: fixture.projects.filter(
+          project => project.repository !== "brabbasi/MarketechDigital",
+        ),
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/project catalog incomplete/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        projects: [
+          ...fixture.projects,
+          {
+            repository: "other/foreign-repo",
+            present: true,
+            archived: false,
+            default_branch: "main",
+            head_sha: "f".repeat(40),
+            head_committed_at: "2026-09-19T19:41:00Z",
+            open_pr_count: 0,
+            open_prs: [],
+          },
+        ],
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/project catalog identity/);
+  });
+
+  test("read model is explicit, read-only and structurally complete", async ({ request }) => {
+    const response = await request.get("/api/jarvis/state");
+    expect(response.ok()).toBeTruthy();
+    expect(response.headers()["cache-control"]).toContain("no-store");
+    expect(response.headers()["x-jarvis-source"]).toBe("operator");
+
+    const payload = await response.json();
+    expect(payload.schemaVersion).toBe(1);
+    expect(payload.source).toBe("operator");
+    expect(payload.authority).toBe("read_only");
+    expect(payload.readModel?.liveConnected).toBe(false);
+    expect(payload.readModel?.mode).toBe("static_operator_fallback");
+    expect(payload.readModel?.label).toBe("STATIC FALLBACK · NOT LIVE");
+    expect(payload.agents.length).toBeGreaterThanOrEqual(8);
+    expect(payload.projects.length).toBeGreaterThanOrEqual(10);
+    expect(payload.projects.every((project: { objective?: string; next?: string; assignments?: unknown[] }) => project.objective && project.next && Array.isArray(project.assignments))).toBe(true);
+    expect(payload.tasks.length).toBeGreaterThanOrEqual(6);
+    expect(payload.revenue.outboundHeld).toBe(true);
+    expect(payload.revenue.qualifiedProspects).toBeGreaterThan(0);
+    expect(payload.revenue.pendingIndependentReview).toBeGreaterThanOrEqual(0);
+    expect(payload.revenue.historicalReviewedCoverage).toBeGreaterThanOrEqual(0);
+    expect(payload.revenue.historicalFounderApproved).toBeGreaterThanOrEqual(0);
+    expect(payload.revenue).not.toHaveProperty("reviewedSendReady");
+    expect(payload.revenue).not.toHaveProperty("founderApproved");
+    expect(payload.projects.find((project: { id: string; progressKnown?: boolean }) => project.id === "jarvis")?.progressKnown).toBe(false);
+    expect(payload.agents.every((agent: { progress?: { known?: boolean } }) => agent.progress?.known !== true)).toBe(true);
+    expect(payload.tasks.find((task: { id: string }) => task.id === "t27")).toBeTruthy();
+    const mirrorTask = payload.tasks.find((task: { id: string; state: string; detail: string }) => task.id === "t15");
+    expect(mirrorTask?.detail).toContain("publisher/storage activation is still OFF");
+    expect(mirrorTask?.detail).toContain("STATIC FALLBACK / NOT LIVE");
+    const reviewerFailover = payload.tasks.find((task: { id: string; detail: string }) => task.id === "t16");
+    expect(reviewerFailover?.detail).toContain("#135 exact 901bc2db");
+    expect(reviewerFailover?.detail).toContain("Copilot Auto corrected semantic qualification is 6/6");
+    expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t27")?.detail).toContain("#138 exact 86fd524b");
+    expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t19")?.detail).toContain("#40 exact 577bcf");
+    expect(payload.tasks.find((task: { id: string; detail: string }) => task.id === "t20")?.detail).toContain("#80 exact 2079a2b4");
+    expect(payload.portal?.buildSha).toBeTruthy();
+    expect(payload.portal?.environment).toBeTruthy();
+  });
+
+  test("Founder login remains staged and fail-closed in preview QA", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.goto("/jarvis/login");
+    await expect(page.getByRole("heading", { name: "Founder authentication" })).toBeVisible();
+    await expect(page.getByTestId("founder-auth-status")).toContainText("staged but not activated");
+    await expect(page.getByRole("button", { name: "Verify Founder" })).toBeDisabled();
+  });
+
+  test("unavailable read model hides sample company state", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.route("**/api/jarvis/state", async route => {
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ status: "unavailable", source: "mirror", reason: "qa_forced_unavailable" }),
+      });
+    });
+
+    await page.goto("/jarvis");
+    await expect(page.getByTestId("read-model-gate")).toBeVisible();
+    await expect(page.getByText("JARVIS will not show demo data as live state.")).toBeVisible();
+    await expect(page.getByText("Agent Constellation")).toHaveCount(0);
+    await expect(page.getByTestId("project-rangrez")).toHaveCount(0);
+    await expect(page.getByTestId("read-model-status")).toContainText("UNAVAILABLE");
+    await page.screenshot({ path: "artifacts/jarvis-read-model-unavailable.png", fullPage: true });
+  });
+
+  test("desktop cockpit stays compact and makes project-to-agent focus obvious", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.goto("/jarvis");
+    await expect(page.getByText("Agent Constellation")).toBeVisible();
+    await expect(page.getByTestId("founder-truth-strip")).toBeVisible();
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("REVIEW QUEUE");
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("CI BLOCKERS");
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("GATED");
+    await expect(page.locator(".ai-launcher")).toHaveCount(0);
+    await expect(page.getByText("PROJECT UNIVERSE")).toBeVisible();
+    await expect(page.getByTestId("parallel-lanes")).toBeVisible();
+    await expect(page.getByTestId("parallel-lanes")).toContainText("PARALLEL LANES");
+    await expect(page.getByTestId("parallel-lane-jarvis")).toBeVisible();
+    await expect(page.getByTestId("parallel-lane-rangrez")).toBeVisible();
+    await expect(page.getByTestId("approvals-title")).toBeVisible();
+    await expect(page.getByTestId("approvals-title")).toContainText("APPROVAL PREVIEW");
+    await expect(page.getByTestId("approvals-title")).toContainText("NO ACTION REQUIRED");
+    const desktopApprovals = page.getByTestId("approvals-title").locator("..");
+    await expect(desktopApprovals.getByTestId("no-founder-approval")).toBeVisible();
+    await expect(desktopApprovals.getByRole("button", { name: "Preview approve", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Approve", exact: true })).toHaveCount(0);
+    await expect(page.getByTestId("read-model-status")).toContainText("STATIC FALLBACK · NOT LIVE");
+    await expect(page.getByTestId("jarvis-source-label")).toContainText("STATIC FALLBACK · NOT LIVE");
+    await expect(page.getByTestId("live-source-banner")).toBeVisible();
+    await expect(page.getByTestId("live-source-banner")).toContainText("STATIC FALLBACK · NOT LIVE");
+    await expect(page.getByTestId("live-source-banner")).toContainText("LIVE SYNC OFF");
+    await expect(page.getByTestId("live-source-banner")).toContainText("#104 signed mirror activation pending");
+    await expect(page.getByTestId("portal-build")).toContainText("BUILD");
+    await expect(page.getByTestId("portal-build")).toContainText("5S POLL");
+
+    const layout = await page.evaluate(() => ({
+      scrollHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+      publicHeaderPresent: !!document.querySelector(".standard-page-header-shell"),
+      bodyOverflowX: getComputedStyle(document.body).overflowX,
+    }));
+    expect(layout.publicHeaderPresent).toBe(false);
+    expect(layout.scrollHeight).toBeLessThanOrEqual(layout.viewportHeight + 16);
+    expect(layout.bodyOverflowX).not.toBe("scroll");
+
+    await page.getByTestId("parallel-lane-rangrez").click();
+    await expect(page.getByText("Rangrez", { exact: true }).last()).toBeVisible();
+    await expect(page.getByTestId("project-worklane")).toContainText("Wardrobe continuity #28");
+    await expect(page.getByTestId("project-worklane")).toContainText("affiliate policy #29");
+    await expect(page.getByTestId("project-worklane")).toContainText("#30 central Reviewer enrollment");
+    await expect(page.getByTestId("project-worklane")).toContainText("NEXT");
+    await expect(page.getByTestId("project-worklane")).toContainText("Primary");
+    await expect(page.getByTestId("project-worklane")).toContainText("Reviewer");
+
+    const relatedCount = await page.locator('button[data-testid^="agent-"][data-assigned="true"]').count();
+    const unrelatedCount = await page.locator('button[data-testid^="agent-"][data-assigned="false"]').count();
+    expect(relatedCount).toBeGreaterThan(0);
+    expect(unrelatedCount).toBeGreaterThan(0);
+
+    await page.screenshot({ path: "artifacts/jarvis-desktop-rangrez.png", fullPage: true });
+  });
+
+  test("agent inspector exposes worker, skill and history layers", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.goto("/jarvis");
+    await page.getByTestId("agent-engineering").click();
+
+    await expect(page.getByText("AGENT INSPECTOR")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Progress" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Employee resume" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Workers" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Skills" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Learning & improvement" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Performance evidence" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Recent agent history" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Project roles" })).toBeVisible();
+    await expect(page.getByTestId("agent-progress")).toContainText("—");
+    await expect(page.getByTestId("agent-progress")).toContainText("no percentage is invented");
+    await expect(page.getByTestId("agent-engineering")).toHaveAttribute("data-progress-known","false");
+    await expect(page.getByTestId("agent-inspector")).toContainText("NOT YET PROVEN");
+    await expect(page.getByTestId("agent-inspector").getByText("Codebase Memory", { exact: true })).toBeVisible();
+
+    await page.screenshot({ path: "artifacts/jarvis-agent-inspector.png", fullPage: true });
+  });
+
+  test("dragging an agent to a project requests bounded assignment instead of mutating silently", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+
+    await page.goto("/jarvis");
+    const source = page.getByTestId("agent-marketing");
+    const target = page.getByTestId("project-rangrez");
+    await source.dragTo(target);
+
+    await expect(page.getByText("ASSIGN AGENT")).toBeVisible();
+    await expect(page.getByText("Scope validation")).toBeVisible();
+    await expect(page.getByText(/No new production, financial or credential authority/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Assign preview" })).toBeVisible();
+  });
+
+  test("mobile uses focused Founder tabs instead of stacking the desktop cockpit", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "mobile-chromium");
+
+    await page.goto("/jarvis");
+    await expect(page.getByTestId("mobile-nav")).toBeVisible();
+    await expect(page.getByTestId("mobile-home")).toBeVisible();
+    await expect(page.getByText("FOUNDER SNAPSHOT")).toBeVisible();
+    await expect(page.getByTestId("mobile-home").getByText("APPROVAL PREVIEW", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("mobile-home").getByTestId("no-founder-approval")).toBeVisible();
+    await expect(page.getByTestId("mobile-home").getByRole("button", { name: "Review", exact: true })).toHaveCount(0);
+    await expect(page.getByTestId("mobile-home").getByRole("button", { name: "Approve", exact: true })).toHaveCount(0);
+    await expect(page.getByTestId("mobile-home").getByText("ASK JARVIS", { exact: true })).toBeVisible();
+    await expect(page.getByText("Agent Constellation")).toBeHidden();
+    await expect(page.locator(".ai-launcher")).toHaveCount(0);
+
+    const homeLayout = await page.evaluate(() => ({
+      bodyWidth: document.body.scrollWidth,
+      viewportWidth: window.innerWidth,
+      scrollHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+    }));
+    expect(homeLayout.bodyWidth).toBeLessThanOrEqual(homeLayout.viewportWidth + 2);
+    expect(homeLayout.scrollHeight).toBeLessThanOrEqual(homeLayout.viewportHeight * 1.8);
+
+    await page.getByRole("button", { name: "Projects", exact: true }).click();
+    await expect(page.getByTestId("mobile-projects")).toBeVisible();
+    await expect(page.getByTestId("mobile-project-rangrez")).toBeVisible();
+
+    await page.getByRole("button", { name: "Agents", exact: true }).click();
+    await expect(page.getByTestId("mobile-agents")).toBeVisible();
+    await expect(page.getByTestId("mobile-list-agent-engineering")).toBeVisible();
+
+    await page.getByRole("button", { name: "Tasks", exact: true }).click();
+    await expect(page.getByTestId("mobile-tasks")).toBeVisible();
+    await expect(page.getByText("MISSION HORIZON")).toBeVisible();
+
+    await page.getByRole("button", { name: "Approvals", exact: true }).click();
+    await expect(page.getByTestId("mobile-approvals")).toBeVisible();
+    await expect(page.getByTestId("mobile-approvals").getByTestId("no-founder-approval")).toBeVisible();
+    await expect(page.getByTestId("mobile-approvals").getByRole("button", { name: "Preview approve", exact: true })).toHaveCount(0);
+
+    await page.getByRole("button", { name: "History", exact: true }).click();
+    await expect(page.getByTestId("mobile-history")).toBeVisible();
+
+    await page.getByRole("button", { name: "JARVIS", exact: true }).click();
+    await expect(page.getByTestId("mobile-home")).toBeVisible();
+    await page.screenshot({ path: "artifacts/jarvis-mobile.png", fullPage: true });
+  });
+});

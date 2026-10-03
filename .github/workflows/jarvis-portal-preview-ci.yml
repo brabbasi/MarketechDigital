@@ -1,0 +1,55 @@
+name: JARVIS Portal Preview CI
+
+# Public-repository exception: GitHub-hosted CI is intentional here. Do not expose
+# a self-hosted company runner to untrusted public pull-request code.
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'app/jarvis/**'
+      - 'app/GlobalPageHeader.tsx'
+      - 'app/HeaderSignalQuote.tsx'
+      - 'app/AIAssistant.tsx'
+      - 'app/api/jarvis/**'
+      - 'tests/jarvis-portal.spec.ts'
+      - 'playwright.config.ts'
+      - 'package.json'
+      - '.github/workflows/jarvis-portal-preview-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jarvis-portal-preview-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+      - name: Install Chromium for JARVIS QA
+        run: npx playwright install --with-deps chromium
+      - name: Run JARVIS browser QA
+        run: npm run qa:jarvis
+      - name: Upload JARVIS QA screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jarvis-portal-qa
+          path: |
+            artifacts/
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
