@@ -55,6 +55,90 @@ type TrustedWorkforceRow = {
   responsibilities?: string[];
 };
 
+type TrustedWorkforceLiveProfile = {
+  agent_id: string;
+  name?: string | null;
+  department?: string | null;
+  kind?: string | null;
+  workforce_class?: string | null;
+  maturity?: string | null;
+  reports_to?: string | null;
+  mission?: string | null;
+  job_code?: string | null;
+  job_title?: string | null;
+  employment_state?: string | null;
+  runtime_dispatch?: boolean;
+  projects?: string[];
+  worklane?: string | null;
+  current_work?: string | null;
+  blocker?: string | null;
+  current_task?: {
+    id?: string | null;
+    title?: string | null;
+    status?: string | null;
+    status_reason?: string | null;
+    next_action?: string | null;
+    project_id?: string | null;
+    updated_at?: string | null;
+    source?: string | null;
+  } | null;
+  progress?: {
+    known?: boolean;
+    percent?: number | null;
+    label?: string | null;
+    source?: string | null;
+    exact?: boolean;
+  };
+  last_activity_at?: string | null;
+  performance?: {
+    active_task_count?: number;
+    completed_history_count?: number;
+    blocked_task_count?: number;
+    history_event_count?: number;
+    evidence_source?: string | null;
+  };
+  learning?: {
+    status?: string | null;
+    self_learning_active?: boolean;
+    promotion_evidence_count?: number;
+    last_improvement_at?: string | null;
+    learning_focus?: string[];
+    competency_domains?: string[];
+    note?: string | null;
+  };
+  recent_history?: Array<{
+    kind?: string | null;
+    title?: string | null;
+    status?: string | null;
+    detail?: string | null;
+    at?: string | null;
+    project_id?: string | null;
+    head?: string | null;
+    source?: string | null;
+  }>;
+};
+
+type TrustedWorkforceLive = {
+  schema_version: 2;
+  source: "local_control_center_sanitized_workforce";
+  control_center_deployment_sha?: string | null;
+  connected: true;
+  registered_agents: number;
+  assigned_agents: number;
+  profile_count: number;
+  skill_profiled_agents: number;
+  self_learning_agents_proven: number;
+  promotion_evidence_records: number;
+  profiles: TrustedWorkforceLiveProfile[];
+  authority: {
+    runtime_write_authorized: false;
+    founder_decision_authorized: false;
+    outbound_authorized: false;
+    spend_authorized: false;
+    provider_credentials_exposed: false;
+  };
+};
+
 type TrustedFinishRow = {
   pr?: number;
   title?: string | null;
@@ -85,6 +169,8 @@ type TrustedSnapshot = {
     source_sha?: string;
     workers: TrustedWorkforceRow[];
   };
+  mirror_schema_version?: 2;
+  workforce_live?: TrustedWorkforceLive;
   company?: {
     company_state?: string | null;
     needs_founder_count?: number | null;
@@ -160,6 +246,143 @@ function safeNumber(value: unknown): number {
 function safeSha(value: unknown): string | undefined {
   const text = safeString(value, 40);
   return text && /^[0-9a-f]{40}$/.test(text) ? text : undefined;
+}
+
+function safeCount(value: unknown): number | null {
+  return typeof value === "number" &&
+    Number.isSafeInteger(value) &&
+    value >= 0
+    ? value
+    : null;
+}
+
+function safeStringList(value: unknown, maxItems = 24, maxChars = 180): string[] {
+  if (!Array.isArray(value)) return [];
+  const result: string[] = [];
+  for (const candidate of value.slice(0, maxItems)) {
+    const text = safeString(candidate, maxChars);
+    if (text) result.push(text);
+  }
+  return [...new Set(result)];
+}
+
+function validateWorkforceLive(root: UnknownRecord): void {
+  if (root.workforce_live === undefined && root.mirror_schema_version === undefined) return;
+  if (root.mirror_schema_version !== 2) {
+    throw new Error("trusted mirror v2 schema marker invalid");
+  }
+  const live = record(root.workforce_live);
+  if (
+    !live ||
+    live.schema_version !== 2 ||
+    live.source !== "local_control_center_sanitized_workforce" ||
+    live.connected !== true
+  ) {
+    throw new Error("trusted live workforce contract invalid");
+  }
+
+  const registered = safeCount(live.registered_agents);
+  const assigned = safeCount(live.assigned_agents);
+  const profileCount = safeCount(live.profile_count);
+  const skillProfiled = safeCount(live.skill_profiled_agents);
+  const selfLearningProven = safeCount(live.self_learning_agents_proven);
+  const promotionEvidence = safeCount(live.promotion_evidence_records);
+  if (
+    registered === null ||
+    assigned === null ||
+    profileCount === null ||
+    skillProfiled === null ||
+    selfLearningProven === null ||
+    promotionEvidence === null ||
+    assigned > registered ||
+    skillProfiled > registered ||
+    selfLearningProven > registered ||
+    profileCount !== registered ||
+    !Array.isArray(live.profiles) ||
+    live.profiles.length !== registered
+  ) {
+    throw new Error("trusted live workforce counts invalid");
+  }
+
+  const authority = record(live.authority);
+  if (
+    !authority ||
+    authority.runtime_write_authorized !== false ||
+    authority.founder_decision_authorized !== false ||
+    authority.outbound_authorized !== false ||
+    authority.spend_authorized !== false ||
+    authority.provider_credentials_exposed !== false
+  ) {
+    throw new Error("trusted live workforce authority boundary invalid");
+  }
+
+  const ids = new Set<string>();
+  let learningProfiles = 0;
+  let observedPromotionEvidence = 0;
+  for (const candidate of live.profiles) {
+    const profile = record(candidate);
+    const agentId = safeString(profile?.agent_id, 120);
+    if (!profile || !agentId || !/^[a-z0-9][a-z0-9._-]{0,119}$/.test(agentId) || ids.has(agentId)) {
+      throw new Error("trusted live workforce profile identity invalid");
+    }
+    ids.add(agentId);
+
+    const progress = record(profile.progress);
+    if (!progress || typeof progress.known !== "boolean") {
+      throw new Error("trusted live workforce progress invalid");
+    }
+    if (progress.known === true) {
+      if (
+        typeof progress.percent !== "number" ||
+        !Number.isFinite(progress.percent) ||
+        progress.percent < 0 ||
+        progress.percent > 100
+      ) {
+        throw new Error("trusted live workforce known progress invalid");
+      }
+    } else if (
+      progress.percent !== null &&
+      progress.percent !== undefined
+    ) {
+      throw new Error("trusted live workforce unknown progress must not carry a percentage");
+    }
+
+    const performance = record(profile.performance);
+    if (!performance) throw new Error("trusted live workforce performance missing");
+    for (const key of [
+      "active_task_count",
+      "completed_history_count",
+      "blocked_task_count",
+      "history_event_count",
+    ]) {
+      if (safeCount(performance[key]) === null) {
+        throw new Error("trusted live workforce performance count invalid");
+      }
+    }
+
+    const learning = record(profile.learning);
+    if (!learning || typeof learning.self_learning_active !== "boolean") {
+      throw new Error("trusted live workforce learning invalid");
+    }
+    const evidenceCount = safeCount(learning.promotion_evidence_count);
+    if (evidenceCount === null) {
+      throw new Error("trusted live workforce promotion evidence invalid");
+    }
+    if (learning.self_learning_active === true) {
+      if (evidenceCount <= 0) {
+        throw new Error("trusted live workforce self-learning lacks promotion evidence");
+      }
+      learningProfiles += 1;
+    }
+    observedPromotionEvidence += evidenceCount;
+  }
+
+  if (learningProfiles !== selfLearningProven) {
+    throw new Error("trusted live workforce self-learning count mismatch");
+  }
+  if (observedPromotionEvidence > promotionEvidence) {
+    throw new Error("trusted live workforce promotion evidence total mismatch");
+  }
 }
 
 function normalizeStatus(status: unknown): TaskState {
@@ -277,6 +500,7 @@ function validateTrustedSnapshot(value: unknown): TrustedSnapshot {
     }
   }
 
+  validateWorkforceLive(root);
   return value as TrustedSnapshot;
 }
 
@@ -381,6 +605,152 @@ function workforceAgent(base: JarvisAgent, workforce: TrustedWorkforceRow[], rev
   };
 }
 
+function agentStateFromLiveProfile(profile: TrustedWorkforceLiveProfile): JarvisAgent["state"] {
+  const status = String(profile.current_task?.status ?? "").toLowerCase();
+  const blocker = String(profile.blocker ?? profile.current_task?.status_reason ?? "").toLowerCase();
+  if (
+    blocker ||
+    status.includes("block") ||
+    status.includes("fail") ||
+    status.includes("quarant") ||
+    status.includes("error")
+  ) return "blocked";
+  if (status.includes("review") || status.includes("verify") || status.includes("qa")) return "review";
+  if (status.includes("train") || status.includes("learn")) return "training";
+  if (
+    status.includes("running") ||
+    status.includes("working") ||
+    status.includes("active") ||
+    status.includes("in_progress") ||
+    status.includes("in progress") ||
+    status.includes("claimed")
+  ) return "running";
+  if (
+    status.includes("ready") ||
+    status.includes("assigned") ||
+    status.includes("queued") ||
+    status.includes("pending")
+  ) return "ready";
+  const employment = String(profile.employment_state ?? "").toLowerCase();
+  return employment.includes("active") || employment.includes("employed") ? "ready" : "unknown";
+}
+
+function liveAgentCoordinates(index: number, total: number): { x: number; y: number } {
+  if (total <= 1) return { x: 50, y: 50 };
+  const columns = Math.max(6, Math.min(9, Math.ceil(Math.sqrt(total * 1.45))));
+  const rows = Math.ceil(total / columns);
+  const column = index % columns;
+  const row = Math.floor(index / columns);
+  const x = columns === 1 ? 50 : 8 + (column * 84) / Math.max(columns - 1, 1);
+  const y = rows === 1 ? 50 : 10 + (row * 78) / Math.max(rows - 1, 1);
+  return { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 };
+}
+
+function liveProfileAgent(
+  profile: TrustedWorkforceLiveProfile,
+  index: number,
+  total: number,
+): JarvisAgent {
+  const id = safeString(profile.agent_id, 120) ?? `agent-${index + 1}`;
+  const name = safeString(profile.name, 160) ?? id;
+  const currentTitle =
+    safeString(profile.current_task?.title, 240) ??
+    safeString(profile.current_work, 300) ??
+    "No current task evidence.";
+  const progressKnown = profile.progress?.known === true &&
+    typeof profile.progress?.percent === "number" &&
+    Number.isFinite(profile.progress.percent);
+  const progressPercent = progressKnown
+    ? Math.max(0, Math.min(100, Number(profile.progress?.percent)))
+    : undefined;
+  const competencies = safeStringList(profile.learning?.competency_domains, 16, 160);
+  const learningFocus = safeStringList(profile.learning?.learning_focus, 12, 160);
+  const skills = [...new Set([...competencies, ...learningFocus])].slice(0, 16);
+  const history = Array.isArray(profile.recent_history)
+    ? profile.recent_history.slice(0, 30).map((row, historyIndex) => {
+        const title = safeString(row?.title, 240) ?? safeString(row?.kind, 100) ?? `Update ${historyIndex + 1}`;
+        const status = safeString(row?.status, 100);
+        const detail = safeString(row?.detail, 360);
+        const at = safeString(row?.at, 80);
+        return [at, status, title, detail].filter(Boolean).join(" · ");
+      })
+    : [];
+  const { x, y } = liveAgentCoordinates(index, total);
+  const learningEvidence = safeCount(profile.learning?.promotion_evidence_count) ?? 0;
+
+  return {
+    id,
+    name,
+    short: name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(part => part[0]?.toUpperCase() ?? "")
+      .join("") || "AG",
+    department: safeString(profile.department, 120) ?? "Workforce",
+    state: agentStateFromLiveProfile(profile),
+    x,
+    y,
+    load: 0,
+    task: currentTitle,
+    skills,
+    workers: [],
+    history: history.length
+      ? history
+      : ["No durable Runtime / Trusted control-plane history is exposed for this agent yet."],
+    progress: {
+      known: progressKnown,
+      ...(progressKnown ? { percent: progressPercent } : {}),
+      label:
+        safeString(profile.progress?.label, 160) ??
+        (progressKnown ? "Checkpoint evidence" : "No checkpoint evidence"),
+      source: safeString(profile.progress?.source, 120) ?? "none",
+      exact: profile.progress?.exact === true,
+    },
+    resume: {
+      agentId: id,
+      jobCode: safeString(profile.job_code, 120),
+      jobTitle: safeString(profile.job_title, 180),
+      workforceClass: safeString(profile.workforce_class, 100),
+      maturity: safeString(profile.maturity, 100),
+      reportsTo: safeString(profile.reports_to, 120),
+      mission: safeString(profile.mission, 500),
+      lastActivityAt: safeString(profile.last_activity_at, 80),
+    },
+    learning: {
+      status: safeString(profile.learning?.status, 120) ?? "not_recorded",
+      selfLearningActive: profile.learning?.self_learning_active === true && learningEvidence > 0,
+      promotionEvidenceCount: learningEvidence,
+      lastImprovementAt: safeString(profile.learning?.last_improvement_at, 80),
+      learningFocus,
+      competencies,
+      note:
+        safeString(profile.learning?.note, 320) ??
+        "No governed improvement evidence exposed.",
+    },
+    performance: {
+      activeTaskCount: safeCount(profile.performance?.active_task_count) ?? 0,
+      completedHistoryCount: safeCount(profile.performance?.completed_history_count) ?? 0,
+      blockedTaskCount: safeCount(profile.performance?.blocked_task_count) ?? 0,
+      historyEventCount: safeCount(profile.performance?.history_event_count) ?? 0,
+      evidenceSource: safeString(profile.performance?.evidence_source, 120) ?? "unknown",
+    },
+  };
+}
+
+function liveWorkforceAgents(snapshot: TrustedSnapshot, reviewerBusy: boolean): JarvisAgent[] {
+  const profiles = snapshot.workforce_live?.profiles;
+  if (snapshot.workforce_live && Array.isArray(profiles)) {
+    return profiles.map((profile, index) => liveProfileAgent(profile, index, profiles.length));
+  }
+
+  const workforceRows = snapshot.workforce.workers.filter(
+    (row): row is TrustedWorkforceRow =>
+      !!row && typeof row.id === "string" && /^[a-z0-9][a-z0-9._-]{0,119}$/.test(row.id),
+  );
+  return demoJarvisState.agents.map(base => workforceAgent(base, workforceRows, reviewerBusy));
+}
+
 function finishTasks(snapshot: TrustedSnapshot): JarvisTask[] {
   return (["bridge", "reviewer", "runtime", "autonomy"] as const).map(key => {
     const row = snapshot.finish_chain[key];
@@ -465,14 +835,10 @@ export function adaptTrustedControlPlaneSnapshot(
     projectFromMirror(base, trustedProjects.find(row => row.repository === base.repo)),
   );
 
-  const workforceRows = snapshot.workforce.workers.filter(
-    (row): row is TrustedWorkforceRow =>
-      !!row && typeof row.id === "string" && /^[a-z0-9][a-z0-9._-]{0,119}$/.test(row.id),
-  );
   const reviewerBusy = Object.values(snapshot.finish_chain).some(
     row => normalizeStatus(row?.status) === "review",
   );
-  const agents = demoJarvisState.agents.map(base => workforceAgent(base, workforceRows, reviewerBusy));
+  const agents = liveWorkforceAgents(snapshot, reviewerBusy);
 
   const tasks = [...finishTasks(snapshot), ...companyTasks(snapshot, trustedProjects)];
   const blockedByProject = new Map<string, number>();
