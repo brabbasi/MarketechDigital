@@ -1,0 +1,53 @@
+name: JARVIS Visual Agent Side Quest CI
+
+on:
+  pull_request:
+    paths:
+      - 'app/jarvis/agentVisualState.ts'
+      - 'tests/jarvis-agent-visual.spec.ts'
+      - '.github/workflows/jarvis-visual-agent-ci.yml'
+  push:
+    branches:
+      - 'feature/jarvis-visual-agent-ops-v1'
+    paths:
+      - 'app/jarvis/agentVisualState.ts'
+      - 'tests/jarvis-agent-visual.spec.ts'
+      - '.github/workflows/jarvis-visual-agent-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  truth-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --no-audit --no-fund
+      - name: Build portal with visual-agent contract
+        run: npm run build
+      - name: Run evidence-first visual-agent tests
+        run: npx playwright test tests/jarvis-agent-visual.spec.ts
+      - name: Assert visual layer remains read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          src=Path('app/jarvis/agentVisualState.ts').read_text(encoding='utf-8')
+          assert 'fetch(' not in src
+          assert 'POST' not in src
+          assert 'runtime' not in src.lower()
+          assert 'outbound' not in src.lower()
+          assert 'ACTIVITY UNPROVEN' in src
+          assert 'visualIdentityForAgent' in src
+          print('JARVIS_VISUAL_AGENT_TRUTH_CONTRACT=PASS')
+          print('runtime_authority_added=false')
+          print('outbound_authority_added=false')
+          PY
