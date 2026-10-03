@@ -136,6 +136,16 @@ test.describe("JARVIS Founder Portal", () => {
           open_pr_count: 0,
           open_prs: [],
         })),
+        {
+          repository: "brabbasi/client-launchpad",
+          present: true,
+          archived: false,
+          default_branch: "main",
+          head_sha: "9".repeat(40),
+          head_committed_at: "2026-09-19T19:41:00Z",
+          open_pr_count: 0,
+          open_prs: [],
+        },
       ],
       workforce: {
         source_ref: "canonical-org",
@@ -280,6 +290,11 @@ test.describe("JARVIS Founder Portal", () => {
     expect(jarvis?.progressKnown).toBe(false);
     expect(jarvis?.state).toBe("unknown");
     expect(jarvis?.now).toContain("main@aaaaaaaaaa");
+    const dynamicProject = state.projects.find(project => project.repo === "brabbasi/client-launchpad");
+    expect(dynamicProject?.id).toBe("repo-client-launchpad");
+    expect(dynamicProject?.name).toBe("client-launchpad");
+    expect(dynamicProject?.progressKnown).toBe(false);
+    expect(dynamicProject?.now).toContain("main@9999999999");
     expect(state.tasks.find(task => task.id === "finish-bridge")?.state).toBe("founder");
     expect(state.agents).toHaveLength(56);
     const reviewerAgent = state.agents.find(agent => agent.id === "ai-reviewer");
@@ -370,9 +385,34 @@ test.describe("JARVIS Founder Portal", () => {
     )).toThrow(/finish chain autonomy/);
 
     expect(() => adaptTrustedControlPlaneSnapshot(
-      { ...fixture, projects: fixture.projects.slice(0, -1) },
+      {
+        ...fixture,
+        projects: fixture.projects.filter(
+          project => project.repository !== "brabbasi/MarketechDigital",
+        ),
+      },
       { nowMs, maxAgeSeconds: 600 },
     )).toThrow(/project catalog incomplete/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        projects: [
+          ...fixture.projects,
+          {
+            repository: "other/foreign-repo",
+            present: true,
+            archived: false,
+            default_branch: "main",
+            head_sha: "f".repeat(40),
+            head_committed_at: "2026-09-19T19:41:00Z",
+            open_pr_count: 0,
+            open_prs: [],
+          },
+        ],
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/project catalog identity/);
   });
 
   test("read model is explicit, read-only and structurally complete", async ({ request }) => {
