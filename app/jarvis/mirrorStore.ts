@@ -1,4 +1,5 @@
 import { get, put } from "@vercel/blob";
+import { getVercelOidcToken } from "@vercel/oidc";
 import { createHash } from "node:crypto";
 import {
   MIRROR_INGEST_MAX_BYTES,
@@ -10,12 +11,16 @@ export const TRUSTED_MIRROR_BLOB_PATH = "jarvis/trusted-control-plane-snapshot.j
 
 type BlobEnvironment = NodeJS.ProcessEnv;
 
-function credentials(env: BlobEnvironment) {
+async function credentials(env: BlobEnvironment) {
   if (!mirrorStoreConfigured(env)) {
     throw new Error("mirror blob store is not configured");
   }
   const storeId = env.BLOB_STORE_ID!.trim();
-  const oidcToken = env.VERCEL_OIDC_TOKEN!.trim();
+  const configuredOidcToken = env.VERCEL_OIDC_TOKEN?.trim();
+  const oidcToken = configuredOidcToken || (await getVercelOidcToken());
+  if (!oidcToken) {
+    throw new Error("mirror blob OIDC token unavailable");
+  }
   return { storeId, oidcToken };
 }
 
@@ -55,7 +60,7 @@ export function mirrorStorageDriver(env: BlobEnvironment = process.env): string 
 export async function readTrustedMirrorBlob(
   env: BlobEnvironment = process.env,
 ): Promise<Uint8Array | null> {
-  const { storeId, oidcToken } = credentials(env);
+  const { storeId, oidcToken } = await credentials(env);
   const result = await get(TRUSTED_MIRROR_BLOB_PATH, {
     access: "private",
     useCache: false,
@@ -90,7 +95,7 @@ export async function writeTrustedMirrorBlob(
     }
   }
 
-  const { storeId, oidcToken } = credentials(env);
+  const { storeId, oidcToken } = await credentials(env);
   const copy = new Uint8Array(body);
   await put(TRUSTED_MIRROR_BLOB_PATH, copy.buffer, {
     access: "private",
