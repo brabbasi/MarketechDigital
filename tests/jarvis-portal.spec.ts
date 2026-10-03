@@ -142,6 +142,105 @@ test.describe("JARVIS Founder Portal", () => {
         source_sha: "c".repeat(40),
         workers: [{ id: "ai-reviewer", role: "Independent AI Reviewer", department: "independent_assurance" }],
       },
+      mirror_schema_version: 2,
+      workforce_live: {
+        schema_version: 2,
+        source: "local_control_center_sanitized_workforce",
+        control_center_deployment_sha: "d".repeat(40),
+        connected: true,
+        registered_agents: 56,
+        assigned_agents: 56,
+        profile_count: 56,
+        skill_profiled_agents: 19,
+        self_learning_agents_proven: 1,
+        promotion_evidence_records: 1,
+        authority: {
+          runtime_write_authorized: false,
+          founder_decision_authorized: false,
+          outbound_authorized: false,
+          spend_authorized: false,
+          provider_credentials_exposed: false,
+        },
+        profiles: Array.from({ length: 56 }, (_, index) => {
+          const reviewer = index === 0;
+          return {
+            agent_id: reviewer ? "ai-reviewer" : `agent-${String(index + 1).padStart(2, "0")}`,
+            name: reviewer ? "Independent AI Reviewer" : `Agent ${index + 1}`,
+            department: reviewer ? "independent_assurance" : "operations",
+            kind: reviewer ? "reviewer" : "specialist",
+            workforce_class: "canonical",
+            maturity: reviewer ? "senior" : "operational",
+            reports_to: reviewer ? "coo-jarvis" : "agent-resource-manager",
+            mission: reviewer ? "Review exact evidence independently." : "Execute bounded internal work.",
+            job_code: reviewer ? "REV-001" : `OPS-${String(index + 1).padStart(3, "0")}`,
+            job_title: reviewer ? "Independent AI Reviewer" : "Operations Specialist",
+            employment_state: "employed",
+            runtime_dispatch: !reviewer,
+            projects: ["jarvis"],
+            worklane: "company-os",
+            current_work: reviewer ? "Review exact candidate" : null,
+            blocker: null,
+            current_task: reviewer ? {
+              id: "review-138",
+              title: "Review immutable Copilot Reviewer successor",
+              status: "review",
+              status_reason: null,
+              next_action: "Return independent verdict",
+              project_id: "jarvis",
+              updated_at: "2026-09-19T19:44:20Z",
+              source: "trusted_control_plane",
+            } : null,
+            progress: reviewer ? {
+              known: true,
+              percent: 80,
+              label: "Review / verification",
+              source: "lifecycle_stage",
+              exact: false,
+            } : {
+              known: false,
+              percent: null,
+              label: "No checkpoint evidence",
+              source: "none",
+              exact: false,
+            },
+            last_activity_at: reviewer ? "2026-09-19T19:44:20Z" : null,
+            performance: {
+              active_task_count: reviewer ? 1 : 0,
+              completed_history_count: reviewer ? 7 : 0,
+              blocked_task_count: 0,
+              history_event_count: reviewer ? 8 : 0,
+              evidence_source: "runtime_and_trusted_control_plane",
+            },
+            learning: reviewer ? {
+              status: "proven_improvement",
+              self_learning_active: true,
+              promotion_evidence_count: 1,
+              last_improvement_at: "2026-09-19T19:30:00Z",
+              learning_focus: ["semantic-review"],
+              competency_domains: ["evidence-review", "governance"],
+              note: "Evidence-backed skill improvement exists.",
+            } : {
+              status: "learning_contract_declared",
+              self_learning_active: false,
+              promotion_evidence_count: 0,
+              last_improvement_at: null,
+              learning_focus: ["bounded-operations"],
+              competency_domains: [],
+              note: "No governed skill-promotion evidence exists yet.",
+            },
+            recent_history: reviewer ? [{
+              kind: "review",
+              title: "Prior exact-head review completed",
+              status: "completed",
+              detail: "Evidence retained.",
+              at: "2026-09-19T19:20:00Z",
+              project_id: "jarvis",
+              head: "e".repeat(40),
+              source: "trusted_control_plane",
+            }] : [],
+          };
+        }),
+      },
       company: {
         active_work: [{
           id: "portal",
@@ -182,10 +281,27 @@ test.describe("JARVIS Founder Portal", () => {
     expect(jarvis?.state).toBe("unknown");
     expect(jarvis?.now).toContain("main@aaaaaaaaaa");
     expect(state.tasks.find(task => task.id === "finish-bridge")?.state).toBe("founder");
-    expect(state.agents.find(agent => agent.id === "reviewer")?.state).toBe("review");
-    expect(state.agents.find(agent => agent.id === "engineering")?.state).toBe("unknown");
-    expect(state.agents.find(agent => agent.id === "engineering")?.progress?.known).toBe(false);
-    expect(state.agents.find(agent => agent.id === "engineering")?.learning?.selfLearningActive).toBe(false);
+    expect(state.agents).toHaveLength(56);
+    const reviewerAgent = state.agents.find(agent => agent.id === "ai-reviewer");
+    expect(reviewerAgent?.state).toBe("review");
+    expect(reviewerAgent?.progress?.known).toBe(true);
+    expect(reviewerAgent?.progress?.percent).toBe(80);
+    expect(reviewerAgent?.resume?.jobCode).toBe("REV-001");
+    expect(reviewerAgent?.resume?.mission).toContain("Review exact evidence");
+    expect(reviewerAgent?.learning?.selfLearningActive).toBe(true);
+    expect(reviewerAgent?.learning?.promotionEvidenceCount).toBe(1);
+    expect(reviewerAgent?.performance?.completedHistoryCount).toBe(7);
+    expect(reviewerAgent?.history[0]).toContain("Prior exact-head review completed");
+    const unknownAgent = state.agents.find(agent => agent.id === "agent-02");
+    expect(unknownAgent?.progress?.known).toBe(false);
+    expect(unknownAgent?.progress).not.toHaveProperty("percent");
+    expect(unknownAgent?.learning?.selfLearningActive).toBe(false);
+
+    const { workforce_live: _workforceLive, mirror_schema_version: _mirrorSchema, ...legacyFixture } = fixture;
+    const legacyState = adaptTrustedControlPlaneSnapshot(legacyFixture, { nowMs, maxAgeSeconds: 600 });
+    expect(legacyState.agents.find(agent => agent.id === "reviewer")?.state).toBe("review");
+    expect(legacyState.agents.find(agent => agent.id === "engineering")?.progress?.known).toBe(false);
+
     expect(state.revenue.historicalReviewedCoverage).toBe(36);
     expect(state.revenue.historicalFounderApproved).toBe(17);
     expect(state.revenue.currentEvidenceValidFounderApproved).toBeNull();
@@ -203,6 +319,49 @@ test.describe("JARVIS Founder Portal", () => {
       },
       { nowMs, maxAgeSeconds: 600 },
     )).toThrow(/authority/);
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        workforce_live: {
+          ...fixture.workforce_live,
+          authority: { ...fixture.workforce_live.authority, outbound_authorized: true },
+        },
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/live workforce authority/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        workforce_live: {
+          ...fixture.workforce_live,
+          self_learning_agents_proven: 2,
+        },
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/self-learning count mismatch/);
+
+    expect(() => adaptTrustedControlPlaneSnapshot(
+      {
+        ...fixture,
+        workforce_live: {
+          ...fixture.workforce_live,
+          profiles: fixture.workforce_live.profiles.map((profile, index) =>
+            index === 0
+              ? {
+                  ...profile,
+                  learning: {
+                    ...profile.learning,
+                    self_learning_active: true,
+                    promotion_evidence_count: 0,
+                  },
+                }
+              : profile,
+          ),
+        },
+      },
+      { nowMs, maxAgeSeconds: 600 },
+    )).toThrow(/self-learning lacks promotion evidence/);
 
     const { autonomy: _removedAutonomy, ...partialFinishChain } = fixture.finish_chain;
     expect(() => adaptTrustedControlPlaneSnapshot(
