@@ -10,9 +10,11 @@ import {
 
 const TRUSTED_SOURCE = "trusted-github-control-plane-sync-v1";
 const TRUSTED_REPOSITORY = "brabbasi/Marketech_Digital_OS";
-const EXPECTED_REPOSITORIES = new Set(
+const CORE_REPOSITORIES = new Set(
   demoJarvisState.projects.flatMap(project => project.repo ? [project.repo] : []),
 );
+const TRUSTED_REPOSITORY_PREFIX = "brabbasi/";
+const MAX_TRUSTED_PROJECTS = 256;
 const EXPECTED_FINISH_PRS = {
   bridge: 66,
   reviewer: 46,
@@ -429,8 +431,8 @@ function validateTrustedSnapshot(value: unknown): TrustedSnapshot {
     throw new Error("trusted mirror repository identity invalid");
   }
 
-  if (!Array.isArray(root.projects)) {
-    throw new Error("trusted mirror projects missing");
+  if (!Array.isArray(root.projects) || root.projects.length > MAX_TRUSTED_PROJECTS) {
+    throw new Error("trusted mirror projects missing or exceeds bounded catalog");
   }
   const projectRepositories = new Set<string>();
   for (const candidate of root.projects) {
@@ -439,7 +441,10 @@ function validateTrustedSnapshot(value: unknown): TrustedSnapshot {
     if (!project || !repository || typeof project.present !== "boolean") {
       throw new Error("trusted mirror project row invalid");
     }
-    if (!EXPECTED_REPOSITORIES.has(repository) || projectRepositories.has(repository)) {
+    if (
+      !new RegExp("^" + TRUSTED_REPOSITORY_PREFIX.replace("/", "\\/") + "[A-Za-z0-9._-]{1,100}$").test(repository) ||
+      projectRepositories.has(repository)
+    ) {
       throw new Error("trusted mirror project catalog identity invalid");
     }
     if (project.present === true && !safeSha(project.head_sha)) {
@@ -447,7 +452,7 @@ function validateTrustedSnapshot(value: unknown): TrustedSnapshot {
     }
     projectRepositories.add(repository);
   }
-  for (const repository of EXPECTED_REPOSITORIES) {
+  for (const repository of CORE_REPOSITORIES) {
     if (!projectRepositories.has(repository)) {
       throw new Error("trusted mirror project catalog incomplete");
     }
@@ -561,6 +566,29 @@ function projectFromMirror(base: JarvisProject, trusted?: TrustedProject): Jarvi
       `Trusted repository mirror: ${base.repo}`,
       head ? `Exact default-branch head: ${head}` : "Default-branch head unavailable",
     ],
+  };
+}
+
+function dynamicProjectBase(trusted: TrustedProject): JarvisProject {
+  const repository = trusted.repository;
+  const name = repository.slice(TRUSTED_REPOSITORY_PREFIX.length);
+  const id = `repo-${name.toLowerCase()}`;
+  return {
+    id,
+    name,
+    area: "Discovered repository",
+    state: "unknown",
+    progress: 0,
+    progressKnown: false,
+    objective: `Track ${repository} as a read-only JARVIS project.`,
+    now: "Waiting for trusted repository metadata.",
+    next: "Use the current sanitized repository mirror as the source of truth.",
+    blocked: 0,
+    repo: repository,
+    lastUpdate: "Discovered from GitHub App installation",
+    agentIds: [],
+    assignments: [],
+    history: ["Dynamically discovered from the read-only GitHub App installation."],
   };
 }
 
@@ -771,7 +799,11 @@ function finishTasks(snapshot: TrustedSnapshot): JarvisTask[] {
   });
 }
 
-function companyTasks(snapshot: TrustedSnapshot, projects: TrustedProject[]): JarvisTask[] {
+function companyTasks(
+  snapshot: TrustedSnapshot,
+  projects: TrustedProject[],
+  portalProjects: JarvisProject[],
+): JarvisTask[] {
   const rows = Array.isArray(snapshot.company?.active_work) ? snapshot.company?.active_work ?? [] : [];
   const finishPrs = new Set(
     Object.values(snapshot.finish_chain)
@@ -791,7 +823,7 @@ function companyTasks(snapshot: TrustedSnapshot, projects: TrustedProject[]): Ja
           project.open_prs.some(pr => safeSha(pr?.head_sha) === head)
         )
       : undefined;
-    const portalProject = demoJarvisState.projects.find(project => project.repo === matchedRepo?.repository);
+    const portalProject = portalProjects.find(project => project.repo === matchedRepo?.repository);
     const projectId = portalProject?.id ?? "jarvis";
     const projectName = portalProject?.name ?? "Company";
     const title = safeString(row?.title, 220) ?? id;
@@ -831,16 +863,24 @@ export function adaptTrustedControlPlaneSnapshot(
   }
 
   const trustedProjects = snapshot.projects;
-  const projects = demoJarvisState.projects.map(base =>
+  const canonicalRepos = new Set(
+    demoJarvisState.projects.flatMap(project => project.repo ? [project.repo] : []),
+  );
+  const canonicalProjects = demoJarvisState.projects.map(base =>
     projectFromMirror(base, trustedProjects.find(row => row.repository === base.repo)),
   );
+  const dynamicProjects = trustedProjects
+    .filter(row => !canonicalRepos.has(row.repository))
+    .sort((a, b) => a.repository.localeCompare(b.repository))
+    .map(row => projectFromMirror(dynamicProjectBase(row), row));
+  const projects = [...canonicalProjects, ...dynamicProjects];
 
   const reviewerBusy = Object.values(snapshot.finish_chain).some(
     row => normalizeStatus(row?.status) === "review",
   );
   const agents = liveWorkforceAgents(snapshot, reviewerBusy);
 
-  const tasks = [...finishTasks(snapshot), ...companyTasks(snapshot, trustedProjects)];
+  const tasks = [...finishTasks(snapshot), ...companyTasks(snapshot, trustedProjects, projects)];
   const blockedByProject = new Map<string, number>();
   for (const task of tasks) {
     if (task.state === "blocked") {
