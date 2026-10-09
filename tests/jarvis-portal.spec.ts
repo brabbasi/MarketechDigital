@@ -491,12 +491,17 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByText("Agent Constellation")).toBeVisible();
     await expect(page.getByTestId("founder-truth-strip")).toBeVisible();
     await expect(page.getByTestId("founder-truth-strip")).toContainText("REVIEW QUEUE");
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("MIRROR-REPORTED LIVE TASKS");
+    // A static operator fallback may show plans but must NEVER claim live execution.
+    await expect(page.getByTestId("founder-truth-strip")).toContainText("No signed-mirror live task proof exposed");
     await expect(page.getByTestId("founder-truth-strip")).toContainText("CI BLOCKERS");
     await expect(page.getByTestId("founder-truth-strip")).toContainText("GATED");
     await expect(page.locator(".ai-launcher")).toHaveCount(0);
     await expect(page.getByText("PROJECT UNIVERSE")).toBeVisible();
     await expect(page.getByTestId("parallel-lanes")).toBeVisible();
     await expect(page.getByTestId("parallel-lanes")).toContainText("PARALLEL LANES");
+    await expect(page.getByTestId("parallel-lanes")).toContainText("tracked / gated streams");
+    await expect(page.getByTestId("parallel-lanes")).toContainText("QUEUED");
     await expect(page.getByTestId("parallel-lane-jarvis")).toBeVisible();
     await expect(page.getByTestId("parallel-lane-rangrez")).toBeVisible();
     await expect(page.getByTestId("approvals-title")).toBeVisible();
