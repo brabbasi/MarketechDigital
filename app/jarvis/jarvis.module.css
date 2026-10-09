@@ -181,7 +181,7 @@
 .parallelLanes>header>span{font-size:6px;color:#648ba4;white-space:nowrap}
 .parallelLaneTrack{display:flex;gap:5px;overflow-x:auto;scrollbar-width:thin;padding-bottom:1px}
 .parallelLaneTrack>button{
-  flex:0 0 145px;min-width:0;padding:6px 7px;border:1px solid rgba(45,132,190,.16);border-radius:7px;
+  flex:0 0 165px;min-width:0;padding:6px 7px;border:1px solid rgba(45,132,190,.16);border-radius:7px;
   background:rgba(4,17,29,.76);color:#d8edf9;text-align:left;cursor:pointer
 }
 .parallelLaneTrack>button:hover,.parallelLaneTrack>.parallelLaneSelected{
@@ -194,7 +194,7 @@
 .parallelLaneTrack>button>p{
   margin:4px 0;color:#7293a9;font-size:6px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
 }
-.parallelLaneTrack>button>span{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}
+.parallelLaneTrack>button>span{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}
 .parallelLaneTrack>button>span b{
   padding:3px 2px;border-radius:5px;background:#061a2c;color:#cceeff;font-size:8px;text-align:center;font-weight:800
 }
