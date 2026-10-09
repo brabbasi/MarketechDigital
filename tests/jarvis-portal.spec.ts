@@ -280,6 +280,31 @@ test.describe("JARVIS Founder Portal", () => {
     };
 
     const state = adaptTrustedControlPlaneSnapshot(fixture, { nowMs, maxAgeSeconds: 600 });
+    // Mirror status strings alone are never worker execution evidence.
+    expect(state.tasks.find(task => task.id === "company-portal")?.state).toBe("queued");
+    const withWork = (status: string, execution?: {
+      state?: string; source?: string; observed_at?: string; claim_id?: string; lease_id?: string;
+    }) => ({
+      ...fixture,
+      company: { active_work: [{ ...fixture.company.active_work[0], status, ...(execution ? { execution } : {}) }] },
+    });
+    for (const status of ["RUNNING", "LIVE", "NOT LIVE", "LIVE · RESTRICTED", "DELIVERED"]) {
+      const derived = adaptTrustedControlPlaneSnapshot(withWork(status), { nowMs, maxAgeSeconds: 600 });
+      expect(derived.tasks.find(task => task.id === "company-portal")?.state).not.toBe("live");
+      expect(derived.tasks.filter(task => task.state === "live")).toHaveLength(0);
+    }
+    const validClaim = {
+      state: "running", source: "governed_runtime_journal",
+      observed_at: fixture.generated_at,
+      claim_id: "claim-000123", lease_id: "lease-000123",
+    };
+    const actuallyRunning = adaptTrustedControlPlaneSnapshot(withWork("RUNNING", validClaim), { nowMs, maxAgeSeconds: 600 });
+    expect(actuallyRunning.tasks.find(task => task.id === "company-portal")?.state).toBe("live");
+    const staleClaim = { ...validClaim, observed_at: new Date(Date.parse(fixture.generated_at) - 240_000).toISOString() };
+    expect(adaptTrustedControlPlaneSnapshot(withWork("RUNNING", staleClaim), { nowMs, maxAgeSeconds: 600 })
+      .tasks.find(task => task.id === "company-portal")?.state).not.toBe("live");
+    expect(adaptTrustedControlPlaneSnapshot(withWork("RUNNING", { ...validClaim, lease_id: "" }), { nowMs, maxAgeSeconds: 600 })
+      .tasks.find(task => task.id === "company-portal")?.state).not.toBe("live");
     expect(state.source).toBe("mirror");
     expect(state.readModel?.liveConnected).toBe(true);
     expect(state.readModel?.mode).toBe("trusted_live_mirror");
@@ -493,6 +518,7 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByTestId("founder-truth-strip")).toContainText("REVIEW QUEUE");
     await expect(page.getByTestId("founder-truth-strip")).toContainText("MIRROR-REPORTED LIVE TASKS");
     // A static operator fallback may show plans but must NEVER claim live execution.
+    await expect(page.locator('[data-testid="agent-scene"] svg line[class*="beamActive"]')).toHaveCount(0);
     await expect(page.getByTestId("founder-truth-strip")).toContainText("No signed-mirror live task proof exposed");
     await expect(page.getByTestId("founder-truth-strip")).toContainText("CI BLOCKERS");
     await expect(page.getByTestId("founder-truth-strip")).toContainText("GATED");
