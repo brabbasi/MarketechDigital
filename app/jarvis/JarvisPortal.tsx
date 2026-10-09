@@ -136,7 +136,8 @@ export default function JarvisPortal() {
   }).filter(lane => lane.total > 0 || lane.project.agentIds.length > 0), [projects,tasks,sourceLive]);
   const trackedParallelLanes = parallelLanes.length;
   // Demo/operator fallback tasks represent planning context, not live execution.
-  const workingNow = sourceLive ? tasks.filter(task=>task.state==="live").slice(0,3) : [];
+  const workingNow = sourceLive ? tasks.filter(task=>task.state==="live") : [];
+  const workingTitles = workingNow.slice(0,3);
   const blockedNow = tasks.filter(task=>task.state==="blocked").slice(0,3);
   const nextUnlock = tasks.find(task=>task.state==="next") || blockedNow[0] || tasks.find(task=>task.state==="review") || null;
   const recentProof = tasks.filter(task=>task.state==="done").slice(0,3);
@@ -384,7 +385,7 @@ export default function JarvisPortal() {
             <div className={styles.companyStats}><b>{workingNow.length}<small>mirror live</small></b><b>{blockedNow.length}<small>blocked</small></b><b>{recentProof.length}<small>recent proof</small></b></div>
             <div className={styles.truthStrip} data-testid="founder-truth-strip">
               <article><small>AUTONOMY</small><strong>{autonomyHeld?"BLOCKED":"READY"}</strong><span>{autonomyHeld?"Semantic review capacity · GATED":"Runtime gate clear"}</span></article>
-              <article><small>MIRROR-REPORTED LIVE TASKS · REVIEW QUEUE {reviewQueueCount}</small><strong>{workingNow.length || "—"}</strong><span>{workingNow.map(task=>task.title).join(" · ") || "No signed-mirror live task proof exposed"}</span></article>
+              <article><small>MIRROR-REPORTED LIVE TASKS · REVIEW QUEUE {reviewQueueCount}</small><strong>{workingNow.length || "—"}</strong><span>{workingTitles.map(task=>task.title).join(" · ") || "No signed-mirror live task proof exposed"}</span></article>
               <article><small>BLOCKED · CI BLOCKERS {ciInfrastructureBlockers}</small><strong>{blockedNow.length}</strong><span>{blockedNow.map(task=>task.title).join(" · ") || "No exposed blocker"}</span></article>
               <article><small>NEXT UNLOCK</small><strong>{nextUnlock?.title.includes("#40")?"#40 PASS":"GATED"}</strong><span>{nextUnlock?.title || "No next gate exposed"} · GATED</span></article>
             </div>
@@ -417,7 +418,7 @@ export default function JarvisPortal() {
           <div className={styles.scene} data-testid="agent-scene">
             <div className={styles.sceneMode}><strong>Agent Constellation</strong><span>{sourceLive?"Live evidence drives progress · click any employee":"Static fallback · agent progress is intentionally blank until live evidence arrives"}</span></div>
             <div className={styles.orbitA}/><div className={styles.orbitB}/><div className={styles.orbitC}/>
-            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{agents.map(agent=><line key={agent.id} data-state={agent.state} data-assigned={assigned.has(agent.id) ? "true" : "false"} className={assigned.has(agent.id)?styles.beamActive:styles.beam} x1="50" y1="50" x2={agent.x} y2={agent.y}/>)}</svg>
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">{agents.map(agent=><line key={agent.id} data-state={agent.state} data-assigned={assigned.has(agent.id) ? "true" : "false"} className={sourceLive && agent.state==="running" && assigned.has(agent.id) ? styles.beamActive : styles.beam} x1="50" y1="50" x2={agent.x} y2={agent.y}/>)}</svg>
             <button className={styles.core} onClick={()=>setSelectedAgentId(null)}><span>J</span><strong>JARVIS</strong><small>COMPANY BRAIN</small><em>{selectedProject.name}</em></button>
             {agents.map(agent=>{
               const related=assigned.has(agent.id);
