@@ -123,16 +123,20 @@ export default function JarvisPortal() {
   const readFreshness = snapshot?.mirror ? `${snapshot.mirror.ageSeconds}s old` : snapshot?.source==="operator" ? `static as of ${snapshot.generatedAt.slice(11,16)} UTC` : "preview fixture";
   const parallelLanes = useMemo(() => projects.map(project => {
     const laneTasks = tasks.filter(task => task.projectId === project.id);
-    const active = laneTasks.filter(task => task.state === "live" || task.state === "next" || task.state === "queued").length;
+    // Only fresh signed-mirror LIVE task evidence counts as currently executing.
+    // Planned NEXT/QUEUED work must never inflate the visible worker activity.
+    const active = sourceLive ? laneTasks.filter(task => task.state === "live").length : 0;
+    const queued = laneTasks.filter(task => task.state === "next" || task.state === "queued").length;
     const review = laneTasks.filter(task => task.state === "review").length;
     const founder = laneTasks.filter(task => task.state === "founder").length;
     const blocked = laneTasks.filter(task => task.state === "blocked").length;
     const done = laneTasks.filter(task => task.state === "done").length;
     const laneState: TaskState = founder ? "founder" : blocked ? "blocked" : review ? "review" : active ? "live" : done ? "done" : "queued";
-    return { project, active, review, founder, blocked, done, total: laneTasks.length, laneState };
-  }).filter(lane => lane.total > 0 || lane.project.agentIds.length > 0), [projects,tasks]);
-  const activeParallelLanes = parallelLanes.filter(lane => lane.active || lane.review || lane.founder || lane.blocked).length;
-  const workingNow = tasks.filter(task=>task.state==="live").slice(0,3);
+    return { project, active, queued, review, founder, blocked, done, total: laneTasks.length, laneState };
+  }).filter(lane => lane.total > 0 || lane.project.agentIds.length > 0), [projects,tasks,sourceLive]);
+  const trackedParallelLanes = parallelLanes.length;
+  // Demo/operator fallback tasks represent planning context, not live execution.
+  const workingNow = sourceLive ? tasks.filter(task=>task.state==="live").slice(0,3) : [];
   const blockedNow = tasks.filter(task=>task.state==="blocked").slice(0,3);
   const nextUnlock = tasks.find(task=>task.state==="next") || blockedNow[0] || tasks.find(task=>task.state==="review") || null;
   const recentProof = tasks.filter(task=>task.state==="done").slice(0,3);
@@ -377,10 +381,10 @@ export default function JarvisPortal() {
         <section className={styles.center}>
           <div className={styles.sceneHeader}>
             <div><small>FOUNDER COMMAND DECK · {readModelStatus.toUpperCase()}</small><h1>{autonomyHeld?"Autonomy is held at one gate":"JARVIS operating state"}</h1><p>{readModelStatus==="mirror"?"Trusted company mirror. Unknown activity stays unknown.":readModelStatus==="operator"?"Plain-language operating truth: what is working, what is blocked, and what unlocks next.":"Preview data only; no consequential authority."}</p></div>
-            <div className={styles.companyStats}><b>{workingNow.length}<small>working now</small></b><b>{blockedNow.length}<small>blocked</small></b><b>{recentProof.length}<small>recent proof</small></b></div>
+            <div className={styles.companyStats}><b>{workingNow.length}<small>mirror live</small></b><b>{blockedNow.length}<small>blocked</small></b><b>{recentProof.length}<small>recent proof</small></b></div>
             <div className={styles.truthStrip} data-testid="founder-truth-strip">
               <article><small>AUTONOMY</small><strong>{autonomyHeld?"BLOCKED":"READY"}</strong><span>{autonomyHeld?"Semantic review capacity · GATED":"Runtime gate clear"}</span></article>
-              <article><small>WORKING NOW · REVIEW QUEUE {reviewQueueCount}</small><strong>{workingNow.length || "—"}</strong><span>{workingNow.map(task=>task.title).join(" · ") || "No live internal work exposed"}</span></article>
+              <article><small>MIRROR-REPORTED LIVE TASKS · REVIEW QUEUE {reviewQueueCount}</small><strong>{workingNow.length || "—"}</strong><span>{workingNow.map(task=>task.title).join(" · ") || "No signed-mirror live task proof exposed"}</span></article>
               <article><small>BLOCKED · CI BLOCKERS {ciInfrastructureBlockers}</small><strong>{blockedNow.length}</strong><span>{blockedNow.map(task=>task.title).join(" · ") || "No exposed blocker"}</span></article>
               <article><small>NEXT UNLOCK</small><strong>{nextUnlock?.title.includes("#40")?"#40 PASS":"GATED"}</strong><span>{nextUnlock?.title || "No next gate exposed"} · GATED</span></article>
             </div>
@@ -388,7 +392,7 @@ export default function JarvisPortal() {
 
           <section className={styles.parallelLanes} data-testid="parallel-lanes">
             <header>
-              <div><small>PARALLEL LANES · WORKSTREAMS</small><strong>{activeParallelLanes} active / gated streams</strong></div>
+              <div><small>PARALLEL LANES · WORKSTREAMS</small><strong>{trackedParallelLanes} tracked / gated streams</strong></div>
               <span>Click a workstream to focus. Details stay below.</span>
             </header>
             <div className={styles.parallelLaneTrack}>
@@ -401,8 +405,8 @@ export default function JarvisPortal() {
                 <div><strong>{lane.project.name}</strong><small className={styles[lane.project.state]}>{lane.project.state.replace("_"," ")}</small></div>
                 <p>{lane.project.now}</p>
                 <span>
-                  <b>{lane.active}<small>NOW</small></b>
-                  <b>{lane.review}<small>REVIEW</small></b>
+                  <b>{lane.active}<small>MIRROR LIVE</small></b>
+                  <b>{lane.queued}<small>QUEUED</small></b><b>{lane.review}<small>REVIEW</small></b>
                   <b>{lane.blocked}<small>BLOCKED</small></b>
                   <b>{lane.done}<small>DONE</small></b>
                 </span>
