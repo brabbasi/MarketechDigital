@@ -185,6 +185,7 @@ type TrustedSnapshot = {
       head?: string;
       blocker?: string;
       next_action?: string;
+      execution?: { state?: string; source?: string; observed_at?: string; claim_id?: string; lease_id?: string };
     }>;
     completed_or_live?: Array<{
       id?: string;
@@ -392,10 +393,27 @@ function normalizeStatus(status: unknown): TaskState {
   if (value.includes("NEEDS FOUNDER")) return "founder";
   if (value.includes("BLOCK") || value.includes("FAIL") || value.includes("QUARANTIN")) return "blocked";
   if (value.includes("REVIEW") || value.includes("BOOTSTRAP")) return "review";
-  if (value.includes("LIVE") || value.includes("RUNNING")) return "live";
+  // Component liveness and phrases such as NOT LIVE do not prove task execution.
+  if (value.includes("NOT LIVE") || value.includes("NOT RUNNING")) return "blocked";
+  if (value === "LIVE" || value === "RUNNING" || value.startsWith("LIVE ·")) return "queued";
   if (value.includes("NEXT")) return "next";
   if (value.includes("COMPLETE") || value.includes("DONE")) return "done";
   return "queued";
+}
+
+function hasFreshRuntimeClaim(row: {
+  status?: string;
+  execution?: { state?: string; source?: string; observed_at?: string; claim_id?: string; lease_id?: string };
+}, snapshotAt: string): boolean {
+  const e = row.execution;
+  if (!e || row.status?.trim().toUpperCase() !== "RUNNING") return false;
+  if (e.state !== "running" || e.source !== "governed_runtime_journal") return false;
+  const validId = /^[a-zA-Z0-9][a-zA-Z0-9._:-]{5,119}$/;
+  if (!validId.test(e.claim_id ?? "") || !validId.test(e.lease_id ?? "")) return false;
+  const observed = Date.parse(e.observed_at ?? "");
+  const generated = Date.parse(snapshotAt);
+  return Number.isFinite(observed) && Number.isFinite(generated)
+    && generated >= observed && generated - observed <= 120000;
 }
 
 function repoState(project: TrustedProject): ProjectState {
@@ -839,7 +857,7 @@ function companyTasks(
       projectId,
       project: projectName,
       agent: safeString(row?.owner, 160) ?? safeString(row?.manager, 160) ?? "JARVIS",
-      state: normalizeStatus(row?.status),
+      state: hasFreshRuntimeClaim(row, snapshot.generated_at) ? "live" : normalizeStatus(row?.status),
       detail: detail || "Sanitized company work item from Trusted Control Plane Sync.",
     }];
   });
