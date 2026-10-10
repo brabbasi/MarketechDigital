@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const cleanNav = [
   ["Home", "/"],
   ["Services", "/services"],
+  ["Ottawa Packages", "/solutions/ottawa"],
   ["Systems", "/systems"],
   ["TradePilot AI", "/tradepilot"],
   ["Work", "/work"],
