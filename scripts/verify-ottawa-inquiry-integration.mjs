@@ -7,6 +7,7 @@ const contact = read("app/contact/ContactClient.tsx");
 const inquiry = read("app/api/inquiry/route.ts");
 const retired = read("app/api/lead/route.ts");
 const home = read("app/page.tsx");
+const hydratedHome = read("app/HomeV1CleanupLayer.tsx");
 const dice = read("app/GlobalLogoCube.tsx");
 const innerDice = read("app/GlobalPageHeader.tsx");
 const sitemap = read("app/sitemap.ts");
@@ -23,13 +24,14 @@ assert.ok(inquiry.includes("Idempotency-Key"), "governed inquiry must keep provi
 assert.ok(contact.includes("submissionId: submissionIdRef.current"), "client submission identity required");
 assert.ok(contact.includes('companyUrl2'), "anti-bot honeypot required");
 assert.ok(contact.includes('defaultValue={initialMessage}'), "safe offer prefill must remain editable");
-for (const source of [home, dice, innerDice, sitemap]) {
+for (const source of [home, hydratedHome, dice, innerDice, sitemap]) {
   assert.ok(source.includes("/solutions/ottawa"), "offer route missing discoverability surface");
 }
 assert.ok(contact.includes('"Lead capture / quote forms"'), "lead rescue contact category missing");
 assert.ok(contact.includes('"Video editing / content"'), "content sprint contact category missing");
 assert.ok(page.includes('service: "Workflow automation"'), "AI offer should use governed service category");
 assert.ok(page.includes('service: "Website / web app"'), "trades offer should use governed service category");
+assert.ok(page.includes('offerHref("lead-rescue", "Lead capture / quote forms")'), "hero lead CTA must preselect a governed service");
 assert.ok(!page.includes("guaranteed leads"), "no guaranteed lead-volume claims");
 console.log("OTTAWA_OFFERS_INBOUND_INTEGRATION=PASS");
 console.log("SINGLE_GOVERNED_SENDER=/api/inquiry");
