@@ -10,13 +10,15 @@ const needs = [
   "TradePilot AI",
   "AI automation",
   "Custom system",
+  "Video editing / content",
   "Not sure yet"
 ];
 
 const approvedOfferNames: Record<string, string> = {
   "lead-rescue": "Lead Capture Rescue",
   "trades-funnel": "Trades Quote Funnel",
-  "internal-ai-pilot": "Internal AI Workflow Pilot"
+  "internal-ai-pilot": "Internal AI Workflow Pilot",
+  "content-sprint": "Short-Form Content Sprint"
 };
 
 export default function ContactClient() {
