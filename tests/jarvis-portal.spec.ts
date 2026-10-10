@@ -539,7 +539,47 @@ test.describe("JARVIS Founder Portal", () => {
     await expect(page.getByText("Agent Constellation")).toHaveCount(0);
     await expect(page.getByTestId("project-rangrez")).toHaveCount(0);
     await expect(page.getByTestId("read-model-status")).toContainText("UNAVAILABLE");
+    await expect(page.getByTestId("read-model-diagnostic")).toContainText("read-model API failed or rejected its mirror");
     await page.screenshot({ path: "artifacts/jarvis-read-model-unavailable.png", fullPage: true });
+  });
+
+  test("stale signed mirror explains the safe remediation without rendering old agents", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+    await page.route("**/api/jarvis/state", async route => {
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({
+          status: "unavailable",
+          source: "mirror",
+          reason: "mirror_stale_or_clock_invalid",
+        }),
+      });
+    });
+    await page.goto("/jarvis");
+    await expect(page.getByTestId("read-model-gate")).toBeVisible();
+    await expect(page.getByTestId("read-model-diagnostic")).toContainText("signed Preview snapshot has expired");
+    await expect(page.getByText("Agent Constellation")).toHaveCount(0);
+    await expect(page.getByTestId("project-rangrez")).toHaveCount(0);
+  });
+
+  test("private mirror read failure never exposes untrusted error details", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+    await page.route("**/api/jarvis/state", async route => {
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({
+          status: "unavailable",
+          reason: "mirror_blob_read_failed",
+          sensitive_field: "do_not_display_secret",
+        }),
+      });
+    });
+    await page.goto("/jarvis");
+    await expect(page.getByTestId("read-model-diagnostic")).toContainText("private mirror could not be read");
+    await expect(page.getByText("do_not_display_secret")).toHaveCount(0);
+    await expect(page.getByTestId("founder-truth-strip")).toHaveCount(0);
   });
 
   test("desktop cockpit stays compact and makes project-to-agent focus obvious", async ({ page }, testInfo) => {
