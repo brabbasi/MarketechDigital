@@ -7,6 +7,7 @@ on:
   pull_request:
     paths:
       - 'app/solutions/ottawa/**'
+      - 'app/page.tsx'
       - 'app/contact/ContactClient.tsx'
       - 'app/sitemap.ts'
       - '.github/workflows/ottawa-offer-preview-ci.yml'
