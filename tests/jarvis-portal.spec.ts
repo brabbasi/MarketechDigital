@@ -325,6 +325,19 @@ test.describe("JARVIS Founder Portal", () => {
     const staleWorker = adaptTrustedControlPlaneSnapshot(withWorker("RUNNING", staleClaim), { nowMs, maxAgeSeconds: 600 });
     expect(staleWorker.agents.find(agent => agent.id === "ai-reviewer")?.state).not.toBe("running");
 
+    // Signed snapshot is still within mirror TTL, but a 120-second Runtime
+    // lease must not survive for the full 600-second mirror TTL.
+    const laterNowMs = Date.parse(fixture.generated_at) + 185_000;
+    const lateWork = adaptTrustedControlPlaneSnapshot(withWork("RUNNING", validClaim), {
+      nowMs: laterNowMs, maxAgeSeconds: 600,
+    });
+    expect(lateWork.tasks.find(task => task.id === "company-portal")?.state).not.toBe("live");
+    const lateWorker = adaptTrustedControlPlaneSnapshot(withWorker("RUNNING", validClaim), {
+      nowMs: laterNowMs, maxAgeSeconds: 600,
+    });
+    expect(lateWorker.agents.find(agent => agent.id === "ai-reviewer")?.state).not.toBe("running");
+
+
     expect(state.source).toBe("mirror");
     expect(state.readModel?.liveConnected).toBe(true);
     expect(state.readModel?.mode).toBe("trusted_live_mirror");
