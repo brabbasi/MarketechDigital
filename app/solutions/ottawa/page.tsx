@@ -39,7 +39,7 @@ const offers = [
     ],
     excludes:
       "Does not include advertising, full website rebuilds, CRM subscriptions or guaranteed lead volume.",
-    service: "Lead capture"
+    service: "Lead capture / quote forms"
   },
   {
     slug: "trades-funnel",
@@ -56,7 +56,7 @@ const offers = [
     ],
     excludes:
       "Does not include paid ad campaigns, lead-list purchases, guaranteed rankings or unrestricted outbound texting.",
-    service: "Starter website"
+    service: "Website / web app"
   },
   {
     slug: "content-sprint",
@@ -90,7 +90,7 @@ const offers = [
     ],
     excludes:
       "No autonomous customer outreach, payment execution, sensitive-data import or AI accuracy guarantees.",
-    service: "AI automation"
+    service: "Workflow automation"
   }
 ] as const;
 
