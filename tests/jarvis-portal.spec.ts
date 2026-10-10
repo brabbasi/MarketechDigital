@@ -305,6 +305,26 @@ test.describe("JARVIS Founder Portal", () => {
       .tasks.find(task => task.id === "company-portal")?.state).not.toBe("live");
     expect(adaptTrustedControlPlaneSnapshot(withWork("RUNNING", { ...validClaim, lease_id: "" }), { nowMs, maxAgeSeconds: 600 })
       .tasks.find(task => task.id === "company-portal")?.state).not.toBe("live");
+    // A status string, even in a signed mirror, is not a Runtime lease.
+    const withWorker = (status: string, execution?: typeof validClaim) => ({
+      ...fixture,
+      workforce_live: {
+        ...fixture.workforce_live,
+        profiles: fixture.workforce_live.profiles.map((profile, index) => index === 0 ? {
+          ...profile,
+          current_task: { ...profile.current_task, status, ...(execution ? { execution } : {}) },
+        } : profile),
+      },
+    });
+    for (const status of ["NOT RUNNING", "inactive", "NOT ACTIVE", "RUNNING", "claimed"]) {
+      const candidate = adaptTrustedControlPlaneSnapshot(withWorker(status), { nowMs, maxAgeSeconds: 600 });
+      expect(candidate.agents.find(agent => agent.id === "ai-reviewer")?.state).not.toBe("running");
+    }
+    const trustedWorker = adaptTrustedControlPlaneSnapshot(withWorker("RUNNING", validClaim), { nowMs, maxAgeSeconds: 600 });
+    expect(trustedWorker.agents.find(agent => agent.id === "ai-reviewer")?.state).toBe("running");
+    const staleWorker = adaptTrustedControlPlaneSnapshot(withWorker("RUNNING", staleClaim), { nowMs, maxAgeSeconds: 600 });
+    expect(staleWorker.agents.find(agent => agent.id === "ai-reviewer")?.state).not.toBe("running");
+
     expect(state.source).toBe("mirror");
     expect(state.readModel?.liveConnected).toBe(true);
     expect(state.readModel?.mode).toBe("trusted_live_mirror");
