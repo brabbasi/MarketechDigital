@@ -1,0 +1,77 @@
+name: Vercel Preview Budget CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'vercel.json'
+      - 'scripts/vercel-ignore-build.sh'
+      - '.github/workflows/vercel-preview-budget-ci.yml'
+  push:
+    branches:
+      - ops/vercel-preview-budget
+    paths:
+      - 'vercel.json'
+      - 'scripts/vercel-ignore-build.sh'
+      - '.github/workflows/vercel-preview-budget-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify ignore command contract
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SCRIPT="$GITHUB_WORKSPACE/scripts/vercel-ignore-build.sh"
+          chmod +x "$SCRIPT"
+
+          expect_code() {
+            local expected="$1"
+            local branch="$2"
+            local message="$3"
+            local work
+            work="$(mktemp -d)"
+            git -C "$work" init -q
+            git -C "$work" config user.name test
+            git -C "$work" config user.email test@example.invalid
+            printf 'x\n' > "$work/file"
+            git -C "$work" add file
+            git -C "$work" commit -q -m "$message"
+
+            set +e
+            (cd "$work" && VERCEL_GIT_COMMIT_REF="$branch" bash "$SCRIPT")
+            actual="$?"
+            set -e
+
+            if [[ "$actual" -ne "$expected" ]]; then
+              printf 'unexpected exit code: branch=%s message=%s expected=%s actual=%s\n' "$branch" "$message" "$expected" "$actual" >&2
+              exit 1
+            fi
+          }
+
+          # Vercel contract: 0 = ignore/skip build, 1 = continue build.
+          expect_code 1 main "normal production commit"
+          # The dedicated Founder portal branch is operational read-model infrastructure.
+          # Every commit must remain build-eligible so dashboard truth cannot silently lag.
+          expect_code 1 feature/jarvis-founder-portal-v1 "ordinary JARVIS checkpoint"
+          expect_code 1 feature/jarvis-founder-portal-v1 "Founder checkpoint [vercel-preview]"
+          expect_code 0 migration/next-15-5-24 "ordinary migration work"
+          expect_code 1 migration/next-15-5-24 "migration preview [vercel-preview]"
+          expect_code 0 security/next-15 "ordinary security work"
+          expect_code 1 security/next-15 "security preview [vercel-preview]"
+          expect_code 0 ops/vercel-preview-budget "ordinary ops work"
+          expect_code 1 ops/vercel-preview-budget "ops preview [vercel-preview]"
+          expect_code 1 feature/unrelated "ordinary unrelated branch"
+
+          echo "vercel_preview_budget_contract=PASS"
