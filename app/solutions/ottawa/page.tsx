@@ -3,7 +3,7 @@ import Link from "next/link";
 import { absoluteUrl, siteName } from "../../seo";
 
 export const metadata: Metadata = {
-  title: "Ottawa Lead Capture, Trades Websites & AI Automation | Marketech Digital",
+  title: "Ottawa Lead Capture, Video Editing & AI Automation",
   description:
     "Practical, clearly scoped digital upgrades for Ottawa small businesses: lead capture repairs, trades quote funnels and internal AI workflow pilots.",
   alternates: { canonical: "/solutions/ottawa" },
@@ -12,12 +12,14 @@ export const metadata: Metadata = {
     description: "Scoped Ottawa services for lead capture, trades quote funnels, short-form editing and internal AI pilots.",
     url: absoluteUrl("/solutions/ottawa"),
     siteName,
-    type: "website"
+    type: "website",
+    images: [{ url: absoluteUrl("/og-image.png"), width: 1200, height: 630, alt: "Marketech Digital Ottawa business solutions" }]
   },
   twitter: {
     card: "summary_large_image",
     title: "Practical Ottawa Business Systems | Marketech Digital",
-    description: "Clear packages for lead capture, trades quote funnels, video editing and internal automation."
+    description: "Clear packages for lead capture, trades quote funnels, video editing and internal automation.",
+    images: [absoluteUrl("/og-image.png")]
   }
 };
 
@@ -106,9 +108,9 @@ export default function OttawaBusinessSolutionsPage() {
           <span>Ottawa business solutions</span>
         </nav>
 
-        <header className="mk-hero">
+        <section className="mk-hero" aria-labelledby="mk-hero-title">
           <p className="mk-eyebrow">MARKETECH DIGITAL · OTTAWA & CANADA</p>
-          <h1>Fix the next revenue leak. <span>Not your entire business at once.</span></h1>
+          <h1 id="mk-hero-title">Fix the next revenue leak. <span>Not your entire business at once.</span></h1>
           <p>
             Start with a bounded digital upgrade: a lead form that reliably reaches you,
             a practical service quote funnel, or one internal AI workflow that saves time.
@@ -121,7 +123,7 @@ export default function OttawaBusinessSolutionsPage() {
             <Link href="/contact" className="mk-secondary">Request a free fit check</Link>
           </div>
           <p className="mk-disclaimer">No obligation to proceed. Indicative Canadian-dollar pricing; taxes, third-party services and additional scope are discussed before commitment.</p>
-        </header>
+        </section>
 
         <section aria-labelledby="mk-packages">
           <div className="mk-section-heading">
@@ -176,7 +178,7 @@ export default function OttawaBusinessSolutionsPage() {
         .mk-wrap{width:min(1200px,100%);margin:0 auto}
         .mk-breadcrumb{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:#a9b8c9;font-size:.85rem}
         .mk-breadcrumb a{color:#e4eaf3;text-decoration:underline;text-underline-offset:3px}
-        .mk-hero{padding:54px 0 86px;max-width:1050px}
+        .mk-hero{position:static;z-index:auto;background:transparent;padding:54px 0 86px;max-width:1050px}
         .mk-eyebrow{font-size:.79rem;font-weight:850;letter-spacing:.18em;color:#ffb36f}
         .mk-hero h1{font-size:clamp(2.8rem,7vw,6.2rem);line-height:1.03;letter-spacing:-.068em;margin:19px 0 26px}
         .mk-hero h1 span{color:#ff9951}
