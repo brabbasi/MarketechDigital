@@ -44,6 +44,23 @@ const offers = [
     service: "Starter website"
   },
   {
+    slug: "content-sprint",
+    label: "Video & thumbnails",
+    name: "Short-Form Content Sprint",
+    price: "From CAD $690",
+    priceNote: "Three edited vertical shorts from client-supplied, rights-cleared footage",
+    timing: "Typical delivery target: 7–10 business days after approved footage",
+    includes: [
+      "Edit three original 15–35-second vertical clips",
+      "Add captions, consistent brand titles and basic sound balancing",
+      "Create three companion thumbnail/cover designs",
+      "Include one consolidated revision round and a source-rights checklist"
+    ],
+    excludes:
+      "Client supplies usable footage and rights. No promised views, followers, viral reach, automated channel uploads, licensed music costs or AI-generated cinematic claims.",
+    service: "Video editing / content"
+  },
+  {
     slug: "internal-ai-pilot",
     label: "Low-risk operational AI",
     name: "Internal AI Workflow Pilot",
@@ -95,7 +112,7 @@ export default function OttawaBusinessSolutionsPage() {
 
         <section aria-labelledby="mk-packages">
           <div className="mk-section-heading">
-            <p className="mk-eyebrow">THREE CLEAR STARTING POINTS</p>
+            <p className="mk-eyebrow">FOUR CLEAR STARTING POINTS</p>
             <h2 id="mk-packages">Practical services you can actually review.</h2>
             <p>Small businesses need a clear deliverable, not a vague promise of growth or “fully autonomous AI.”</p>
           </div>
@@ -157,7 +174,7 @@ export default function OttawaBusinessSolutionsPage() {
         .mk-secondary{color:#f9fbff;border:1px solid #596477}
         .mk-hero .mk-disclaimer{margin-top:22px;font-size:.85rem;opacity:.85}
         .mk-section-heading{margin-bottom:27px}.mk-section-heading h2,.mk-process h2,.mk-bottom h2{font-size:clamp(2rem,4vw,3.2rem);letter-spacing:-.04em;line-height:1.08;margin:12px 0}
-        .mk-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+        .mk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
         .mk-card{display:flex;flex-direction:column;padding:27px;border:1px solid #304055;border-radius:25px;background:linear-gradient(180deg,#111d2b,#0a131e);box-shadow:0 15px 45px #0002}
         .mk-label{color:#ffad65;text-transform:uppercase;letter-spacing:.12em;font-weight:800;font-size:.75rem}
         .mk-card h3{font-size:1.65rem;line-height:1.18;margin:10px 0 2px}
