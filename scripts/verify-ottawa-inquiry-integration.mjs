@@ -12,6 +12,7 @@ const about = read("app/about/page.tsx");
 const founder = read("app/founder/page.tsx");
 const dice = read("app/GlobalLogoCube.tsx");
 const innerDice = read("app/GlobalPageHeader.tsx");
+const diceComponent = read("components/MarketechDiceNav.tsx");
 const sitemap = read("app/sitemap.ts");
 
 const offers = ["lead-rescue", "trades-funnel", "internal-ai-pilot", "content-sprint"];
@@ -29,6 +30,8 @@ assert.ok(contact.includes('defaultValue={initialMessage}'), "safe offer prefill
 for (const source of [home, hydratedHome, dice, innerDice, about, founder, sitemap]) {
   assert.ok(source.includes("/solutions/ottawa"), "offer route missing discoverability surface");
 }
+assert.ok(diceComponent.includes("max-height:calc(100dvh - 94px)"), "mobile dice menu must fit short viewports");
+assert.ok(diceComponent.includes("overflow-y:auto"), "mobile dice menu must allow scrolling to last Contact link");
 assert.ok(contact.includes('"Lead capture / quote forms"'), "lead rescue contact category missing");
 assert.ok(contact.includes('"Video editing / content"'), "content sprint contact category missing");
 assert.ok(page.includes('service: "Workflow automation"'), "AI offer should use governed service category");
