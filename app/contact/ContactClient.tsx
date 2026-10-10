@@ -8,6 +8,8 @@ import { useRef, useState } from "react";
 // so visitors do not need to understand internal product names before contacting us.
 const needs = [
   "Website / web app",
+  "Lead capture / quote forms",
+  "Video editing / content",
   "SEO / GEO / local search",
   "AI strategy",
   "Workflow automation",
@@ -20,6 +22,13 @@ const needs = [
   "Partnership / implementation",
   "Not sure yet"
 ];
+
+const approvedOfferNames: Record<string, string> = {
+  "lead-rescue": "Lead Capture Rescue",
+  "trades-funnel": "Trades Quote Funnel",
+  "internal-ai-pilot": "Internal AI Workflow Pilot",
+  "content-sprint": "Short-Form Content Sprint"
+};
 
 function newSubmissionId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
@@ -40,6 +49,10 @@ export default function ContactClient() {
   const params = useSearchParams();
   const initialServiceCandidate = params.get("service") || "";
   const initialService = needs.includes(initialServiceCandidate) ? initialServiceCandidate : "";
+  const approvedOffer = approvedOfferNames[params.get("offer") || ""];
+  const initialMessage = approvedOffer
+    ? "I am interested in "+approvedOffer+". Our business bottleneck is: "
+    : "";
   const source = params.get("source") || "website-contact";
   const medium = params.get("medium") || "website";
   const campaign = params.get("campaign") || "";
@@ -97,7 +110,7 @@ export default function ContactClient() {
         <label>Website<input name="website" type="url" placeholder="https://yourwebsite.com" /></label>
         <label>What do you need help with?<select name="service" defaultValue={initialService}><option value="" disabled>Select one</option>{needs.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
       </div>
-      <label>Message<textarea name="message" rows={5} placeholder="Tell us what you want to improve, automate, market, or build." /></label>
+      <label>Message<textarea name="message" rows={5} defaultValue={initialMessage} placeholder="Tell us what you want to improve, automate, market, or build." /></label>
       <input name="companyUrl2" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: "1px", height: "1px", opacity: 0 }} />
       {recommendedService && <input type="hidden" name="recommendedService" value={recommendedService} />}
       {firstTouchOffer && <input type="hidden" name="firstTouchOffer" value={firstTouchOffer} />}
