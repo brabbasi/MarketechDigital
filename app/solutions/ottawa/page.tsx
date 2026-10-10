@@ -1,11 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { absoluteUrl, siteName } from "../../seo";
 
 export const metadata: Metadata = {
   title: "Ottawa Lead Capture, Trades Websites & AI Automation | Marketech Digital",
   description:
     "Practical, clearly scoped digital upgrades for Ottawa small businesses: lead capture repairs, trades quote funnels and internal AI workflow pilots.",
-  alternates: { canonical: "/solutions/ottawa" }
+  alternates: { canonical: "/solutions/ottawa" },
+  openGraph: {
+    title: "Ottawa Small Business Digital Upgrades | Marketech Digital",
+    description: "Scoped Ottawa services for lead capture, trades quote funnels, short-form editing and internal AI pilots.",
+    url: absoluteUrl("/solutions/ottawa"),
+    siteName,
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Practical Ottawa Business Systems | Marketech Digital",
+    description: "Clear packages for lead capture, trades quote funnels, video editing and internal automation."
+  }
 };
 
 const offers = [
