@@ -30,10 +30,34 @@ const taskLabel: Record<TaskState,string> = {
   done:"DONE"
 };
 
+// Diagnostics are a fixed allowlist of nonsecret remediation hints. The API's
+// arbitrary reason text is never rendered into the Founder portal.
+const unavailableHints: Record<string, string> = {
+  mirror_stale_or_clock_invalid: "The last signed Preview snapshot has expired or has an invalid clock. A separately approved fresh mirror publication or reviewed continuity service is required.",
+  mirror_blob_missing: "The configured private mirror has no accepted snapshot. Check the approved publisher and store binding; do not enable demo/live fallback.",
+  mirror_blob_read_failed: "The private mirror could not be read. Check the Vercel Blob connection and permitted OIDC binding before retrying.",
+  invalid_mirror_contract: "The snapshot did not pass its trusted schema or authority checks. An independently reviewed producer repair is required.",
+  mirror_store_configuration_incomplete: "The deployed Preview mirror-store configuration is incomplete. Verify the approved branch-scoped bindings.",
+  mirror_configuration_conflict: "Conflicting mirror configuration modes are present. Verify the approved Preview configuration.",
+  mirror_configuration_incomplete: "The remote mirror configuration is incomplete. Verify its approved Preview bindings.",
+  jarvis_mirror_not_configured: "No signed mirror source is configured on this deployment.",
+  mirror_fetch_failed: "The remote mirror endpoint could not be reached. Check the network and protected source health.",
+  founder_auth_not_active: "Founder authentication is not active. Production read-model access remains gated.",
+  founder_session_required: "Founder session required. Authenticate through the approved portal login.",
+};
+
+function unavailableHint(reason: unknown, status?: number): string {
+  if (status === 401) return unavailableHints.founder_session_required;
+  return typeof reason === "string" && Object.prototype.hasOwnProperty.call(unavailableHints, reason)
+    ? unavailableHints[reason]
+    : "The read-model API failed or rejected its mirror. Inspect the protected /api/jarvis/state response for the exact nonsecret reason.";
+}
+
 export default function JarvisPortal() {
   const [snapshot,setSnapshot] = useState<JarvisState | null>(null);
   const [projects,setProjects] = useState<JarvisProject[]>([]);
   const [readModelStatus,setReadModelStatus] = useState<"loading"|"demo"|"operator"|"mirror"|"unavailable">("loading");
+  const [readModelIssue,setReadModelIssue] = useState("The read-model API has not returned verified evidence.");
   const agents = snapshot?.agents ?? [];
   const tasks = snapshot?.tasks ?? [];
   const portalBuild = snapshot?.portal?.buildSha || "unknown";
@@ -79,9 +103,19 @@ export default function JarvisPortal() {
       try {
         const response = await fetch("/api/jarvis/state", { cache: "no-store" });
         if (!response.ok) {
+          // This is an operational diagnosis, never permission to surface
+          // stale/demonstration workforce data as currently executing.
+          let reason: unknown;
+          try {
+            const problem = await response.json();
+            reason = problem && typeof problem === "object" ? problem.reason : undefined;
+          } catch {
+            reason = undefined;
+          }
           if (!cancelled) {
             setSnapshot(null);
             setProjects([]);
+            setReadModelIssue(unavailableHint(reason, response.status));
             setReadModelStatus("unavailable");
           }
           return;
@@ -90,11 +124,13 @@ export default function JarvisPortal() {
         if (cancelled) return;
         setSnapshot(next);
         setProjects(next.projects);
+        setReadModelIssue("");
         setReadModelStatus(next.source);
       } catch {
         if (!cancelled) {
           setSnapshot(null);
           setProjects([]);
+          setReadModelIssue("The browser could not reach the read-model API. Check the current Preview deployment, protection session and network.");
           setReadModelStatus("unavailable");
         }
       }
@@ -224,6 +260,7 @@ export default function JarvisPortal() {
           <small>{readModelStatus==="loading"?"CONNECTING TO READ MODEL":"READ MODEL UNAVAILABLE"}</small>
           <h1>{readModelStatus==="loading"?"Loading governed company state…":"JARVIS will not show demo data as live state."}</h1>
           <p>{readModelStatus==="loading"?"Waiting for a validated DEMO or Trusted Control Plane mirror response.":"The current mirror is missing, stale, malformed, or unreachable. Remote authority remains off and stale company data is hidden."}</p>
+          {readModelStatus==="unavailable" && <p data-testid="read-model-diagnostic" role="status">{readModelIssue}</p>}
         </section>
         <footer className={styles.footer}><span data-testid="read-model-status">PRIVATE FOUNDER PORTAL · {readModelStatus.toUpperCase()} READ MODEL</span><span>FAIL CLOSED · NO STALE FALLBACK</span><span>REMOTE AUTHORITY OFF</span></footer>
       </main>
