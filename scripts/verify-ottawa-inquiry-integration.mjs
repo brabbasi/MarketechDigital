@@ -8,6 +8,8 @@ const inquiry = read("app/api/inquiry/route.ts");
 const retired = read("app/api/lead/route.ts");
 const home = read("app/page.tsx");
 const hydratedHome = read("app/HomeV1CleanupLayer.tsx");
+const about = read("app/about/page.tsx");
+const founder = read("app/founder/page.tsx");
 const dice = read("app/GlobalLogoCube.tsx");
 const innerDice = read("app/GlobalPageHeader.tsx");
 const sitemap = read("app/sitemap.ts");
@@ -24,7 +26,7 @@ assert.ok(inquiry.includes("Idempotency-Key"), "governed inquiry must keep provi
 assert.ok(contact.includes("submissionId: submissionIdRef.current"), "client submission identity required");
 assert.ok(contact.includes('companyUrl2'), "anti-bot honeypot required");
 assert.ok(contact.includes('defaultValue={initialMessage}'), "safe offer prefill must remain editable");
-for (const source of [home, hydratedHome, dice, innerDice, sitemap]) {
+for (const source of [home, hydratedHome, dice, innerDice, about, founder, sitemap]) {
   assert.ok(source.includes("/solutions/ottawa"), "offer route missing discoverability surface");
 }
 assert.ok(contact.includes('"Lead capture / quote forms"'), "lead rescue contact category missing");
