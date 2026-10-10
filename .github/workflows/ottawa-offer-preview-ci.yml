@@ -8,6 +8,8 @@ on:
     paths:
       - 'app/solutions/ottawa/**'
       - 'app/page.tsx'
+      - 'app/GlobalLogoCube.tsx'
+      - 'app/GlobalPageHeader.tsx'
       - 'app/contact/ContactClient.tsx'
       - 'app/sitemap.ts'
       - '.github/workflows/ottawa-offer-preview-ci.yml'
@@ -39,5 +41,9 @@ jobs:
           test -f app/contact/ContactClient.tsx
           test -f app/api/lead/route.ts
           test ! -e app/solutions/ottawa/api
+          grep -Fq 'href="/solutions/ottawa"' app/page.tsx
+          grep -Fq 'href: "/solutions/ottawa"' app/GlobalLogoCube.tsx
+          grep -Fq 'href: "/solutions/ottawa"' app/GlobalPageHeader.tsx
+          echo 'REVENUE_ROUTE_HOME_AND_MOBILE_DICE_DISCOVERABLE=PASS'
           echo 'REVIEW_ONLY_NEW_OFFER_PAGE=PASS'
           echo 'CUSTOMER_OUTBOUND_AND_PUBLICATION=NOT_AUTHORIZED'
