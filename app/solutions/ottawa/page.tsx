@@ -117,7 +117,7 @@ export default function OttawaBusinessSolutionsPage() {
             Every project begins with scope, cost and acceptance criteria—not claims of instant revenue.
           </p>
           <div className="mk-actions">
-            <Link href={offerHref("lead-rescue", "Lead capture")} className="mk-primary">
+            <Link href={offerHref("lead-rescue", "Lead capture / quote forms")} className="mk-primary">
               Discuss Lead Capture Rescue <span aria-hidden="true">→</span>
             </Link>
             <Link href="/contact" className="mk-secondary">Request a free fit check</Link>
