@@ -83,6 +83,7 @@ type TrustedWorkforceLiveProfile = {
     project_id?: string | null;
     updated_at?: string | null;
     source?: string | null;
+    execution?: { state?: string; source?: string; observed_at?: string; claim_id?: string; lease_id?: string };
   } | null;
   progress?: {
     known?: boolean;
@@ -651,8 +652,8 @@ function workforceAgent(base: JarvisAgent, workforce: TrustedWorkforceRow[], rev
   };
 }
 
-function agentStateFromLiveProfile(profile: TrustedWorkforceLiveProfile): JarvisAgent["state"] {
-  const status = String(profile.current_task?.status ?? "").toLowerCase();
+function agentStateFromLiveProfile(profile: TrustedWorkforceLiveProfile, snapshotAt: string): JarvisAgent["state"] {
+  const status = String(profile.current_task?.status ?? "").trim().toLowerCase();
   const blocker = String(profile.blocker ?? profile.current_task?.status_reason ?? "").toLowerCase();
   if (
     blocker ||
@@ -663,14 +664,13 @@ function agentStateFromLiveProfile(profile: TrustedWorkforceLiveProfile): Jarvis
   ) return "blocked";
   if (status.includes("review") || status.includes("verify") || status.includes("qa")) return "review";
   if (status.includes("train") || status.includes("learn")) return "training";
-  if (
-    status.includes("running") ||
-    status.includes("working") ||
-    status.includes("active") ||
-    status.includes("in_progress") ||
-    status.includes("in progress") ||
-    status.includes("claimed")
-  ) return "running";
+  // A mirrored job title/status is not evidence of execution. Only a fresh,
+  // signed-mirror Runtime journal claim and lease may light the active beam.
+  if (status === "running" && hasFreshRuntimeClaim({
+    status: "RUNNING", execution: profile.current_task?.execution,
+  }, snapshotAt)) return "running";
+  if (/^(not[ _-]?(?:running|active|working)|inactive|stopped|offline|idle)$/.test(status)) return "unknown";
+  if (["running", "working", "active", "in_progress", "in progress", "claimed"].includes(status)) return "ready";
   if (
     status.includes("ready") ||
     status.includes("assigned") ||
@@ -696,6 +696,7 @@ function liveProfileAgent(
   profile: TrustedWorkforceLiveProfile,
   index: number,
   total: number,
+  snapshotAt: string,
 ): JarvisAgent {
   const id = safeString(profile.agent_id, 120) ?? `agent-${index + 1}`;
   const name = safeString(profile.name, 160) ?? id;
@@ -734,7 +735,7 @@ function liveProfileAgent(
       .map(part => part[0]?.toUpperCase() ?? "")
       .join("") || "AG",
     department: safeString(profile.department, 120) ?? "Workforce",
-    state: agentStateFromLiveProfile(profile),
+    state: agentStateFromLiveProfile(profile, snapshotAt),
     x,
     y,
     load: 0,
@@ -787,7 +788,7 @@ function liveProfileAgent(
 function liveWorkforceAgents(snapshot: TrustedSnapshot, reviewerBusy: boolean): JarvisAgent[] {
   const profiles = snapshot.workforce_live?.profiles;
   if (snapshot.workforce_live && Array.isArray(profiles)) {
-    return profiles.map((profile, index) => liveProfileAgent(profile, index, profiles.length));
+    return profiles.map((profile, index) => liveProfileAgent(profile, index, profiles.length, snapshot.generated_at));
   }
 
   const workforceRows = snapshot.workforce.workers.filter(
