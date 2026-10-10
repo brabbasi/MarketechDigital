@@ -405,7 +405,7 @@ function normalizeStatus(status: unknown): TaskState {
 function hasFreshRuntimeClaim(row: {
   status?: string;
   execution?: { state?: string; source?: string; observed_at?: string; claim_id?: string; lease_id?: string };
-}, snapshotAt: string): boolean {
+}, snapshotAt: string, nowMs: number): boolean {
   const e = row.execution;
   if (!e || row.status?.trim().toUpperCase() !== "RUNNING") return false;
   if (e.state !== "running" || e.source !== "governed_runtime_journal") return false;
@@ -413,8 +413,9 @@ function hasFreshRuntimeClaim(row: {
   if (!validId.test(e.claim_id ?? "") || !validId.test(e.lease_id ?? "")) return false;
   const observed = Date.parse(e.observed_at ?? "");
   const generated = Date.parse(snapshotAt);
-  return Number.isFinite(observed) && Number.isFinite(generated)
-    && generated >= observed && generated - observed <= 120000;
+  return Number.isFinite(observed) && Number.isFinite(generated) && Number.isFinite(nowMs)
+    && generated >= observed && generated - observed <= 120000
+    && nowMs >= observed && nowMs - observed <= 120000;
 }
 
 function repoState(project: TrustedProject): ProjectState {
@@ -652,7 +653,7 @@ function workforceAgent(base: JarvisAgent, workforce: TrustedWorkforceRow[], rev
   };
 }
 
-function agentStateFromLiveProfile(profile: TrustedWorkforceLiveProfile, snapshotAt: string): JarvisAgent["state"] {
+function agentStateFromLiveProfile(profile: TrustedWorkforceLiveProfile, snapshotAt: string, nowMs: number): JarvisAgent["state"] {
   const status = String(profile.current_task?.status ?? "").trim().toLowerCase();
   const blocker = String(profile.blocker ?? profile.current_task?.status_reason ?? "").toLowerCase();
   if (
@@ -668,7 +669,7 @@ function agentStateFromLiveProfile(profile: TrustedWorkforceLiveProfile, snapsho
   // signed-mirror Runtime journal claim and lease may light the active beam.
   if (status === "running" && hasFreshRuntimeClaim({
     status: "RUNNING", execution: profile.current_task?.execution,
-  }, snapshotAt)) return "running";
+  }, snapshotAt, nowMs)) return "running";
   if (/^(not[ _-]?(?:running|active|working)|inactive|stopped|offline|idle)$/.test(status)) return "unknown";
   if (["running", "working", "active", "in_progress", "in progress", "claimed"].includes(status)) return "ready";
   if (
@@ -697,6 +698,7 @@ function liveProfileAgent(
   index: number,
   total: number,
   snapshotAt: string,
+  nowMs: number,
 ): JarvisAgent {
   const id = safeString(profile.agent_id, 120) ?? `agent-${index + 1}`;
   const name = safeString(profile.name, 160) ?? id;
@@ -735,7 +737,7 @@ function liveProfileAgent(
       .map(part => part[0]?.toUpperCase() ?? "")
       .join("") || "AG",
     department: safeString(profile.department, 120) ?? "Workforce",
-    state: agentStateFromLiveProfile(profile, snapshotAt),
+    state: agentStateFromLiveProfile(profile, snapshotAt, nowMs),
     x,
     y,
     load: 0,
@@ -785,10 +787,10 @@ function liveProfileAgent(
   };
 }
 
-function liveWorkforceAgents(snapshot: TrustedSnapshot, reviewerBusy: boolean): JarvisAgent[] {
+function liveWorkforceAgents(snapshot: TrustedSnapshot, reviewerBusy: boolean, nowMs: number): JarvisAgent[] {
   const profiles = snapshot.workforce_live?.profiles;
   if (snapshot.workforce_live && Array.isArray(profiles)) {
-    return profiles.map((profile, index) => liveProfileAgent(profile, index, profiles.length, snapshot.generated_at));
+    return profiles.map((profile, index) => liveProfileAgent(profile, index, profiles.length, snapshot.generated_at, nowMs));
   }
 
   const workforceRows = snapshot.workforce.workers.filter(
@@ -822,6 +824,7 @@ function companyTasks(
   snapshot: TrustedSnapshot,
   projects: TrustedProject[],
   portalProjects: JarvisProject[],
+  nowMs: number,
 ): JarvisTask[] {
   const rows = Array.isArray(snapshot.company?.active_work) ? snapshot.company?.active_work ?? [] : [];
   const finishPrs = new Set(
@@ -858,7 +861,7 @@ function companyTasks(
       projectId,
       project: projectName,
       agent: safeString(row?.owner, 160) ?? safeString(row?.manager, 160) ?? "JARVIS",
-      state: hasFreshRuntimeClaim(row, snapshot.generated_at) ? "live" : normalizeStatus(row?.status),
+      state: hasFreshRuntimeClaim(row, snapshot.generated_at, nowMs) ? "live" : normalizeStatus(row?.status),
       detail: detail || "Sanitized company work item from Trusted Control Plane Sync.",
     }];
   });
@@ -897,9 +900,9 @@ export function adaptTrustedControlPlaneSnapshot(
   const reviewerBusy = Object.values(snapshot.finish_chain).some(
     row => normalizeStatus(row?.status) === "review",
   );
-  const agents = liveWorkforceAgents(snapshot, reviewerBusy);
+  const agents = liveWorkforceAgents(snapshot, reviewerBusy, nowMs);
 
-  const tasks = [...finishTasks(snapshot), ...companyTasks(snapshot, trustedProjects, projects)];
+  const tasks = [...finishTasks(snapshot), ...companyTasks(snapshot, trustedProjects, projects, nowMs)];
   const blockedByProject = new Map<string, number>();
   for (const task of tasks) {
     if (task.state === "blocked") {
