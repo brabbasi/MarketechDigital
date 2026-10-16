@@ -731,6 +731,7 @@ export default function Page() {
           </a>
           <nav className="nav-links">
             <a href="#offers">Offers</a>
+            <a href="/solutions/ottawa">Ottawa Packages</a>
             <a href="#process">Process</a>
             <a href="#founder">Founder</a>
             <a href="#faq">FAQ</a>
@@ -751,7 +752,7 @@ export default function Page() {
               business value, not vague tech talk.
             </p>
             <div className="hero-actions">
-              <a className="btn btn-primary" href="#offers">See the offers →</a>
+              <a className="btn btn-primary" href="/solutions/ottawa">Explore fixed-scope packages →</a>
               <button className="btn btn-secondary" onClick={() => openContact("website-contact-popup")}>Start a conversation</button>
             </div>
             <div className="hero-pills">

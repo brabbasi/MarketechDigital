@@ -1,0 +1,79 @@
+name: Ottawa Offers + Governed Inbound Integration CI
+
+on:
+  push:
+    branches:
+      - integration/ottawa-offers-inbound-v1-20261010
+    paths:
+      - 'app/solutions/ottawa/**'
+      - 'app/contact/ContactClient.tsx'
+      - 'app/page.tsx'
+      - 'app/HomeV1CleanupLayer.tsx'
+      - 'app/about/page.tsx'
+      - 'app/founder/page.tsx'
+      - 'app/GlobalLogoCube.tsx'
+      - 'components/MarketechDiceNav.tsx'
+      - 'app/GlobalPageHeader.tsx'
+      - 'app/sitemap.ts'
+      - 'app/api/inquiry/**'
+      - 'app/api/lead/**'
+      - 'scripts/verify-ottawa-inquiry-integration.mjs'
+      - 'scripts/test-ottawa-inquiry-handler.mjs'
+      - '.github/workflows/ottawa-inbound-integration-ci.yml'
+  pull_request:
+    paths:
+      - 'app/solutions/ottawa/**'
+      - 'app/contact/ContactClient.tsx'
+      - 'app/page.tsx'
+      - 'app/HomeV1CleanupLayer.tsx'
+      - 'app/about/page.tsx'
+      - 'app/founder/page.tsx'
+      - 'app/GlobalLogoCube.tsx'
+      - 'components/MarketechDiceNav.tsx'
+      - 'app/GlobalPageHeader.tsx'
+      - 'app/sitemap.ts'
+      - 'app/api/inquiry/**'
+      - 'app/api/lead/**'
+      - 'scripts/verify-ottawa-inquiry-integration.mjs'
+      - 'scripts/test-ottawa-inquiry-handler.mjs'
+      - '.github/workflows/ottawa-inbound-integration-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  guarded-inbound:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact source revision
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify original WAF, idempotency and inbound contract
+        run: node scripts/verify-inbound-acquisition.mjs
+      - name: Verify all offers use the same governed inquiry sender
+        run: node scripts/verify-ottawa-inquiry-integration.mjs
+      - name: Install dependencies without lifecycle scripts or secrets
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Test isolated synthetic API request to mock WAF and owner inbox
+        run: node --test scripts/test-ottawa-inquiry-handler.mjs
+      - name: Typecheck and build integration without production deployment
+        run: |
+          npx tsc --noEmit
+          npm run build
+      - name: Enforce release boundaries
+        run: |
+          test -f app/api/inquiry/route.ts
+          test -f app/api/lead/route.ts
+          echo 'CONTACT_API_PROVIDER_SEND=NOT_TESTED'
+          echo 'PRODUCTION_FIREWALL_AND_RESEND_ATTESTATION=PENDING'
+          echo 'MERGE_AND_PUBLICATION=OFF'
