@@ -39,6 +39,10 @@ assert.ok(inquiry.includes("Idempotency-Key"), "governed inquiry must keep provi
 assert.ok(contact.includes("submissionId: submissionIdRef.current"), "client submission identity required");
 assert.ok(contact.includes('companyUrl2'), "anti-bot honeypot required");
 assert.ok(contact.includes('defaultValue={initialMessage}'), "safe offer prefill must remain editable");
+assert.ok(contact.includes("offer: approvedOffer ? offerSlug :"), "reviewed offer code must be in API payload even if editable message changes");
+assert.ok(inquiry.includes("APPROVED_OFFER_NAMES"), "server must map offer slug to accepted public offer only");
+assert.ok(inquiry.includes('["Selected public offer", data.offer]'), "owner inbox must retain the selected offer independently of message");
+assert.ok(!contact.includes("offer: params.get("), "raw unreviewed URL attribution must not be sent");
 for (const source of [home, hydratedHome, dice, innerDice, about, founder, sitemap]) {
   assert.ok(source.includes("/solutions/ottawa"), "offer route missing discoverability surface");
 }
