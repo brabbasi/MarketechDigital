@@ -121,7 +121,14 @@ export default function ContactClient() {
       {firstTouchOffer && <input type="hidden" name="firstTouchOffer" value={firstTouchOffer} />}
       <label className="contact-consent" style={{ display: "flex", alignItems: "flex-start", gap: 12, lineHeight: 1.5, marginTop: 16 }}>
         <input name="consentToContact" type="checkbox" value="yes" required style={{ width: 20, height: 20, flex: "0 0 auto", marginTop: 3 }} />
-        <span>I agree that Marketech Digital may contact me about this specific inquiry. This is not consent to marketing emails.</span>
+        <span>
+          I agree that Marketech Digital may contact me about this specific inquiry.
+          This is not consent to marketing emails. Read our{" "}
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "#ffb777", textDecoration: "underline" }}>
+            privacy notice
+          </a>{" "}
+          for information about handling inquiry details and service providers.
+        </span>
       </label>
       <button type="submit" disabled={sending}>{sending ? "Sending..." : "Tell us what you need"}</button>
       <small>No pressure. We&apos;ll review your current setup and recommend the clearest next move.</small>
