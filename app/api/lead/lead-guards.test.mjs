@@ -123,4 +123,7 @@ test("route fails before provider calls and never logs submitted names/messages"
   assert.match(reactForm, /name="consentToContact"/);
   assert.match(popup, /name="consentToContact"/);
   assert.doesNotMatch(popup, /href\.startsWith\("mailto:"\) \|\|/);
+  assert.doesNotMatch(popup, /text\.includes\("send message"\)/);
+  const assistant = readFileSync(join(here, "..", "..", "AIAssistant.tsx"), "utf-8");
+  assert.doesNotMatch(assistant, /onClick=\{submitLead\}|async function submitLead/);
 });
