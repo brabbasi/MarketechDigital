@@ -19,6 +19,7 @@ function requireEqual(actual, expected, label) {
 const inquiry = read("app/api/inquiry/route.ts");
 const legacyLead = read("app/api/lead/route.ts");
 const contact = read("app/contact/ContactClient.tsx");
+const popupRouting = read("app/UXFixLayer.tsx");
 const idea = read("app/IdeaGenerator.tsx");
 const assistant = read("app/AIAssistant.tsx");
 const guard = read("app/AcquisitionGuard.tsx");
@@ -138,6 +139,12 @@ requireText(contact, "referrer.pathname", "referrer query stripping");
 requireText(contact, "window.location.pathname", "landing-path minimization");
 requireText(contact, 'name="companyUrl2"', "contact honeypot");
 requireText(contact, 'name="consentToContact"', "visitor contact permission");
+requireText(popupRouting, 'window.location.assign("/contact?source=website-contact-popup', "popup handoff to real consent form");
+forbidText(popupRouting, 'fetch("/api/lead"', "no revived legacy popup sender");
+forbidText(popupRouting, 'fetch("/api/inquiry"', "no unconsented shadow inquiry sender");
+forbidText(popupRouting, 'href.startsWith("mailto:")', "no direct-mail hijack");
+forbidText(popupRouting, 'text.includes("send message")', "no homepage mail button hijack");
+
 requireText(inquiry, 'input.consentToContact !== "yes"', "server-side contact consent enforcement");
 forbidText(contact, "window.location.search", "landing query-string collection");
 
