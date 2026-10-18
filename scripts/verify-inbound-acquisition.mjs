@@ -205,7 +205,11 @@ requireText(contact, "Tell us what you need", "broad inquiry CTA");
 // cannot bypass the acquisition verifier.
 requireText(inboundCi, "- 'app/page.tsx'", "homepage acquisition CI trigger");
 
-requireText(idea, "Send me this plan", "idea-helper conversion CTA");
+requireText(idea, "Discuss a plan like this", "truthful idea-helper discussion CTA");
+forbidText(idea, "Send me this plan", "unsent plan must not be represented as transmitted");
+requireText(idea, "does not send or save this plan", "honest no-automatic-transfer notice");
+requireText(inquiry, "APPROVED_OFFER_NAMES", "server-controlled bounded package attribution");
+requireText(contact, "offer: approvedOffer ? offerSlug : \"\"", "client preserves only reviewed public offer slug");
 requireText(idea, "Talk to Basit", "founder CTA");
 requireText(idea, 'source: "idea-helper"', "idea-helper attribution");
 requireText(idea, 'firstTouchOffer: "Idea Helper recommendation"', "fixed first-touch label");
