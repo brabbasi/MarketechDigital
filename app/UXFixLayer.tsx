@@ -232,7 +232,6 @@ export default function UXFixLayer() {
 
   useEffect(() => {
     const run = () => {
-      ensureContactModal();
       interceptContactClicks();
       stabilizeDecorativeMedia();
 
