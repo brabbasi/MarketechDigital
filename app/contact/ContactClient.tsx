@@ -114,6 +114,10 @@ export default function ContactClient() {
       <input name="companyUrl2" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: "1px", height: "1px", opacity: 0 }} />
       {recommendedService && <input type="hidden" name="recommendedService" value={recommendedService} />}
       {firstTouchOffer && <input type="hidden" name="firstTouchOffer" value={firstTouchOffer} />}
+      <label className="contact-consent" style={{ display: "flex", alignItems: "flex-start", gap: 12, lineHeight: 1.5, marginTop: 16 }}>
+        <input name="consentToContact" type="checkbox" value="yes" required style={{ width: 20, height: 20, flex: "0 0 auto", marginTop: 3 }} />
+        <span>I agree that Marketech Digital may contact me about this specific inquiry. This is not consent to marketing emails.</span>
+      </label>
       <button type="submit" disabled={sending}>{sending ? "Sending..." : "Tell us what you need"}</button>
       <small>No pressure. We&apos;ll review your current setup and recommend the clearest next move.</small>
       <p className="contact-status" aria-live="polite">{status}</p>
