@@ -49,7 +49,9 @@ export default function ContactClient() {
   const params = useSearchParams();
   const initialServiceCandidate = params.get("service") || "";
   const initialService = needs.includes(initialServiceCandidate) ? initialServiceCandidate : "";
-  const approvedOffer = approvedOfferNames[params.get("offer") || ""];
+  const offerSlug = params.get("offer") || "";
+  const approvedOffer = Object.prototype.hasOwnProperty.call(approvedOfferNames, offerSlug)
+    ? approvedOfferNames[offerSlug] : "";
   const initialMessage = approvedOffer
     ? "I am interested in "+approvedOffer+". Our business bottleneck is: "
     : "";
@@ -71,6 +73,9 @@ export default function ContactClient() {
     const payload = {
       ...formPayload,
       submissionId: submissionIdRef.current,
+      // This short public offer slug is allowlisted again by the server.
+      // It survives when a visitor edits/removes the suggested message.
+      offer: approvedOffer ? offerSlug : "",
       source,
       medium,
       campaign,
