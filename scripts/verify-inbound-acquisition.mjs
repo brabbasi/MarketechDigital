@@ -45,7 +45,10 @@ requireText(inquiry, "MAX_BODY_BYTES = 32_000", "request-size cap");
 requireText(inquiry, "isSameOriginRequest", "same-origin gate");
 requireText(inquiry, 'request.headers.get("origin")', "origin verification");
 requireText(inquiry, 'request.headers.get("sec-fetch-site")', "fetch-site verification");
-requireText(inquiry, "new TextEncoder().encode(raw).length", "actual-body size verification");
+requireText(inquiry, 'request.body.getReader()', "stream body under strict cap");
+requireText(inquiry, "received += chunk.value.byteLength", "actual streamed byte count");
+requireText(inquiry, "received > MAX_BODY_BYTES", "oversize abort before JSON parse");
+forbidText(inquiry, 'await request.text()', "unsafe unbounded body read");
 requireText(inquiry, "companyUrl2", "honeypot contract");
 requireText(inquiry, '"Idempotency-Key": message.idempotencyKey', "provider idempotency");
 requireText(inquiry, "lead-owner/${payload.submissionId}", "owner send key");
@@ -134,6 +137,8 @@ requireText(contact, "referrer.origin", "referrer origin preservation");
 requireText(contact, "referrer.pathname", "referrer query stripping");
 requireText(contact, "window.location.pathname", "landing-path minimization");
 requireText(contact, 'name="companyUrl2"', "contact honeypot");
+requireText(contact, 'name="consentToContact"', "visitor contact permission");
+requireText(inquiry, 'input.consentToContact !== "yes"', "server-side contact consent enforcement");
 forbidText(contact, "window.location.search", "landing query-string collection");
 
 // Contact taxonomy must continue to represent Marketech's broader business model,
