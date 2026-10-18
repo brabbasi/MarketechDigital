@@ -13,6 +13,7 @@ const ALLOWED_FIRST_TOUCH = new Set(["", "Idea Helper recommendation", "Talk to 
 
 type LeadPayload = {
   submissionId?: string;
+  consentToContact?: string | boolean;
   name?: string;
   email?: string;
   phone?: string;
@@ -113,7 +114,7 @@ async function enforceInquiryRateLimit(request: Request) {
     // rule is missing/unavailable. For this public mail-producing endpoint, that
     // must fail closed instead of silently removing the abuse boundary.
     if ("error" in limitResult && limitResult.error) {
-      console.error("MARKETECH_INQUIRY_RATE_LIMIT_UNAVAILABLE", limitResult.error);
+      console.error("MARKETECH_INQUIRY_RATE_LIMIT_UNAVAILABLE");
       return NextResponse.json(
         { ok: false, error: `The inquiry form is temporarily unavailable. Please email ${projectEmail} directly.` },
         { status: 503, headers: { "Cache-Control": "no-store" } }
@@ -129,7 +130,7 @@ async function enforceInquiryRateLimit(request: Request) {
 
     return null;
   } catch (error) {
-    console.error("MARKETECH_INQUIRY_RATE_LIMIT_FAILED", error);
+    console.error("MARKETECH_INQUIRY_RATE_LIMIT_FAILED", error instanceof Error ? error.name : "unknown");
     return NextResponse.json(
       { ok: false, error: `The inquiry form is temporarily unavailable. Please email ${projectEmail} directly.` },
       { status: 503, headers: { "Cache-Control": "no-store" } }
@@ -243,22 +244,50 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "This form must be submitted from the Marketech Digital website." }, { status: 403 });
     }
 
+    const contentType = request.headers.get("content-type") || "";
+    if (!/^application\/json(?:\s*;|\s*$)/i.test(contentType)) {
+      return NextResponse.json({ ok: false, error: "JSON form submission required." }, { status: 415 });
+    }
+
     const rateLimitResponse = await enforceInquiryRateLimit(request);
     if (rateLimitResponse) return rateLimitResponse;
 
+    // Bound memory BEFORE consuming the full body; Content-Length may be absent
+    // or misleading. Never deserialize or email oversized untrusted content.
     const declaredLength = Number(request.headers.get("content-length") || "0");
-    if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
+    if (!Number.isFinite(declaredLength) || declaredLength < 0 || declaredLength > MAX_BODY_BYTES) {
       return NextResponse.json({ ok: false, error: "Your request is too large. Please shorten the message and try again." }, { status: 413 });
     }
-
-    const raw = await request.text();
-    if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) {
-      return NextResponse.json({ ok: false, error: "Your request is too large. Please shorten the message and try again." }, { status: 413 });
-    }
-
-    let input: LeadPayload = {};
+    if (!request.body) return NextResponse.json({ ok: false, error: "Empty inquiry." }, { status: 400 });
+    const reader = request.body.getReader();
+    const decoder = new TextDecoder("utf-8", { fatal: true });
+    let received = 0;
+    let raw = "";
     try {
-      input = JSON.parse(raw || "{}") as LeadPayload;
+      while (true) {
+        const chunk = await reader.read();
+        if (chunk.done) break;
+        received += chunk.value.byteLength;
+        if (received > MAX_BODY_BYTES) {
+          await reader.cancel();
+          return NextResponse.json({ ok: false, error: "Your request is too large. Please shorten the message and try again." }, { status: 413 });
+        }
+        raw += decoder.decode(chunk.value, { stream: true });
+      }
+      raw += decoder.decode();
+    } catch {
+      return NextResponse.json({ ok: false, error: "Invalid inquiry body." }, { status: 400 });
+    } finally {
+      reader.releaseLock();
+    }
+
+    let input: LeadPayload;
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return NextResponse.json({ ok: false, error: "Invalid inquiry." }, { status: 400 });
+      }
+      input = parsed as LeadPayload;
     } catch {
       return NextResponse.json({ ok: false, error: "Please refresh the page and try again." }, { status: 400 });
     }
@@ -268,6 +297,12 @@ export async function POST(request: Request) {
     // Honeypot: legitimate UI keeps this field empty and hidden from people.
     if (payload.companyUrl2) {
       return NextResponse.json({ ok: true, submissionId: payload.submissionId });
+    }
+
+    // The request permits contacting this person ABOUT THIS INQUIRY ONLY.
+    // It is not consent to marketing campaigns or onward disclosure.
+    if (input.consentToContact !== "yes" && input.consentToContact !== true) {
+      return NextResponse.json({ ok: false, error: "Please agree to be contacted about your inquiry." }, { status: 400 });
     }
 
     if (!isValidSubmissionId(payload.submissionId)) {
@@ -296,8 +331,8 @@ export async function POST(request: Request) {
     });
 
     if (!ownerResponse.ok) {
-      const detail = await ownerResponse.text();
-      console.error("MARKETECH_INQUIRY_OWNER_SEND_FAILED", detail);
+      // Never log provider response text; it could contain request identifiers or PII.
+      console.error("MARKETECH_INQUIRY_OWNER_SEND_FAILED", ownerResponse.status);
       return NextResponse.json({ ok: false, error: `Email delivery failed. Please email ${projectEmail} directly.` }, { status: 502 });
     }
 
@@ -306,7 +341,7 @@ export async function POST(request: Request) {
     // abuse controls are available. The UI confirms successful submission.
     return NextResponse.json({ ok: true, submissionId: payload.submissionId });
   } catch (error) {
-    console.error("MARKETECH_INQUIRY_UNEXPECTED", error);
+    console.error("MARKETECH_INQUIRY_UNEXPECTED", error instanceof Error ? error.name : "unknown");
     return NextResponse.json({ ok: false, error: `Something went wrong. Please email ${projectEmail} directly.` }, { status: 500 });
   }
 }
