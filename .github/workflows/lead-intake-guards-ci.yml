@@ -1,0 +1,41 @@
+name: Marketech First-Party Lead Safety (Offline)
+
+on:
+  pull_request:
+    paths:
+      - 'app/api/lead/lead-guards.ts'
+      - 'app/api/lead/lead-guards.test.mjs'
+      - 'app/api/lead/route.ts'
+      - 'app/contact/ContactClient.tsx'
+      - 'app/UXFixLayer.tsx'
+      - 'app/page.tsx'
+      - '.github/workflows/lead-intake-guards-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  consent-no-egress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Pin exact code revision
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.0'
+      - name: Exercise real Request guards and consent without network or credentials
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node --experimental-strip-types --test app/api/lead/lead-guards.test.mjs
+          echo 'THIRD_PARTY_RESEND_SEND=NOT_CALLED'
+          echo 'PRODUCTION_EMAIL_AND_PII=NOT_USED'
+          echo 'WEBSITE_DEPLOYMENT=OFF'
+          echo 'NEXT_BUILD=SEPARATE_GATE'
+          echo 'CUSTOMER_OUTBOUND=OFF'
