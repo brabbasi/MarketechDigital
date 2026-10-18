@@ -10,6 +10,14 @@ const ALLOWED_SOURCES = new Set(["website-contact", "website-contact-popup", "id
 const ALLOWED_MEDIUMS = new Set(["website"]);
 const ALLOWED_CAMPAIGNS = new Set(["", "site-contact-popup", "inbound-idea-helper", "assistant-contact"]);
 const ALLOWED_FIRST_TOUCH = new Set(["", "Idea Helper recommendation", "Talk to Basit"]);
+const APPROVED_OFFER_NAMES: Record<string, string> = {
+  "lead-rescue": "Lead Capture Rescue",
+  "trades-funnel": "Trades Quote Funnel",
+  "content-sprint": "Short-Form Content Sprint",
+  "internal-ai-pilot": "Internal AI Workflow Pilot"
+};
+// Offer attribution is intentionally limited to these four public slugs.
+// It is not user-authored message text or a pricing/contract commitment.
 
 type LeadPayload = {
   submissionId?: string;
@@ -25,6 +33,7 @@ type LeadPayload = {
   message?: string;
   budget?: string;
   recommendedService?: string;
+  offer?: string;
   source?: string;
   medium?: string;
   campaign?: string;
@@ -152,6 +161,11 @@ function normalize(payload: LeadPayload) {
     message: clean(payload.message, 2400),
     budget: clean(payload.budget, 160),
     recommendedService: clean(payload.recommendedService, 240),
+    offer: (
+      typeof payload.offer === "string"
+      && Object.prototype.hasOwnProperty.call(APPROVED_OFFER_NAMES, payload.offer)
+      ? APPROVED_OFFER_NAMES[payload.offer] : ""
+    ),
     source: pickAllowed(payload.source, ALLOWED_SOURCES, "website-contact"),
     medium: pickAllowed(payload.medium, ALLOWED_MEDIUMS, "website"),
     campaign: pickAllowed(payload.campaign, ALLOWED_CAMPAIGNS),
@@ -173,6 +187,7 @@ function ownerText(data: ReturnType<typeof normalize>) {
     ["Business type", data.business],
     ["Service", data.service],
     ["Recommended service", data.recommendedService],
+    ["Selected public offer", data.offer],
     ["First-touch offer", data.firstTouchOffer],
     ["Budget", data.budget],
     ["Preferred contact", data.preferredContact],
@@ -200,6 +215,7 @@ function ownerHtml(data: ReturnType<typeof normalize>) {
     ["Business type", data.business],
     ["Service", data.service],
     ["Recommended service", data.recommendedService],
+    ["Selected public offer", data.offer],
     ["First-touch offer", data.firstTouchOffer],
     ["Budget", data.budget],
     ["Preferred contact", data.preferredContact],
