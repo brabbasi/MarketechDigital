@@ -98,7 +98,7 @@ test("protects required identity, email, allowed fields and hidden honeypot", ()
     [{...good(), email: "invalid"}, "valid_email_required"],
     [{...good(), website_check: "spam"}, "invalid_form"],
     [{...good(), authority: { send_anything: true }}, "unexpected_fields"],
-    [{...good(), message: "x\\u0000y"}, "invalid_field_message"],
+    [{...good(), message: "x" + String.fromCharCode(0) + "y"}, "invalid_field_message"],
   ]) {
     assert.throws(() => validateLeadPayload(payload), { code: expected });
   }
