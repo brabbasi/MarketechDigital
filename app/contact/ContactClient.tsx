@@ -59,7 +59,12 @@ export default function ContactClient() {
   const medium = params.get("medium") || "website";
   const campaign = params.get("campaign") || "";
   const firstTouchOffer = params.get("firstTouchOffer") || "";
-  const recommendedService = params.get("recommendedService") || initialService;
+  const requestedRecommendation = params.get("recommendedService") || "";
+  const recommendedService = (
+    needs.includes(requestedRecommendation)
+    || requestedRecommendation === "Idea Helper recommendation"
+    || requestedRecommendation === "AI assistant conversation"
+  ) ? requestedRecommendation : initialService;
   const [status, setStatus] = useState("");
   const [sending, setSending] = useState(false);
   const submissionIdRef = useRef("");
