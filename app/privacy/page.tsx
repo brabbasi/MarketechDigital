@@ -45,12 +45,15 @@ export default function PrivacyPage() {
           tools, which we would discuss separately before requesting more data.</p>
 
         <h2>Analytics and browsing</h2>
-        <p>The website also uses Google Analytics to understand general site visits and
-          page performance. Google Analytics can collect technical and usage data,
-          including browser information and cookie or similar identifiers. Website
-          analytics preferences and consent controls must be reviewed separately;
-          browser privacy controls can also limit cookies. Analytics is not a reason
-          to send marketing to people who only requested an inquiry response.</p>
+        <p>Google Analytics is optional. It is not loaded for new visitors unless
+          they actively choose <strong>Allow analytics</strong> in the privacy
+          preferences. If enabled, it can collect general page visits and technical
+          data, including browser information and cookie or similar identifiers.
+          You can change your selection using the <strong>Analytics choices</strong>
+          control at the bottom of the site. Declining does not prevent you from
+          using the contact form or viewing service information. Your preference
+          is saved in this browser so the site can respect your choice.
+          Analytics permission is not permission to send marketing emails.</p>
 
         <h2>Retention and choices</h2>
         <p>Inquiries and related email records are kept only for the time reasonably
