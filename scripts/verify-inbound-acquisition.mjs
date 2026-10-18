@@ -139,11 +139,44 @@ requireText(contact, "referrer.pathname", "referrer query stripping");
 requireText(contact, "window.location.pathname", "landing-path minimization");
 requireText(contact, 'name="companyUrl2"', "contact honeypot");
 requireText(contact, 'name="consentToContact"', "visitor contact permission");
-requireText(popupRouting, 'window.location.assign("/contact?source=website-contact-popup', "popup handoff to real consent form");
-forbidText(popupRouting, 'fetch("/api/lead"', "no revived legacy popup sender");
-forbidText(popupRouting, 'fetch("/api/inquiry"', "no unconsented shadow inquiry sender");
-forbidText(popupRouting, 'href.startsWith("mailto:")', "no direct-mail hijack");
-forbidText(popupRouting, 'text.includes("send message")', "no homepage mail button hijack");
+function verifyPopupRouting(source) {
+  requireText(source, 'window.location.assign("/contact?source=website-contact-popup', "popup handoff to real consent form");
+  // The UX decoration layer has NO reason to fetch anything. Deny ANY raw
+  // network request, regardless of fetch quote style or destination spelling.
+  // A new asynchronous contact sender must instead live in the single
+  // canonical /contact -> /api/inquiry flow behind separate reviewed CI.
+  if (/\\bfetch\\s*\\(|\\bXMLHttpRequest\\b|\\bsendBeacon\\s*\\(/i.test(source)
+      || /\\[\\s*['"`]fetch['"`]\\s*\\]\\s*\\(/i.test(source)) {
+    throw new Error("popup source may not send its own network requests");
+  }
+  const start = source.indexOf("function interceptContactClicks()");
+  const end = source.indexOf("function enhanceFooter()", start);
+  if (start < 0 || end <= start) throw new Error("contact intercept source boundary missing");
+  const intercept = source.slice(start, end);
+  // Restrict the CAPTURE HANDLER, not legitimate mailto links in the footer.
+  // This catches both single and double quotes and alternate JS spellings.
+  if (/\\bmailto\\s*:|send\\s+message/i.test(intercept)) {
+    throw new Error("contact capture may not hijack mailto or Send message");
+  }
+}
+
+verifyPopupRouting(popupRouting);
+for (const [label, attack] of [
+  ["single quoted retired endpoint", "fetch('/api/lead')"],
+  ["global fetch retired endpoint", 'window.fetch("/api/lead")'],
+  ["computed fetch", "window['fetch']('/api/inquiry')"],
+  ["single quoted mailto", "href.startsWith('mailto:')"],
+  ["text heuristic", 'text.includes("send message")']
+]) {
+  let blocked = false;
+  try {
+    verifyPopupRouting(popupRouting.replace("function enhanceFooter() {",
+      attack + "\\nfunction enhanceFooter() {"));
+  } catch {
+    blocked = true;
+  }
+  if (!blocked) throw new Error("popup adversarial guard failed: " + label);
+}
 
 requireText(inquiry, 'input.consentToContact !== "yes"', "server-side contact consent enforcement");
 forbidText(contact, "window.location.search", "landing query-string collection");
