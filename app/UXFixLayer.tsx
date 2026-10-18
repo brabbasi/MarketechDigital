@@ -191,8 +191,8 @@ function interceptContactClicks() {
         text.includes("book a consultation") ||
         text.includes("start a conversation") ||
         text.includes("ask for a recommendation") ||
-        text.includes("start this project") ||
-        false; // Leave the homepage direct-mail fallback button operative.
+        text.includes("start this project");
+      // Leave direct mailto and homepage Send message fallback outside this intercept.
       if (!isContact) return;
       event.preventDefault();
       openContactModal();
