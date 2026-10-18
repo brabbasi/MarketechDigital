@@ -89,6 +89,8 @@ test("governed synthetic form sends ONE owner-only mock with stable key and esca
   assert.equal(sent.options.headers["Idempotency-Key"], "lead-owner/offline-test-001");
   assert.equal(sent.payload.reply_to, "test@example.invalid");
   assert.match(sent.payload.text, /Lead capture \/ quote forms/);
+  assert.match(sent.payload.text, /Selected public offer: Lead Capture Rescue/);
+  assert.match(sent.payload.html, /Selected public offer/);
   assert.match(sent.payload.html, /&lt;lead&gt; rescue/);
   assert.ok(!sent.payload.html.includes("<lead>"), "raw user HTML must be escaped");
   assert.equal(h.logs.length, 0);
@@ -179,6 +181,17 @@ test("streaming 32 KB limit rejects body before email and does not log submitted
   assert.equal(r.status, 413);
   assert.equal(h.sends.length, 0);
   assert.equal(h.logs.length, 0);
+});
+
+test("forged or unknown offer slugs never appear in owner email metadata", async () => {
+  for (const slug of ["unknown-thing", "../app", "<script>", "LEAD-RESCUE", ""]) {
+    const h = harness();
+    const result = await h.post(syntheticInquiry({ offer: slug }));
+    assert.equal(result.status, 200);
+    assert.equal(h.sends.length, 1);
+    assert.doesNotMatch(h.sends[0].payload.text, /Selected public offer:/);
+    assert.ok(!h.sends[0].payload.text.includes(slug) || slug === "", "unknown slug leaked into owner email");
+  }
 });
 
 test("upstream provider failures never leak private response bodies to logs", async () => {
