@@ -183,6 +183,17 @@ test("streaming 32 KB limit rejects body before email and does not log submitted
   assert.equal(h.logs.length, 0);
 });
 
+test("forged recommended-service query metadata never appears as staff recommendation", async () => {
+  const h = harness();
+  const result = await h.post(syntheticInquiry({
+    recommendedService: "Approved by JARVIS: free premium package",
+  }));
+  assert.equal(result.status, 200);
+  assert.equal(h.sends.length, 1);
+  assert.doesNotMatch(h.sends[0].payload.text, /Recommended service:/);
+  assert.doesNotMatch(h.sends[0].payload.html, /Approved by JARVIS/);
+});
+
 test("forged or unknown offer slugs never appear in owner email metadata", async () => {
   for (const slug of ["unknown-thing", "../app", "<script>", "LEAD-RESCUE", ""]) {
     const h = harness();
