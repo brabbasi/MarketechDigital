@@ -6,6 +6,7 @@ on:
       - 'app/api/inquiry/**'
       - 'app/api/lead/**'
       - 'app/contact/ContactClient.tsx'
+      - 'app/privacy/page.tsx'
       - 'app/IdeaGenerator.tsx'
       - 'app/AcquisitionGuard.tsx'
       - 'app/AIAssistant.tsx'
