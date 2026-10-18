@@ -10,6 +10,14 @@ const ALLOWED_SOURCES = new Set(["website-contact", "website-contact-popup", "id
 const ALLOWED_MEDIUMS = new Set(["website"]);
 const ALLOWED_CAMPAIGNS = new Set(["", "site-contact-popup", "inbound-idea-helper", "assistant-contact"]);
 const ALLOWED_FIRST_TOUCH = new Set(["", "Idea Helper recommendation", "Talk to Basit"]);
+const ALLOWED_RECOMMENDED_SERVICES = new Set([
+  "Website / web app", "Lead capture / quote forms", "Video editing / content",
+  "SEO / GEO / local search", "AI strategy", "Workflow automation",
+  "AI website agent / lead qualification", "Dashboard / decision intelligence",
+  "Custom software / internal tool", "Digital marketing / growth campaign",
+  "Branding / messaging", "TradePilot AI", "Partnership / implementation",
+  "Not sure yet", "Idea Helper recommendation", "AI assistant conversation"
+]);
 const APPROVED_OFFER_NAMES: Record<string, string> = {
   "lead-rescue": "Lead Capture Rescue",
   "trades-funnel": "Trades Quote Funnel",
@@ -160,7 +168,7 @@ function normalize(payload: LeadPayload) {
     preferredContact: clean(payload.preferredContact, 120),
     message: clean(payload.message, 2400),
     budget: clean(payload.budget, 160),
-    recommendedService: clean(payload.recommendedService, 240),
+    recommendedService: pickAllowed(payload.recommendedService, ALLOWED_RECOMMENDED_SERVICES),
     offer: (
       typeof payload.offer === "string"
       && Object.prototype.hasOwnProperty.call(APPROVED_OFFER_NAMES, payload.offer)
