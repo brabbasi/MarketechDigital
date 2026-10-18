@@ -95,8 +95,8 @@ function ensureContactModal() {
       <h2 id="contactPopupTitle">Tell us what you want to build.</h2>
       <p>Share what you are trying to fix, improve, or launch. You do not need to have everything figured out. A few honest details are enough to start the right conversation.</p>
       <form class="contact-popup-form" aria-label="Marketech Digital project inquiry form">
-        <input name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" />
-        <input name="email" type="email" placeholder="Email address" aria-label="Email address" autocomplete="email" />
+        <input name="name" required placeholder="Your name" aria-label="Your name" autocomplete="name" />
+        <input name="email" type="email" required placeholder="Email address" aria-label="Email address" autocomplete="email" />
         <input name="phone" type="tel" placeholder="Phone number optional" aria-label="Phone number optional" autocomplete="tel" />
         <input name="company" placeholder="Company name optional" aria-label="Company name optional" autocomplete="organization" />
         <input name="business" placeholder="Business type" aria-label="Business type" />
@@ -125,6 +125,8 @@ function ensureContactModal() {
           <option>WhatsApp</option>
         </select>
         <textarea name="message" placeholder="What problem, system, or idea do you want help with?" aria-label="Project details"></textarea>
+        <label class="contact-popup-consent" style="display:flex;gap:12px;align-items:flex-start;line-height:1.5"><input type="checkbox" name="consentToContact" value="yes" required style="width:20px;height:20px;flex:0 0 auto;margin-top:3px" /><span>I agree to be contacted by Marketech Digital about this inquiry only. No marketing opt-in.</span></label>
+        <input name="website_check" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px" />
         <button type="submit">Send project inquiry →</button>
       </form>
       <div class="contact-popup-status" aria-live="polite"></div>
@@ -186,7 +188,6 @@ function interceptContactClicks() {
       const isContact =
         href === "#contact" ||
         href === "/#contact" ||
-        href.startsWith("mailto:") ||
         text.includes("book a consultation") ||
         text.includes("start a conversation") ||
         text.includes("ask for a recommendation") ||
