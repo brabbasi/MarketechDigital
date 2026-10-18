@@ -192,7 +192,7 @@ function interceptContactClicks() {
         text.includes("start a conversation") ||
         text.includes("ask for a recommendation") ||
         text.includes("start this project") ||
-        text.includes("send message");
+        false; // Leave the homepage direct-mail fallback button operative.
       if (!isContact) return;
       event.preventDefault();
       openContactModal();
