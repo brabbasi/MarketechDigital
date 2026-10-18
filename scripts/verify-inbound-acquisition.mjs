@@ -145,8 +145,8 @@ function verifyPopupRouting(source) {
   // network request, regardless of fetch quote style or destination spelling.
   // A new asynchronous contact sender must instead live in the single
   // canonical /contact -> /api/inquiry flow behind separate reviewed CI.
-  if (/\\bfetch\\s*\\(|\\bXMLHttpRequest\\b|\\bsendBeacon\\s*\\(/i.test(source)
-      || /\\[\\s*['"`]fetch['"`]\\s*\\]\\s*\\(/i.test(source)) {
+  if (/\bfetch\s*\(|\bXMLHttpRequest\b|\bsendBeacon\s*\(/i.test(source)
+      || /\[\s*['"`]fetch['"`]\s*\]\s*\(/i.test(source)) {
     throw new Error("popup source may not send its own network requests");
   }
   const start = source.indexOf("function interceptContactClicks()");
@@ -155,7 +155,7 @@ function verifyPopupRouting(source) {
   const intercept = source.slice(start, end);
   // Restrict the CAPTURE HANDLER, not legitimate mailto links in the footer.
   // This catches both single and double quotes and alternate JS spellings.
-  if (/\\bmailto\\s*:|send\\s+message/i.test(intercept)) {
+  if (/\bmailto\s*:|send\s+message/i.test(intercept)) {
     throw new Error("contact capture may not hijack mailto or Send message");
   }
 }
@@ -171,7 +171,7 @@ for (const [label, attack] of [
   let blocked = false;
   try {
     verifyPopupRouting(popupRouting.replace("function enhanceFooter() {",
-      attack + "\\nfunction enhanceFooter() {"));
+      attack + "\nfunction enhanceFooter() {"));
   } catch {
     blocked = true;
   }
