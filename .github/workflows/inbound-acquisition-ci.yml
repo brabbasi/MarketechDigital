@@ -7,6 +7,7 @@ on:
       - 'app/api/lead/**'
       - 'app/contact/ContactClient.tsx'
       - 'app/privacy/page.tsx'
+      - 'app/GoogleAnalytics.tsx'
       - 'app/IdeaGenerator.tsx'
       - 'app/AcquisitionGuard.tsx'
       - 'app/AIAssistant.tsx'
