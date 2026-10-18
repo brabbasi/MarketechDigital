@@ -19,6 +19,7 @@ function requireEqual(actual, expected, label) {
 const inquiry = read("app/api/inquiry/route.ts");
 const legacyLead = read("app/api/lead/route.ts");
 const contact = read("app/contact/ContactClient.tsx");
+const privacy = read("app/privacy/page.tsx");
 const popupRouting = read("app/UXFixLayer.tsx");
 const idea = read("app/IdeaGenerator.tsx");
 const assistant = read("app/AIAssistant.tsx");
@@ -208,6 +209,10 @@ requireText(inboundCi, "- 'app/page.tsx'", "homepage acquisition CI trigger");
 requireText(idea, "Discuss a plan like this", "truthful idea-helper discussion CTA");
 forbidText(idea, "Send me this plan", "unsent plan must not be represented as transmitted");
 requireText(idea, "does not send or save this plan", "honest no-automatic-transfer notice");
+requireText(contact, 'href="/privacy"', "inline contact privacy link");
+for (const word of ["Resend", "Vercel", "Google Analytics", "Retention and choices", "contact@getmarketechdigital.com"]) {
+  requireText(privacy, word, "public inquiry privacy notice");
+}
 requireText(inquiry, "APPROVED_OFFER_NAMES", "server-controlled bounded package attribution");
 requireText(contact, "offer: approvedOffer ? offerSlug : \"\"", "client preserves only reviewed public offer slug");
 requireText(idea, "Talk to Basit", "founder CTA");
