@@ -20,6 +20,7 @@ const inquiry = read("app/api/inquiry/route.ts");
 const legacyLead = read("app/api/lead/route.ts");
 const contact = read("app/contact/ContactClient.tsx");
 const privacy = read("app/privacy/page.tsx");
+const analytics = read("app/GoogleAnalytics.tsx");
 const popupRouting = read("app/UXFixLayer.tsx");
 const idea = read("app/IdeaGenerator.tsx");
 const assistant = read("app/AIAssistant.tsx");
@@ -213,6 +214,14 @@ requireText(contact, 'href="/privacy"', "inline contact privacy link");
 for (const word of ["Resend", "Vercel", "Google Analytics", "Retention and choices", "contact@getmarketechdigital.com"]) {
   requireText(privacy, word, "public inquiry privacy notice");
 }
+requireText(inquiry, "ALLOWED_RECOMMENDED_SERVICES", "recommendations must use server-controlled label set");
+requireText(inquiry, "recommendedService: pickAllowed(payload.recommendedService, ALLOWED_RECOMMENDED_SERVICES)", "reject forged recommendation metadata");
+requireText(contact, "requestedRecommendation", "client gates recommendation query string");
+for (const required of [
+  'choice === "accepted"', "Allow analytics", "No thanks", "Analytics choices",
+  "PREFERENCE_KEY", "window.localStorage", 'window.location.reload()'
+]) requireText(analytics, required, "opt-in analytics controls");
+forbidText(privacy, "analytics preferences and consent controls must be reviewed separately", "outdated unimplemented consent claim");
 requireText(inquiry, "APPROVED_OFFER_NAMES", "server-controlled bounded package attribution");
 requireText(contact, "offer: approvedOffer ? offerSlug : \"\"", "client preserves only reviewed public offer slug");
 requireText(idea, "Talk to Basit", "founder CTA");
