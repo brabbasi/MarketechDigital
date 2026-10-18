@@ -126,8 +126,8 @@ export default function IdeaGenerator() {
         </div>
         {hasResult && (
           <div className="idea-actions" aria-label="Next steps for your recommendation">
-            <p>Your recommendation is yours to keep. If you want, I can also look at your actual setup and tell you what I would prioritize first.</p>
-            <a href={contactHref}>Send me this plan →</a>
+            <p>Your recommendation stays on this page. Opening the contact form does not send or save this plan. Copy any details you want to discuss into your message.</p>
+            <a href={contactHref}>Discuss a plan like this →</a>
             <a href={`${contactHref}&intent=talk-to-basit`}>Talk to Basit</a>
           </div>
         )}
