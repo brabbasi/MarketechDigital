@@ -48,12 +48,13 @@ function harness({ limiter = { rateLimited: false }, providerStatus = 200, key =
     console: { error: (...args) => logs.push(args.map(String).join(" ")) },
     URL,
     TextEncoder,
+    TextDecoder,
     Response,
     Request
   }, { timeout: 2000 });
   assert.equal(typeof exports.POST, "function");
-  async function post(body, { origin = "https://getmarketechdigital.com", site = "same-origin" } = {}) {
-    const headers = { "Content-Type": "application/json", "sec-fetch-site": site };
+  async function post(body, { origin = "https://getmarketechdigital.com", site = "same-origin", contentType = "application/json" } = {}) {
+    const headers = { "Content-Type": contentType, "sec-fetch-site": site };
     if (origin !== null) headers.Origin = origin;
     const request = new Request("https://getmarketechdigital.com/api/inquiry", {
       method: "POST", headers,
@@ -66,7 +67,7 @@ function harness({ limiter = { rateLimited: false }, providerStatus = 200, key =
 }
 function syntheticInquiry(override = {}) {
   return {
-    submissionId: "offline-test-001", name: "Test Person", email: "test@example.invalid",
+    submissionId: "offline-test-001", consentToContact: "yes", name: "Test Person", email: "test@example.invalid",
     company: "Test Co", service: "Lead capture / quote forms",
     message: "Interested in <lead> rescue", offer: "lead-rescue",
     source: "website-contact", medium: "website",
@@ -146,6 +147,47 @@ test("missing provider auth and rejected fake delivery have truthful unavailable
   const response = await failure.post(syntheticInquiry());
   assert.equal(response.status, 502, "synthetic backend failure must not be shown as success");
   assert.equal(failure.sends.length, 1);
+});
+
+test("explicit inquiry consent is required before any owner email", async () => {
+  for (const consentToContact of [undefined, false, "no", "on", "true", 1]) {
+    const h = harness();
+    const candidate = syntheticInquiry({ consentToContact });
+    const r = await h.post(candidate);
+    assert.equal(r.status, 400);
+    assert.equal(h.sends.length, 0);
+  }
+});
+
+test("JSON, identity and response remain fail-closed on incorrect input shape", async () => {
+  const bodies = [null, [], "{}", "{broken-json", JSON.stringify({ name: "Only name" })];
+  for (const value of bodies) {
+    const h = harness();
+    const input = typeof value === "string" ? value : JSON.stringify(value);
+    const r = await h.post(input);
+    assert.equal(r.status, 400);
+    assert.equal(h.sends.length, 0);
+  }
+  const h = harness();
+  assert.equal((await h.post(syntheticInquiry(), { contentType: "text/plain" })).status, 415);
+  assert.equal(h.sends.length, 0);
+});
+
+test("streaming 32 KB limit rejects body before email and does not log submitted text", async () => {
+  const h = harness();
+  const r = await h.post(syntheticInquiry({ message: "x".repeat(33_000) }));
+  assert.equal(r.status, 413);
+  assert.equal(h.sends.length, 0);
+  assert.equal(h.logs.length, 0);
+});
+
+test("upstream provider failures never leak private response bodies to logs", async () => {
+  const h = harness({ providerStatus: 503 });
+  const r = await h.post(syntheticInquiry({ message: "PRIVATE_TEST_NOTE_DO_NOT_LOG" }));
+  assert.equal(r.status, 502);
+  assert.equal(h.sends.length, 1);
+  assert.ok(h.logs.every((row) => !row.includes("PRIVATE_TEST_NOTE_DO_NOT_LOG")));
+  assert.ok(h.logs.every((row) => !row.includes("synthetic-failure")));
 });
 
 console.log("SYNTHETIC_INQUIRY_HANDLER_CONTRACT=OFFLINE_ONLY");
