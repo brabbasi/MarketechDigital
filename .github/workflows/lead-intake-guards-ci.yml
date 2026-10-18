@@ -8,6 +8,7 @@ on:
       - 'app/api/lead/route.ts'
       - 'app/contact/ContactClient.tsx'
       - 'app/UXFixLayer.tsx'
+      - 'app/AIAssistant.tsx'
       - 'app/page.tsx'
       - '.github/workflows/lead-intake-guards-ci.yml'
 
