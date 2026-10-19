@@ -41,8 +41,22 @@ export default function PrivacyPage() {
           the information through a server-side route and Resend email-delivery service
           to the Marketech Digital business inbox. These service providers may process
           information under their own security and service arrangements, including
-          processing outside your province or country. A project may require additional
-          tools, which we would discuss separately before requesting more data.</p>
+          processing outside your province or country. Any new project-specific
+          service that needs additional information will be discussed before use.</p>
+
+        <h2>Optional AI assistant and Idea Helper</h2>
+        <p>These tools receive the messages or business details you type through our
+          website server. Unless you explicitly choose optional OpenAI processing,
+          the assistant and Idea Helper return a guided suggestion without forwarding
+          those inputs to OpenAI. If you opt in, the assistant may send up to the last
+          12 chat messages, including earlier messages, to OpenAI for a response.
+          The Idea Helper may send your business type, goal, current obstacles and
+          existing tools to OpenAI to generate a tailored recommendation.
+          OpenAI is a third-party service provider and information may be processed
+          outside Canada according to its applicable privacy and retention terms.
+          Do not enter passwords, personal health details or other confidential records.
+          Using either tool does not submit a sales inquiry; only the separate
+          contact form can do that with its own permission.</p>
 
         <h2>Analytics and browsing</h2>
         <p>Google Analytics is optional. It is not loaded for new visitors unless
