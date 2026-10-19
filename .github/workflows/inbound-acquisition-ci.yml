@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'app/api/inquiry/**'
+      - 'app/api/chat/route.ts'
+      - 'app/api/idea/route.ts'
       - 'app/api/lead/**'
       - 'app/contact/ContactClient.tsx'
       - 'app/privacy/page.tsx'
@@ -17,6 +19,7 @@ on:
       - 'package.json'
       - '.marketech/inquiry-rate-limit-v1.json'
       - 'scripts/verify-inbound-acquisition.mjs'
+      - 'scripts/test-provider-consent.mjs'
       - '.github/workflows/inbound-acquisition-ci.yml'
   workflow_dispatch:
 
@@ -47,6 +50,9 @@ jobs:
 
       - name: Exercise synthetic inquiry route with no provider/network requests
         run: node --test scripts/test-ottawa-inquiry-handler.mjs
+
+      - name: Verify optional AI third-party consent with synthetic provider
+        run: node --test scripts/test-provider-consent.mjs
 
       - name: Typecheck and build site without deploying
         run: |
