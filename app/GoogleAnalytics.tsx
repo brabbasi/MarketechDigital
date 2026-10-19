@@ -23,6 +23,23 @@ export default function GoogleAnalytics() {
       // Storage blocked: default to no analytics, never silently opt in.
     }
     setReady(true);
+    // A visitor can withdraw consent in another tab after this one has already
+    // loaded the GA tag. Storage events are sent to other same-origin tabs.
+    // Reloading an opted-in tab removes previously mounted GA scripts.
+    function onStorage(event: StorageEvent) {
+      if (event.key !== PREFERENCE_KEY && event.key !== null) return;
+      const saved = window.localStorage.getItem(PREFERENCE_KEY);
+      const next: Choice = saved === "accepted" || saved === "declined" ? saved : null;
+      setChoice((previous) => {
+        if (previous === "accepted" && next !== "accepted") {
+          window.location.reload();
+          return previous;
+        }
+        return next;
+      });
+    }
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   function choose(next: "accepted" | "declined") {
