@@ -29,6 +29,10 @@ export async function POST(request: Request) {
       });
     }
 
+    if (body.openaiConsent !== true) {
+      return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback", reason: "openai_consent_not_granted" });
+    }
+
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback", reason: "missing_openai_api_key" });
     }
@@ -51,8 +55,8 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("OpenAI chat error", errorText);
+      // Upstream error bodies can echo visitor chat text; never log them.
+      console.error("OpenAI chat provider status", response.status);
       return NextResponse.json({
         reply: localAssistantReply(lastUser),
         mode: "fallback",
@@ -69,7 +73,7 @@ export async function POST(request: Request) {
       reason: typeof reply === "string" && reply.trim() ? "openai_connected" : "empty_openai_reply"
     });
   } catch (error) {
-    console.error("Chat route error", error);
+    console.error("Chat route error", error instanceof Error ? error.name : "unknown");
     return NextResponse.json(
       { reply: "I had trouble processing that. Tell me your business type, project goal, and what feels repetitive or unclear, and I’ll suggest a starting point.", mode: "error", reason: "route_exception" },
       { status: 200 }
