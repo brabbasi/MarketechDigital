@@ -21,6 +21,8 @@ const legacyLead = read("app/api/lead/route.ts");
 const contact = read("app/contact/ContactClient.tsx");
 const privacy = read("app/privacy/page.tsx");
 const analytics = read("app/GoogleAnalytics.tsx");
+const chatRoute = read("app/api/chat/route.ts");
+const ideaRoute = read("app/api/idea/route.ts");
 const popupRouting = read("app/UXFixLayer.tsx");
 const idea = read("app/IdeaGenerator.tsx");
 const assistant = read("app/AIAssistant.tsx");
@@ -210,6 +212,17 @@ requireText(inboundCi, "- 'app/page.tsx'", "homepage acquisition CI trigger");
 requireText(idea, "Discuss a plan like this", "truthful idea-helper discussion CTA");
 forbidText(idea, "Send me this plan", "unsent plan must not be represented as transmitted");
 requireText(idea, "does not send or save this plan", "honest no-automatic-transfer notice");
+for (const [label, source, client] of [
+  ["AI assistant", chatRoute, assistant],
+  ["Idea Helper", ideaRoute, idea]
+]) {
+  requireText(source, 'openaiConsent !== true', label + " provider permission");
+  requireText(client, 'checked={openaiConsent}', label + " visible opt-in");
+  requireText(client, 'href="/privacy"', label + " privacy link");
+}
+requireText(privacy, "OpenAI is a third-party service provider", "provider transparency");
+requireText(analytics, 'addEventListener("storage", onStorage)', "cross-tab privacy withdrawal");
+
 requireText(contact, 'href="/privacy"', "inline contact privacy link");
 for (const word of ["Resend", "Vercel", "Google Analytics", "Retention and choices", "contact@getmarketechdigital.com"]) {
   requireText(privacy, word, "public inquiry privacy notice");
