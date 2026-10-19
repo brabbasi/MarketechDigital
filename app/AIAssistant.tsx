@@ -36,6 +36,7 @@ export default function AIAssistant() {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<AssistantMode>("checking");
   const [reason, setReason] = useState<string>("");
+  const [openaiConsent, setOpenaiConsent] = useState(false);
   const [messages, setMessages] = useState<UiMessage[]>([
     { role: "bot", text: "Protocol active. I’m the Marketech AI guide. I can help with website audits, SEO, Google Business Profile, lead capture, AI automation, services, pricing ranges, and the new Insights growth guides." }
   ]);
