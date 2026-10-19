@@ -59,7 +59,8 @@ export default function AIAssistant() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: nextMessages.map((message) => ({ role: toApiRole(message.role), content: message.text }))
+          messages: nextMessages.map((message) => ({ role: toApiRole(message.role), content: message.text })),
+          openaiConsent
         })
       });
       const data = await response.json();
