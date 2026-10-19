@@ -127,3 +127,16 @@ test("route fails before provider calls and never logs submitted names/messages"
   const assistant = readFileSync(join(here, "..", "..", "AIAssistant.tsx"), "utf-8");
   assert.doesNotMatch(assistant, /onClick=\{submitLead\}|async function submitLead/);
 });
+
+test("assistant contact and home email fallback never submit an unconsented lead", () => {
+  const assistant = readFileSync(join(here, "../../AIAssistant.tsx"), "utf8");
+  const layer = readFileSync(join(here, "../../UXFixLayer.tsx"), "utf8");
+  const home = readFileSync(join(here, "../../page.tsx"), "utf8");
+  assert.match(assistant, /href=\{mailHref\}>Contact/);
+  assert.doesNotMatch(assistant, /async function submitLead\s*\(/);
+  assert.doesNotMatch(assistant, /fetch\(["']\/api\/lead["']/);
+  assert.match(layer, /Leave direct mailto and homepage Send message fallback outside this intercept/);
+  const capture = layer.slice(layer.indexOf("function interceptContactClicks"), layer.indexOf("function enhanceFooter"));
+  assert.doesNotMatch(capture, /text\.includes\(["']send message["']\)/);
+  assert.match(home, /project@getmarketechdigital\.com/);
+});
