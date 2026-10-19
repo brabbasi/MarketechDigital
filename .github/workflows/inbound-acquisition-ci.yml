@@ -17,6 +17,7 @@ on:
       - 'app/layout.tsx'
       - 'app/page.tsx'
       - 'package.json'
+      - 'package-lock.json'
       - '.marketech/inquiry-rate-limit-v1.json'
       - 'scripts/verify-inbound-acquisition.mjs'
       - 'scripts/test-provider-consent.mjs'
@@ -45,18 +46,18 @@ jobs:
       - name: Verify canonical acquisition and popup guards
         run: node scripts/verify-inbound-acquisition.mjs
 
-      - name: Install for no-secret CI without dependency lifecycle scripts
-        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install exact reviewed dependencies without lifecycle scripts or secrets
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Exercise synthetic inquiry route with no provider/network requests
         run: node --test scripts/test-ottawa-inquiry-handler.mjs
 
-      - name: Emit candidate dependency lock metadata for independent review
+      - name: Prove checked-in deterministic dependency lock identity
         shell: bash
         run: |
           set -euo pipefail
           test -f package-lock.json
-          node -e 'const fs=require("fs"),c=require("crypto");const b=fs.readFileSync("package-lock.json");console.log("LOCK_SHA256:"+c.createHash("sha256").update(b).digest("hex"));let s=b.toString("base64");for(let i=0;i<s.length;i+=800)console.log("LOCKCHUNK:"+s.slice(i,i+800)+":ENDLOCKCHUNK");'
+          node -e 'const fs=require("fs"),c=require("crypto");const b=fs.readFileSync("package-lock.json");const digest=c.createHash("sha256").update(b).digest("hex"); console.log("LOCK_SHA256:"+digest); if(digest!=="d81ff8a6da00a4529f008dea5430291a86cea0093e42149cdfb35776ba2572cd")process.exit(2);'
 
       - name: Verify optional AI third-party consent with synthetic provider
         run: node --test scripts/test-provider-consent.mjs
