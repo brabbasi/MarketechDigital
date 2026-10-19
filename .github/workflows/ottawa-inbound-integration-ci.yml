@@ -27,6 +27,8 @@ on:
       - 'scripts/verify-ottawa-inquiry-integration.mjs'
       - 'scripts/test-ottawa-inquiry-handler.mjs'
       - 'scripts/test-provider-consent.mjs'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/ottawa-inbound-integration-ci.yml'
   pull_request:
     paths:
@@ -52,6 +54,8 @@ on:
       - 'scripts/verify-ottawa-inquiry-integration.mjs'
       - 'scripts/test-ottawa-inquiry-handler.mjs'
       - 'scripts/test-provider-consent.mjs'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/ottawa-inbound-integration-ci.yml'
 
 permissions:
@@ -78,8 +82,12 @@ jobs:
         run: node scripts/verify-inbound-acquisition.mjs
       - name: Verify all offers use the same governed inquiry sender
         run: node scripts/verify-ottawa-inquiry-integration.mjs
-      - name: Install dependencies without lifecycle scripts or secrets
-        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install exactly pinned dependencies with no lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Report immutable dependency lock identity without logging contents
+        run: |
+          test -f package-lock.json
+          node -e 'const fs=require("fs"),c=require("crypto");const hash=c.createHash("sha256").update(fs.readFileSync("package-lock.json")).digest("hex");console.log("LOCK_SHA256:"+hash);if(hash!=="d81ff8a6da00a4529f008dea5430291a86cea0093e42149cdfb35776ba2572cd")process.exit(2);'
       - name: Test isolated synthetic API request to mock WAF and owner inbox
         run: node --test scripts/test-ottawa-inquiry-handler.mjs
       - name: Test consent boundaries for synthetic AI requests
