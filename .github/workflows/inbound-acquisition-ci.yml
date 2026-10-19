@@ -51,6 +51,13 @@ jobs:
       - name: Exercise synthetic inquiry route with no provider/network requests
         run: node --test scripts/test-ottawa-inquiry-handler.mjs
 
+      - name: Emit candidate dependency lock metadata for independent review
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f package-lock.json
+          node -e 'const fs=require("fs"),c=require("crypto");const b=fs.readFileSync("package-lock.json");console.log("LOCK_SHA256:"+c.createHash("sha256").update(b).digest("hex"));let s=b.toString("base64");for(let i=0;i<s.length;i+=800)console.log("LOCKCHUNK:"+s.slice(i,i+800)+":ENDLOCKCHUNK");'
+
       - name: Verify optional AI third-party consent with synthetic provider
         run: node --test scripts/test-provider-consent.mjs
 
