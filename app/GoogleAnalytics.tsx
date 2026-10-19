@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 
 // An inquiry does not require tracking. Analytics loads ONLY after an explicit
@@ -14,11 +14,15 @@ export default function GoogleAnalytics() {
   const [ready, setReady] = useState(false);
   const [choice, setChoice] = useState<Choice>(null);
   const [showChoices, setShowChoices] = useState(false);
+  const choiceRef = useRef<Choice>(null);
 
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem(PREFERENCE_KEY);
-      if (saved === "accepted" || saved === "declined") setChoice(saved);
+      if (saved === "accepted" || saved === "declined") {
+        choiceRef.current = saved;
+        setChoice(saved);
+      }
     } catch {
       // Storage blocked: default to no analytics, never silently opt in.
     }
@@ -30,13 +34,12 @@ export default function GoogleAnalytics() {
       if (event.key !== PREFERENCE_KEY && event.key !== null) return;
       const saved = window.localStorage.getItem(PREFERENCE_KEY);
       const next: Choice = saved === "accepted" || saved === "declined" ? saved : null;
-      setChoice((previous) => {
-        if (previous === "accepted" && next !== "accepted") {
-          window.location.reload();
-          return previous;
-        }
-        return next;
-      });
+      if (choiceRef.current === "accepted" && next !== "accepted") {
+        window.location.reload();
+        return;
+      }
+      choiceRef.current = next;
+      setChoice(next);
     }
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -54,6 +57,7 @@ export default function GoogleAnalytics() {
       window.location.reload();
       return;
     }
+    choiceRef.current = next;
     setChoice(next);
     setShowChoices(false);
   }
