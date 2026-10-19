@@ -46,6 +46,7 @@ export default function IdeaGenerator() {
   const [tools, setTools] = useState("");
   const [idea, setIdea] = useState<Idea>(defaultIdea);
   const [loading, setLoading] = useState(false);
+  const [openaiConsent, setOpenaiConsent] = useState(false);
   const [mode, setMode] = useState("ready");
   const [hasResult, setHasResult] = useState(false);
 
@@ -58,7 +59,7 @@ export default function IdeaGenerator() {
       const response = await fetch("/api/idea", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ business, goal, friction, tools })
+        body: JSON.stringify({ business, goal, friction, tools, openaiConsent })
       });
       const data = await response.json();
       setIdea(normalizeIdea(data?.idea));
@@ -104,6 +105,10 @@ export default function IdeaGenerator() {
         <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="Main goal, for example better leads, less admin, faster follow ups" />
         <input value={tools} onChange={(e) => setTools(e.target.value)} placeholder="Current tools, for example website, Gmail, WhatsApp, CRM, Google Sheets" />
         <textarea value={friction} onChange={(e) => setFriction(e.target.value)} placeholder="What feels slow, repetitive, confusing, expensive, or hard to track right now?" />
+        <label className="idea-provider-choice" style={{ display: "flex", gap: 9, alignItems: "flex-start", padding: "10px 0", fontSize: 13 }}>
+          <input type="checkbox" checked={openaiConsent} onChange={(e) => setOpenaiConsent(e.target.checked)} disabled={loading} />
+          <span>Optional: allow OpenAI to process the business, goal, friction and tools you entered to prepare an AI suggestion. Without permission, use a guided suggestion. Avoid confidential information. <a href="/privacy">Privacy details</a>.</span>
+        </label>
         <button type="submit" disabled={loading}>{loading ? "Thinking through your situation..." : "Suggest a helpful starting point →"}</button>
       </form>
       <div className="idea-result">
