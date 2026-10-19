@@ -19,9 +19,14 @@ on:
       - 'app/GlobalPageHeader.tsx'
       - 'app/sitemap.ts'
       - 'app/api/inquiry/**'
+      - 'app/api/chat/route.ts'
+      - 'app/api/idea/route.ts'
+      - 'app/AIAssistant.tsx'
+      - 'app/IdeaGenerator.tsx'
       - 'app/api/lead/**'
       - 'scripts/verify-ottawa-inquiry-integration.mjs'
       - 'scripts/test-ottawa-inquiry-handler.mjs'
+      - 'scripts/test-provider-consent.mjs'
       - '.github/workflows/ottawa-inbound-integration-ci.yml'
   pull_request:
     paths:
@@ -39,9 +44,14 @@ on:
       - 'app/GlobalPageHeader.tsx'
       - 'app/sitemap.ts'
       - 'app/api/inquiry/**'
+      - 'app/api/chat/route.ts'
+      - 'app/api/idea/route.ts'
+      - 'app/AIAssistant.tsx'
+      - 'app/IdeaGenerator.tsx'
       - 'app/api/lead/**'
       - 'scripts/verify-ottawa-inquiry-integration.mjs'
       - 'scripts/test-ottawa-inquiry-handler.mjs'
+      - 'scripts/test-provider-consent.mjs'
       - '.github/workflows/ottawa-inbound-integration-ci.yml'
 
 permissions:
@@ -72,6 +82,8 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Test isolated synthetic API request to mock WAF and owner inbox
         run: node --test scripts/test-ottawa-inquiry-handler.mjs
+      - name: Test consent boundaries for synthetic AI requests
+        run: node --test scripts/test-provider-consent.mjs
       - name: Typecheck and build integration without production deployment
         run: |
           npx tsc --noEmit
