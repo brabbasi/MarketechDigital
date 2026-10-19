@@ -107,7 +107,7 @@ export default function AIAssistant() {
         <div className="ai-quick" aria-label="Quick prompts for Marketech AI assistant">
           {quickReplies.map((q) => <button type="button" key={q} onClick={() => send(q)} disabled={loading}>{q}</button>)}
         </div>
-        <label><input type="checkbox" checked={openaiConsent} onChange={(e) => setOpenaiConsent(e.target.checked)} /> Allow OpenAI to process up to 12 recent chat messages, including earlier messages. Without this, replies use the local guided mode. See <a href="/privacy">Privacy details</a>.</label>
+        <label><input type="checkbox" checked={openaiConsent} onChange={(e) => setOpenaiConsent(e.target.checked)} /> Allow OpenAI to process up to 12 recent chat messages, including earlier messages. Without this, the site provides a guided reply without forwarding your chat to OpenAI. See <a href="/privacy">Privacy details</a>.</label>
         <form className="ai-form" onSubmit={onSubmit}>
           <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about audits, SEO, websites, automation..." aria-label="Describe your project to the Marketech AI assistant" disabled={loading} />
           <button type="submit" disabled={loading} aria-label="Send message to the Marketech AI assistant">➤</button>
