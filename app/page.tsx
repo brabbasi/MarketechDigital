@@ -675,8 +675,7 @@ function ContactModal({ open, onClose, onSend }: { open: boolean; onClose: () =>
           <div className="eyebrow"><span className="dot" />Consultation request</div>
           <h3>Tell me what you need.</h3>
           <p>
-            This form opens an email draft to <strong>abasitabbasi99@gmail.com</strong>. Once you get your domain live,
-            this can switch to your branded email and a backend contact flow.
+            This form opens an email draft to <strong>project@getmarketechdigital.com</strong>. You will review the draft in your email app and choose whether to send it.
           </p>
           <div className="form-grid">
             <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="Your name" />
@@ -740,7 +739,7 @@ export default function Page() {
   const sendEmail = (name: string, email: string, message: string) => {
     const subject = encodeURIComponent("Marketech Digital Inquiry");
     const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
-    window.location.href = `mailto:abasitabbasi99@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:project@getmarketechdigital.com?subject=${subject}&body=${body}`;
     setContactOpen(false);
     showToast("Opening your email app…");
   };
@@ -757,7 +756,7 @@ export default function Page() {
               {
                 "@type": "Organization",
                 name: "Marketech Digital",
-                email: "abasitabbasi99@gmail.com",
+                email: "project@getmarketechdigital.com",
                 description:
                   "Marketech Digital helps businesses implement AI strategy, workflow automation, decision intelligence, and growth systems.",
                 founder: { "@type": "Person", name: "Basit Abbasi" }
@@ -924,7 +923,7 @@ export default function Page() {
             <SectionLabel>Contact</SectionLabel>
             <div className="section-head" style={{ marginBottom: 10 }}>
               <h2>Start the conversation.</h2>
-              <p>Send a message directly to Marketech Digital. For now, this form opens your email app to send a message to <strong>abasitabbasi99@gmail.com</strong>.</p>
+              <p>Send a message directly to Marketech Digital. This fallback opens your email app to draft a message to <strong>project@getmarketechdigital.com</strong>.</p>
             </div>
             <ContactFields onSend={sendEmail} onOpenContact={() => setContactOpen(true)} />
           </div>

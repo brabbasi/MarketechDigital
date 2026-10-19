@@ -53,6 +53,11 @@ export default function ContactClient() {
         <label>What do you need help with?<select name="service" defaultValue={initialService}><option value="" disabled>Select one</option>{needs.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
       </div>
       <label>Message<textarea name="message" rows={5} placeholder="Tell us what you want to improve, fix, or build." /></label>
+      <label style={{ display: "flex", alignItems: "flex-start", gap: 12, lineHeight: 1.55 }}>
+        <input name="consentToContact" type="checkbox" value="yes" required style={{ width: 20, height: 20, flex: "0 0 auto", marginTop: 3 }} />
+        <span>I agree to be contacted by Marketech Digital about this inquiry. This is not consent to marketing campaigns.</span>
+      </label>
+      <input aria-hidden="true" tabIndex={-1} autoComplete="off" name="website_check" style={{ position: "absolute", left: "-9999px", width: 1, height: 1 }} />
       <button type="submit" disabled={sending}>{sending ? "Sending..." : "Request a Free Digital Growth Audit"}</button>
       <small>No pressure. We&apos;ll review your current setup and recommend the clearest next move.</small>
       <p className="contact-status" aria-live="polite">{status}</p>

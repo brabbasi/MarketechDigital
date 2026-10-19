@@ -81,19 +81,6 @@ export default function AIAssistant() {
     }
   }
 
-  async function submitLead() {
-    const lastUser = [...messages].reverse().find((message) => message.role === "user")?.text || "Website visitor requested contact from the AI assistant.";
-    await fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: lastUser,
-        recommendedService: "AI assistant conversation",
-        conversation: messages.map((message) => ({ role: toApiRole(message.role), content: message.text }))
-      })
-    }).catch(() => null);
-  }
-
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     send();
@@ -131,7 +118,7 @@ export default function AIAssistant() {
         <div className="ai-actions">
           <a href="/audit">Free audit</a>
           <a href="/insights">Insights</a>
-          <a href={mailHref} onClick={submitLead}>Contact →</a>
+          <a href={mailHref}>Contact →</a>
         </div>
       </div>
       <style jsx global>{`

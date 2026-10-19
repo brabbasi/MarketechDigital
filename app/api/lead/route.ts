@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { LeadInputError, parseFirstPartyLeadRequest } from "./lead-guards";
 
 export const runtime = "nodejs";
 
@@ -245,20 +246,18 @@ async function sendResendEmail(message: EmailMessage) {
 
 export async function POST(request: Request) {
   try {
-    const payload = (await request.json().catch(() => ({}))) as LeadPayload;
-    const email = sanitize(payload.email, 240);
-    const message = sanitize(payload.message, 2000);
+    // Validate size, same-origin, strict schema and affirmative consent before
+    // composing *any* personal-data email or contacting the provider.
+    const payload = await parseFirstPartyLeadRequest(request);
+    const email = payload.email;
     const leadToEmail = process.env.LEAD_TO_EMAIL || defaultLeadToEmail;
-
-    if (!email && !message) {
-      return NextResponse.json({ ok: false, error: "Please provide at least an email or project message." }, { status: 400 });
-    }
 
     const ownerText = buildOwnerEmailText(payload);
     const ownerHtml = buildOwnerEmailHtml(payload);
 
     if (!process.env.RESEND_API_KEY) {
-      console.error("MARKETECH_LEAD_EMAIL_NOT_CONFIGURED", ownerText);
+      // Do not log inquiry contents merely because an email key is missing.
+      console.error("MARKETECH_LEAD_EMAIL_NOT_CONFIGURED");
       return NextResponse.json(
         {
           ok: false,
@@ -284,8 +283,8 @@ export async function POST(request: Request) {
     });
 
     if (!ownerResponse.ok) {
-      const resendError = await ownerResponse.text();
-      console.error("Resend lead owner email error", resendError);
+      // The remote error body might echo names/email/messages: never log it.
+      console.error("Resend lead owner email status", ownerResponse.status);
       return NextResponse.json(
         { ok: false, mode: "email_failed", error: `Email delivery failed. Please email ${projectEmail} directly.` },
         { status: 502 }
@@ -306,13 +305,17 @@ export async function POST(request: Request) {
         clientReceipt = "sent";
       } else {
         clientReceipt = "failed";
-        console.error("Resend client confirmation error", await clientResponse.text());
+        console.error("Resend client confirmation status", clientResponse.status);
       }
     }
 
     return NextResponse.json({ ok: true, mode: "email", clientReceipt });
   } catch (error) {
-    console.error("Lead route error", error);
+    if (error instanceof LeadInputError) {
+      return NextResponse.json({ ok: false, error: error.code }, { status: error.status });
+    }
+    // Avoid accidental personal-data leakage into platform logs.
+    console.error("Lead route error", error instanceof Error ? error.name : "unknown");
     return NextResponse.json({ ok: false, error: "Lead submission failed." }, { status: 500 });
   }
 }
