@@ -32,8 +32,13 @@ export default function GoogleAnalytics() {
     // Reloading an opted-in tab removes previously mounted GA scripts.
     function onStorage(event: StorageEvent) {
       if (event.key !== PREFERENCE_KEY && event.key !== null) return;
-      const saved = window.localStorage.getItem(PREFERENCE_KEY);
-      const next: Choice = saved === "accepted" || saved === "declined" ? saved : null;
+      let next: Choice = "declined";
+      try {
+        const saved = window.localStorage.getItem(PREFERENCE_KEY);
+        next = saved === "accepted" || saved === "declined" ? saved : null;
+      } catch {
+        // If storage becomes unavailable after opt-in, stop tracking.
+      }
       if (choiceRef.current === "accepted" && next !== "accepted") {
         window.location.reload();
         return;
