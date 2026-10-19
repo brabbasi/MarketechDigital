@@ -166,6 +166,10 @@ export async function POST(request: Request) {
 
   const fallback = localIdea(input);
 
+  if (body.openaiConsent !== true) {
+    return NextResponse.json({ idea: fallback, mode: "guided", reason: "openai_consent_not_granted" });
+  }
+
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json({ idea: fallback, mode: "guided", reason: "missing_openai_api_key" });
   }
