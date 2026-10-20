@@ -13,6 +13,7 @@ on:
       - 'app/IdeaGenerator.tsx'
       - 'app/AcquisitionGuard.tsx'
       - 'app/AIAssistant.tsx'
+      - 'app/bot-position-fix.css'
       - 'app/UXFixLayer.tsx'
       - 'app/layout.tsx'
       - 'app/page.tsx'
