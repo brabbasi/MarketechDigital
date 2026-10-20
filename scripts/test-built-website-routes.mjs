@@ -86,7 +86,7 @@ try {
   // must be used for hydration, checkbox interaction and consent acceptance.
   const contactClient = readFileSync("app/contact/ContactClient.tsx", "utf8");
   assert.match(contactClient, /name="consentToContact"/);
-  assert.match(contactClient, /href="\\/privacy"/);
+  assert.ok(contactClient.includes('href="/privacy"'), "visible contact privacy link must remain");
   console.log("CONTACT_CLIENT_SOURCE_CONSENT_GUARD=PASS");
     console.log("BUILT_NEXT_GET_SMOKE=PASS");
   console.log("BROWSER_INTERACTION=NOT_TESTED");
