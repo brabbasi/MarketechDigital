@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 type UiMessage = {
   role: "user" | "assistant" | "bot";
@@ -31,6 +31,7 @@ function modeLabel(mode: AssistantMode, reason?: string) {
 
 export default function AIAssistant() {
   const [mounted, setMounted] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,6 +45,56 @@ export default function AIAssistant() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const panel = panelRef.current;
+    const viewport = window.visualViewport;
+    if (!panel) return;
+    let scheduled = 0;
+    function updatePosition() {
+      if (!panel) return;
+      const focusedInput = panel.contains(document.activeElement)
+        && document.activeElement?.tagName === "INPUT";
+      const mobile = window.matchMedia("(max-width: 560px)").matches;
+      if (mobile && focusedInput && viewport) {
+        // visualViewport is the portion actually visible above the keyboard;
+        // 100svh can still include the area obscured by an on-screen keyboard.
+        const available = Math.max(160, Math.floor(viewport.height - 12));
+        panel.style.setProperty("--ai-mobile-top", `${Math.round(viewport.offsetTop + 6)}px`);
+        panel.style.setProperty("--ai-mobile-bottom", "auto");
+        panel.style.setProperty("--ai-mobile-height", `${Math.min(640, available)}px`);
+      } else {
+        for (const key of ["--ai-mobile-top", "--ai-mobile-bottom", "--ai-mobile-height"]) {
+          panel.style.removeProperty(key);
+        }
+      }
+    }
+    function onViewportChange() {
+      if (scheduled) window.cancelAnimationFrame(scheduled);
+      scheduled = window.requestAnimationFrame(() => {
+        scheduled = 0;
+        updatePosition();
+      });
+    }
+    updatePosition();
+    window.addEventListener("resize", onViewportChange);
+    viewport?.addEventListener("resize", onViewportChange);
+    viewport?.addEventListener("scroll", onViewportChange);
+    panel.addEventListener("focusin", onViewportChange);
+    panel.addEventListener("focusout", onViewportChange);
+    return () => {
+      if (scheduled) window.cancelAnimationFrame(scheduled);
+      window.removeEventListener("resize", onViewportChange);
+      viewport?.removeEventListener("resize", onViewportChange);
+      viewport?.removeEventListener("scroll", onViewportChange);
+      panel.removeEventListener("focusin", onViewportChange);
+      panel.removeEventListener("focusout", onViewportChange);
+      for (const key of ["--ai-mobile-top", "--ai-mobile-bottom", "--ai-mobile-height"]) {
+        panel.style.removeProperty(key);
+      }
+    };
+  }, [open]);
 
   async function send(text = input) {
     const value = text.trim();
@@ -89,7 +140,7 @@ export default function AIAssistant() {
       <button className="ai-launcher" type="button" onClick={() => setOpen(true)} aria-label="Open Marketech AI assistant">
         <Image src={founderImage} alt="Basit Abbasi AI assistant" width={72} height={72} priority={false} unoptimized />
       </button>
-      <div className={`ai-panel ${open ? "show" : ""}`} aria-hidden={!open} role="dialog" aria-modal="true" aria-label="Marketech Digital AI assistant">
+      <div ref={panelRef} className={`ai-panel ${open ? "show" : ""}`} aria-hidden={!open} role="dialog" aria-modal="true" aria-label="Marketech Digital AI assistant">
         <div className="ai-head">
           <div className="ai-avatar"><Image src={founderImage} alt="Basit Abbasi AI assistant" width={54} height={54} unoptimized /></div>
           <div>
