@@ -27,6 +27,7 @@ on:
       - 'scripts/verify-ottawa-inquiry-integration.mjs'
       - 'scripts/test-ottawa-inquiry-handler.mjs'
       - 'scripts/test-provider-consent.mjs'
+      - 'scripts/test-built-website-routes.mjs'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/ottawa-inbound-integration-ci.yml'
@@ -54,6 +55,7 @@ on:
       - 'scripts/verify-ottawa-inquiry-integration.mjs'
       - 'scripts/test-ottawa-inquiry-handler.mjs'
       - 'scripts/test-provider-consent.mjs'
+      - 'scripts/test-built-website-routes.mjs'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/ottawa-inbound-integration-ci.yml'
@@ -96,6 +98,9 @@ jobs:
         run: |
           npx tsc --noEmit
           npm run build
+      - name: Exercise built Next.js public routes without submitting forms
+        run: node scripts/test-built-website-routes.mjs
+
       - name: Enforce release boundaries
         run: |
           test -f app/api/inquiry/route.ts
