@@ -51,17 +51,27 @@ export default function GoogleAnalytics() {
   }, []);
 
   function choose(next: "accepted" | "declined") {
+    let persisted = false;
     try {
       window.localStorage.setItem(PREFERENCE_KEY, next);
+      persisted = window.localStorage.getItem(PREFERENCE_KEY) === next;
     } catch {
-      // The current page respects the selection even if it cannot be saved.
+      // Never reload back into a stale persisted "accepted" value.
     }
-    if (choice === "accepted" && next === "declined") {
-      // An already-loaded third-party script cannot be reliably unloaded;
-      // reload so declined analytics scripts are not mounted on the new page.
-      window.location.reload();
+    if (next === "declined") {
+      // Prevent further GA hits immediately, including if storage is unavailable.
+      if (measurementId) {
+        (window as unknown as Record<string, boolean>)[`ga-disable-${measurementId}`] = true;
+      }
+      choiceRef.current = "declined";
+      setChoice("declined");
+      setShowChoices(false);
+      // Reload only if the persisted value was successfully replaced; otherwise
+      // a reload would silently restore the previously accepted preference.
+      if (choice === "accepted" && persisted) window.location.reload();
       return;
     }
+    // In a non-persistent browser, keep the choice local to this tab only.
     choiceRef.current = next;
     setChoice(next);
     setShowChoices(false);
