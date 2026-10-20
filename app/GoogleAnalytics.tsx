@@ -43,8 +43,10 @@ export default function GoogleAnalytics() {
       if (event.key !== PREFERENCE_KEY && event.key !== null) return;
       let next: Choice = "declined";
       try {
+        const refusal = window.sessionStorage.getItem(SESSION_REFUSAL_KEY);
         const saved = window.localStorage.getItem(PREFERENCE_KEY);
-        next = saved === "accepted" || saved === "declined" ? saved : null;
+        next = refusal === "declined" ? "declined"
+          : saved === "accepted" || saved === "declined" ? saved : null;
       } catch {
         // If storage becomes unavailable after opt-in, stop tracking.
       }
@@ -66,6 +68,7 @@ export default function GoogleAnalytics() {
           if (measurementId) {
             (window as unknown as Record<string, boolean>)[`ga-disable-${measurementId}`] = true;
           }
+          const hadAnalytics = choiceRef.current === "accepted";
           try { window.sessionStorage.setItem(SESSION_REFUSAL_KEY, "declined"); } catch {}
           choiceRef.current = "declined";
           setChoice("declined");
@@ -78,7 +81,7 @@ export default function GoogleAnalytics() {
             safeReload = window.sessionStorage.getItem(SESSION_REFUSAL_KEY) === "declined"
               || window.localStorage.getItem(PREFERENCE_KEY) === "declined";
           } catch {}
-          if (safeReload) window.location.reload();
+          if (hadAnalytics && safeReload) window.location.reload();
         };
         channelRef.current = channel;
       }
