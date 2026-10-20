@@ -8,6 +8,8 @@ import Script from "next/script";
 const configuredId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-JEMN04ZWC8";
 const measurementId = /^G-[A-Z0-9]{6,20}$/.test(configuredId) ? configuredId : "";
 const PREFERENCE_KEY = "marketech-analytics-choice-v1";
+const SESSION_REFUSAL_KEY = "marketech-analytics-session-refusal-v1";
+const WITHDRAWAL_CHANNEL = "marketech-analytics-withdrawal-v1";
 type Choice = "accepted" | "declined" | null;
 
 export default function GoogleAnalytics() {
@@ -15,13 +17,20 @@ export default function GoogleAnalytics() {
   const [choice, setChoice] = useState<Choice>(null);
   const [showChoices, setShowChoices] = useState(false);
   const choiceRef = useRef<Choice>(null);
+  const channelRef = useRef<BroadcastChannel | null>(null);
 
   useEffect(() => {
     try {
-      const saved = window.localStorage.getItem(PREFERENCE_KEY);
-      if (saved === "accepted" || saved === "declined") {
-        choiceRef.current = saved;
-        setChoice(saved);
+      const refusal = window.sessionStorage.getItem(SESSION_REFUSAL_KEY);
+      if (refusal === "declined") {
+        choiceRef.current = "declined";
+        setChoice("declined");
+      } else {
+        const saved = window.localStorage.getItem(PREFERENCE_KEY);
+        if (saved === "accepted" || saved === "declined") {
+          choiceRef.current = saved;
+          setChoice(saved);
+        }
       }
     } catch {
       // Storage blocked: default to no analytics, never silently opt in.
@@ -46,8 +55,42 @@ export default function GoogleAnalytics() {
       choiceRef.current = next;
       setChoice(next);
     }
+    let channel: BroadcastChannel | null = null;
+    try {
+      if (typeof BroadcastChannel !== "undefined") {
+        channel = new BroadcastChannel(WITHDRAWAL_CHANNEL);
+        channel.onmessage = (event: MessageEvent) => {
+          if (event.data?.type !== "ANALYTICS_WITHDRAWN") return;
+          // BroadcastChannel works even when localStorage.setItem is denied,
+          // in which case normal "storage" events never fire in other tabs.
+          if (measurementId) {
+            (window as unknown as Record<string, boolean>)[`ga-disable-${measurementId}`] = true;
+          }
+          try { window.sessionStorage.setItem(SESSION_REFUSAL_KEY, "declined"); } catch {}
+          choiceRef.current = "declined";
+          setChoice("declined");
+          setShowChoices(false);
+          // Existing GA scripts cannot be unloaded just by unmounting React.
+          // Only reload when a refusal survives reload (session override OR
+          // persisted decline); otherwise retain the immediate ga-disable flag.
+          let safeReload = false;
+          try {
+            safeReload = window.sessionStorage.getItem(SESSION_REFUSAL_KEY) === "declined"
+              || window.localStorage.getItem(PREFERENCE_KEY) === "declined";
+          } catch {}
+          if (safeReload) window.location.reload();
+        };
+        channelRef.current = channel;
+      }
+    } catch {
+      // Degrade to existing same-origin storage event propagation.
+    }
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      channel?.close();
+      if (channelRef.current === channel) channelRef.current = null;
+    };
   }, []);
 
   function choose(next: "accepted" | "declined") {
@@ -59,6 +102,10 @@ export default function GoogleAnalytics() {
       // Never reload back into a stale persisted "accepted" value.
     }
     if (next === "declined") {
+      // The session refusal prevents restoring stale 'accepted' localStorage
+      // if a storage write fails while the visitor withdraws permission.
+      try { window.sessionStorage.setItem(SESSION_REFUSAL_KEY, "declined"); } catch {}
+      try { channelRef.current?.postMessage({ type: "ANALYTICS_WITHDRAWN" }); } catch {}
       // Prevent further GA hits immediately, including if storage is unavailable.
       if (measurementId) {
         (window as unknown as Record<string, boolean>)[`ga-disable-${measurementId}`] = true;
@@ -71,6 +118,8 @@ export default function GoogleAnalytics() {
       if (choice === "accepted" && persisted) window.location.reload();
       return;
     }
+    // A fresh affirmative choice in this tab overrides its old session refusal.
+    try { window.sessionStorage.removeItem(SESSION_REFUSAL_KEY); } catch {}
     // In a non-persistent browser, keep the choice local to this tab only.
     choiceRef.current = next;
     setChoice(next);
