@@ -35,3 +35,29 @@ for (const path of files) {
     assert.equal(h.calls.length, 1);
   });
 }
+
+test("analytics opt-out signals other tabs even when storage write fails", () => {
+  const source = readFileSync("app/GoogleAnalytics.tsx", "utf8");
+  assert.match(source, /new BroadcastChannel\(WITHDRAWAL_CHANNEL\)/);
+  assert.match(source, /channelRef\.current\?\.postMessage\(\{ type: "ANALYTICS_WITHDRAWN" \}\)/);
+  assert.match(source, /channel\.onmessage/);
+  assert.match(source, /ga-disable-/);
+  assert.match(source, /SESSION_REFUSAL_KEY/);
+  assert.match(source, /hadAnalytics && safeReload/);
+  assert.match(source, /channel\?\.close\(\)/);
+});
+
+test("mobile keyboard changes actual assistant scrollport, not just svh CSS", () => {
+  const source = readFileSync("app/AIAssistant.tsx", "utf8");
+  const css = readFileSync("app/bot-position-fix.css", "utf8");
+  assert.match(source, /window\.visualViewport/);
+  assert.match(source, /viewport\?\.addEventListener\("resize", onViewportChange\)/);
+  assert.match(source, /viewport\?\.addEventListener\("scroll", onViewportChange\)/);
+  assert.match(source, /focusin/);
+  assert.match(source, /--ai-mobile-height/);
+  assert.match(source, /--ai-mobile-top/);
+  assert.match(css, /height: var\(--ai-mobile-height,/);
+  assert.match(css, /top: var\(--ai-mobile-top,/);
+  assert.match(css, /bottom: var\(--ai-mobile-bottom,/);
+  assert.match(source, /overflow-y: auto;/);
+});
