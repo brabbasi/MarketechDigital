@@ -107,7 +107,7 @@ export default function AIAssistant() {
         <div className="ai-quick" aria-label="Quick prompts for Marketech AI assistant">
           {quickReplies.map((q) => <button type="button" key={q} onClick={() => send(q)} disabled={loading}>{q}</button>)}
         </div>
-        <label><input type="checkbox" checked={openaiConsent} onChange={(e) => setOpenaiConsent(e.target.checked)} /> Allow OpenAI to process up to 12 recent chat messages, including earlier messages. Without this, the site provides a guided reply without forwarding your chat to OpenAI. See <a href="/privacy">Privacy details</a>.</label>
+        <label className="ai-provider-consent"><input type="checkbox" checked={openaiConsent} onChange={(e) => setOpenaiConsent(e.target.checked)} /> Allow OpenAI to process up to 12 recent chat messages, including earlier messages. Without this, the site provides a guided reply without forwarding your chat to OpenAI. See <a href="/privacy">Privacy details</a>.</label>
         <form className="ai-form" onSubmit={onSubmit}>
           <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about audits, SEO, websites, automation..." aria-label="Describe your project to the Marketech AI assistant" disabled={loading} />
           <button type="submit" disabled={loading} aria-label="Send message to the Marketech AI assistant">➤</button>
@@ -155,7 +155,9 @@ export default function AIAssistant() {
           color: #fff;
           box-shadow: 0 30px 120px rgba(0,0,0,.62);
           backdrop-filter: blur(18px);
-          overflow: hidden;
+          overflow-x: hidden;
+          overflow-y: auto;
+          overscroll-behavior: contain;
           opacity: 0;
           transform: translateY(16px) scale(.96);
           pointer-events: none;
@@ -168,7 +170,8 @@ export default function AIAssistant() {
         .ai-head strong { display: block; font-size: 12px; letter-spacing: .22em; }
         .ai-head span { display: block; margin-top: 4px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); }
         .ai-head button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: rgba(255,255,255,.75); font-size: 26px; cursor: pointer; }
-        .ai-messages { flex: 1; overflow: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+        .ai-messages { flex: 1 0 100px; min-height: 100px; overflow: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+        .ai-provider-consent, .ai-form, .ai-actions { flex-shrink: 0; }
         .ai-message { max-width: 90%; padding: 15px 16px; border-radius: 20px; line-height: 1.55; font-size: 14px; white-space: pre-wrap; }
         .ai-message.bot { align-self: flex-start; background: #f5f5f2; color: #101010; border-top-left-radius: 6px; }
         .ai-message.user { align-self: flex-end; background: rgba(255,106,0,.16); border: 1px solid rgba(255,106,0,.26); color: #fff; border-top-right-radius: 6px; }
