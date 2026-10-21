@@ -69,3 +69,12 @@ body > .ai-panel {
     max-height: var(--ai-mobile-height, min(640px, calc(100svh - 118px))) !important;
   }
 }
+
+/* Also covers rotated phones wider than 560px. The class is set only while
+   an input is focused on a compact or keyboard-occluded visual viewport. */
+.ai-panel.ai-keyboard-adjusted {
+  top: var(--ai-mobile-top, auto) !important;
+  bottom: var(--ai-mobile-bottom, auto) !important;
+  height: var(--ai-mobile-height, auto) !important;
+  max-height: var(--ai-mobile-height, none) !important;
+}
