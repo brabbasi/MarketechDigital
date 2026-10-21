@@ -56,11 +56,18 @@ export default function AIAssistant() {
       if (!panel) return;
       const focusedInput = panel.contains(document.activeElement)
         && document.activeElement?.tagName === "INPUT";
-      const mobile = window.matchMedia("(max-width: 560px)").matches;
-      if (mobile && focusedInput && viewport) {
+      // A rotated phone can be 600-900px wide while only 200px of the
+      // visual viewport remains above its keyboard. Width alone is unsafe.
+      const compactScreen = window.matchMedia("(max-width: 560px), (max-height: 560px)").matches;
+      const keyboardOccluded = !!viewport &&
+        viewport.height + viewport.offsetTop < window.innerHeight - 72;
+      const adjustToKeyboard = !!viewport && focusedInput &&
+        (compactScreen || keyboardOccluded);
+      panel.classList.toggle("ai-keyboard-adjusted", adjustToKeyboard);
+      if (adjustToKeyboard && viewport) {
         // visualViewport is the portion actually visible above the keyboard;
         // 100svh can still include the area obscured by an on-screen keyboard.
-        const available = Math.max(160, Math.floor(viewport.height - 12));
+        const available = Math.max(96, Math.floor(viewport.height - 12));
         panel.style.setProperty("--ai-mobile-top", `${Math.round(viewport.offsetTop + 6)}px`);
         panel.style.setProperty("--ai-mobile-bottom", "auto");
         panel.style.setProperty("--ai-mobile-height", `${Math.min(640, available)}px`);
@@ -90,6 +97,7 @@ export default function AIAssistant() {
       viewport?.removeEventListener("scroll", onViewportChange);
       panel.removeEventListener("focusin", onViewportChange);
       panel.removeEventListener("focusout", onViewportChange);
+      panel.classList.remove("ai-keyboard-adjusted");
       for (const key of ["--ai-mobile-top", "--ai-mobile-bottom", "--ai-mobile-height"]) {
         panel.style.removeProperty(key);
       }
