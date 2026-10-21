@@ -68,7 +68,7 @@ test("consent restored after decline clears GA disabled flag in current tab", ()
   assert.match(handler, /if \(next === "declined"\)/);
   assert.match(handler, /\[`ga-disable-\$\{measurementId\}`\] = true/);
   assert.match(handler, /\[`ga-disable-\$\{measurementId\}`\] = false/);
-  assert.ok(handler.indexOf("= false;") > handler.indexOf('if (next === "declined")'), "restore must run only on affirmative branch");
+  assert.ok(handler.indexOf("] = false;") > handler.indexOf('if (next === "declined")'), "restore must run only on affirmative branch");
 });
 
 test("assistant keyboard layout supports short landscape phones wider than 560px", () => {
