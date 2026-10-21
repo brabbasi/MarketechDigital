@@ -19,6 +19,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9
     },
     {
+      url: absoluteUrl("/solutions/ottawa"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.87
+    },
+    {
       url: absoluteUrl("/insights"),
       lastModified: now,
       changeFrequency: "weekly",

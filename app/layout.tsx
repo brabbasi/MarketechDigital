@@ -5,6 +5,7 @@ import GlobalPageHeader from "./GlobalPageHeader";
 import HeaderSignalQuote from "./HeaderSignalQuote";
 import FutureLayer from "./FutureLayer";
 import UXFixLayer from "./UXFixLayer";
+import AcquisitionGuard from "./AcquisitionGuard";
 import HomeV1CleanupLayer from "./HomeV1CleanupLayer";
 import EmailRoutingLayer from "./EmailRoutingLayer";
 import FooterSocialLayer from "./FooterSocialLayer";
@@ -142,6 +143,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <AuditPopup />
         <FutureLayer />
+        <AcquisitionGuard />
         <UXFixLayer />
         <HomeV1CleanupLayer />
         <EmailRoutingLayer />

@@ -1,0 +1,60 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+
+const read = (path) => fs.readFileSync(path, "utf8");
+const page = read("app/solutions/ottawa/page.tsx");
+const contact = read("app/contact/ContactClient.tsx");
+const inquiry = read("app/api/inquiry/route.ts");
+const popup = read("app/UXFixLayer.tsx");
+const assistant = read("app/AIAssistant.tsx");
+const retired = read("app/api/lead/route.ts");
+const home = read("app/page.tsx");
+const hydratedHome = read("app/HomeV1CleanupLayer.tsx");
+const about = read("app/about/page.tsx");
+const founder = read("app/founder/page.tsx");
+const dice = read("app/GlobalLogoCube.tsx");
+const innerDice = read("app/GlobalPageHeader.tsx");
+const diceComponent = read("components/MarketechDiceNav.tsx");
+const sitemap = read("app/sitemap.ts");
+
+const offers = ["lead-rescue", "trades-funnel", "internal-ai-pilot", "content-sprint"];
+for (const offer of offers) {
+  assert.ok(page.includes(`slug: "${offer}"`), "missing landing-page offer: "+offer);
+  assert.ok(contact.includes(`"${offer}":`), "missing governed contact offer allowlist: "+offer);
+}
+assert.ok(contact.includes('fetch("/api/inquiry"'), "contact form must use governed inquiry path");
+assert.ok(!contact.includes('fetch("/api/lead"'), "legacy lead sender must be unreachable from contact");
+assert.ok(retired.includes("status: 410"), "legacy lead route must remain hard-retired");
+assert.ok(!popup.includes('fetch("/api/lead"'), "global contact surface cannot submit to retired endpoint");
+assert.ok(!popup.includes('fetch("/api/inquiry"'), "global contact must use canonical contact form, not duplicate sender");
+assert.ok(popup.includes('window.location.assign("/contact?source=website-contact-popup'), "popup-triggered intent must reach current guarded form");
+assert.ok(!popup.includes('href.startsWith("mailto:")'), "direct email fallback must not be intercepted");
+assert.ok(!popup.includes('text.includes("send message")'), "home mail draft must not be intercepted");
+assert.ok(assistant.includes('href={contactHref}') && contact.includes('fetch("/api/inquiry"'), "assistant contact must lead to guarded form");
+assert.ok(contact.includes('name="consentToContact"'), "real contact form must require inquiry-only consent");
+assert.ok(inquiry.includes('input.consentToContact !== "yes"'), "server must enforce contact permission");
+assert.ok(!inquiry.includes('console.error("MARKETECH_INQUIRY_OWNER_SEND_FAILED", detail)'), "provider response contents must not be logged");
+assert.ok(inquiry.includes('request.body.getReader()'), "API body must be streamed under size cap");
+assert.ok(inquiry.includes("Idempotency-Key"), "governed inquiry must keep provider idempotency");
+assert.ok(contact.includes("submissionId: submissionIdRef.current"), "client submission identity required");
+assert.ok(contact.includes('companyUrl2'), "anti-bot honeypot required");
+assert.ok(contact.includes('defaultValue={initialMessage}'), "safe offer prefill must remain editable");
+assert.ok(contact.includes("offer: approvedOffer ? offerSlug :"), "reviewed offer code must be in API payload even if editable message changes");
+assert.ok(inquiry.includes("APPROVED_OFFER_NAMES"), "server must map offer slug to accepted public offer only");
+assert.ok(inquiry.includes('["Selected public offer", data.offer]'), "owner inbox must retain the selected offer independently of message");
+assert.ok(!contact.includes("offer: params.get("), "raw unreviewed URL attribution must not be sent");
+for (const source of [home, hydratedHome, dice, innerDice, about, founder, sitemap]) {
+  assert.ok(source.includes("/solutions/ottawa"), "offer route missing discoverability surface");
+}
+assert.ok(diceComponent.includes("max-height:calc(100dvh - 94px)"), "mobile dice menu must fit short viewports");
+assert.ok(diceComponent.includes("overflow-y:auto"), "mobile dice menu must allow scrolling to last Contact link");
+assert.ok(contact.includes('"Lead capture / quote forms"'), "lead rescue contact category missing");
+assert.ok(contact.includes('"Video editing / content"'), "content sprint contact category missing");
+assert.ok(page.includes('service: "Workflow automation"'), "AI offer should use governed service category");
+assert.ok(page.includes('service: "Website / web app"'), "trades offer should use governed service category");
+assert.ok(page.includes('offerHref("lead-rescue", "Lead capture / quote forms")'), "hero lead CTA must preselect a governed service");
+assert.ok(!page.includes("guaranteed leads"), "no guaranteed lead-volume claims");
+console.log("OTTAWA_OFFERS_INBOUND_INTEGRATION=PASS");
+console.log("SINGLE_GOVERNED_SENDER=/api/inquiry");
+console.log("LEGACY_LEAD_SENDER=410");
+console.log("LIVE_PRODUCTION_RELEASE_AND_CUSTOMER_OUTBOUND=NOT_AUTHORIZED");

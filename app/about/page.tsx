@@ -17,6 +17,7 @@ const aboutNavItems = [
   { label: "About", href: "/about" },
   { label: "Founder", href: "/founder" },
   { label: "Services", href: "/services" },
+  { label: "Ottawa Packages", href: "/solutions/ottawa" },
   { label: "Offers", href: "/#offers" },
   { label: "Contact", href: "/#contact" }
 ];

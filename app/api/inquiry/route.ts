@@ -1,0 +1,371 @@
+import { checkRateLimit } from "@vercel/firewall";
+import { NextResponse } from "next/server";
+
+export const runtime = "nodejs";
+
+const MAX_BODY_BYTES = 32_000;
+const INQUIRY_RATE_LIMIT_ID = "marketech-inquiry-owner-notification";
+
+const ALLOWED_SOURCES = new Set(["website-contact", "website-contact-popup", "idea-helper", "ai-assistant"]);
+const ALLOWED_MEDIUMS = new Set(["website"]);
+const ALLOWED_CAMPAIGNS = new Set(["", "site-contact-popup", "inbound-idea-helper", "assistant-contact"]);
+const ALLOWED_FIRST_TOUCH = new Set(["", "Idea Helper recommendation", "Talk to Basit"]);
+const ALLOWED_RECOMMENDED_SERVICES = new Set([
+  "Website / web app", "Lead capture / quote forms", "Video editing / content",
+  "SEO / GEO / local search", "AI strategy", "Workflow automation",
+  "AI website agent / lead qualification", "Dashboard / decision intelligence",
+  "Custom software / internal tool", "Digital marketing / growth campaign",
+  "Branding / messaging", "TradePilot AI", "Partnership / implementation",
+  "Not sure yet", "Idea Helper recommendation", "AI assistant conversation"
+]);
+const APPROVED_OFFER_NAMES: Record<string, string> = {
+  "lead-rescue": "Lead Capture Rescue",
+  "trades-funnel": "Trades Quote Funnel",
+  "content-sprint": "Short-Form Content Sprint",
+  "internal-ai-pilot": "Internal AI Workflow Pilot"
+};
+// Offer attribution is intentionally limited to these four public slugs.
+// It is not user-authored message text or a pricing/contract commitment.
+
+type LeadPayload = {
+  submissionId?: string;
+  consentToContact?: string | boolean;
+  name?: string;
+  email?: string;
+  phone?: string;
+  company?: string;
+  website?: string;
+  business?: string;
+  service?: string;
+  preferredContact?: string;
+  message?: string;
+  budget?: string;
+  recommendedService?: string;
+  offer?: string;
+  source?: string;
+  medium?: string;
+  campaign?: string;
+  referrer?: string;
+  landingPage?: string;
+  firstTouchOffer?: string;
+  companyUrl2?: string;
+};
+
+type EmailMessage = {
+  to: string[];
+  subject: string;
+  text: string;
+  html: string;
+  replyTo?: string;
+  idempotencyKey: string;
+};
+
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://getmarketechdigital.com").replace(/\/$/, "");
+const leadToEmail = process.env.LEAD_TO_EMAIL || "project@getmarketechdigital.com";
+const projectEmail = "project@getmarketechdigital.com";
+const contactEmail = "contact@getmarketechdigital.com";
+
+function clean(value: unknown, limit = 500) {
+  return typeof value === "string" ? value.trim().slice(0, limit) : "";
+}
+
+function pickAllowed(value: unknown, allowed: Set<string>, fallback = "") {
+  const candidate = clean(value, 180);
+  return allowed.has(candidate) ? candidate : fallback;
+}
+
+function safeLandingPath(value: unknown) {
+  const candidate = clean(value, 500);
+  if (!candidate.startsWith("/") || candidate.startsWith("//")) return "";
+  return candidate.split(/[?#]/, 1)[0].slice(0, 500);
+}
+
+function safeReferrer(value: unknown) {
+  const candidate = clean(value, 500);
+  if (!candidate) return "";
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return "";
+    return `${parsed.origin}${parsed.pathname}`.slice(0, 500);
+  } catch {
+    return "";
+  }
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isValidSubmissionId(value: string) {
+  return /^[A-Za-z0-9][A-Za-z0-9_-]{7,127}$/.test(value);
+}
+
+function isSameOriginRequest(request: Request) {
+  const origin = request.headers.get("origin");
+  const fetchSite = request.headers.get("sec-fetch-site");
+  if (!origin) return false;
+
+  try {
+    if (origin !== new URL(request.url).origin) return false;
+  } catch {
+    return false;
+  }
+
+  return !fetchSite || fetchSite === "same-origin";
+}
+
+async function enforceInquiryRateLimit(request: Request) {
+  try {
+    const limitResult = await checkRateLimit(INQUIRY_RATE_LIMIT_ID, { request });
+
+    // The Vercel SDK can return a non-limiting error when a referenced dashboard
+    // rule is missing/unavailable. For this public mail-producing endpoint, that
+    // must fail closed instead of silently removing the abuse boundary.
+    if ("error" in limitResult && limitResult.error) {
+      console.error("MARKETECH_INQUIRY_RATE_LIMIT_UNAVAILABLE");
+      return NextResponse.json(
+        { ok: false, error: `The inquiry form is temporarily unavailable. Please email ${projectEmail} directly.` },
+        { status: 503, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
+    if (limitResult.rateLimited) {
+      return NextResponse.json(
+        { ok: false, error: "Too many inquiry attempts. Please wait a minute and try again." },
+        { status: 429, headers: { "Retry-After": "60", "Cache-Control": "no-store" } }
+      );
+    }
+
+    return null;
+  } catch (error) {
+    console.error("MARKETECH_INQUIRY_RATE_LIMIT_FAILED", error instanceof Error ? error.name : "unknown");
+    return NextResponse.json(
+      { ok: false, error: `The inquiry form is temporarily unavailable. Please email ${projectEmail} directly.` },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
+    );
+  }
+}
+
+function normalize(payload: LeadPayload) {
+  return {
+    submissionId: clean(payload.submissionId, 128),
+    name: clean(payload.name, 160),
+    email: clean(payload.email, 240),
+    phone: clean(payload.phone, 120),
+    company: clean(payload.company, 240),
+    website: clean(payload.website, 500),
+    business: clean(payload.business, 240),
+    service: clean(payload.service, 240),
+    preferredContact: clean(payload.preferredContact, 120),
+    message: clean(payload.message, 2400),
+    budget: clean(payload.budget, 160),
+    recommendedService: pickAllowed(payload.recommendedService, ALLOWED_RECOMMENDED_SERVICES),
+    offer: (
+      typeof payload.offer === "string"
+      && Object.prototype.hasOwnProperty.call(APPROVED_OFFER_NAMES, payload.offer)
+      ? APPROVED_OFFER_NAMES[payload.offer] : ""
+    ),
+    source: pickAllowed(payload.source, ALLOWED_SOURCES, "website-contact"),
+    medium: pickAllowed(payload.medium, ALLOWED_MEDIUMS, "website"),
+    campaign: pickAllowed(payload.campaign, ALLOWED_CAMPAIGNS),
+    referrer: safeReferrer(payload.referrer),
+    landingPage: safeLandingPath(payload.landingPage),
+    firstTouchOffer: pickAllowed(payload.firstTouchOffer, ALLOWED_FIRST_TOUCH),
+    companyUrl2: clean(payload.companyUrl2, 240)
+  };
+}
+
+function ownerText(data: ReturnType<typeof normalize>) {
+  const rows = [
+    ["Lead ID", data.submissionId],
+    ["Name", data.name],
+    ["Email", data.email],
+    ["Phone", data.phone],
+    ["Company", data.company],
+    ["Website", data.website],
+    ["Business type", data.business],
+    ["Service", data.service],
+    ["Recommended service", data.recommendedService],
+    ["Selected public offer", data.offer],
+    ["First-touch offer", data.firstTouchOffer],
+    ["Budget", data.budget],
+    ["Preferred contact", data.preferredContact],
+    ["Source", data.source],
+    ["Medium", data.medium],
+    ["Campaign", data.campaign],
+    ["Landing page", data.landingPage],
+    ["Referrer", data.referrer]
+  ];
+
+  return `New Marketech Digital inquiry\n\n${rows
+    .filter(([, value]) => value)
+    .map(([label, value]) => `${label}: ${value}`)
+    .join("\n")}\n\nProject details:\n${data.message || "Not provided"}`;
+}
+
+function ownerHtml(data: ReturnType<typeof normalize>) {
+  const rows = [
+    ["Lead ID", data.submissionId],
+    ["Name", data.name],
+    ["Email", data.email],
+    ["Phone", data.phone],
+    ["Company", data.company],
+    ["Website", data.website],
+    ["Business type", data.business],
+    ["Service", data.service],
+    ["Recommended service", data.recommendedService],
+    ["Selected public offer", data.offer],
+    ["First-touch offer", data.firstTouchOffer],
+    ["Budget", data.budget],
+    ["Preferred contact", data.preferredContact],
+    ["Source", data.source],
+    ["Medium", data.medium],
+    ["Campaign", data.campaign],
+    ["Landing page", data.landingPage],
+    ["Referrer", data.referrer]
+  ];
+
+  const details = rows
+    .filter(([, value]) => value)
+    .map(([label, value]) => `<tr><td style="padding:6px 12px 6px 0;color:#6b7280;vertical-align:top;">${escapeHtml(label)}</td><td style="padding:6px 0;color:#111827;">${escapeHtml(value)}</td></tr>`)
+    .join("");
+
+  return `<!doctype html><html><body style="margin:0;padding:24px;font-family:Arial,Helvetica,sans-serif;color:#111827;background:#ffffff;"><div style="max-width:640px;"><div style="font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#d35400;">Marketech Digital</div><h1 style="font-size:24px;margin:10px 0 18px;">New project inquiry</h1><table style="border-collapse:collapse;font-size:14px;line-height:1.5;">${details}</table><h2 style="font-size:16px;margin:24px 0 8px;">Project details</h2><p style="font-size:15px;line-height:1.7;white-space:pre-wrap;">${escapeHtml(data.message || "Not provided")}</p></div></body></html>`;
+}
+
+async function sendResendEmail(message: EmailMessage) {
+  const from = process.env.LEAD_FROM_EMAIL || `Marketech Digital <${contactEmail}>`;
+  return fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+      "Idempotency-Key": message.idempotencyKey
+    },
+    body: JSON.stringify({
+      from,
+      to: message.to,
+      reply_to: message.replyTo || undefined,
+      subject: message.subject,
+      text: message.text,
+      html: message.html
+    })
+  });
+}
+
+export async function POST(request: Request) {
+  try {
+    if (!isSameOriginRequest(request)) {
+      return NextResponse.json({ ok: false, error: "This form must be submitted from the Marketech Digital website." }, { status: 403 });
+    }
+
+    const contentType = request.headers.get("content-type") || "";
+    if (!/^application\/json(?:\s*;|\s*$)/i.test(contentType)) {
+      return NextResponse.json({ ok: false, error: "JSON form submission required." }, { status: 415 });
+    }
+
+    const rateLimitResponse = await enforceInquiryRateLimit(request);
+    if (rateLimitResponse) return rateLimitResponse;
+
+    // Bound memory BEFORE consuming the full body; Content-Length may be absent
+    // or misleading. Never deserialize or email oversized untrusted content.
+    const declaredLength = Number(request.headers.get("content-length") || "0");
+    if (!Number.isFinite(declaredLength) || declaredLength < 0 || declaredLength > MAX_BODY_BYTES) {
+      return NextResponse.json({ ok: false, error: "Your request is too large. Please shorten the message and try again." }, { status: 413 });
+    }
+    if (!request.body) return NextResponse.json({ ok: false, error: "Empty inquiry." }, { status: 400 });
+    const reader = request.body.getReader();
+    const decoder = new TextDecoder("utf-8", { fatal: true });
+    let received = 0;
+    let raw = "";
+    try {
+      while (true) {
+        const chunk = await reader.read();
+        if (chunk.done) break;
+        received += chunk.value.byteLength;
+        if (received > MAX_BODY_BYTES) {
+          await reader.cancel();
+          return NextResponse.json({ ok: false, error: "Your request is too large. Please shorten the message and try again." }, { status: 413 });
+        }
+        raw += decoder.decode(chunk.value, { stream: true });
+      }
+      raw += decoder.decode();
+    } catch {
+      return NextResponse.json({ ok: false, error: "Invalid inquiry body." }, { status: 400 });
+    } finally {
+      reader.releaseLock();
+    }
+
+    let input: LeadPayload;
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return NextResponse.json({ ok: false, error: "Invalid inquiry." }, { status: 400 });
+      }
+      input = parsed as LeadPayload;
+    } catch {
+      return NextResponse.json({ ok: false, error: "Please refresh the page and try again." }, { status: 400 });
+    }
+
+    const payload = normalize(input);
+
+    // Honeypot: legitimate UI keeps this field empty and hidden from people.
+    if (payload.companyUrl2) {
+      return NextResponse.json({ ok: true, submissionId: payload.submissionId });
+    }
+
+    // The request permits contacting this person ABOUT THIS INQUIRY ONLY.
+    // It is not consent to marketing campaigns or onward disclosure.
+    if (input.consentToContact !== "yes" && input.consentToContact !== true) {
+      return NextResponse.json({ ok: false, error: "Please agree to be contacted about your inquiry." }, { status: 400 });
+    }
+
+    if (!isValidSubmissionId(payload.submissionId)) {
+      return NextResponse.json({ ok: false, error: "Please refresh the page and try again." }, { status: 400 });
+    }
+
+    if (!payload.email && !payload.message) {
+      return NextResponse.json({ ok: false, error: "Please provide an email or a short project message." }, { status: 400 });
+    }
+
+    if (payload.email && !isValidEmail(payload.email)) {
+      return NextResponse.json({ ok: false, error: "Please enter a valid email address." }, { status: 400 });
+    }
+
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json({ ok: false, error: `Email delivery is not configured yet. Please email ${projectEmail} directly.` }, { status: 503 });
+    }
+
+    const ownerResponse = await sendResendEmail({
+      to: [leadToEmail],
+      replyTo: payload.email || undefined,
+      subject: ["New Marketech Digital inquiry", payload.name, payload.company || payload.service].filter(Boolean).join(" - "),
+      text: ownerText(payload),
+      html: ownerHtml(payload),
+      idempotencyKey: `lead-owner/${payload.submissionId}`
+    });
+
+    if (!ownerResponse.ok) {
+      // Never log provider response text; it could contain request identifiers or PII.
+      console.error("MARKETECH_INQUIRY_OWNER_SEND_FAILED", ownerResponse.status);
+      return NextResponse.json({ ok: false, error: `Email delivery failed. Please email ${projectEmail} directly.` }, { status: 502 });
+    }
+
+    // Deliberately no automatic client receipt in v1. This prevents the public
+    // endpoint from becoming a generic mail-sending surface before stronger
+    // abuse controls are available. The UI confirms successful submission.
+    return NextResponse.json({ ok: true, submissionId: payload.submissionId });
+  } catch (error) {
+    console.error("MARKETECH_INQUIRY_UNEXPECTED", error instanceof Error ? error.name : "unknown");
+    return NextResponse.json({ ok: false, error: `Something went wrong. Please email ${projectEmail} directly.` }, { status: 500 });
+  }
+}

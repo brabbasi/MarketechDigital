@@ -1,0 +1,29 @@
+# Marketech Digital — one-source inbound release acceptance gate
+**Status: DRAFT / PREVIEW ONLY / NOT APPROVED FOR PRODUCTION / no customer sends.**
+
+## Canonical release identity
+- Production repo: `brabbasi/MarketechDigital` (not the OS prototype).
+- Canonical **single integrated DRAFT** PR: #21, now targeting `main`. It inherits draft acquisition PR #11 as ancestry: **never separately merge both to production** or misinterpret inherited 70 commits as newly completed customer work.
+- `main` baseline at consolidation: `e8ce3ac37edfad6cd54de5d68666699a068ebfef`. Prior READY production deployment: `dpl_CjgrvECd5fTmLQguhU4ofm3Cj7ob`. Verify both again before any release; this file is not a live attestation.
+- Alternate DRAFT #22 modifies `/api/lead`, which the canonical candidate deliberately retires with HTTP 410. **Do not merge #22 blindly** and revive the second mail-sending endpoint.
+- Canonical acceptance path: `/contact` (visible consent) → `POST /api/inquiry` (same-origin, JSON, streamed size limit, WAF, consent, synthetic ID) → **owner-only** Resend delivery with idempotency key. Direct mailto fallback is independent and cannot be intercepted into the retired endpoint.
+- Published production WAF rule previously verified by the Founder: `marketech-inquiry-owner-notification` for `POST /api/inquiry`. The checked-in manifest is `.marketech/inquiry-rate-limit-v1.json`. A JSON manifest is **not evidence the live rule is currently installed**.
+
+## Ordered gates (every check is an explicit input; passing a later item cannot waive earlier ones)
+1. **Exact source:** verify PR #21 target `main`, current branch SHA, full main-relative changed paths, no divergent parent, required checks on that SHA. Build/typecheck and synthetic request tests must pass with `RESEND_API_KEY` **absent** and no live provider calls. The independent reviewer must assess the **entire inherited main→candidate diff**, not only the previous narrower child delta. Any new P1/P2 invalidates the release gate.
+2. **Preview only:** verify the Vercel preview is READY and sourced from the exact candidate SHA; `target=null` must not be mislabeled production. Perform human/automated browser accessibility, mobile width, navigation, FAQ, offer cards, `/contact`, error/fallback and form consent UX inspections **without submitting a real form**. A preview WAF configured only for production may legitimately reject POST; do not weaken WAF or use a secret/bypass to force it.
+3. **Privacy and integrity:** review public privacy notice, use/retention policy, anti-spam and CASL implications, no transcript forwarding without separate consent, honeypot behavior, no raw PII or Resend error body in logs. Confirm no second provider mail-sender route; no payment/subscription flows implicitly turned on.
+4. **Production preflight (read-only):** validate Vercel team and project IDs, `main` head, production deploy target, domain ownership, rate-limit rule **actual enabled status**, Resend domain ownership, correct intended business recipient, and presence/scope of needed environment variable **names** (`RESEND_API_KEY`, `LEAD_TO_EMAIL`, optional `LEAD_FROM_EMAIL`, `NEXT_PUBLIC_SITE_URL`). Do not print or copy secrets or real prospect/customer data to GitHub. Record rollback deployment ID and domain state. Stop if any item is unverified.
+5. **Founder release decision:** obtain explicit separate approval specifying exact candidate SHA and production target, including whether main merge and production publish are permitted. No PR, review or README can substitute for this. A Vercel preview is not a staged production binary. A production build may differ from preview because of environment-specific config; verify separately.
+6. **Synthetic delivery permission (separate approval):** only after an approved production release, submit ONE Founder-controlled fictional test via the public contact UI and inspect whether the actual intended business inbox receives it **once**. Use no real third-party address or prospects; record a privacy-preserving receipt (time, request ID, status, mailbox receipt presence and dedup evidence) without storing the full inquiry, email address, tokens or message in repo. Confirm no automatic recipient email.
+7. **Reversible acceptance:** inspect production function errors without retaining customer data, verify health of homepage/contact/offer navigation and backend error paths, compare to pre-release production state. On regression, execute only a **separately approved** rollback and verify domain restoration; do not assume GitHub merge automatically rolls production back.
+8. **Business transition:** after one genuine working inbound acceptance, build truthful reply → discovery → scoped proposal → signed contract → collected-CAD tracking in the existing Issue #45; human review before any first-touch commercial sends. An existing historic lead's draft is *unsent*, not revenue or current send permission.
+
+## Operational roles and definitions of done
+- COO shadow / product owner: coordinate source and scope, never assert active Runtime workers from schedule or registry.
+- Engineering producer: commit source/test changes on review branch and produce immutable receipts.
+- Offline QA: GitHub Actions tests with **no secrets, live network send or host activation**.
+- Independent Reviewer: separate exact-head, full main-relative source verdict.
+- Founder: authorizes production, external tests and consequential commercial decisions.
+- DONE for this milestone: clean full-source independent review, exact-head checks and honest pre-release blocker report. **NOT** completed until separately approved production delivery and inbox acceptance occur.
+- No merges, deployment promotion, customer contact, Runtime/Phase A, payments, secrets, Supabase mutations or scheduler changes are authorized by this document.

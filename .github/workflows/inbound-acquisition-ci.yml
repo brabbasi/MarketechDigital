@@ -1,0 +1,75 @@
+name: Inbound Acquisition CI
+
+on:
+  pull_request:
+    paths:
+      - 'app/api/inquiry/**'
+      - 'app/api/chat/route.ts'
+      - 'app/api/idea/route.ts'
+      - 'app/api/lead/**'
+      - 'app/contact/ContactClient.tsx'
+      - 'app/privacy/page.tsx'
+      - 'app/GoogleAnalytics.tsx'
+      - 'app/IdeaGenerator.tsx'
+      - 'app/AcquisitionGuard.tsx'
+      - 'app/AIAssistant.tsx'
+      - 'app/bot-position-fix.css'
+      - 'app/UXFixLayer.tsx'
+      - 'app/layout.tsx'
+      - 'app/page.tsx'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.marketech/inquiry-rate-limit-v1.json'
+      - 'scripts/verify-inbound-acquisition.mjs'
+      - 'scripts/test-provider-consent.mjs'
+      - '.github/workflows/inbound-acquisition-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Prove exact reviewed checkout
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify canonical acquisition and popup guards
+        run: node scripts/verify-inbound-acquisition.mjs
+
+      - name: Install exact reviewed dependencies without lifecycle scripts or secrets
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Exercise synthetic inquiry route with no provider/network requests
+        run: node --test scripts/test-ottawa-inquiry-handler.mjs
+
+      - name: Prove checked-in deterministic dependency lock identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f package-lock.json
+          node -e 'const fs=require("fs"),c=require("crypto");const b=fs.readFileSync("package-lock.json");const digest=c.createHash("sha256").update(b).digest("hex"); console.log("LOCK_SHA256:"+digest); if(digest!=="d81ff8a6da00a4529f008dea5430291a86cea0093e42149cdfb35776ba2572cd")process.exit(2);'
+
+      - name: Verify optional AI third-party consent with synthetic provider
+        run: node --test scripts/test-provider-consent.mjs
+
+      - name: Typecheck and build site without deploying
+        run: |
+          npx tsc --noEmit
+          npm run build
+
+      - name: Confirm no production or customer authority
+        run: |
+          echo 'EXACT_HEAD_SOURCE_TESTED=YES'
+          echo 'LIVE_OWNER_DELIVERY=NOT_TESTED'
+          echo 'PRODUCTION_RELEASE=NOT_AUTHORIZED'
