@@ -121,8 +121,13 @@ export default function GoogleAnalytics() {
       if (choice === "accepted" && persisted) window.location.reload();
       return;
     }
-    // A fresh affirmative choice in this tab overrides its old session refusal.
+    // A fresh affirmative choice must re-enable measurement in this document.
+    // Earlier "No thanks" set ga-disable-<id> to true; merely mounting the
+    // scripts while that flag persists would silently discard newly consented hits.
     try { window.sessionStorage.removeItem(SESSION_REFUSAL_KEY); } catch {}
+    if (measurementId) {
+      (window as unknown as Record<string, boolean>)[`ga-disable-${measurementId}`] = false;
+    }
     // In a non-persistent browser, keep the choice local to this tab only.
     choiceRef.current = next;
     setChoice(next);
