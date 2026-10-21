@@ -61,3 +61,23 @@ test("mobile keyboard changes actual assistant scrollport, not just svh CSS", ()
   assert.match(css, /bottom: var\(--ai-mobile-bottom,/);
   assert.match(source, /overflow-y: auto;/);
 });
+
+test("consent restored after decline clears GA disabled flag in current tab", () => {
+  const source = readFileSync("app/GoogleAnalytics.tsx", "utf8");
+  const handler = source.slice(source.indexOf("  function choose("), source.indexOf("\n  return (", source.indexOf("  function choose(")));
+  assert.match(handler, /if \(next === "declined"\)/);
+  assert.match(handler, /\[`ga-disable-\$\{measurementId\}`\] = true/);
+  assert.match(handler, /\[`ga-disable-\$\{measurementId\}`\] = false/);
+  assert.ok(handler.indexOf("= false;") > handler.indexOf('if (next === "declined")'), "restore must run only on affirmative branch");
+});
+
+test("assistant keyboard layout supports short landscape phones wider than 560px", () => {
+  const source = readFileSync("app/AIAssistant.tsx", "utf8");
+  const css = readFileSync("app/bot-position-fix.css", "utf8");
+  assert.match(source, /max-height: 560px/);
+  assert.match(source, /viewport\.height \+ viewport\.offsetTop < window\.innerHeight - 72/);
+  assert.match(source, /classList\.toggle\("ai-keyboard-adjusted", adjustToKeyboard\)/);
+  assert.match(source, /classList\.remove\("ai-keyboard-adjusted"\)/);
+  assert.match(css, /\.ai-panel\.ai-keyboard-adjusted \{/);
+  assert.match(css, /max-height: var\(--ai-mobile-height, none\) !important/);
+});
