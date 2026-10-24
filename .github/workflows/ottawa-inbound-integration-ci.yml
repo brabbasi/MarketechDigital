@@ -79,6 +79,9 @@ jobs:
       - name: Exercise built Next.js public routes without submitting forms
         run: node scripts/test-built-website-routes.mjs
 
+      - name: Diagnose unminified development React hydration at direct contact
+        run: node scripts/test-hydrated-browser.mjs --diagnose-unminified-contact
+
       - name: Diagnose fresh direct contact hydration before prior analytics state
         run: node scripts/test-hydrated-browser.mjs --diagnose-direct-contact
 

@@ -42,11 +42,13 @@ function chromeBin() {
   throw new Error("Real Chromium missing: browser acceptance cannot be replaced by source checks");
 }
 async function nextServer() {
-  next = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start",
+  const debugDev = process.argv.includes("--diagnose-unminified-contact");
+  next = spawn(process.execPath, ["node_modules/next/dist/bin/next",
+    debugDev ? "dev" : "start",
     "--hostname", "127.0.0.1", "--port", "43272"], {
     stdio: ["ignore", "pipe", "pipe"],
     env: {...process.env, RESEND_API_KEY: "", OPENAI_API_KEY: "",
-      NEXT_TELEMETRY_DISABLED: "1", NODE_ENV: "production"}
+      NEXT_TELEMETRY_DISABLED: "1", NODE_ENV: debugDev ? "development" : "production"}
   });
   debug(next, msg => {nextLogs = (nextLogs + msg).slice(-1200);});
   await mustPoll(async () => {
@@ -109,13 +111,13 @@ async function browser() {
     }
     if (msg.method === "Runtime.exceptionThrown") {
       const d = msg.params.exceptionDetails || {};
-      browserErrors.push("JS: " + String(d.exception?.description || d.exception?.value || d.text || "unknown").slice(0,400));
+      browserErrors.push("JS: " + String(d.exception?.description || d.exception?.value || d.text || "unknown").slice(0,1800));
       return;
     }
     if (msg.method === "Runtime.consoleAPICalled" && msg.params.type === "error") {
       browserErrors.push("Console: " + (msg.params.args || [])
         .map(x => String(x.value || x.description || x.type || "unknown").slice(0,260))
-        .join(" ").slice(0,500));
+        .join(" ").slice(0,1500));
       return;
     }
     if (msg.method === "Network.responseReceived") {
@@ -184,7 +186,7 @@ async function main() {
       " && document.readyState==='complete'",
       "Complete exact browser navigation " + route);
   };
-  if (process.argv.includes("--diagnose-direct-contact")) {
+  if (process.argv.includes("--diagnose-direct-contact") || process.argv.includes("--diagnose-unminified-contact")) {
     // Isolate a first-visit /contact hydration from any prior analytics
     // choice or same-tab navigation. This is a real Chromium run, no POST.
     await size(375,600);
