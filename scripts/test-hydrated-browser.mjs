@@ -156,7 +156,9 @@ async function main() {
   const navigate = async route => {
     const x = await cdp("Page.navigate", {url: origin + route});
     if (x.errorText) throw new Error("Navigation failed: " + x.errorText);
-    await ready("document.readyState==='complete'", "Load " + route);
+    const pathname = new URL(origin + route).pathname;
+    await ready("location.pathname===" + JSON.stringify(pathname) + " && document.readyState==='complete'",
+      "Complete browser navigation " + route);
   };
   await size(375,600);
   await navigate("/");
@@ -206,8 +208,13 @@ async function main() {
       label + " assistant dialog");
     assert.equal(await js('!!document.querySelector(".ai-panel .ai-provider-consent input[type=checkbox]")'),true);
     await js('document.querySelector(".ai-panel .ai-form input").focus()');
-    await ready('document.querySelector(".ai-panel").classList.contains("ai-keyboard-adjusted")',
-      label + " input focus geometry");
+    try {
+      await ready('document.querySelector(".ai-panel").classList.contains("ai-keyboard-adjusted")',
+        label + " input focus geometry");
+    } catch {
+      const state = await js('(() => {const p=document.querySelector(".ai-panel"),input=p?.querySelector(".ai-form input"),v=window.visualViewport;return {path:location.pathname,focused:document.activeElement===input,open:p?.getAttribute("aria-hidden"),class:p?.className,viewport:!!v,viewportHeight:v?.height,innerHeight,innerWidth};})()');
+      throw new Error(label + " focused keyboard geometry missing: " + JSON.stringify({state,browserErrors:browserErrors.slice(-8)}));
+    }
     await delay(350);
     const rect = await js('(() => {const p=document.querySelector(".ai-panel");const r=p.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height,view:innerHeight};})()');
     assert.ok(rect.height > 100 && rect.top >= -8 && rect.bottom <= rect.view + 8,
