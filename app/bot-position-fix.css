@@ -59,9 +59,22 @@ body > .ai-panel {
   .ai-panel {
     right: 10px !important;
     left: 10px !important;
-    bottom: calc(env(safe-area-inset-bottom) + 88px) !important;
+    /* Custom properties are set from visualViewport while the keyboard is
+       active; a static 100svh !important height would cover the text input. */
+    top: var(--ai-mobile-top, auto) !important;
+    bottom: var(--ai-mobile-bottom, calc(env(safe-area-inset-bottom) + 88px)) !important;
     width: auto !important;
     max-width: none !important;
-    height: min(640px, calc(100svh - 118px)) !important;
+    height: var(--ai-mobile-height, min(640px, calc(100svh - 118px))) !important;
+    max-height: var(--ai-mobile-height, min(640px, calc(100svh - 118px))) !important;
   }
+}
+
+/* Also covers rotated phones wider than 560px. The class is set only while
+   an input is focused on a compact or keyboard-occluded visual viewport. */
+.ai-panel.ai-keyboard-adjusted {
+  top: var(--ai-mobile-top, auto) !important;
+  bottom: var(--ai-mobile-bottom, auto) !important;
+  height: var(--ai-mobile-height, auto) !important;
+  max-height: var(--ai-mobile-height, none) !important;
 }

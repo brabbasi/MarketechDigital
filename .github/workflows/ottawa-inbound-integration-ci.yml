@@ -1,0 +1,101 @@
+name: Ottawa Offers + Governed Inbound Integration CI
+
+on:
+  push:
+    branches:
+      - integration/ottawa-offers-inbound-v1-20261010
+    paths:
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
+      - 'public/**'
+      - 'styles/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+      - 'next.config.*'
+      - 'postcss.config.*'
+      - 'tailwind.config.*'
+      - '.marketech/**'
+      - '.github/workflows/ottawa-inbound-integration-ci.yml'
+      - '.github/workflows/inbound-acquisition-ci.yml'
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
+      - 'public/**'
+      - 'styles/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+      - 'next.config.*'
+      - 'postcss.config.*'
+      - 'tailwind.config.*'
+      - '.marketech/**'
+      - '.github/workflows/ottawa-inbound-integration-ci.yml'
+      - '.github/workflows/inbound-acquisition-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  guarded-inbound:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact source revision
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify original WAF, idempotency and inbound contract
+        run: node scripts/verify-inbound-acquisition.mjs
+      - name: Verify all offers use the same governed inquiry sender
+        run: node scripts/verify-ottawa-inquiry-integration.mjs
+      - name: Install exactly pinned dependencies with no lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Report immutable dependency lock identity without logging contents
+        run: |
+          test -f package-lock.json
+          node -e 'const fs=require("fs"),c=require("crypto");const hash=c.createHash("sha256").update(fs.readFileSync("package-lock.json")).digest("hex");console.log("LOCK_SHA256:"+hash);if(hash!=="d81ff8a6da00a4529f008dea5430291a86cea0093e42149cdfb35776ba2572cd")process.exit(2);'
+      - name: Test isolated synthetic API request to mock WAF and owner inbox
+        run: node --test scripts/test-ottawa-inquiry-handler.mjs
+      - name: Test consent boundaries for synthetic AI requests
+        run: node --test scripts/test-provider-consent.mjs
+      - name: Typecheck and build integration without production deployment
+        run: |
+          npx tsc --noEmit
+          npm run build
+      - name: Exercise built Next.js public routes without submitting forms
+        run: node scripts/test-built-website-routes.mjs
+
+      - name: Diagnose fresh direct contact hydration before prior analytics state
+        run: node scripts/test-hydrated-browser.mjs --diagnose-direct-contact
+
+      - name: Exercise Chromium hydration and two phone-sized viewports without providers
+        run: |
+          node --check scripts/test-hydrated-browser.mjs
+          node scripts/test-hydrated-browser.mjs
+
+      # Running Next dev rewrites .next; never run it before production
+      # Chromium acceptance against the built Next start bundle.
+      - name: Diagnose unminified development React hydration at direct contact
+        run: node scripts/test-hydrated-browser.mjs --diagnose-unminified-contact
+
+      - name: Enforce release boundaries
+        run: |
+          test -f app/api/inquiry/route.ts
+          test -f app/api/lead/route.ts
+          echo 'CONTACT_API_PROVIDER_SEND=NOT_TESTED'
+          echo 'PRODUCTION_FIREWALL_AND_RESEND_ATTESTATION=PENDING'
+          echo 'MERGE_AND_PUBLICATION=OFF'
