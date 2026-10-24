@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
+import type { ContactQuery } from "./ContactClient";
 import ContactClient from "./ContactClient";
 
 export const metadata: Metadata = {
@@ -10,7 +10,29 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" }
 };
 
-export default function ContactPage() {
+// The contact form is a revenue-critical route. Reading request search params
+// server-side produces a populated, consent-gated form in the initial HTML
+// rather than a static Suspense fallback that may never hydrate in production.
+export const dynamic = "force-dynamic";
+
+type ContactSearchParams = Record<string, string | string[] | undefined>;
+function firstParam(value: string | string[] | undefined): string {
+  const first = Array.isArray(value) ? value[0] : value;
+  return typeof first === "string" ? first.slice(0, 1024) : "";
+}
+
+export default function ContactPage({
+  searchParams = {}
+}: { searchParams?: ContactSearchParams }) {
+  const query: ContactQuery = {
+    offer: firstParam(searchParams.offer),
+    service: firstParam(searchParams.service),
+    source: firstParam(searchParams.source),
+    medium: firstParam(searchParams.medium),
+    campaign: firstParam(searchParams.campaign),
+    firstTouchOffer: firstParam(searchParams.firstTouchOffer),
+    recommendedService: firstParam(searchParams.recommendedService)
+  };
   return (
     <main className="contact-page">
       <section className="contact-shell" aria-labelledby="contact-title">
@@ -27,7 +49,7 @@ export default function ContactPage() {
             <ul><li>Website clarity</li><li>Lead capture and follow-up</li><li>SEO and local presence</li><li>TradePilot or automation fit</li></ul>
             <Link href="/">← Back to home</Link>
           </aside>
-          <Suspense fallback={<div className="contact-card">Loading form...</div>}><ContactClient /></Suspense>
+          <ContactClient query={query} />
         </div>
       </section>
       <style>{`

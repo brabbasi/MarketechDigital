@@ -17,6 +17,12 @@ const origin = "http://127.0.0.1:43272";
 const profile = mkdtempSync(join(tmpdir(), "marketech-chrome-qa-"));
 let next, chrome, socket, nextLogs = "", blockedExternal = 0, blockedWrites = 0;
 const browserErrors = [];
+const navigationEvents = [];
+function assertNoBrowserErrors(label) {
+  // Deliberate provider requests are intercepted before network, and are
+  // counted separately in blockedExternal. All app JS/console/HTTP errors fail.
+  assert.deepEqual(browserErrors, [], label + " unexpected browser errors: " + JSON.stringify(browserErrors.slice(-15)));
+}
 const debug = (child, callback) => {
   for (const stream of [child.stdout, child.stderr])
     stream?.on("data", chunk => callback(chunk.toString("utf8")));
@@ -92,6 +98,15 @@ async function browser() {
       else p.resolve(msg.result || {});
       return;
     }
+    if (msg.method === "Page.lifecycleEvent") {
+      navigationEvents.push({
+        frameId: msg.params.frameId,
+        loaderId: msg.params.loaderId,
+        name: msg.params.name
+      });
+      if (navigationEvents.length > 100) navigationEvents.shift();
+      return;
+    }
     if (msg.method === "Runtime.exceptionThrown") {
       const d = msg.params.exceptionDetails || {};
       browserErrors.push("JS: " + String(d.exception?.description || d.exception?.value || d.text || "unknown").slice(0,400));
@@ -132,6 +147,7 @@ async function browser() {
     socket.addEventListener("error", () => reject(new Error("DevTools connection failed")), {once:true});
   });
   await cdp("Page.enable");
+  await cdp("Page.setLifecycleEventsEnabled", {enabled: true});
   await cdp("Runtime.enable");
   await cdp("Network.enable");
   await cdp("Fetch.enable", {patterns: [{urlPattern:"*", requestStage:"Request"}]});
@@ -156,9 +172,17 @@ async function main() {
   const navigate = async route => {
     const x = await cdp("Page.navigate", {url: origin + route});
     if (x.errorText) throw new Error("Navigation failed: " + x.errorText);
-    const pathname = new URL(origin + route).pathname;
-    await ready("location.pathname===" + JSON.stringify(pathname) + " && document.readyState==='complete'",
-      "Complete browser navigation " + route);
+    assert.ok(x.loaderId && x.frameId, "Navigation did not start a new document: " + route);
+    await mustPoll(
+      () => navigationEvents.some(event =>
+        event.frameId === x.frameId && event.loaderId === x.loaderId && event.name === "load"),
+      "Committed new document lifecycle " + route, 20000
+    );
+    const destination = new URL(origin + route);
+    await ready("location.pathname===" + JSON.stringify(destination.pathname) +
+      " && location.search===" + JSON.stringify(destination.search) +
+      " && document.readyState==='complete'",
+      "Complete exact browser navigation " + route);
   };
   await size(375,600);
   await navigate("/");
@@ -167,6 +191,7 @@ async function main() {
   await ready('!!document.querySelector(\'button[aria-label="Open Marketech AI assistant"]\')',
     "Assistant hydration");
   assert.equal(await js('!!document.querySelector(\'script[src*="googletagmanager.com"]\')'), false);
+  assertNoBrowserErrors("Home route and consent hydration");
   console.log("REAL_CHROMIUM_REACT_HYDRATION=PASS");
 
   assert.equal(await js('(() => {const b=[...document.querySelectorAll("button")].find(x=>x.textContent.trim()==="No thanks"); if(!b) return false; b.click(); return true;})()'), true);
@@ -182,6 +207,9 @@ async function main() {
   await ready('localStorage.getItem("marketech-analytics-choice-v1")==="accepted"',
     "Acceptance persisted");
   assert.equal(await js('window["ga-disable-G-JEMN04ZWC8"]'), false);
+  await ready('!!document.querySelector(\'script[src*="googletagmanager.com/gtag/js?id="]\')',
+    "GA tag actually mounted after affirmative re-consent");
+  assertNoBrowserErrors("Analytics decline and re-consent");
   console.log("ANALYTICS_DECLINE_AND_RECONSENT_BROWSER=PASS");
 
   await navigate("/contact?offer=lead-rescue&service=Lead%20capture%20%2F%20quote%20forms");
@@ -196,6 +224,7 @@ async function main() {
   assert.ok(contact.unchecked && contact.required && contact.privacy);
   assert.equal(contact.service, "Lead capture / quote forms");
   assert.match(contact.message, /Lead Capture Rescue/);
+  assertNoBrowserErrors("Hydrated contact form");
   console.log("HYDRATED_CONTACT_OFFER_CONSENT=PASS");
 
   for (const [w,h,label] of [[375,600,"PORTRAIT"],[600,375,"LANDSCAPE"]]) {
@@ -220,8 +249,10 @@ async function main() {
     const action = await js('(() => {const p=document.querySelector(".ai-panel").getBoundingClientRect();const a=document.querySelector(".ai-panel .ai-actions").getBoundingClientRect();return {actionTop:a.top,actionBottom:a.bottom,panelTop:p.top,panelBottom:p.bottom};})()');
     assert.ok(action.actionBottom <= action.panelBottom + 9,
       label + " assistant action footer cannot scroll into view: " + JSON.stringify(action));
+    assertNoBrowserErrors(label + " assistant route");
     console.log("MOBILE_" + label + "_ASSISTANT_GEOMETRY=PASS");
   }
+  assertNoBrowserErrors("All loaded browser routes");
   assert.equal(blockedWrites,0,"No browser form or provider POST may be attempted");
   console.log("EXTERNAL_GETS_BLOCKED_BEFORE_NETWORK=" + blockedExternal);
   console.log("BROWSER_POST_ATTEMPTS=0");

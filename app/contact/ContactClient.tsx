@@ -1,6 +1,5 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
 // Keep the inquiry taxonomy aligned with the full Marketech offer surface rather
@@ -45,8 +44,18 @@ function safeReferrer() {
   }
 }
 
-export default function ContactClient() {
-  const params = useSearchParams();
+export type ContactQuery = {
+  offer: string;
+  service: string;
+  source: string;
+  medium: string;
+  campaign: string;
+  firstTouchOffer: string;
+  recommendedService: string;
+};
+
+export default function ContactClient({ query }: { query: ContactQuery }) {
+  const params = new URLSearchParams(query);
   const initialServiceCandidate = params.get("service") || "";
   const initialService = needs.includes(initialServiceCandidate) ? initialServiceCandidate : "";
   const offerSlug = params.get("offer") || "";

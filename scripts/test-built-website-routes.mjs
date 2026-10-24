@@ -10,9 +10,15 @@ const port = 43271;
 const origin = `http://127.0.0.1:${port}`;
 const routes = [
   { path: "/", checks: [/Marketech Digital/i] },
-  // ContactClient uses useSearchParams inside Suspense. Without browser
-  // hydration, HTML legitimately has an SSR placeholder, not the form.
-  { path: "/contact", checks: [/Free Digital Growth Audit/, /A simple audit, not a pressure call/] },
+  // The inquiry form must be in the INITIAL HTML, not trapped behind Suspense.
+  { path: "/contact", checks: [
+    /Free Digital Growth Audit/, /A simple audit, not a pressure call/,
+    /form class="contact-card"/, /name="consentToContact"/, /href="\/privacy"/
+  ] },
+  { path: "/contact?offer=lead-rescue&service=Lead%20capture%20%2F%20quote%20forms", checks: [
+    /form class="contact-card"/, /Lead Capture Rescue/, /Lead capture \/ quote forms/,
+    /name="consentToContact"/
+  ] },
   { path: "/privacy", checks: [/Website privacy notice/i, /Resend/, /OpenAI/] },
   { path: "/solutions/ottawa", checks: [
     /Lead Capture Rescue/, /Trades Quote Funnel/,
@@ -82,8 +88,8 @@ try {
       `${route.path}: unexpected pre-consent analytics script tag`);
     console.log(`BUILT_ROUTE_GET_PASS=${route.path}`);
   }
-  // Client form is verified as source in this GET-only test. A real browser
-  // must be used for hydration, checkbox interaction and consent acceptance.
+  // The server now renders the form. Browser checks still prove interactive
+  // hydration and that consent defaults to unchecked after client startup.
   const contactClient = readFileSync("app/contact/ContactClient.tsx", "utf8");
   assert.match(contactClient, /name="consentToContact"/);
   assert.ok(contactClient.includes('href="/privacy"'), "visible contact privacy link must remain");
