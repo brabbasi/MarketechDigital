@@ -79,6 +79,9 @@ jobs:
       - name: Exercise built Next.js public routes without submitting forms
         run: node scripts/test-built-website-routes.mjs
 
+      - name: Exercise Chromium hydration and two phone-sized viewports without providers
+        run: node scripts/test-hydrated-browser.mjs
+
       - name: Enforce release boundaries
         run: |
           test -f app/api/inquiry/route.ts
