@@ -16,6 +16,7 @@ import {setTimeout as delay} from "node:timers/promises";
 const origin = "http://127.0.0.1:43272";
 const profile = mkdtempSync(join(tmpdir(), "marketech-chrome-qa-"));
 let next, chrome, socket, nextLogs = "", blockedExternal = 0, blockedWrites = 0;
+const browserErrors = [];
 const debug = (child, callback) => {
   for (const stream of [child.stdout, child.stderr])
     stream?.on("data", chunk => callback(chunk.toString("utf8")));
@@ -91,6 +92,18 @@ async function browser() {
       else p.resolve(msg.result || {});
       return;
     }
+    if (msg.method === "Runtime.exceptionThrown") {
+      browserErrors.push("JS: " + String(msg.params.exceptionDetails?.text || "unknown").slice(0,220));
+      return;
+    }
+    if (msg.method === "Network.responseReceived") {
+      const response = msg.params.response || {};
+      if (response.status >= 400) {
+        const url = String(response.url || "").split("?")[0].slice(-150);
+        browserErrors.push("HTTP " + response.status + ": " + url);
+      }
+      return;
+    }
     if (msg.method !== "Fetch.requestPaused") return;
     const request = msg.params.request;
     let safe = false;
@@ -113,6 +126,7 @@ async function browser() {
   });
   await cdp("Page.enable");
   await cdp("Runtime.enable");
+  await cdp("Network.enable");
   await cdp("Fetch.enable", {patterns: [{urlPattern:"*", requestStage:"Request"}]});
   return cdp;
 }
@@ -166,8 +180,8 @@ async function main() {
     await ready('!!document.querySelector("form.contact-card input[name=consentToContact]")',
       "Hydrated inquiry form");
   } catch (error) {
-    const diag = await js('(() => ({pathname:location.pathname,search:location.search,ready:document.readyState,title:document.title,forms:document.querySelectorAll("form").length,scripts:document.querySelectorAll("script[src]").length,text:(document.body?.innerText||"").slice(0,200)}))()');
-    throw new Error("Hydrated inquiry form: " + JSON.stringify(diag));
+    const diag = await js('(() => ({pathname:location.pathname,search:location.search,ready:document.readyState,title:document.title,forms:document.querySelectorAll("form").length,scripts:document.querySelectorAll("script[src]").length,text:(document.body?.innerText||"").slice(-600)}))()');
+    throw new Error("Hydrated inquiry form: " + JSON.stringify({diag,browserErrors:browserErrors.slice(-15)}));
   }
   const contact = await js('(() => {const f=document.querySelector("form.contact-card");return {unchecked:!f.querySelector("[name=consentToContact]").checked,required:f.querySelector("[name=consentToContact]").required,privacy:!!f.querySelector(\'a[href="/privacy"]\'),service:f.querySelector("select[name=service]").value,message:f.querySelector("textarea[name=message]").value};})()');
   assert.ok(contact.unchecked && contact.required && contact.privacy);
