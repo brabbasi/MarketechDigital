@@ -162,8 +162,13 @@ async function main() {
   console.log("ANALYTICS_DECLINE_AND_RECONSENT_BROWSER=PASS");
 
   await navigate("/contact?offer=lead-rescue&service=Lead%20capture%20%2F%20quote%20forms");
-  await ready('!!document.querySelector("form.contact-card input[name=consentToContact]")',
-    "Hydrated inquiry form");
+  try {
+    await ready('!!document.querySelector("form.contact-card input[name=consentToContact]")',
+      "Hydrated inquiry form");
+  } catch (error) {
+    const diag = await js('(() => ({pathname:location.pathname,search:location.search,ready:document.readyState,title:document.title,forms:document.querySelectorAll("form").length,scripts:document.querySelectorAll("script[src]").length,text:(document.body?.innerText||"").slice(0,200)}))()');
+    throw new Error("Hydrated inquiry form: " + JSON.stringify(diag));
+  }
   const contact = await js('(() => {const f=document.querySelector("form.contact-card");return {unchecked:!f.querySelector("[name=consentToContact]").checked,required:f.querySelector("[name=consentToContact]").required,privacy:!!f.querySelector(\'a[href="/privacy"]\'),service:f.querySelector("select[name=service]").value,message:f.querySelector("textarea[name=message]").value};})()');
   assert.ok(contact.unchecked && contact.required && contact.privacy);
   assert.equal(contact.service, "Lead capture / quote forms");
