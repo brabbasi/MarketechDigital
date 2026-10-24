@@ -90,6 +90,11 @@ try {
   }
   // The server now renders the form. Browser checks still prove interactive
   // hydration and that consent defaults to unchecked after client startup.
+  const contactPageSource = readFileSync("app/contact/page.tsx", "utf8");
+  assert.match(contactPageSource, /<style dangerouslySetInnerHTML=/,
+    "contact CSS must avoid raw React style-text hydration mismatch");
+  assert.doesNotMatch(contactPageSource, /<style>\{\x60/,
+    "React text child must not contain the contact CSS '>' selector");
   const contactClient = readFileSync("app/contact/ContactClient.tsx", "utf8");
   assert.match(contactClient, /name="consentToContact"/);
   assert.ok(contactClient.includes('href="/privacy"'), "visible contact privacy link must remain");
