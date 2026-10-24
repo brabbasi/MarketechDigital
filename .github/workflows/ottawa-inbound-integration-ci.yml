@@ -80,7 +80,9 @@ jobs:
         run: node scripts/test-built-website-routes.mjs
 
       - name: Exercise Chromium hydration and two phone-sized viewports without providers
-        run: node scripts/test-hydrated-browser.mjs
+        run: |
+          node --check scripts/test-hydrated-browser.mjs
+          node scripts/test-hydrated-browser.mjs
 
       - name: Enforce release boundaries
         run: |

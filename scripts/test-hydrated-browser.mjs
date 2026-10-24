@@ -197,9 +197,6 @@ async function main() {
   console.log("BROWSER_POST_ATTEMPTS=0");
   console.log("HARDWARE_KEYBOARD_AND_SCREENREADER=NOT_TESTED");
   console.log("INBOX_DELIVERY_AND_PRODUCTION=NOT_TESTED");
-} catch (err) {
-  // main handles errors, process must fail CI.
-  throw err;
 }
 try { await main(); }
 catch (error) {
