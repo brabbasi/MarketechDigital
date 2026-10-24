@@ -93,7 +93,14 @@ async function browser() {
       return;
     }
     if (msg.method === "Runtime.exceptionThrown") {
-      browserErrors.push("JS: " + String(msg.params.exceptionDetails?.text || "unknown").slice(0,220));
+      const d = msg.params.exceptionDetails || {};
+      browserErrors.push("JS: " + String(d.exception?.description || d.exception?.value || d.text || "unknown").slice(0,400));
+      return;
+    }
+    if (msg.method === "Runtime.consoleAPICalled" && msg.params.type === "error") {
+      browserErrors.push("Console: " + (msg.params.args || [])
+        .map(x => String(x.value || x.description || x.type || "unknown").slice(0,260))
+        .join(" ").slice(0,500));
       return;
     }
     if (msg.method === "Network.responseReceived") {
