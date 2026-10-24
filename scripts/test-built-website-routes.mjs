@@ -103,6 +103,13 @@ try {
   }
   // The server now renders the form. Browser checks still prove interactive
   // hydration and that consent defaults to unchecked after client startup.
+  // Regression for the dev-browser-proven root hydration mismatch: the
+  // shared navigation cube emits selectors containing a literal '>' and was
+  // previously compiled as a normal React style-text child.
+  const diceNavSource = readFileSync("components/MarketechDiceNav.tsx", "utf8");
+  assert.match(diceNavSource, /<style dangerouslySetInnerHTML=/,
+    "shared navigation stylesheet must render raw server/client-identical CSS");
+  assert.ok(!diceNavSource.includes("<style>{"), "shared navigation must not use escaped style-text child");
   const contactPageSource = readFileSync("app/contact/page.tsx", "utf8");
   assert.match(contactPageSource, /<style dangerouslySetInnerHTML=/,
     "contact CSS must avoid raw React style-text hydration mismatch");
