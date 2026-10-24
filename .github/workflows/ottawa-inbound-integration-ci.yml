@@ -79,9 +79,6 @@ jobs:
       - name: Exercise built Next.js public routes without submitting forms
         run: node scripts/test-built-website-routes.mjs
 
-      - name: Diagnose unminified development React hydration at direct contact
-        run: node scripts/test-hydrated-browser.mjs --diagnose-unminified-contact
-
       - name: Diagnose fresh direct contact hydration before prior analytics state
         run: node scripts/test-hydrated-browser.mjs --diagnose-direct-contact
 
@@ -89,6 +86,11 @@ jobs:
         run: |
           node --check scripts/test-hydrated-browser.mjs
           node scripts/test-hydrated-browser.mjs
+
+      # Running Next dev rewrites .next; never run it before production
+      # Chromium acceptance against the built Next start bundle.
+      - name: Diagnose unminified development React hydration at direct contact
+        run: node scripts/test-hydrated-browser.mjs --diagnose-unminified-contact
 
       - name: Enforce release boundaries
         run: |
