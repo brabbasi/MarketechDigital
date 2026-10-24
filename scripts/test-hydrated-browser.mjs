@@ -244,6 +244,44 @@ async function main() {
   assertNoBrowserErrors("Hydrated contact form");
   console.log("HYDRATED_CONTACT_OFFER_CONSENT=PASS");
 
+  // A GET-only success cannot guarantee this pricing page hydrates safely.
+  // Walk every bounded Ottawa offer to its populated, consent-gated contact form.
+  await size(375,600);
+  await navigate("/solutions/ottawa");
+  await ready('document.querySelectorAll(".mk-card").length===4',
+    "Four Ottawa offer cards rendered in real Chromium");
+  const offerCards = await js('Array.from(document.querySelectorAll(".mk-card")).map(c=>({name:c.querySelector("h3")?.textContent?.trim(),href:c.querySelector("a.mk-card-button")?.getAttribute("href")}))');
+  const expectedOffers = [
+    ["Lead Capture Rescue", "lead-rescue", "Lead capture / quote forms"],
+    ["Trades Quote Funnel", "trades-funnel", "Website / web app"],
+    ["Short-Form Content Sprint", "content-sprint", "Video editing / content"],
+    ["Internal AI Workflow Pilot", "internal-ai-pilot", "Workflow automation"]
+  ];
+  assert.equal(offerCards.length, expectedOffers.length, "Ottawa offer-card count changed");
+  assertNoBrowserErrors("Ottawa solutions page hydration");
+  console.log("OTTAWA_SOLUTIONS_REACT_HYDRATION=PASS");
+  for (const [i, [name, slug, service]] of expectedOffers.entries()) {
+    const link = offerCards[i];
+    assert.equal(link.name, name, "Ottawa card order changed");
+    assert.ok(typeof link.href==="string" && link.href.startsWith("/contact?"),
+      name + ": not routed through governed contact");
+    const url = new URL(link.href, origin);
+    assert.equal(url.origin, origin);
+    assert.equal(url.pathname, "/contact");
+    assert.equal(url.searchParams.get("offer"), slug, name + ": incorrect offer slug");
+    assert.equal(url.searchParams.get("service"), service, name + ": incorrect service attribution");
+    await navigate(url.pathname + url.search);
+    await ready('!!document.querySelector("form.contact-card [name=consentToContact]")',
+      "Governed form available for " + name);
+    const record = await js('(() => {const f=document.querySelector("form.contact-card");const c=f.querySelector("[name=consentToContact]");return {service:f.querySelector("select[name=service]").value,message:f.querySelector("textarea[name=message]").value,checked:c.checked,required:c.required,privacy:!!f.querySelector(\'a[href="/privacy"]\')};})()');
+    assert.deepEqual({service:record.service,checked:record.checked,required:record.required,privacy:record.privacy},
+      {service,checked:false,required:true,privacy:true},
+      name + ": contact consent, service or privacy regression");
+    assert.ok(record.message.includes(name), name + ": wrong offer in editable message");
+    assertNoBrowserErrors("Ottawa " + name + " contact hydration");
+  }
+  console.log("OTTAWA_FOUR_OFFERS_TO_GOVERNED_CONTACT_BROWSER=PASS");
+
   for (const [w,h,label] of [[375,600,"PORTRAIT"],[600,375,"LANDSCAPE"]]) {
     await size(w,h);
     await navigate("/");

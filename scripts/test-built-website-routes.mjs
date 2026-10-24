@@ -106,6 +106,11 @@ try {
   // Regression for the dev-browser-proven root hydration mismatch: the
   // shared navigation cube emits selectors containing a literal '>' and was
   // previously compiled as a normal React style-text child.
+  const ottawaPageSource = readFileSync("app/solutions/ottawa/page.tsx", "utf8");
+  assert.match(ottawaPageSource, /<style dangerouslySetInnerHTML=/,
+    "Ottawa source must emit static CSS raw for server/client hydration");
+  assert.ok(!ottawaPageSource.includes("<style>{"),
+    "Ottawa source cannot use escaped React text child for CSS selectors >");
   const diceNavSource = readFileSync("components/MarketechDiceNav.tsx", "utf8");
   assert.match(diceNavSource, /<style dangerouslySetInnerHTML=/,
     "shared navigation stylesheet must render raw server/client-identical CSS");

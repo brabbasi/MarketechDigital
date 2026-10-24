@@ -173,7 +173,8 @@ export default function OttawaBusinessSolutionsPage() {
           <Link className="mk-primary" href="/contact">Describe your project <span aria-hidden="true">→</span></Link>
         </section>
       </div>
-      <style>{`
+      {/* Static trusted CSS is raw so selectors containing > hydrate identically. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .mk-offers{min-height:100vh;padding:145px 20px 90px;background:radial-gradient(ellipse at 15% 4%,rgba(255,106,0,.14),transparent 38%),radial-gradient(ellipse at 85% 32%,rgba(36,143,204,.1),transparent 43%),#050911;color:#f5f8fc}
         .mk-wrap{width:min(1200px,100%);margin:0 auto}
         .mk-breadcrumb{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:#a9b8c9;font-size:.85rem}
@@ -207,7 +208,7 @@ export default function OttawaBusinessSolutionsPage() {
         .mk-offers a:focus-visible{outline:3px solid #ffc783;outline-offset:4px}
         @media(max-width:940px){.mk-grid{grid-template-columns:1fr}.mk-card .mk-excludes{min-height:0}.mk-process{grid-template-columns:1fr}}
         @media(max-width:560px){.mk-offers{padding:170px 15px 55px}.mk-hero{padding:28px 0 55px}.mk-bottom,.mk-process{padding:23px}.mk-card{padding:22px}}
-      `}</style>
+      ` }} />
     </main>
   );
 }
