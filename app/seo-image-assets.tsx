@@ -23,7 +23,8 @@ export function MarketechIcon({ size }: IconImageProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: `radial-gradient(circle at 65% 25%, rgba(255,90,0,0.36), transparent 30%), ${brandDark}`,
+        backgroundColor: brandDark,
+        backgroundImage: "radial-gradient(circle at 65% 25%, rgba(255,90,0,0.36), transparent 30%)",
         borderRadius: Math.round(size * 0.22),
         position: "relative",
         overflow: "hidden"

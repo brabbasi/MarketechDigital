@@ -88,6 +88,19 @@ try {
       `${route.path}: unexpected pre-consent analytics script tag`);
     console.log(`BUILT_ROUTE_GET_PASS=${route.path}`);
   }
+  // ImageResponse routes are customer-facing favicon/preview assets. Test
+  // actual bytes because a successful page GET cannot detect Satori CSS errors.
+  for (const asset of ["/favicon-16x16.png", "/favicon.ico", "/og-image.png"]) {
+    const response = await get(asset);
+    assert.equal(response.status, 200, asset + ": ImageResponse must succeed");
+    assert.match(response.headers.get("content-type") || "", /image\/png/,
+      asset + ": expected PNG bytes");
+    const bytes = Buffer.from(await response.arrayBuffer());
+    assert.ok(bytes.length > 100, asset + ": generated image unexpectedly empty");
+    assert.equal(bytes.toString("hex", 0, 8), "89504e470d0a1a0a",
+      asset + ": invalid PNG signature");
+    console.log("BUILT_ASSET_GET_PASS=" + asset);
+  }
   // The server now renders the form. Browser checks still prove interactive
   // hydration and that consent defaults to unchecked after client startup.
   const contactPageSource = readFileSync("app/contact/page.tsx", "utf8");
