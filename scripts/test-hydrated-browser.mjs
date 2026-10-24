@@ -184,6 +184,21 @@ async function main() {
       " && document.readyState==='complete'",
       "Complete exact browser navigation " + route);
   };
+  if (process.argv.includes("--diagnose-direct-contact")) {
+    // Isolate a first-visit /contact hydration from any prior analytics
+    // choice or same-tab navigation. This is a real Chromium run, no POST.
+    await size(375,600);
+    await navigate("/contact?offer=lead-rescue&service=Lead%20capture%20%2F%20quote%20forms");
+    await ready('!!document.querySelector("form.contact-card input[name=consentToContact]")',
+      "Direct request initial contact form hydration");
+    const query = await js('(() => {const f=document.querySelector("form.contact-card");return {consent:f.querySelector("[name=consentToContact]").checked,message:f.querySelector("textarea[name=message]").value};})()');
+    assert.equal(query.consent, false);
+    assert.match(query.message, /Lead Capture Rescue/);
+    assertNoBrowserErrors("Fresh direct contact WITHOUT previous analytics opt-in");
+    assert.equal(blockedWrites, 0, "Direct visit must not attempt POST");
+    console.log("DIRECT_CONTACT_WITHOUT_ANALYTICS_BROWSER=PASS");
+    return;
+  }
   await size(375,600);
   await navigate("/");
   await ready('!!document.querySelector(\'[aria-label="Optional website analytics preferences"]\')',
