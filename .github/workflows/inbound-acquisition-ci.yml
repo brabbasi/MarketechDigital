@@ -22,6 +22,7 @@ on:
       - '.marketech/inquiry-rate-limit-v1.json'
       - 'scripts/verify-inbound-acquisition.mjs'
       - 'scripts/test-provider-consent.mjs'
+      - 'scripts/test-pinned-firewall-sdk-offline.mjs'
       - '.github/workflows/inbound-acquisition-ci.yml'
   workflow_dispatch:
 
@@ -52,6 +53,9 @@ jobs:
 
       - name: Exercise synthetic inquiry route with no provider/network requests
         run: node --test scripts/test-ottawa-inquiry-handler.mjs
+
+      - name: Verify pinned firewall SDK counting-key semantics without network
+        run: node --test scripts/test-pinned-firewall-sdk-offline.mjs
 
       - name: Prove checked-in deterministic dependency lock identity
         shell: bash
