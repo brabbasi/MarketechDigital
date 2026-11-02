@@ -87,6 +87,21 @@ requireEqual(rateLimitManifest.rule?.path, "/api/inquiry", "rate-limit path bind
 requireEqual(rateLimitManifest.rule?.window_seconds, 60, "rate-limit window");
 requireEqual(rateLimitManifest.rule?.requests_per_window, 5, "rate-limit request budget");
 requireEqual(rateLimitManifest.rule?.keys?.join(","), "ip", "rate-limit privacy-preserving platform key");
+// Keep two key representations distinct: the manifest describes logical per-client-IP
+// identity, while the published SDK API rule counts its SDK-generated header key.
+// This is static contract evidence, not an authenticated production 429 test.
+requireEqual(rateLimitManifest.application_contract?.default_counting_identity,
+  "client_ip_from_vercel_request_x_real_ip_when_rateLimitKey_is_omitted", "SDK default client identity");
+requireEqual(rateLimitManifest.application_contract?.sdk_generated_waf_header,
+  "x-vercel-rate-limit-key", "SDK-generated WAF key header");
+requireEqual(rateLimitManifest.application_contract?.custom_rateLimitKey_supplied_by_site,
+  false, "no unreviewed custom identity key");
+requireEqual(rateLimitManifest.reviewed_active_waf_snapshot?.condition_rate_limit_api_id,
+  rateLimitManifest.rule?.id, "reviewed WAF/API rule identity");
+requireEqual(rateLimitManifest.reviewed_active_waf_snapshot?.counting_keys?.join(","),
+  "header:x-vercel-rate-limit-key", "reviewed WAF header-key representation");
+requireEqual(rateLimitManifest.reviewed_active_waf_snapshot?.firewall_enabled,
+  true, "reviewed WAF snapshot enabled");
 requireEqual(rateLimitManifest.rule?.limit_action, "rate_limit", "rate-limit action");
 requireEqual(rateLimitManifest.rule?.limited_status, 429, "rate-limit status binding");
 requireEqual(rateLimitManifest.application_contract?.missing_rule_or_sdk_error, "fail_closed_503", "missing-rule fail-closed manifest");
