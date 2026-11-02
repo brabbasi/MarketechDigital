@@ -70,6 +70,9 @@ jobs:
           node -e 'const fs=require("fs"),c=require("crypto");const hash=c.createHash("sha256").update(fs.readFileSync("package-lock.json")).digest("hex");console.log("LOCK_SHA256:"+hash);if(hash!=="d81ff8a6da00a4529f008dea5430291a86cea0093e42149cdfb35776ba2572cd")process.exit(2);'
       - name: Test isolated synthetic API request to mock WAF and owner inbox
         run: node --test scripts/test-ottawa-inquiry-handler.mjs
+
+      - name: Verify exact pinned firewall SDK with fully mocked transport
+        run: node --test scripts/test-pinned-firewall-sdk-offline.mjs
       - name: Test consent boundaries for synthetic AI requests
         run: node --test scripts/test-provider-consent.mjs
       - name: Typecheck and build integration without production deployment
