@@ -170,6 +170,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ idea: fallback, mode: "guided", reason: "openai_consent_not_granted" });
   }
 
+  // Consent alone must not authorize metered provider spending.
+  // Keep this route offline until reviewed rate limits and Founder approval.
+  if (process.env.MARKETECH_PUBLIC_AI_METERED_ENABLED !== "true") {
+    return NextResponse.json({ idea: fallback, mode: "guided", reason: "public_ai_metered_disabled" });
+  }
+
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json({ idea: fallback, mode: "guided", reason: "missing_openai_api_key" });
   }
