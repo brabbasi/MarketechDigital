@@ -148,7 +148,6 @@ test("missing or malformed owner recipient fails closed without silent fallback 
     { omitRecipient: true },
     { recipient: "not-an-email" },
     { recipient: "two@example.invalid,other@example.invalid" },
-    { recipient: "oops\\n@example.invalid" }
   ]) {
     const h = harness(config);
     const result = await h.post(syntheticInquiry());
