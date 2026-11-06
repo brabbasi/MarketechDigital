@@ -11,7 +11,7 @@ const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
 }).outputText;
 
-function harness({ limiter = { rateLimited: false }, providerStatus = 200, key = "synthetic-test-only", recipient = "owner-synthetic@example.invalid", omitRecipient = false } = {}) {
+function harness({ limiter = { rateLimited: false }, providerStatus = 200, key = "synthetic-test-only", recipient = "hello@getmarketechdigital.com", omitRecipient = false } = {}) {
   const sends = [];
   const limiterCalls = [];
   const logs = [];
@@ -86,7 +86,7 @@ test("governed synthetic form sends ONE owner-only mock with stable key and esca
   assert.equal(h.limiterCalls.length, 1);
   assert.equal(h.limiterCalls[0][0], "marketech-inquiry-owner-notification");
   const sent = h.sends[0];
-  assert.deepEqual(sent.payload.to, ["owner-synthetic@example.invalid"]);
+  assert.deepEqual(sent.payload.to, ["hello@getmarketechdigital.com"]);
   assert.equal(sent.options.headers["Idempotency-Key"], "lead-owner/offline-test-001");
   assert.equal(sent.payload.reply_to, "test@example.invalid");
   assert.match(sent.payload.text, /Lead capture \/ quote forms/);
@@ -148,6 +148,10 @@ test("missing or malformed owner recipient fails closed without silent fallback 
     { omitRecipient: true },
     { recipient: "not-an-email" },
     { recipient: "two@example.invalid,other@example.invalid" },
+    { recipient: "owner-synthetic@example.invalid" },
+    { recipient: "project@getmarketechdigital.com" },
+    { recipient: "HELLO@getmarketechdigital.com" },
+    { recipient: "hello@getmarketechdigital.com,attacker@example.invalid" },
   ]) {
     const h = harness(config);
     const result = await h.post(syntheticInquiry());
@@ -155,6 +159,24 @@ test("missing or malformed owner recipient fails closed without silent fallback 
     assert.equal(result.body.ok, false);
     assert.equal(h.sends.length, 0, "no provider call without verified explicit owner destination");
   }
+});
+
+test("owner email must equal Founder-approved inbox even when config is syntactically valid", async () => {
+  const mismatches = ["project@getmarketechdigital.com", "other@example.invalid", "hello@evil.invalid"];
+  for (const recipient of mismatches) {
+    const h = harness({ recipient });
+    const r = await h.post(syntheticInquiry({ message: "Fictional privacy boundary" }));
+    assert.equal(r.status, 503, "valid but unauthorized recipients must fail closed");
+    assert.equal(h.sends.length, 0);
+    assert.equal(h.logs.length, 0);
+    assert.match(r.body.error, /hello@getmarketechdigital\.com/);
+    assert.ok(!r.body.error.includes(recipient), "unapproved recipient must never appear in response");
+  }
+  const approved = harness({ recipient: "  hello@getmarketechdigital.com  " });
+  const ok = await approved.post(syntheticInquiry());
+  assert.equal(ok.status, 200, "surrounding whitespace may be safely trimmed");
+  assert.equal(approved.sends.length, 1);
+  assert.deepEqual(approved.sends[0].payload.to, ["hello@getmarketechdigital.com"]);
 });
 
 test("missing provider auth and rejected fake delivery have truthful unavailable outcomes", async () => {
