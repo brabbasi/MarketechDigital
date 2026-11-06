@@ -63,8 +63,10 @@ type EmailMessage = {
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://getmarketechdigital.com").replace(/\/$/, "");
 // The configured owner inbox must be explicit; never silently deliver to an unverified fallback.
 const leadToEmail = (process.env.LEAD_TO_EMAIL || "").trim();
-// Founder-approved direct-email fallback only; Resend delivery still requires verified LEAD_TO_EMAIL.
-const ownerFallbackEmail = "hello@getmarketechdigital.com";
+// Hard owner-only allowlist: a valid but mistyped/stale recipient must never receive personal information.
+const approvedOwnerEmail = "hello@getmarketechdigital.com";
+// Direct-email fallback and provider destination share one Founder-approved identity.
+const ownerFallbackEmail = approvedOwnerEmail;
 const contactEmail = "contact@getmarketechdigital.com";
 
 function clean(value: unknown, limit = 500) {
@@ -343,12 +345,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Please enter a valid email address." }, { status: 400 });
     }
 
-    if (!process.env.RESEND_API_KEY || !isValidEmail(leadToEmail)) {
+    if (!process.env.RESEND_API_KEY || !isValidEmail(leadToEmail) || leadToEmail !== approvedOwnerEmail) {
       return NextResponse.json({ ok: false, error: `Email delivery is not configured yet. Please email ${ownerFallbackEmail} directly.` }, { status: 503 });
     }
 
     const ownerResponse = await sendResendEmail({
-      to: [leadToEmail],
+      to: [approvedOwnerEmail],
       replyTo: payload.email || undefined,
       subject: ["New Marketech Digital inquiry", payload.name, payload.company || payload.service].filter(Boolean).join(" - "),
       text: ownerText(payload),
