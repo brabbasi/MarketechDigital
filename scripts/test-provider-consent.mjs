@@ -4,13 +4,13 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import ts from "typescript";
 const files = ["app/api/chat/route.ts", "app/api/idea/route.ts"];
-function make(path) {
+function make(path, { meteredEnabled } = {}) {
   const source = readFileSync(path, "utf8");
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const exports = {}, calls = [];
   vm.runInNewContext(compiled, {
     exports, Request, Response,
-    process: { env: { OPENAI_API_KEY: "synthetic-test", OPENAI_MODEL: "synthetic" } },
+    process: { env: { OPENAI_API_KEY: "synthetic-test", OPENAI_MODEL: "synthetic", ...(meteredEnabled === undefined ? {} : { MARKETECH_PUBLIC_AI_METERED_ENABLED: meteredEnabled }) } },
     fetch: async (_url, args) => { calls.push(JSON.parse(args.body)); return Response.json({ choices: [{ message: { content: "{}" } }] }); },
     console: { error: () => {} },
     require: name => name === "next/server"
@@ -24,7 +24,7 @@ function make(path) {
 }
 for (const path of files) {
   test(path + " rejects unapproved third-party egress", async () => {
-    const h = make(path);
+    const h = make(path, { meteredEnabled: "true" });
     const input = path.includes("idea") ? { business: "synthetic" } : { messages: [{ role: "user", content: "synthetic" }] };
     for (const choice of [undefined, false, "yes"]) {
       const data = await h.post({ ...input, openaiConsent: choice });
@@ -33,6 +33,19 @@ for (const path of files) {
     }
     await h.post({ ...input, openaiConsent: true });
     assert.equal(h.calls.length, 1);
+  });
+}
+
+for (const path of files) {
+  test(path + " never calls a metered model when the server-side authorization flag is absent or invalid", async () => {
+    const input = path.includes("idea") ? { business: "fictional" } : { messages: [{ role: "user", content: "fictional" }] };
+    for (const meteredEnabled of [undefined, "", "false", "TRUE", "1"]) {
+      const h = make(path, { meteredEnabled });
+      const response = await h.post({ ...input, openaiConsent: true });
+      assert.equal(h.calls.length, 0, "client consent does not authorize any provider calls by itself");
+      assert.equal(response.reason, "public_ai_metered_disabled");
+      assert.equal(response.mode, path.includes("idea") ? "guided" : "fallback");
+    }
   });
 }
 
