@@ -21,17 +21,18 @@ function firstParam(value: string | string[] | undefined): string {
   return typeof first === "string" ? first.slice(0, 1024) : "";
 }
 
-export default function ContactPage({
-  searchParams = {}
-}: { searchParams?: ContactSearchParams }) {
+export default async function ContactPage({
+  searchParams
+}: { searchParams?: Promise<ContactSearchParams> }) {
+  const resolvedSearchParams = (await searchParams) || {};
   const query: ContactQuery = {
-    offer: firstParam(searchParams.offer),
-    service: firstParam(searchParams.service),
-    source: firstParam(searchParams.source),
-    medium: firstParam(searchParams.medium),
-    campaign: firstParam(searchParams.campaign),
-    firstTouchOffer: firstParam(searchParams.firstTouchOffer),
-    recommendedService: firstParam(searchParams.recommendedService)
+    offer: firstParam(resolvedSearchParams.offer),
+    service: firstParam(resolvedSearchParams.service),
+    source: firstParam(resolvedSearchParams.source),
+    medium: firstParam(resolvedSearchParams.medium),
+    campaign: firstParam(resolvedSearchParams.campaign),
+    firstTouchOffer: firstParam(resolvedSearchParams.firstTouchOffer),
+    recommendedService: firstParam(resolvedSearchParams.recommendedService)
   };
   return (
     <main className="contact-page">

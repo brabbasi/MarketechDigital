@@ -67,7 +67,7 @@ jobs:
       - name: Report immutable dependency lock identity without logging contents
         run: |
           test -f package-lock.json
-          node -e 'const fs=require("fs"),c=require("crypto");const hash=c.createHash("sha256").update(fs.readFileSync("package-lock.json")).digest("hex");console.log("LOCK_SHA256:"+hash);if(hash!=="d81ff8a6da00a4529f008dea5430291a86cea0093e42149cdfb35776ba2572cd")process.exit(2);'
+          node -e 'const fs=require("fs"),c=require("crypto");const hash=c.createHash("sha256").update(fs.readFileSync("package-lock.json")).digest("hex");console.log("LOCK_SHA256:"+hash);if(hash!=="8ecb7bd1b88f66f1877ae35203af76ef6ca3fd84edd55058785d29172924b09c")process.exit(2);'
       - name: Test isolated synthetic API request to mock WAF and owner inbox
         run: node --test scripts/test-ottawa-inquiry-handler.mjs
 
