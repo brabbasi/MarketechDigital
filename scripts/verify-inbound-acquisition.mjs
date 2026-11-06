@@ -46,6 +46,20 @@ for (const field of [
   requireText(inquiry, field, "inquiry attribution contract");
 }
 
+// Founder-approved inbox and retention values apply to PREVIEW release preparation only.
+// Never mistake a public mailto fallback for actual configured Resend delivery.
+requireText(inquiry, 'const leadToEmail = (process.env.LEAD_TO_EMAIL || "").trim()', "explicit owner recipient configuration");
+requireText(inquiry, 'ownerFallbackEmail = "hello@getmarketechdigital.com"', "approved direct email fallback");
+forbidText(inquiry, "project@getmarketechdigital.com", "unapproved former fallback");
+requireText(contact, "hello@getmarketechdigital.com", "contact direct-email fallback");
+forbidText(contact, "project@getmarketechdigital.com", "former contact fallback");
+requireText(privacy, "180 days after the last meaningful exchange", "draft approved unconverted inquiry retention");
+requireText(privacy, "operational deletion", "retention operation still gated");
+const releaseGate = read("docs/FOUNDER_INBOUND_RELEASE_GATE_20261018.md");
+requireText(releaseGate, "APPROVED for draft preparation; PRODUCTION remains HOLD / NO-GO", "Founder preparation-only authorization");
+requireText(releaseGate, "hello@getmarketechdigital.com", "intended owner inbox approval");
+requireText(releaseGate, "180 days after the last meaningful human exchange", "approved retention definition");
+
 requireText(inquiry, "MAX_BODY_BYTES = 32_000", "request-size cap");
 requireText(inquiry, "isSameOriginRequest", "same-origin gate");
 requireText(inquiry, 'request.headers.get("origin")', "origin verification");
@@ -239,7 +253,7 @@ requireText(privacy, "OpenAI is a third-party service provider", "provider trans
 requireText(analytics, 'addEventListener("storage", onStorage)', "cross-tab privacy withdrawal");
 
 requireText(contact, 'href="/privacy"', "inline contact privacy link");
-for (const word of ["Resend", "Vercel", "Google Analytics", "Retention and choices", "contact@getmarketechdigital.com"]) {
+for (const word of ["Resend", "Vercel", "Google Analytics", "Retention and choices", "hello@getmarketechdigital.com"]) {
   requireText(privacy, word, "public inquiry privacy notice");
 }
 requireText(inquiry, "ALLOWED_RECOMMENDED_SERVICES", "recommendations must use server-controlled label set");
