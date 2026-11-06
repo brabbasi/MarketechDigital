@@ -108,12 +108,20 @@ export default function ContactClient({ query }: { query: ContactQuery }) {
         body: JSON.stringify(payload)
       });
       const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(typeof result?.error === "string" ? result.error : "Please email hello@getmarketechdigital.com directly.");
+      if (!response.ok) {
+        // Preserve an actionable server response without ever hiding the owner fallback.
+        const detail = typeof result?.error === "string" ? result.error : "Your request was not sent.";
+        setStatus(detail.includes("hello@getmarketechdigital.com")
+          ? detail : `${detail} Please email hello@getmarketechdigital.com directly.`);
+        return;
+      }
       setStatus("Request received. Basit will review your details and follow up.");
       form.reset();
       submissionIdRef.current = "";
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Something went wrong. Please email hello@getmarketechdigital.com directly.");
+    } catch {
+      // Browser network errors such as TypeError: Failed to fetch must not
+      // conceal the Founder-approved recovery address.
+      setStatus("We could not connect. Please email hello@getmarketechdigital.com directly.");
     } finally {
       setSending(false);
     }
