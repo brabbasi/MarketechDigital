@@ -63,7 +63,8 @@ type EmailMessage = {
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://getmarketechdigital.com").replace(/\/$/, "");
 // The configured owner inbox must be explicit; never silently deliver to an unverified fallback.
 const leadToEmail = (process.env.LEAD_TO_EMAIL || "").trim();
-const projectEmail = "project@getmarketechdigital.com";
+// Founder-approved direct-email fallback only; Resend delivery still requires verified LEAD_TO_EMAIL.
+const ownerFallbackEmail = "hello@getmarketechdigital.com";
 const contactEmail = "contact@getmarketechdigital.com";
 
 function clean(value: unknown, limit = 500) {
@@ -134,7 +135,7 @@ async function enforceInquiryRateLimit(request: Request) {
     if ("error" in limitResult && limitResult.error) {
       console.error("MARKETECH_INQUIRY_RATE_LIMIT_UNAVAILABLE");
       return NextResponse.json(
-        { ok: false, error: `The inquiry form is temporarily unavailable. Please email ${projectEmail} directly.` },
+        { ok: false, error: `The inquiry form is temporarily unavailable. Please email ${ownerFallbackEmail} directly.` },
         { status: 503, headers: { "Cache-Control": "no-store" } }
       );
     }
@@ -150,7 +151,7 @@ async function enforceInquiryRateLimit(request: Request) {
   } catch (error) {
     console.error("MARKETECH_INQUIRY_RATE_LIMIT_FAILED", error instanceof Error ? error.name : "unknown");
     return NextResponse.json(
-      { ok: false, error: `The inquiry form is temporarily unavailable. Please email ${projectEmail} directly.` },
+      { ok: false, error: `The inquiry form is temporarily unavailable. Please email ${ownerFallbackEmail} directly.` },
       { status: 503, headers: { "Cache-Control": "no-store" } }
     );
   }
@@ -343,7 +344,7 @@ export async function POST(request: Request) {
     }
 
     if (!process.env.RESEND_API_KEY || !isValidEmail(leadToEmail)) {
-      return NextResponse.json({ ok: false, error: `Email delivery is not configured yet. Please email ${projectEmail} directly.` }, { status: 503 });
+      return NextResponse.json({ ok: false, error: `Email delivery is not configured yet. Please email ${ownerFallbackEmail} directly.` }, { status: 503 });
     }
 
     const ownerResponse = await sendResendEmail({
@@ -358,7 +359,7 @@ export async function POST(request: Request) {
     if (!ownerResponse.ok) {
       // Never log provider response text; it could contain request identifiers or PII.
       console.error("MARKETECH_INQUIRY_OWNER_SEND_FAILED", ownerResponse.status);
-      return NextResponse.json({ ok: false, error: `Email delivery failed. Please email ${projectEmail} directly.` }, { status: 502 });
+      return NextResponse.json({ ok: false, error: `Email delivery failed. Please email ${ownerFallbackEmail} directly.` }, { status: 502 });
     }
 
     // Deliberately no automatic client receipt in v1. This prevents the public
@@ -367,6 +368,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, submissionId: payload.submissionId });
   } catch (error) {
     console.error("MARKETECH_INQUIRY_UNEXPECTED", error instanceof Error ? error.name : "unknown");
-    return NextResponse.json({ ok: false, error: `Something went wrong. Please email ${projectEmail} directly.` }, { status: 500 });
+    return NextResponse.json({ ok: false, error: `Something went wrong. Please email ${ownerFallbackEmail} directly.` }, { status: 500 });
   }
 }
