@@ -33,6 +33,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback", reason: "openai_consent_not_granted" });
     }
 
+    // External model use is disabled by default even when a secret exists.
+    // Enabling it requires a separately reviewed spend, abuse and privacy gate.
+    if (process.env.MARKETECH_PUBLIC_AI_METERED_ENABLED !== "true") {
+      return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback", reason: "public_ai_metered_disabled" });
+    }
+
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback", reason: "missing_openai_api_key" });
     }
