@@ -108,12 +108,12 @@ export default function ContactClient({ query }: { query: ContactQuery }) {
         body: JSON.stringify(payload)
       });
       const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(typeof result?.error === "string" ? result.error : "Please email project@getmarketechdigital.com directly.");
+      if (!response.ok) throw new Error(typeof result?.error === "string" ? result.error : "Please email hello@getmarketechdigital.com directly.");
       setStatus("Request received. Basit will review your details and follow up.");
       form.reset();
       submissionIdRef.current = "";
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Something went wrong. Please email project@getmarketechdigital.com directly.");
+      setStatus(error instanceof Error ? error.message : "Something went wrong. Please email hello@getmarketechdigital.com directly.");
     } finally {
       setSending(false);
     }
