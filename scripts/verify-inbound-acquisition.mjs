@@ -49,7 +49,11 @@ for (const field of [
 // Founder-approved inbox and retention values apply to PREVIEW release preparation only.
 // Never mistake a public mailto fallback for actual configured Resend delivery.
 requireText(inquiry, 'const leadToEmail = (process.env.LEAD_TO_EMAIL || "").trim()', "explicit owner recipient configuration");
-requireText(inquiry, 'ownerFallbackEmail = "hello@getmarketechdigital.com"', "approved direct email fallback");
+requireText(inquiry, 'approvedOwnerEmail = "hello@getmarketechdigital.com"', "Founder-approved immutable owner identity");
+requireText(inquiry, "const ownerFallbackEmail = approvedOwnerEmail", "approved direct email fallback");
+requireText(inquiry, "leadToEmail !== approvedOwnerEmail", "fail closed on valid but unauthorized recipient env");
+requireText(inquiry, "to: [approvedOwnerEmail]", "recipient list fixed to Founder-approved inbox");
+forbidText(inquiry, "to: [leadToEmail]", "untrusted syntactically valid recipient must not be used");
 forbidText(inquiry, "project@getmarketechdigital.com", "unapproved former fallback");
 requireText(contact, "hello@getmarketechdigital.com", "contact direct-email fallback");
 requireText(contact, 'setStatus("We could not connect. Please email hello@getmarketechdigital.com directly.")', "offline TypeError fallback");
