@@ -7,8 +7,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" }
 };
 
-// Proposed customer-facing notice: must be approved against actual operational
-// retention/deletion, analytics and vendor configurations before production.
+// Founder approved the 180-day unconverted-inquiry policy for draft preparation
+// on November 5, 2026; NOT approval to publish or represent deletion as operational.
+// Verify retention/deletion across inbox, providers and backups before production.
 export default function PrivacyPage() {
   return (
     <main style={{ minHeight: "100vh", padding: "170px 24px 85px", background: "#050911", color: "#f4f7fc" }}>
@@ -70,17 +71,19 @@ export default function PrivacyPage() {
           Analytics permission is not permission to send marketing emails.</p>
 
         <h2>Retention and choices</h2>
-        <p>Inquiries and related email records are kept only for the time reasonably
-          needed to handle the inquiry, maintain relevant business records and meet
-          applicable legal obligations. Specific retention and deletion schedules
-          must be confirmed by Marketech Digital before the new form is launched.
-          You can ask what information we hold about your inquiry, request correction
-          or deletion where applicable, or withdraw permission for further contact.
-          Some records may need to be retained for legitimate legal or contractual reasons.</p>
+        <p>For inquiries that do not become client projects, our intended retention limit is
+          180 days after the last meaningful exchange about your inquiry. We then plan
+          to delete or de-identify the inquiry and related correspondence, unless an
+          active request, legal obligation or documented dispute requires longer
+          retention. Records connected to active client projects may follow different
+          contractual and legal retention requirements. You may request access,
+          correction or deletion where applicable, or withdraw permission for further
+          contact. This draft policy is not active until its operational deletion
+          process has been verified before launch.</p>
 
         <h2>Questions or requests</h2>
-        <p>Email <a href="mailto:contact@getmarketechdigital.com" style={{ color: "#ffb777" }}>
-          contact@getmarketechdigital.com</a> with the subject “Privacy request”.
+        <p>Email <a href="mailto:hello@getmarketechdigital.com" style={{ color: "#ffb777" }}>
+          hello@getmarketechdigital.com</a> with the subject “Privacy request”.
           We may ask for sufficient verification before changing or releasing private
           inquiry records.</p>
         <p style={{ borderTop: "1px solid #394451", paddingTop: 20 }}>
@@ -89,7 +92,7 @@ export default function PrivacyPage() {
         </p>
         <p style={{ color: "#9babbd", fontSize: ".84rem" }}>
           Notice prepared for the next Marketech Digital inquiry release.
-          Last draft update: October 18, 2026.
+          Last draft update: November 5, 2026.
         </p>
       </article>
     </main>
