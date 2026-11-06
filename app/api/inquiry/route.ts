@@ -61,7 +61,8 @@ type EmailMessage = {
 };
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://getmarketechdigital.com").replace(/\/$/, "");
-const leadToEmail = process.env.LEAD_TO_EMAIL || "project@getmarketechdigital.com";
+// The configured owner inbox must be explicit; never silently deliver to an unverified fallback.
+const leadToEmail = (process.env.LEAD_TO_EMAIL || "").trim();
 const projectEmail = "project@getmarketechdigital.com";
 const contactEmail = "contact@getmarketechdigital.com";
 
@@ -341,7 +342,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Please enter a valid email address." }, { status: 400 });
     }
 
-    if (!process.env.RESEND_API_KEY) {
+    if (!process.env.RESEND_API_KEY || !isValidEmail(leadToEmail)) {
       return NextResponse.json({ ok: false, error: `Email delivery is not configured yet. Please email ${projectEmail} directly.` }, { status: 503 });
     }
 
