@@ -62,7 +62,7 @@ jobs:
         run: |
           set -euo pipefail
           test -f package-lock.json
-          node -e 'const fs=require("fs"),c=require("crypto");const b=fs.readFileSync("package-lock.json");const digest=c.createHash("sha256").update(b).digest("hex"); console.log("LOCK_SHA256:"+digest); if(digest!=="8ecb7bd1b88f66f1877ae35203af76ef6ca3fd84edd55058785d29172924b09c")process.exit(2);'
+          node -e 'const fs=require("fs"),c=require("crypto");const b=fs.readFileSync("package-lock.json");const digest=c.createHash("sha256").update(b).digest("hex"); console.log("LOCK_SHA256:"+digest); if(digest!=="dc1709258a766b8c64fc7b0b5faa48804171d4a8abcf4f4c3562bb2b4c26fc93")process.exit(2);'
 
       - name: Verify optional AI third-party consent with synthetic provider
         run: node --test scripts/test-provider-consent.mjs
