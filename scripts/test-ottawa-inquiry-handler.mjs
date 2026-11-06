@@ -11,14 +11,14 @@ const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
 }).outputText;
 
-function harness({ limiter = { rateLimited: false }, providerStatus = 200, key = "synthetic-test-only" } = {}) {
+function harness({ limiter = { rateLimited: false }, providerStatus = 200, key = "synthetic-test-only", recipient = "owner-synthetic@example.invalid" } = {}) {
   const sends = [];
   const limiterCalls = [];
   const logs = [];
   const exports = {};
   const env = {
     NEXT_PUBLIC_SITE_URL: "https://getmarketechdigital.com",
-    LEAD_TO_EMAIL: "owner-synthetic@example.invalid",
+    LEAD_TO_EMAIL: recipient,
     LEAD_FROM_EMAIL: "Synthetic <noreply@example.invalid>",
     RESEND_API_KEY: key,
   };
@@ -137,6 +137,16 @@ test("honeypot and invalid synthetic input never reach provider", async () => {
     const h = harness();
     assert.equal((await h.post(payload)).status, code);
     assert.equal(h.sends.length, 0);
+  }
+});
+
+test("missing or malformed owner recipient fails closed without silent fallback delivery", async () => {
+  for (const recipient of ["", "   ", undefined, "not-an-email", "two@example.invalid,other@example.invalid", "oops\\n@example.invalid"]) {
+    const h = harness({ recipient });
+    const result = await h.post(syntheticInquiry());
+    assert.equal(result.status, 503, "invalid owner destination must not appear successful");
+    assert.equal(result.body.ok, false);
+    assert.equal(h.sends.length, 0, "no provider call without verified explicit owner destination");
   }
 });
 
