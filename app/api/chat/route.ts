@@ -29,6 +29,16 @@ export async function POST(request: Request) {
       });
     }
 
+    if (body.openaiConsent !== true) {
+      return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback", reason: "openai_consent_not_granted" });
+    }
+
+    // External model use is disabled by default even when a secret exists.
+    // Enabling it requires a separately reviewed spend, abuse and privacy gate.
+    if (process.env.MARKETECH_PUBLIC_AI_METERED_ENABLED !== "true") {
+      return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback", reason: "public_ai_metered_disabled" });
+    }
+
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({ reply: localAssistantReply(lastUser), mode: "fallback", reason: "missing_openai_api_key" });
     }
@@ -51,8 +61,8 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("OpenAI chat error", errorText);
+      // Upstream error bodies can echo visitor chat text; never log them.
+      console.error("OpenAI chat provider status", response.status);
       return NextResponse.json({
         reply: localAssistantReply(lastUser),
         mode: "fallback",
@@ -69,7 +79,7 @@ export async function POST(request: Request) {
       reason: typeof reply === "string" && reply.trim() ? "openai_connected" : "empty_openai_reply"
     });
   } catch (error) {
-    console.error("Chat route error", error);
+    console.error("Chat route error", error instanceof Error ? error.name : "unknown");
     return NextResponse.json(
       { reply: "I had trouble processing that. Tell me your business type, project goal, and what feels repetitive or unclear, and I’ll suggest a starting point.", mode: "error", reason: "route_exception" },
       { status: 200 }

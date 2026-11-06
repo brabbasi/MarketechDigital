@@ -6,6 +6,7 @@ import MarketechDiceNav from "@/components/MarketechDiceNav";
 const pageNavItems = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
+  { label: "Ottawa Packages", href: "/solutions/ottawa" },
   { label: "Systems", href: "/systems" },
   { label: "TradePilot AI", href: "/tradepilot" },
   { label: "Work", href: "/work" },

@@ -11,6 +11,7 @@ const founderImage = "/founder.webp";
 const founderNavItems = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/#offers" },
+  { label: "Ottawa Packages", href: "/solutions/ottawa" },
   { label: "Project ledger", href: "#projects" },
   { label: "Academic foundation", href: "#education" },
   { label: "Founder", href: "/founder" },
