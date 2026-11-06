@@ -52,6 +52,9 @@ requireText(inquiry, 'const leadToEmail = (process.env.LEAD_TO_EMAIL || "").trim
 requireText(inquiry, 'ownerFallbackEmail = "hello@getmarketechdigital.com"', "approved direct email fallback");
 forbidText(inquiry, "project@getmarketechdigital.com", "unapproved former fallback");
 requireText(contact, "hello@getmarketechdigital.com", "contact direct-email fallback");
+requireText(contact, 'setStatus("We could not connect. Please email hello@getmarketechdigital.com directly.")', "offline TypeError fallback");
+requireText(contact, 'detail.includes("hello@getmarketechdigital.com")', "non-2xx provider error fallback");
+forbidText(contact, "error instanceof Error ? error.message", "raw browser network error must not hide fallback");
 forbidText(contact, "project@getmarketechdigital.com", "former contact fallback");
 requireText(privacy, "180 days after the last meaningful exchange", "draft approved unconverted inquiry retention");
 requireText(privacy, "operational deletion", "retention operation still gated");
