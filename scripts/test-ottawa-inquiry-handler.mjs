@@ -11,7 +11,7 @@ const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
 }).outputText;
 
-function harness({ limiter = { rateLimited: false }, providerStatus = 200, key = "synthetic-test-only", recipient = "owner-synthetic@example.invalid" } = {}) {
+function harness({ limiter = { rateLimited: false }, providerStatus = 200, key = "synthetic-test-only", recipient = "owner-synthetic@example.invalid", omitRecipient = false } = {}) {
   const sends = [];
   const limiterCalls = [];
   const logs = [];
@@ -22,6 +22,7 @@ function harness({ limiter = { rateLimited: false }, providerStatus = 200, key =
     LEAD_FROM_EMAIL: "Synthetic <noreply@example.invalid>",
     RESEND_API_KEY: key,
   };
+  if (omitRecipient) delete env.LEAD_TO_EMAIL;
   const checkRateLimit = async (id, { request }) => {
     limiterCalls.push([id, request.url]);
     if (limiter instanceof Error) throw limiter;
@@ -141,8 +142,15 @@ test("honeypot and invalid synthetic input never reach provider", async () => {
 });
 
 test("missing or malformed owner recipient fails closed without silent fallback delivery", async () => {
-  for (const recipient of ["", "   ", undefined, "not-an-email", "two@example.invalid,other@example.invalid", "oops\\n@example.invalid"]) {
-    const h = harness({ recipient });
+  for (const config of [
+    { recipient: "" },
+    { recipient: "   " },
+    { omitRecipient: true },
+    { recipient: "not-an-email" },
+    { recipient: "two@example.invalid,other@example.invalid" },
+    { recipient: "oops\\n@example.invalid" }
+  ]) {
+    const h = harness(config);
     const result = await h.post(syntheticInquiry());
     assert.equal(result.status, 503, "invalid owner destination must not appear successful");
     assert.equal(result.body.ok, false);
