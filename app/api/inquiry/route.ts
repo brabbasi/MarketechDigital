@@ -349,10 +349,10 @@ export async function POST(request: Request) {
     // without logging a secret, recipient address, request body, or identifier.
     // Production behavior and public response must remain unchanged.
     const resendKeyConfigured = Boolean(process.env.RESEND_API_KEY);
-    const approvedRecipientConfigured = isValidEmail(leadToEmail) && leadToEmail === approvedOwnerEmail;
-    if (!resendKeyConfigured || !approvedRecipientConfigured) {
+    const recipientInvalid = !isValidEmail(leadToEmail) || leadToEmail !== approvedOwnerEmail;
+    if (!resendKeyConfigured || recipientInvalid) {
       if (process.env.VERCEL_ENV === "preview") {
-        const reason = !resendKeyConfigured && !approvedRecipientConfigured
+        const reason = !resendKeyConfigured && recipientInvalid
           ? "KEY_AND_RECIPIENT_UNAVAILABLE"
           : !resendKeyConfigured ? "KEY_UNAVAILABLE" : "RECIPIENT_NOT_APPROVED";
         console.error("MARKETECH_INQUIRY_PREVIEW_CONFIG_GUARD", reason);
