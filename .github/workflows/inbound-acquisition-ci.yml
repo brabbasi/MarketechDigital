@@ -23,6 +23,12 @@ on:
       - 'scripts/verify-inbound-acquisition.mjs'
       - 'scripts/test-provider-consent.mjs'
       - 'scripts/test-pinned-firewall-sdk-offline.mjs'
+      - 'scripts/inquiry-retention-policy.mjs'
+      - 'scripts/review-inquiry-retention.mjs'
+      - 'scripts/test-inquiry-retention-policy.mjs'
+      - 'docs/INQUIRY_RETENTION_OPERATIONS.md'
+      - 'docs/WEBSITE_RELEASE_ROLLBACK_READINESS.md'
+      - 'docs/FOUNDER_INBOUND_RELEASE_GATE_20261018.md'
       - '.github/workflows/inbound-acquisition-ci.yml'
   workflow_dispatch:
 
@@ -56,6 +62,9 @@ jobs:
 
       - name: Verify pinned firewall SDK counting-key semantics without network
         run: node --test scripts/test-pinned-firewall-sdk-offline.mjs
+
+      - name: Verify 180-day inquiry retention triage without provider access
+        run: node --test scripts/test-inquiry-retention-policy.mjs
 
       - name: Prove checked-in deterministic dependency lock identity
         shell: bash

@@ -11,6 +11,9 @@ on:
       - 'public/**'
       - 'styles/**'
       - 'scripts/**'
+      - 'docs/INQUIRY_RETENTION_OPERATIONS.md'
+      - 'docs/WEBSITE_RELEASE_ROLLBACK_READINESS.md'
+      - 'docs/FOUNDER_INBOUND_RELEASE_GATE_20261018.md'
       - 'package.json'
       - 'package-lock.json'
       - 'tsconfig*.json'
@@ -28,6 +31,9 @@ on:
       - 'public/**'
       - 'styles/**'
       - 'scripts/**'
+      - 'docs/INQUIRY_RETENTION_OPERATIONS.md'
+      - 'docs/WEBSITE_RELEASE_ROLLBACK_READINESS.md'
+      - 'docs/FOUNDER_INBOUND_RELEASE_GATE_20261018.md'
       - 'package.json'
       - 'package-lock.json'
       - 'tsconfig*.json'
@@ -70,6 +76,9 @@ jobs:
           node -e 'const fs=require("fs"),c=require("crypto");const hash=c.createHash("sha256").update(fs.readFileSync("package-lock.json")).digest("hex");console.log("LOCK_SHA256:"+hash);if(hash!=="dc1709258a766b8c64fc7b0b5faa48804171d4a8abcf4f4c3562bb2b4c26fc93")process.exit(2);'
       - name: Test isolated synthetic API request to mock WAF and owner inbox
         run: node --test scripts/test-ottawa-inquiry-handler.mjs
+
+      - name: Verify 180-day inquiry retention triage without provider access
+        run: node --test scripts/test-inquiry-retention-policy.mjs
 
       - name: Verify exact pinned firewall SDK with fully mocked transport
         run: node --test scripts/test-pinned-firewall-sdk-offline.mjs
