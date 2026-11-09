@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, writeFileSync, readFileSync, rmSync, symlinkSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -115,6 +115,43 @@ test("metadata output cannot be written into the Git repository", () => {
     assert.match(result.stderr,/PRIVATE_METADATA_MUST_STAY_OUTSIDE_REPOSITORY/);
     assert.doesNotMatch(result.stderr,/[\\]Users[\\]|\/tmp\//);
   } finally { rmSync(dir,{recursive:true,force:true}); }
+});
+
+test("realpath guard rejects symlink or junction paths into repository", (t) => {
+  const dir=mkdtempSync(path.join(tmpdir(),"marketech-retention-link-"));
+  const repoRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
+  const alias=path.join(dir,"repo-link");
+  const cli=path.join(repoRoot,"scripts","review-inquiry-retention.mjs");
+  const fixture=path.join(dir,"input.json");
+  const forbiddenName="NEVER_WRITE_PRIVATE_PLAN_FROM_SYMLINK_TEST.json";
+  const forbiddenReal=path.join(repoRoot,forbiddenName);
+  try {
+    try {
+      symlinkSync(repoRoot,alias,process.platform==="win32"?"junction":"dir");
+    } catch(error) {
+      if (["EPERM","EACCES","ENOTSUP","EOPNOTSUPP"].includes(error.code)) {
+        t.skip("OS does not authorize test directory symlinks");
+        return;
+      }
+      throw error;
+    }
+    assert.equal(existsSync(forbiddenReal),false,"test requires no prior output");
+    writeFileSync(fixture,JSON.stringify({schema_version:1,as_of:NOW,records:[row()]}));
+    const res=spawnSync(process.execPath,[cli,"--input",fixture,
+      "--output",path.join(alias,forbiddenName)],{encoding:"utf8"});
+    assert.notEqual(res.status,0);
+    assert.match(res.stderr,/PRIVATE_METADATA_MUST_STAY_OUTSIDE_REPOSITORY/);
+    assert.equal(existsSync(forbiddenReal),false,"no output can land in Git via directory alias");
+    const inputResult=spawnSync(process.execPath,[cli,
+      "--input",path.join(alias,"scripts","inquiry-retention-policy.mjs"),
+      "--output",path.join(dir,"outside-output.json")],{encoding:"utf8"});
+    assert.notEqual(inputResult.status,0);
+    assert.match(inputResult.stderr,/PRIVATE_METADATA_MUST_STAY_OUTSIDE_REPOSITORY/);
+    assert.equal(existsSync(path.join(dir,"outside-output.json")),false);
+  } finally {
+    if (existsSync(forbiddenReal)) rmSync(forbiddenReal,{force:true});
+    rmSync(dir,{recursive:true,force:true});
+  }
 });
 
 test("invalid private input never leaks supplied email into logs", () => {
