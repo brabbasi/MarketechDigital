@@ -11,7 +11,7 @@ const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
 }).outputText;
 
-function harness({ limiter = { rateLimited: false }, providerStatus = 200, key = "synthetic-test-only", recipient = "hello@getmarketechdigital.com", omitRecipient = false } = {}) {
+function harness({ limiter = { rateLimited: false }, providerStatus = 200, key = "synthetic-test-only", recipient = "hello@getmarketechdigital.com", omitRecipient = false, vercelEnv } = {}) {
   const sends = [];
   const limiterCalls = [];
   const logs = [];
@@ -23,6 +23,7 @@ function harness({ limiter = { rateLimited: false }, providerStatus = 200, key =
     RESEND_API_KEY: key,
   };
   if (omitRecipient) delete env.LEAD_TO_EMAIL;
+  if (vercelEnv !== undefined) env.VERCEL_ENV = vercelEnv;
   const checkRateLimit = async (id, { request }) => {
     limiterCalls.push([id, request.url]);
     if (limiter instanceof Error) throw limiter;
@@ -188,6 +189,33 @@ test("missing provider auth and rejected fake delivery have truthful unavailable
   const response = await failure.post(syntheticInquiry());
   assert.equal(response.status, 502, "synthetic backend failure must not be shown as success");
   assert.equal(failure.sends.length, 1);
+});
+
+test("preview-only configuration guard logs a stable diagnosis, never secrets or contact data", async () => {
+  for (const [config, code] of [
+    [{ key: "", vercelEnv: "preview" }, "KEY_UNAVAILABLE"],
+    [{ recipient: "project@getmarketechdigital.com", vercelEnv: "preview" }, "RECIPIENT_NOT_APPROVED"],
+    [{ key: "", recipient: "", vercelEnv: "preview" }, "KEY_AND_RECIPIENT_UNAVAILABLE"]
+  ]) {
+    const h = harness(config);
+    const result = await h.post(syntheticInquiry({ message: "PRIVATE_INQUIRY_DO_NOT_LOG" }));
+    assert.equal(result.status, 503);
+    assert.equal(h.sends.length, 0);
+    assert.deepEqual(h.logs, ["MARKETECH_INQUIRY_PREVIEW_CONFIG_GUARD " + code]);
+    assert.doesNotMatch(h.logs.join(" "), /PRIVATE_INQUIRY_DO_NOT_LOG|synthetic-test-only|project@getmarketechdigital.com/);
+    assert.match(result.body.error, /Email delivery is not configured yet/);
+    assert.ok(!result.body.error.includes(code), "operator-only diagnosis must not leak into public HTTP response");
+  }
+  for (const vercelEnv of ["production", "development", undefined]) {
+    const h = harness({ key: "", vercelEnv });
+    const result = await h.post(syntheticInquiry());
+    assert.equal(result.status, 503);
+    assert.equal(h.sends.length, 0);
+    assert.equal(h.logs.length, 0, "no environment-state logging outside protected preview");
+  }
+  const livePathMock = harness({ vercelEnv: "preview" });
+  assert.equal((await livePathMock.post(syntheticInquiry())).status, 200);
+  assert.equal(livePathMock.logs.length, 0, "healthy preview must remain quiet");
 });
 
 test("explicit inquiry consent is required before any owner email", async () => {

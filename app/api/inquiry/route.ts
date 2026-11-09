@@ -345,7 +345,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Please enter a valid email address." }, { status: 400 });
     }
 
-    if (!process.env.RESEND_API_KEY || !isValidEmail(leadToEmail) || leadToEmail !== approvedOwnerEmail) {
+    // Preview-only server observability: classify the pre-send rejection
+    // without logging a secret, recipient address, request body, or identifier.
+    // Production behavior and public response must remain unchanged.
+    const resendKeyConfigured = Boolean(process.env.RESEND_API_KEY);
+    const approvedRecipientConfigured = isValidEmail(leadToEmail) && leadToEmail === approvedOwnerEmail;
+    if (!resendKeyConfigured || !approvedRecipientConfigured) {
+      if (process.env.VERCEL_ENV === "preview") {
+        const reason = !resendKeyConfigured && !approvedRecipientConfigured
+          ? "KEY_AND_RECIPIENT_UNAVAILABLE"
+          : !resendKeyConfigured ? "KEY_UNAVAILABLE" : "RECIPIENT_NOT_APPROVED";
+        console.error("MARKETECH_INQUIRY_PREVIEW_CONFIG_GUARD", reason);
+      }
       return NextResponse.json({ ok: false, error: `Email delivery is not configured yet. Please email ${ownerFallbackEmail} directly.` }, { status: 503 });
     }
 
