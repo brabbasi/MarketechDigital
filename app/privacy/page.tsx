@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 // on November 5, 2026; NOT approval to publish or represent deletion as operational.
 // Verify retention/deletion across inbox, providers and backups before production.
 export default function PrivacyPage() {
+  const recoveryMode = process.env.MARKETECH_RECOVERY_MODE === "true";
   return (
     <main style={{ minHeight: "100vh", padding: "170px 24px 85px", background: "#050911", color: "#f4f7fc" }}>
       <article style={{ margin: "0 auto", maxWidth: 850, lineHeight: 1.75 }}>
@@ -18,6 +19,13 @@ export default function PrivacyPage() {
         <h1 style={{ fontSize: "clamp(2.3rem, 6vw, 4.2rem)", lineHeight: 1.1, margin: "15px 0 24px" }}>
           Website privacy notice
         </h1>
+        {recoveryMode && (
+          <section role="status" aria-label="Temporary website recovery notice" style={{ border: "1px solid #ffb777", borderRadius: 18, padding: 20, marginBottom: 28 }}>
+            <h2>Website inquiry intake is temporarily paused</h2>
+            <p>During recovery mode, our website contact form, AI assistant and Idea Helper do not accept submissions. Public pages remain available. If you email us directly, that message is processed as ordinary business correspondence and subject to the applicable privacy and retention rules.</p>
+            <p>The intended 180-day unconverted-inquiry retention procedure remains subject to human operational acceptance; this notice does not claim that a deletion rehearsal has already passed.</p>
+          </section>
+        )}
         <p>Marketech Digital uses information you choose to provide to understand and respond to
           your inquiry. This notice covers our public website and initial contact requests;
           project-specific data processing may require a separate agreement.</p>
