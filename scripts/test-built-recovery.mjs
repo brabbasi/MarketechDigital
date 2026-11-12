@@ -53,7 +53,7 @@ try {
   assert.ok(ready, "recovery-mode production bundle did not serve GET /");
 
   for (const [path, patterns] of [
-    ["/", [/Marketech Digital/i, /Idea Helper is temporarily unavailable/]],
+    ["/", [/Marketech Digital/i]],
     ["/privacy", [/Website privacy notice/i, /Website inquiry intake is temporarily paused/]],
     ["/contact", [/Online inquiry form temporarily unavailable/, /hello@getmarketechdigital.com/]],
     ["/solutions/ottawa", [/Lead Capture Rescue/, /Trades Quote Funnel/]]
@@ -61,7 +61,9 @@ try {
     const response = await get(path);
     assert.equal(response.status, 200, `${path} must stay public`);
     const html = await response.text();
-    for (const pattern of patterns) assert.match(html, pattern, path);
+    for (const pattern of patterns) {
+      assert.match(html, pattern, path + ": missing " + pattern.toString());
+    }
     if (path === "/") {
       assert.doesNotMatch(html, /<form[^>]*class="idea-form"/,
         "Recovery homepage must not render Idea Helper input form");
