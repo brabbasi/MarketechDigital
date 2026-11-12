@@ -24,6 +24,7 @@ function firstParam(value: string | string[] | undefined): string {
 export default async function ContactPage({
   searchParams
 }: { searchParams?: Promise<ContactSearchParams> }) {
+  const recoveryMode = process.env.MARKETECH_RECOVERY_MODE === "true";
   const resolvedSearchParams = (await searchParams) || {};
   const query: ContactQuery = {
     offer: firstParam(resolvedSearchParams.offer),
@@ -50,7 +51,20 @@ export default async function ContactPage({
             <ul><li>Website clarity</li><li>Lead capture and follow-up</li><li>SEO and local presence</li><li>TradePilot or automation fit</li></ul>
             <Link href="/">← Back to home</Link>
           </aside>
-          <ContactClient query={query} />
+          {recoveryMode ? (
+            <section className="contact-card" role="status" aria-label="Website contact maintenance">
+              <h2>Online inquiry form temporarily unavailable</h2>
+              <p>We are keeping our public pages available while website inquiries are paused. No inquiry can be submitted through this form in recovery mode.</p>
+              <p>
+                You can contact Marketech Digital directly at{" "}
+                <a href="mailto:hello@getmarketechdigital.com" style={{ color: "#ffb777" }}>
+                  hello@getmarketechdigital.com
+                </a>.
+                Direct email is a separate communication channel and is subject to our existing privacy and retention practices.
+              </p>
+              <Link href="/privacy" style={{ color: "#ffb777" }}>Read the website privacy notice</Link>
+            </section>
+          ) : <ContactClient query={query} />}
         </div>
       </section>
       {/* Literal CSS contains a '>' selector. Keep stylesheet as raw text so
