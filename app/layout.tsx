@@ -14,6 +14,7 @@ import FounderOrbitLayer from "./FounderOrbitLayer";
 import AIAssistant from "./AIAssistant";
 import AuditPopup from "./AuditPopup";
 import GoogleAnalytics from "./GoogleAnalytics";
+import { RecoveryModeProvider } from "./RecoveryModeContext";
 import {
   absoluteUrl,
   coreServices,
@@ -127,10 +128,14 @@ const structuredData = jsonLdGraph([
 ]);
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Server-owned, deploy-specific recovery state. The staging build must
+  // demonstrate that this flag is true in its actual production environment.
+  const recoveryMode = process.env.MARKETECH_RECOVERY_MODE === "true";
   return (
     <html lang="en-CA">
       <body>
-        <GoogleAnalytics />
+        <RecoveryModeProvider active={recoveryMode}>
+        {!recoveryMode && <GoogleAnalytics />}
         <Script
           id="marketech-structured-data"
           type="application/ld+json"
@@ -141,7 +146,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <GlobalPageHeader />
         <HeaderSignalQuote />
         {children}
-        <AuditPopup />
+        {!recoveryMode && <AuditPopup />}
         <FutureLayer />
         <AcquisitionGuard />
         <UXFixLayer />
@@ -150,7 +155,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <HomeAboutCarouselLayer />
         <FounderOrbitLayer />
         <FooterSocialLayer />
-        <AIAssistant />
+        {!recoveryMode && <AIAssistant />}
+        </RecoveryModeProvider>
       </body>
     </html>
   );
