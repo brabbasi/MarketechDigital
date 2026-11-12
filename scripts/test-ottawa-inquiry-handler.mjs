@@ -11,7 +11,7 @@ const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
 }).outputText;
 
-function harness({ limiter = { rateLimited: false }, providerStatus = 200, key = "synthetic-test-only", recipient = "hello@getmarketechdigital.com", omitRecipient = false, vercelEnv } = {}) {
+function harness({ limiter = { rateLimited: false }, providerStatus = 200, key = "synthetic-test-only", recipient = "hello@getmarketechdigital.com", omitRecipient = false, vercelEnv, recoveryMode = false } = {}) {
   const sends = [];
   const limiterCalls = [];
   const logs = [];
@@ -24,6 +24,7 @@ function harness({ limiter = { rateLimited: false }, providerStatus = 200, key =
   };
   if (omitRecipient) delete env.LEAD_TO_EMAIL;
   if (vercelEnv !== undefined) env.VERCEL_ENV = vercelEnv;
+  if (recoveryMode) env.MARKETECH_RECOVERY_MODE = "true";
   const checkRateLimit = async (id, { request }) => {
     limiterCalls.push([id, request.url]);
     if (limiter instanceof Error) throw limiter;
@@ -65,7 +66,7 @@ function harness({ limiter = { rateLimited: false }, providerStatus = 200, key =
     const response = await exports.POST(request);
     return { status: response.status, body: await response.json(), response };
   }
-  return { post, sends, limiterCalls, logs };
+  return { post, direct: exports.POST, sends, limiterCalls, logs };
 }
 function syntheticInquiry(override = {}) {
   return {
@@ -283,3 +284,24 @@ test("upstream provider failures never leak private response bodies to logs", as
 
 console.log("SYNTHETIC_INQUIRY_HANDLER_CONTRACT=OFFLINE_ONLY");
 console.log("LIVE_OWNER_DELIVERY_AND_PROVIDER_DEDUP=NOT_TESTED");
+
+test("recovery deployment rejects inquiry before even inspecting request or invoking providers", async () => {
+  const h = harness({ recoveryMode: true });
+  // An unreadable synthetic stand-in proves the recovery branch does not
+  // inspect headers, body or origin before returning a non-collecting 503.
+  const unreadableRequest = new Proxy({}, {
+    get() { throw Error("RECOVERY_MUST_NOT_READ_VISITOR_REQUEST"); }
+  });
+  const result = await h.direct(unreadableRequest);
+  assert.equal(result.status, 503);
+  assert.equal(result.headers.get("cache-control"), "no-store");
+  assert.equal((await result.json()).ok, false);
+  assert.equal(h.sends.length, 0, "Resend must not be invoked");
+  assert.equal(h.limiterCalls.length, 0, "request identity must not reach WAF");
+
+  const malformed = await h.post("not-json", { origin: null, contentType: "text/plain" });
+  assert.equal(malformed.status, 503, "recovery must reject before parsing or origin checks");
+  assert.equal(h.sends.length, 0);
+  assert.equal(h.limiterCalls.length, 0);
+  assert.deepEqual(h.logs, [], "no visitor data or provider diagnostic should be logged");
+});
