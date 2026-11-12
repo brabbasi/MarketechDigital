@@ -4,20 +4,20 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import ts from "typescript";
 const files = ["app/api/chat/route.ts", "app/api/idea/route.ts"];
-function make(path, { meteredEnabled } = {}) {
+function make(path, { meteredEnabled, recoveryMode = false } = {}) {
   const source = readFileSync(path, "utf8");
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const exports = {}, calls = [];
   vm.runInNewContext(compiled, {
     exports, Request, Response,
-    process: { env: { OPENAI_API_KEY: "synthetic-test", OPENAI_MODEL: "synthetic", ...(meteredEnabled === undefined ? {} : { MARKETECH_PUBLIC_AI_METERED_ENABLED: meteredEnabled }) } },
+    process: { env: { OPENAI_API_KEY: "synthetic-test", OPENAI_MODEL: "synthetic", ...(meteredEnabled === undefined ? {} : { MARKETECH_PUBLIC_AI_METERED_ENABLED: meteredEnabled }), ...(recoveryMode ? { MARKETECH_RECOVERY_MODE: "true" } : {}) } },
     fetch: async (_url, args) => { calls.push(JSON.parse(args.body)); return Response.json({ choices: [{ message: { content: "{}" } }] }); },
     console: { error: () => {} },
     require: name => name === "next/server"
       ? { NextResponse: { json: (x, args) => Response.json(x, args) } }
       : { buildSystemPrompt: () => "test", localAssistantReply: () => "guided" }
   });
-  return { calls, post: async input => {
+  return { calls, direct: exports.POST, post: async input => {
     const result = await exports.POST(new Request("https://example.invalid/", { method: "POST", body: JSON.stringify(input) }));
     return result.json();
   } };
@@ -94,3 +94,15 @@ test("assistant keyboard layout supports short landscape phones wider than 560px
   assert.match(css, /\.ai-panel\.ai-keyboard-adjusted \{/);
   assert.match(css, /max-height: var\(--ai-mobile-height, none\) !important/);
 });
+
+for (const path of files) {
+  test(path + " recovery mode rejects BEFORE reading message or reaching provider", async () => {
+    const h = make(path, { meteredEnabled: "true", recoveryMode: true });
+    const request = new Proxy({}, { get() { throw Error("RECOVERY_MUST_NOT_READ_INPUT"); } });
+    const response = await h.direct(request);
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal((await response.json()).mode, "disabled");
+    assert.equal(h.calls.length, 0);
+  });
+}
