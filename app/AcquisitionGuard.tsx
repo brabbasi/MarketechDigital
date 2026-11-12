@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRecoveryMode } from "./RecoveryModeContext";
 
 function newSubmissionId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
@@ -18,6 +19,7 @@ function safeReferrer() {
 }
 
 export default function AcquisitionGuard() {
+  const recoveryMode = useRecoveryMode();
   useEffect(() => {
     async function handleSubmit(event: Event) {
       const target = event.target;
@@ -27,6 +29,11 @@ export default function AcquisitionGuard() {
       event.stopPropagation();
       event.stopImmediatePropagation();
 
+      // Never serialize or POST popup inquiry fields during recovery.
+      if (recoveryMode) {
+        window.location.assign("/contact");
+        return;
+      }
       if (target.dataset.acquisitionSending === "true") return;
       target.dataset.acquisitionSending = "true";
       if (!target.dataset.submissionId) target.dataset.submissionId = newSubmissionId();
@@ -73,7 +80,7 @@ export default function AcquisitionGuard() {
     return () => {
       document.removeEventListener("submit", handleSubmit, true);
     };
-  }, []);
+  }, [recoveryMode]);
 
   return null;
 }
