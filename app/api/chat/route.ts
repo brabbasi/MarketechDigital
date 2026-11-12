@@ -16,6 +16,13 @@ function cleanMessages(messages: unknown): ChatMessage[] {
 }
 
 export async function POST(request: Request) {
+  // Recovery mode never reads visitor chat bodies or calls a model provider.
+  if (process.env.MARKETECH_RECOVERY_MODE === "true") {
+    return NextResponse.json(
+      { reply: "The website assistant is temporarily unavailable. Contact us directly by email.", mode: "disabled", reason: "recovery_mode" },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
+    );
+  }
   try {
     const body = await request.json().catch(() => ({}));
     const messages = cleanMessages(body.messages);
