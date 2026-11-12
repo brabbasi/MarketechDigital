@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRecoveryMode } from "./RecoveryModeContext";
 
 type Idea = {
   title: string;
@@ -40,6 +41,7 @@ function normalizeIdea(value: unknown): Idea {
 }
 
 export default function IdeaGenerator() {
+  const recoveryMode = useRecoveryMode();
   const [business, setBusiness] = useState("");
   const [goal, setGoal] = useState("");
   const [friction, setFriction] = useState("");
@@ -91,6 +93,17 @@ export default function IdeaGenerator() {
     firstTouchOffer: "Idea Helper recommendation"
   });
   const contactHref = `/contact?${contactParams.toString()}`;
+
+  if (recoveryMode) {
+    return (
+      <section className="idea-lab" id="idea-generator" aria-label="Idea Helper temporarily unavailable">
+        <div className="services-label"><span /> Temporary service notice</div>
+        <h2>Idea Helper is temporarily unavailable.</h2>
+        <p>Our website is in a restricted recovery mode. We are not accepting business details through this tool.</p>
+        <p><a href="/contact">View contact options and privacy information</a></p>
+      </section>
+    );
+  }
 
   return (
     <section className="idea-lab" id="idea-generator">
