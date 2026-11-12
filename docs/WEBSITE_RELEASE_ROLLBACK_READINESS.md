@@ -76,3 +76,67 @@ No production action. The recorded deployment and domain identities establish th
 **Recovery decision:** Either (a) explicitly approve an emergency, narrowly scoped intake-disable/maintenance containment that prevents personal-data collection when the older binary is active, with independent review and a reversible procedure, or (b) defer production promotion until a privacy-equivalent, independently accepted recovery build exists. This is a real release risk, not grounds to replace existing website code with another prototype.
 
 **Final Founder decision:** After above gates, issue a separately scoped GO for exact PR head and staged production deployment; otherwise NO-GO. Do not auto-merge, auto-promote, send outreach, spend, modify WAF/secrets, activate Runtime or execute rollback under a review-only acceptance authorization.
+
+## 7. In-branch source-only privacy-equivalent recovery variant (November 12, 2026)
+
+The ORIGINAL Draft PR #21 branch now contains a restricted recovery code path;
+this is a modification of the existing reviewed website, **not** a new site,
+PR, production deployment, ingress service, sender or architecture.
+
+**Activation contract (source/build only):** `MARKETECH_RECOVERY_MODE=true`
+is a server-owned environment flag. When present for a dedicated *immutable*
+build and its runtime, the site:
+
+- Preserves public pages, `/privacy`, direct-email contact information and
+  the existing stated privacy/retention policy; the recovery notice explicitly
+  explains that the online form and optional AI inputs are unavailable.
+- Serves `/contact` without rendering the inquiry form.
+- Blocks `POST /api/inquiry` with HTTP 503 and `Cache-Control: no-store`
+  **before inspecting headers, origin or request body**, invoking the WAF SDK,
+  or contacting Resend. The guard is defense in depth, not a bypass of the
+  normal approved WAF/intake controls when regular mode is active.
+- Preserves `POST /api/lead` at HTTP 410; no legacy sender is restored.
+- Blocks `POST /api/chat` and `POST /api/idea` with HTTP 503 before parsing
+  user text or contacting a metered model. AI assistant and audit popup are
+  not rendered, and the Idea Helper shows an offline notice instead of a form.
+- Intercepts legacy popup forms before reading their fields and routes the
+  visitor to the non-submitting contact notice.
+- Keeps direct `mailto:` optional: choosing to send ordinary email remains a
+  **separate provider/mailbox flow** governed by existing human retention and
+  privacy practices, not a silent website inquiry collection workaround.
+
+**Isolated CI evidence:** the original Ottawa Integration workflow now includes
+a distinct `recovery-non-collecting` job. It builds the actual Next production
+bundle with `MARKETECH_RECOVERY_MODE=true`, NO provider secrets and NO
+deployment token, then starts it on loopback for public GET checks and
+synthetic 503/410 POST checks. The original standard-mode CI still tests
+working owner-only intake. Verify the exact-head job's real result; the
+existence of a CI job alone is **not** a successful build.
+
+**Missing and separately gated:**
+
+1. Obtain successful exact-head standard-mode CI and recovery-mode CI, including
+   real built route checks. Source tests cannot establish deployed
+   production-environment behavior.
+2. Obtain full main-relative independent SOURCE SECURITY ACCEPT on the immutable
+   combined PR #21 head. The old PASS at `ea43b0f` is historical after
+   recovery code changes; require renewed review of all inherited changes.
+3. Verify *the separate intended production-environment recovery artifact*
+   is built and run with `MARKETECH_RECOVERY_MODE=true` consistently at
+   build time and runtime. A regular READY Preview, an unset flag, or a
+   static source assertion cannot satisfy this. Check actual GET and POST
+   responses, no provider egress/PII logging, consent/analytics and mobile
+   paths, under independent acceptance, before assigning any domain.
+4. Require explicit Founder staging authorization **before** any Vercel
+   production-target deployment, even with --skip-domain; require a second
+   final Founder GO to promote/rollback/alias a domain. The old
+   `e8ce3ac` build is NOT silently reclassified as safe.
+5. Independently accept the separate human synthetic retention rehearsal:
+   folders, Trash permanent deletion, forwards/IMAP, exports, Resend
+   retention, Namecheap/owner backups and signed private audit receipt.
+   Do not delete real customer data or claim a rehearsal was done by CI.
+
+**Governance at source preparation:** production alias remains on the previous
+build until a separate authorization. No merge, deployment, provider settings
+change, customer send, actual mailbox deletion, or incident rollback is
+permitted by this section.
