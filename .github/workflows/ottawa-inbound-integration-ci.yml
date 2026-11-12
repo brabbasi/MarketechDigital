@@ -111,3 +111,36 @@ jobs:
           echo 'CONTACT_API_PROVIDER_SEND=NOT_TESTED'
           echo 'PRODUCTION_FIREWALL_AND_RESEND_ATTESTATION=PENDING'
           echo 'MERGE_AND_PUBLICATION=OFF'
+
+  recovery-non-collecting:
+    name: Build and verify non-collecting recovery bundle (loopback only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      CI: 'true'
+      MARKETECH_RECOVERY_MODE: 'true'
+      RESEND_API_KEY: ''
+      OPENAI_API_KEY: ''
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Pin exact source revision
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install existing pinned dependencies without secrets or lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Build real restricted recovery Next bundle without deploying
+        run: npm run build
+      - name: Verify real public pages and hard-stopped intake on loopback
+        run: node scripts/test-built-recovery.mjs
+      - name: Preserve Founder production HOLD
+        run: |
+          echo 'RECOVERY_BUNDLE_BUILT_AND_LOCAL_QA=YES'
+          echo 'PRODUCTION_ENVIRONMENT_STAGE=NOT_PERFORMED'
+          echo 'INDEPENDENT_SECURITY_ACCEPT=NOT_ESTABLISHED'
+          echo 'PRODUCTION_PROMOTION_AND_ROLLBACK=OFF'
