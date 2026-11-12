@@ -156,6 +156,13 @@ function parseIdeaJson(text: string, fallback: IdeaResponse): IdeaResponse {
 }
 
 export async function POST(request: Request) {
+  // Incident recovery is non-collecting: reject before reading business inputs.
+  if (process.env.MARKETECH_RECOVERY_MODE === "true") {
+    return NextResponse.json(
+      { error: "The website Idea Helper is temporarily unavailable.", mode: "disabled" },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
+    );
+  }
   const body = await request.json().catch(() => ({}));
   const input: IdeaInput = {
     business: clean(body.business),
