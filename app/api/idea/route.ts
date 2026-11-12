@@ -156,6 +156,13 @@ function parseIdeaJson(text: string, fallback: IdeaResponse): IdeaResponse {
 }
 
 export async function POST(request: Request) {
+  // Incident recovery is non-collecting: reject before reading business inputs.
+  if (process.env.MARKETECH_RECOVERY_MODE === "true") {
+    return NextResponse.json(
+      { error: "The website Idea Helper is temporarily unavailable.", mode: "disabled" },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
+    );
+  }
   const body = await request.json().catch(() => ({}));
   const input: IdeaInput = {
     business: clean(body.business),
@@ -165,6 +172,16 @@ export async function POST(request: Request) {
   };
 
   const fallback = localIdea(input);
+
+  if (body.openaiConsent !== true) {
+    return NextResponse.json({ idea: fallback, mode: "guided", reason: "openai_consent_not_granted" });
+  }
+
+  // Consent alone must not authorize metered provider spending.
+  // Keep this route offline until reviewed rate limits and Founder approval.
+  if (process.env.MARKETECH_PUBLIC_AI_METERED_ENABLED !== "true") {
+    return NextResponse.json({ idea: fallback, mode: "guided", reason: "public_ai_metered_disabled" });
+  }
 
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json({ idea: fallback, mode: "guided", reason: "missing_openai_api_key" });
