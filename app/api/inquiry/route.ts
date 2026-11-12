@@ -267,6 +267,15 @@ async function sendResendEmail(message: EmailMessage) {
 }
 
 export async function POST(request: Request) {
+  // Privacy-equivalent incident recovery: no request-body inspection, WAF
+  // invocation, provider send or inquiry persistence is permitted. An approved
+  // recovery deployment MUST attest this server-only switch is active.
+  if (process.env.MARKETECH_RECOVERY_MODE === "true") {
+    return NextResponse.json(
+      { ok: false, error: "The website inquiry form is temporarily unavailable. Please email hello@getmarketechdigital.com directly." },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
+    );
+  }
   try {
     if (!isSameOriginRequest(request)) {
       return NextResponse.json({ ok: false, error: "This form must be submitted from the Marketech Digital website." }, { status: 403 });
