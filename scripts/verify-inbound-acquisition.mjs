@@ -16,6 +16,18 @@ function requireEqual(actual, expected, label) {
   if (actual !== expected) throw new Error(`${label}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
 }
 
+// One canonical favicon response: two route entrypoints (edge ImageResponse
+// and static SVG) at the same /favicon.ico path make metadata handling
+// implementation-dependent during Next.js page-data collection.
+const faviconHandlers = ["route.ts", "route.tsx", "route.js", "route.jsx"]
+  .filter(name => fs.existsSync(`app/favicon.ico/${name}`));
+requireEqual(faviconHandlers.join(","), "route.ts", "single deterministic favicon handler");
+requireText(read("app/favicon.ico/route.ts"),
+  '"Content-Type": "image/svg+xml; charset=utf-8"',
+  "canonical static SVG favicon handler");
+requireText(read("next.config.js"), 'destination: "/favicon.svg"',
+  "static SVG favicon compatibility rewrite");
+
 const inquiry = read("app/api/inquiry/route.ts");
 const legacyLead = read("app/api/lead/route.ts");
 const contact = read("app/contact/ContactClient.tsx");
