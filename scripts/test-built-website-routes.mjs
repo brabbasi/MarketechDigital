@@ -114,16 +114,13 @@ try {
         asset.path + ": unexpected or empty brand asset");
       assert.match(svg, /<\/svg>\s*$/i,
         asset.path + ": incomplete SVG document");
-      // Independently reviewed P2: aria-label is not visible artwork.
-      // Pin the two existing canonical SVG byte representations:
-      // public/favicon.svg (Next compatibility rewrite) and the existing
-      // route.ts inline SVG. A blank/mutated icon must fail even if branding
-      // remains in accessible metadata; any artwork change requires review.
+      // Approved *runtime* SHA256 values over the LF bytes used by Linux CI,
+      // not checkout-converted CRLF file hashes. Exact icons are review-gated:
+      // public/favicon.svg (Next compatibility rewrite) and the route.ts
+      // SVG literal after JS compilation have distinct, visible artwork.
+      // A blank SVG containing only branding metadata must fail.
       const approvedArtworkSha256 = new Set([
-        "5096aab2e40d79f1dbfa9232064d9d809d4e08ad2cd772187b7e0a724d1c2318",
-        "4431a5dcfecd685f74fadb20fa55ac375018a7290fcbecb2fea41a67087fb344",
-        // Actual Linux Next 16.4.5 200 SVG response uses compiled template
-        // escapes, so served bytes differ from the literal route.ts source.
+        "00a9fefdf6f9f6ad9a215700b57337606897cdf102e1109b470b2bd4b84348a8",
         "bb54b24a0b441d08b1ca6e6b12655838d542fa43c9ec57a473180165bc004a41"
       ]);
       const servedArtworkSha256 = createHash("sha256").update(bytes).digest("hex");
