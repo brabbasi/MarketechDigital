@@ -32,6 +32,14 @@ export function classifyInquiry(row, asOf = new Date()) {
   for (const key of Object.keys(row)) {
     if (!allowedFields.has(key)) throw Error("UNEXPECTED_METADATA_FIELD");
   }
+  // A string or number masquerading as a hold or converted-client flag must
+  // never silently become false and put an exception record into a due list.
+  for (const flag of ["client_converted", "legal_hold", "deletion_requested",
+    "provider_inventory_verified", "backup_expiry_verified", "exports_reviewed"]) {
+    if (Object.prototype.hasOwnProperty.call(row, flag) && typeof row[flag] !== "boolean") {
+      throw Error("INVALID_METADATA_RECORD");
+    }
+  }
   if (typeof row.reference !== "string" || !/^[A-Za-z0-9][A-Za-z0-9_-]{7,63}$/.test(row.reference)) {
     throw Error("INVALID_OPAQUE_REFERENCE");
   }
