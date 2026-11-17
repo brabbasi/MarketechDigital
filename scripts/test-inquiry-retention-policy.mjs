@@ -36,6 +36,18 @@ test("legal hold receives a separate documented review, never automatic deletion
 test("converted client is governed by separate agreement", () => {
   assert.equal(action({client_converted:true}),"SEPARATE_CLIENT_POLICY");
 });
+test("ambiguous retention exceptions and custody flags fail closed", () => {
+  for (const fields of [
+    {legal_hold:"true"}, {client_converted:1}, {deletion_requested:"false"},
+    {provider_inventory_verified:"true"}, {backup_expiry_verified:1},
+    {exports_reviewed:null}
+  ]) {
+    assert.throws(() => classifyInquiry(row(fields), NOW), /INVALID_METADATA_RECORD/);
+    assert.throws(() => classifyBatch([row(fields)], NOW), /INVALID_METADATA_RECORD/);
+  }
+  assert.equal(action({legal_hold:true}), "DOCUMENTED_HOLD_REVIEW");
+  assert.equal(action({client_converted:true}), "SEPARATE_CLIENT_POLICY");
+});
 test("provider or backup inventory gaps never clear a due item", () => {
   const result=classifyInquiry(row({provider_inventory_verified:false,backup_expiry_verified:false}),NOW);
   assert.equal(result.action,"POLICY_LIMIT_REACHED_REVIEW_NOW");
@@ -154,6 +166,19 @@ test("realpath guard rejects symlink or junction paths into repository", (t) => 
   }
 });
 
+test("metadata CLI rejects ambiguous legal hold before writing a review artifact", () => {
+  const dir=mkdtempSync(path.join(tmpdir(),"marketech-retention-bool-"));
+  const code=path.join(path.dirname(fileURLToPath(import.meta.url)),"review-inquiry-retention.mjs");
+  try {
+    const input=path.join(dir,"input.json"),output=path.join(dir,"due-plan.json");
+    writeFileSync(input,JSON.stringify({schema_version:1,as_of:NOW,
+      records:[row({legal_hold:"true"})]}));
+    const result=spawnSync(process.execPath,[code,"--input",input,"--output",output],{encoding:"utf8"});
+    assert.notEqual(result.status,0);
+    assert.match(result.stderr,/INVALID_METADATA_RECORD/);
+    assert.equal(existsSync(output),false,"no ambiguous due plan may be created");
+  } finally { rmSync(dir,{recursive:true,force:true}); }
+});
 test("invalid private input never leaks supplied email into logs", () => {
   const dir=mkdtempSync(path.join(tmpdir(),"marketech-retention-guard-"));
   const code=path.join(path.dirname(fileURLToPath(import.meta.url)),"review-inquiry-retention.mjs");
