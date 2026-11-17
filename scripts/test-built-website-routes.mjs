@@ -88,18 +88,38 @@ try {
       `${route.path}: unexpected pre-consent analytics script tag`);
     console.log(`BUILT_ROUTE_GET_PASS=${route.path}`);
   }
-  // ImageResponse routes are customer-facing favicon/preview assets. Test
-  // actual bytes because a successful page GET cannot detect Satori CSS errors.
-  for (const asset of ["/favicon-16x16.png", "/favicon.ico", "/og-image.png"]) {
-    const response = await get(asset);
-    assert.equal(response.status, 200, asset + ": ImageResponse must succeed");
-    assert.match(response.headers.get("content-type") || "", /image\/png/,
-      asset + ": expected PNG bytes");
+  // The canonical /favicon.ico is an SVG compatibility route, not PNG.
+  // Check the actual served MIME type AND bytes; other image assets stay PNG.
+  // This GET-only QA never submits the public inquiry form or contacts providers.
+  for (const asset of [
+    { path: "/favicon-16x16.png", format: "png" },
+    { path: "/favicon.ico", format: "svg" },
+    { path: "/og-image.png", format: "png" }
+  ]) {
+    const response = await get(asset.path);
+    assert.equal(response.status, 200, asset.path + ": asset GET must succeed");
+    const contentType = response.headers.get("content-type") || "";
     const bytes = Buffer.from(await response.arrayBuffer());
-    assert.ok(bytes.length > 100, asset + ": generated image unexpectedly empty");
-    assert.equal(bytes.toString("hex", 0, 8), "89504e470d0a1a0a",
-      asset + ": invalid PNG signature");
-    console.log("BUILT_ASSET_GET_PASS=" + asset);
+    assert.ok(bytes.length > 100, asset.path + ": generated asset unexpectedly empty");
+    if (asset.format === "svg") {
+      assert.match(contentType, /^image\/svg\+xml(?:;|$)/i,
+        asset.path + ": expected SVG content type");
+      const svg = bytes.toString("utf8");
+      assert.match(svg, /^\s*(?:<\?xml[^>]*>\s*)?<svg\b/i,
+        asset.path + ": missing SVG opening element");
+      assert.match(svg, /xmlns="http:\/\/www\.w3\.org\/2000\/svg"/,
+        asset.path + ": invalid SVG namespace");
+      assert.match(svg, /Marketech Digital/i,
+        asset.path + ": unexpected or empty brand asset");
+      assert.match(svg, /<\/svg>\s*$/i,
+        asset.path + ": incomplete SVG document");
+    } else {
+      assert.match(contentType, /^image\/png(?:;|$)/i,
+        asset.path + ": expected PNG content type");
+      assert.equal(bytes.toString("hex", 0, 8), "89504e470d0a1a0a",
+        asset.path + ": invalid PNG signature");
+    }
+    console.log("BUILT_ASSET_GET_PASS=" + asset.path);
   }
   // The server now renders the form. Browser checks still prove interactive
   // hydration and that consent defaults to unchecked after client startup.
