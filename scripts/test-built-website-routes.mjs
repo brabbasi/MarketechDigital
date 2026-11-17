@@ -2,6 +2,7 @@
  * This is deliberately a narrower acceptance check than mobile/browser QA.
  */
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { setTimeout as delay } from "node:timers/promises";
@@ -113,6 +114,18 @@ try {
         asset.path + ": unexpected or empty brand asset");
       assert.match(svg, /<\/svg>\s*$/i,
         asset.path + ": incomplete SVG document");
+      // Independently reviewed P2: aria-label is not visible artwork.
+      // Pin the two existing canonical SVG byte representations:
+      // public/favicon.svg (Next compatibility rewrite) and the existing
+      // route.ts inline SVG. A blank/mutated icon must fail even if branding
+      // remains in accessible metadata; any artwork change requires review.
+      const approvedArtworkSha256 = new Set([
+        "5096aab2e40d79f1dbfa9232064d9d809d4e08ad2cd772187b7e0a724d1c2318",
+        "4431a5dcfecd685f74fadb20fa55ac375018a7290fcbecb2fea41a67087fb344"
+      ]);
+      const servedArtworkSha256 = createHash("sha256").update(bytes).digest("hex");
+      assert.ok(approvedArtworkSha256.has(servedArtworkSha256),
+        asset.path + ": visible SVG artwork changed without updated reviewed digest");
     } else {
       assert.match(contentType, /^image\/png(?:;|$)/i,
         asset.path + ": expected PNG content type");
