@@ -121,7 +121,10 @@ try {
       // remains in accessible metadata; any artwork change requires review.
       const approvedArtworkSha256 = new Set([
         "5096aab2e40d79f1dbfa9232064d9d809d4e08ad2cd772187b7e0a724d1c2318",
-        "4431a5dcfecd685f74fadb20fa55ac375018a7290fcbecb2fea41a67087fb344"
+        "4431a5dcfecd685f74fadb20fa55ac375018a7290fcbecb2fea41a67087fb344",
+        // Actual Linux Next 16.4.5 200 SVG response uses compiled template
+        // escapes, so served bytes differ from the literal route.ts source.
+        "bb54b24a0b441d08b1ca6e6b12655838d542fa43c9ec57a473180165bc004a41"
       ]);
       const servedArtworkSha256 = createHash("sha256").update(bytes).digest("hex");
       assert.ok(approvedArtworkSha256.has(servedArtworkSha256),
