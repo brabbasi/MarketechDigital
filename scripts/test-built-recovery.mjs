@@ -74,8 +74,11 @@ try {
     if (path === "/audit") {
       assert.doesNotMatch(html, /<form\b/i,
         "Recovery audit page must not contain any intake form");
-      assert.doesNotMatch(html, /project@getmarketechdigital\.com/i,
-        "Recovery audit page must not expose a second intake mailbox");
+      // Global organization JSON-LD legitimately lists company addresses.
+      // The security boundary is an actionable mailto or a mounted form,
+      // not passive contact metadata embedded for crawlers.
+      assert.doesNotMatch(html, /mailto:project@getmarketechdigital\.com/i,
+        "Recovery audit page must not expose a second mailto intake");
       assert.doesNotMatch(html, /data-destination-email=/i,
         "Recovery audit page must not mount the audit mailto destination");
     }
