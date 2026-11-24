@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-const projectEmail = "project@getmarketechdigital.com";
 const contactEmail = "contact@getmarketechdigital.com";
 
 function addCarouselTools(id: string, label: string) {
@@ -83,93 +82,10 @@ function addHomeIdeaGeneratorCTA() {
   cta.querySelector("[data-open-contact]")?.addEventListener("click", openContactModal);
 }
 
-function ensureContactModal() {
-  if (document.getElementById("contactPopup")) return;
-  const modal = document.createElement("div");
-  modal.id = "contactPopup";
-  modal.className = "contact-popup";
-  modal.innerHTML = `
-    <div class="contact-popup-card" role="dialog" aria-modal="true" aria-labelledby="contactPopupTitle">
-      <button class="contact-popup-close" type="button" aria-label="Close contact form">×</button>
-      <div class="contact-popup-label"><span></span> Start a project</div>
-      <h2 id="contactPopupTitle">Tell us what you want to build.</h2>
-      <p>Share what you are trying to fix, improve, or launch. You do not need to have everything figured out. A few honest details are enough to start the right conversation.</p>
-      <form class="contact-popup-form" aria-label="Marketech Digital project inquiry form">
-        <input name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" />
-        <input name="email" type="email" placeholder="Email address" aria-label="Email address" autocomplete="email" />
-        <input name="phone" type="tel" placeholder="Phone number optional" aria-label="Phone number optional" autocomplete="tel" />
-        <input name="company" placeholder="Company name optional" aria-label="Company name optional" autocomplete="organization" />
-        <input name="business" placeholder="Business type" aria-label="Business type" />
-        <select name="service" aria-label="Service interested in">
-          <option value="">What do you need help with?</option>
-          <option>AI automation</option>
-          <option>Web development</option>
-          <option>Software or internal system</option>
-          <option>SEO or digital marketing</option>
-          <option>Landing page</option>
-          <option>Branding</option>
-          <option>Not sure yet</option>
-        </select>
-        <select name="budget" aria-label="Budget range">
-          <option value="">Budget range</option>
-          <option>$500 to $1,500 CAD</option>
-          <option>$1,500 to $4,500 CAD</option>
-          <option>$4,500 to $9,500 CAD</option>
-          <option>$10,000+ CAD</option>
-          <option>Not sure yet</option>
-        </select>
-        <select name="preferredContact" aria-label="Preferred contact method">
-          <option value="">Preferred contact method</option>
-          <option>Email</option>
-          <option>Phone</option>
-          <option>WhatsApp</option>
-        </select>
-        <textarea name="message" placeholder="What problem, system, or idea do you want help with?" aria-label="Project details"></textarea>
-        <button type="submit">Send project inquiry →</button>
-      </form>
-      <div class="contact-popup-status" aria-live="polite"></div>
-      <a class="contact-popup-mail" href="mailto:${projectEmail}">Prefer email? ${projectEmail}</a>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  const close = () => modal.classList.remove("show");
-  modal.querySelector(".contact-popup-close")?.addEventListener("click", close);
-  modal.addEventListener("click", (event) => {
-    if (event.target === modal) close();
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && modal.classList.contains("show")) close();
-  });
-  modal.querySelector("form")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget as HTMLFormElement;
-    const status = modal.querySelector<HTMLElement>(".contact-popup-status");
-    const data = Object.fromEntries(new FormData(form).entries());
-    if (status) status.textContent = "Sending your inquiry...";
-    try {
-      const response = await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        const detail = typeof result?.error === "string" ? result.error : `Please email ${projectEmail} and we will still help you.`;
-        throw new Error(detail);
-      }
-      if (status) status.textContent = "Thank you. Your inquiry has been emailed to Marketech Digital.";
-      form.reset();
-    } catch (error) {
-      const detail = error instanceof Error && error.message ? error.message : `Please email ${projectEmail} and we will still help you.`;
-      if (status) status.textContent = `The form had trouble sending. ${detail}`;
-    }
-  });
-}
-
+// Keep a single governed, consent-gated /contact journey. The retired
+// /api/lead route always returns 410; the old popup previously POSTed to it.
 function openContactModal() {
-  ensureContactModal();
-  document.getElementById("contactPopup")?.classList.add("show");
+  window.location.assign("/contact?source=website-contact-popup&medium=website&campaign=site-contact-popup");
 }
 
 function interceptContactClicks() {
@@ -186,12 +102,10 @@ function interceptContactClicks() {
       const isContact =
         href === "#contact" ||
         href === "/#contact" ||
-        href.startsWith("mailto:") ||
         text.includes("book a consultation") ||
         text.includes("start a conversation") ||
         text.includes("ask for a recommendation") ||
-        text.includes("start this project") ||
-        text.includes("send message");
+        text.includes("start this project");
       if (!isContact) return;
       event.preventDefault();
       openContactModal();
@@ -318,7 +232,6 @@ export default function UXFixLayer() {
 
   useEffect(() => {
     const run = () => {
-      ensureContactModal();
       interceptContactClicks();
       stabilizeDecorativeMedia();
 

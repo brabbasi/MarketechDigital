@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRecoveryMode } from "./RecoveryModeContext";
 
 type Idea = {
   title: string;
@@ -40,13 +41,16 @@ function normalizeIdea(value: unknown): Idea {
 }
 
 export default function IdeaGenerator() {
+  const recoveryMode = useRecoveryMode();
   const [business, setBusiness] = useState("");
   const [goal, setGoal] = useState("");
   const [friction, setFriction] = useState("");
   const [tools, setTools] = useState("");
   const [idea, setIdea] = useState<Idea>(defaultIdea);
   const [loading, setLoading] = useState(false);
+  const [openaiConsent, setOpenaiConsent] = useState(false);
   const [mode, setMode] = useState("ready");
+  const [hasResult, setHasResult] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -57,13 +61,15 @@ export default function IdeaGenerator() {
       const response = await fetch("/api/idea", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ business, goal, friction, tools })
+        body: JSON.stringify({ business, goal, friction, tools, openaiConsent })
       });
       const data = await response.json();
       setIdea(normalizeIdea(data?.idea));
       setMode(data?.mode === "ai" ? "Personalized suggestion" : "Guided suggestion");
+      setHasResult(true);
     } catch {
       setMode("Connection issue");
+      setHasResult(false);
       setIdea({
         ...defaultIdea,
         title: "We could not load the idea tool right now",
@@ -73,6 +79,30 @@ export default function IdeaGenerator() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Keep generated recommendation text on-page. Query strings can be retained in
+  // browser history, request logs and referrers, so the handoff carries only a
+  // fixed, non-PII category into the governed contact flow.
+  const contactParams = new URLSearchParams({
+    source: "idea-helper",
+    medium: "website",
+    campaign: "inbound-idea-helper",
+    service: "Not sure yet",
+    recommendedService: "Idea Helper recommendation",
+    firstTouchOffer: "Idea Helper recommendation"
+  });
+  const contactHref = `/contact?${contactParams.toString()}`;
+
+  if (recoveryMode) {
+    return (
+      <section className="idea-lab" id="idea-generator" aria-label="Idea Helper temporarily unavailable">
+        <div className="services-label"><span /> Temporary service notice</div>
+        <h2>Idea Helper is temporarily unavailable.</h2>
+        <p>Our website is in a restricted recovery mode. We are not accepting business details through this tool.</p>
+        <p><a href="/contact">View contact options and privacy information</a></p>
+      </section>
+    );
   }
 
   return (
@@ -88,6 +118,10 @@ export default function IdeaGenerator() {
         <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="Main goal, for example better leads, less admin, faster follow ups" />
         <input value={tools} onChange={(e) => setTools(e.target.value)} placeholder="Current tools, for example website, Gmail, WhatsApp, CRM, Google Sheets" />
         <textarea value={friction} onChange={(e) => setFriction(e.target.value)} placeholder="What feels slow, repetitive, confusing, expensive, or hard to track right now?" />
+        <label className="idea-provider-choice" style={{ display: "flex", gap: 9, alignItems: "flex-start", padding: "10px 0", fontSize: 13 }}>
+          <input type="checkbox" checked={openaiConsent} onChange={(e) => setOpenaiConsent(e.target.checked)} disabled={loading} />
+          <span>Optional: allow OpenAI to process the business, goal, friction and tools you entered to prepare an AI suggestion. Without permission, use a guided suggestion. Avoid confidential information. <a href="/privacy">Privacy details</a>.</span>
+        </label>
         <button type="submit" disabled={loading}>{loading ? "Thinking through your situation..." : "Suggest a helpful starting point →"}</button>
       </form>
       <div className="idea-result">
@@ -108,6 +142,13 @@ export default function IdeaGenerator() {
           <h4>Good questions to ask next</h4>
           <ul>{idea.nextQuestions.map((item) => <li key={item}>{item}</li>)}</ul>
         </div>
+        {hasResult && (
+          <div className="idea-actions" aria-label="Next steps for your recommendation">
+            <p>Your recommendation stays on this page. Opening the contact form does not send or save this plan. Copy any details you want to discuss into your message.</p>
+            <a href={contactHref}>Discuss a plan like this →</a>
+            <a href={`${contactHref}&intent=talk-to-basit`}>Talk to Basit</a>
+          </div>
+        )}
       </div>
     </section>
   );

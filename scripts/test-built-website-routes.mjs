@@ -1,0 +1,177 @@
+/** Real built Next.js GET smoke test — no browser JS, provider calls or POSTs.
+ * This is deliberately a narrower acceptance check than mobile/browser QA.
+ */
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { setTimeout as delay } from "node:timers/promises";
+
+const port = 43271;
+const origin = `http://127.0.0.1:${port}`;
+const routes = [
+  { path: "/", checks: [/Marketech Digital/i] },
+  // The inquiry form must be in the INITIAL HTML, not trapped behind Suspense.
+  { path: "/contact", checks: [
+    /Free Digital Growth Audit/, /A simple audit, not a pressure call/,
+    /form class="contact-card"/, /name="consentToContact"/, /href="\/privacy"/
+  ] },
+  { path: "/contact?offer=lead-rescue&service=Lead%20capture%20%2F%20quote%20forms", checks: [
+    /form class="contact-card"/, /Lead Capture Rescue/, /Lead capture \/ quote forms/,
+    /name="consentToContact"/
+  ] },
+  { path: "/privacy", checks: [/Website privacy notice/i, /Resend/, /OpenAI/] },
+  { path: "/solutions/ottawa", checks: [
+    /Lead Capture Rescue/, /Trades Quote Funnel/,
+    /Short-Form Content Sprint/, /Internal AI Workflow Pilot/,
+    /\/contact\?service=/
+  ] },
+];
+const node = process.execPath;
+const child = spawn(node, [
+  "node_modules/next/dist/bin/next", "start",
+  "--hostname", "127.0.0.1", "--port", String(port)
+], {
+  stdio: ["ignore", "pipe", "pipe"],
+  env: {
+    ...process.env,
+    // This test must not receive provider credentials or customer content.
+    RESEND_API_KEY: "",
+    OPENAI_API_KEY: "",
+    NEXT_TELEMETRY_DISABLED: "1",
+    NODE_ENV: "production"
+  }
+});
+let diagnostic = "";
+for (const stream of [child.stdout, child.stderr]) {
+  stream.on("data", (part) => {
+    diagnostic = (diagnostic + part.toString("utf8")).slice(-2400);
+  });
+}
+
+async function get(path) {
+  return fetch(origin + path, {
+    method: "GET", redirect: "manual", signal: AbortSignal.timeout(4000),
+    headers: { "cache-control": "no-store" }
+  });
+}
+
+try {
+  let ready = false;
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    if (child.exitCode !== null) throw new Error("Next server exited early");
+    try {
+      const response = await get("/");
+      if (response.status === 200) {
+        ready = true;
+        break;
+      }
+    } catch {
+      // The isolated local Next server may still be binding the port.
+    }
+    await delay(300);
+  }
+  assert.ok(ready, "built Next server must become ready for local GET");
+
+  for (const route of routes) {
+    const response = await get(route.path);
+    assert.equal(response.status, 200, `${route.path}: expected HTTP 200`);
+    assert.match(response.headers.get("content-type") || "", /text\/html/i,
+      `${route.path}: expected rendered HTML`);
+    const html = await response.text();
+    assert.ok(html.length > 400, `${route.path}: unexpectedly empty HTML`);
+    for (const pattern of route.checks) {
+      assert.match(html, pattern, `${route.path}: required page content missing`);
+    }
+    // No analytics script tag should render into first-response HTML before
+    // the visitor can explicitly choose analytics in the browser.
+    assert.doesNotMatch(html, /src="[^"]*googletagmanager\.com\/gtag\/js/i,
+      `${route.path}: unexpected pre-consent analytics script tag`);
+    console.log(`BUILT_ROUTE_GET_PASS=${route.path}`);
+  }
+  // The canonical /favicon.ico is an SVG compatibility route, not PNG.
+  // Check the actual served MIME type AND bytes; other image assets stay PNG.
+  // This GET-only QA never submits the public inquiry form or contacts providers.
+  for (const asset of [
+    { path: "/favicon-16x16.png", format: "png" },
+    { path: "/favicon.ico", format: "svg" },
+    { path: "/og-image.png", format: "png" }
+  ]) {
+    const response = await get(asset.path);
+    assert.equal(response.status, 200, asset.path + ": asset GET must succeed");
+    const contentType = response.headers.get("content-type") || "";
+    const bytes = Buffer.from(await response.arrayBuffer());
+    assert.ok(bytes.length > 100, asset.path + ": generated asset unexpectedly empty");
+    if (asset.format === "svg") {
+      assert.match(contentType, /^image\/svg\+xml(?:;|$)/i,
+        asset.path + ": expected SVG content type");
+      const svg = bytes.toString("utf8");
+      assert.match(svg, /^\s*(?:<\?xml[^>]*>\s*)?<svg\b/i,
+        asset.path + ": missing SVG opening element");
+      assert.match(svg, /xmlns="http:\/\/www\.w3\.org\/2000\/svg"/,
+        asset.path + ": invalid SVG namespace");
+      assert.match(svg, /Marketech Digital/i,
+        asset.path + ": unexpected or empty brand asset");
+      assert.match(svg, /<\/svg>\s*$/i,
+        asset.path + ": incomplete SVG document");
+      // Approved *runtime* SHA256 values over the LF bytes used by Linux CI,
+      // not checkout-converted CRLF file hashes. Exact icons are review-gated:
+      // public/favicon.svg (Next compatibility rewrite) and the route.ts
+      // SVG literal after JS compilation have distinct, visible artwork.
+      // A blank SVG containing only branding metadata must fail.
+      const approvedArtworkSha256 = new Set([
+        "00a9fefdf6f9f6ad9a215700b57337606897cdf102e1109b470b2bd4b84348a8",
+        "bb54b24a0b441d08b1ca6e6b12655838d542fa43c9ec57a473180165bc004a41"
+      ]);
+      const servedArtworkSha256 = createHash("sha256").update(bytes).digest("hex");
+      assert.ok(approvedArtworkSha256.has(servedArtworkSha256),
+        asset.path + ": visible SVG artwork changed without updated reviewed digest");
+    } else {
+      assert.match(contentType, /^image\/png(?:;|$)/i,
+        asset.path + ": expected PNG content type");
+      assert.equal(bytes.toString("hex", 0, 8), "89504e470d0a1a0a",
+        asset.path + ": invalid PNG signature");
+    }
+    console.log("BUILT_ASSET_GET_PASS=" + asset.path);
+  }
+  // The server now renders the form. Browser checks still prove interactive
+  // hydration and that consent defaults to unchecked after client startup.
+  // Regression for the dev-browser-proven root hydration mismatch: the
+  // shared navigation cube emits selectors containing a literal '>' and was
+  // previously compiled as a normal React style-text child.
+  const ottawaPageSource = readFileSync("app/solutions/ottawa/page.tsx", "utf8");
+  assert.match(ottawaPageSource, /<style dangerouslySetInnerHTML=/,
+    "Ottawa source must emit static CSS raw for server/client hydration");
+  assert.ok(!ottawaPageSource.includes("<style>{"),
+    "Ottawa source cannot use escaped React text child for CSS selectors >");
+  const diceNavSource = readFileSync("components/MarketechDiceNav.tsx", "utf8");
+  assert.match(diceNavSource, /<style dangerouslySetInnerHTML=/,
+    "shared navigation stylesheet must render raw server/client-identical CSS");
+  assert.ok(!diceNavSource.includes("<style>{"), "shared navigation must not use escaped style-text child");
+  const contactPageSource = readFileSync("app/contact/page.tsx", "utf8");
+  assert.match(contactPageSource, /<style dangerouslySetInnerHTML=/,
+    "contact CSS must avoid raw React style-text hydration mismatch");
+  assert.doesNotMatch(contactPageSource, /<style>\{\x60/,
+    "React text child must not contain the contact CSS '>' selector");
+  const contactClient = readFileSync("app/contact/ContactClient.tsx", "utf8");
+  assert.match(contactClient, /name="consentToContact"/);
+  assert.ok(contactClient.includes('href="/privacy"'), "visible contact privacy link must remain");
+  console.log("CONTACT_CLIENT_SOURCE_CONSENT_GUARD=PASS");
+    console.log("BUILT_NEXT_GET_SMOKE=PASS");
+  console.log("BROWSER_INTERACTION=NOT_TESTED");
+  console.log("CONTACT_POST_AND_EMAIL=NOT_EXECUTED");
+  console.log("PRODUCTION_RELEASE=OFF");
+} catch (error) {
+  console.error("BUILT_NEXT_GET_SMOKE=FAIL", error.message);
+  console.error("NEXT_SERVER_LOG_TAIL", diagnostic);
+  process.exitCode = 1;
+} finally {
+  if (child.exitCode === null) {
+    child.kill("SIGTERM");
+    await Promise.race([
+      new Promise((resolve) => child.once("close", resolve)),
+      delay(1800)
+    ]);
+    if (child.exitCode === null) child.kill("SIGKILL");
+  }
+}

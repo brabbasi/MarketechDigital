@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 type UiMessage = {
   role: "user" | "assistant" | "bot";
@@ -11,7 +11,7 @@ type UiMessage = {
 type AssistantMode = "checking" | "ai" | "fallback" | "error";
 
 const founderImage = "/founder.webp";
-const projectEmail = "project@getmarketechdigital.com";
+const contactHref = "/contact?source=ai-assistant&medium=website&campaign=assistant-contact&recommendedService=AI%20assistant%20conversation&firstTouchOffer=Talk%20to%20Basit";
 const quickReplies = ["Free website audit", "Show me Insights", "Why am I not getting leads?", "Estimate my project"];
 
 function toApiRole(role: UiMessage["role"]): "user" | "assistant" {
@@ -31,11 +31,13 @@ function modeLabel(mode: AssistantMode, reason?: string) {
 
 export default function AIAssistant() {
   const [mounted, setMounted] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<AssistantMode>("checking");
   const [reason, setReason] = useState<string>("");
+  const [openaiConsent, setOpenaiConsent] = useState(false);
   const [messages, setMessages] = useState<UiMessage[]>([
     { role: "bot", text: "Protocol active. I’m the Marketech AI guide. I can help with website audits, SEO, Google Business Profile, lead capture, AI automation, services, pricing ranges, and the new Insights growth guides." }
   ]);
@@ -44,11 +46,63 @@ export default function AIAssistant() {
     setMounted(true);
   }, []);
 
-  const mailHref = useMemo(() => {
-    const subject = encodeURIComponent("Marketech Digital project inquiry");
-    const body = encodeURIComponent("Hi Marketech Digital, I visited the website and would like to discuss a project.\n\nProject / problem:\nBusiness type:\nPreferred next step:\nEstimated budget range:");
-    return `mailto:${projectEmail}?subject=${subject}&body=${body}`;
-  }, []);
+  useEffect(() => {
+    if (!open) return;
+    const panel = panelRef.current;
+    const viewport = window.visualViewport;
+    if (!panel) return;
+    let scheduled = 0;
+    function updatePosition() {
+      if (!panel) return;
+      const focusedInput = panel.contains(document.activeElement)
+        && document.activeElement?.tagName === "INPUT";
+      // A rotated phone can be 600-900px wide while only 200px of the
+      // visual viewport remains above its keyboard. Width alone is unsafe.
+      const compactScreen = window.matchMedia("(max-width: 560px), (max-height: 560px)").matches;
+      const keyboardOccluded = !!viewport &&
+        viewport.height + viewport.offsetTop < window.innerHeight - 72;
+      const adjustToKeyboard = !!viewport && focusedInput &&
+        (compactScreen || keyboardOccluded);
+      panel.classList.toggle("ai-keyboard-adjusted", adjustToKeyboard);
+      if (adjustToKeyboard && viewport) {
+        // visualViewport is the portion actually visible above the keyboard;
+        // 100svh can still include the area obscured by an on-screen keyboard.
+        const available = Math.max(96, Math.floor(viewport.height - 12));
+        panel.style.setProperty("--ai-mobile-top", `${Math.round(viewport.offsetTop + 6)}px`);
+        panel.style.setProperty("--ai-mobile-bottom", "auto");
+        panel.style.setProperty("--ai-mobile-height", `${Math.min(640, available)}px`);
+      } else {
+        for (const key of ["--ai-mobile-top", "--ai-mobile-bottom", "--ai-mobile-height"]) {
+          panel.style.removeProperty(key);
+        }
+      }
+    }
+    function onViewportChange() {
+      if (scheduled) window.cancelAnimationFrame(scheduled);
+      scheduled = window.requestAnimationFrame(() => {
+        scheduled = 0;
+        updatePosition();
+      });
+    }
+    updatePosition();
+    window.addEventListener("resize", onViewportChange);
+    viewport?.addEventListener("resize", onViewportChange);
+    viewport?.addEventListener("scroll", onViewportChange);
+    panel.addEventListener("focusin", onViewportChange);
+    panel.addEventListener("focusout", onViewportChange);
+    return () => {
+      if (scheduled) window.cancelAnimationFrame(scheduled);
+      window.removeEventListener("resize", onViewportChange);
+      viewport?.removeEventListener("resize", onViewportChange);
+      viewport?.removeEventListener("scroll", onViewportChange);
+      panel.removeEventListener("focusin", onViewportChange);
+      panel.removeEventListener("focusout", onViewportChange);
+      panel.classList.remove("ai-keyboard-adjusted");
+      for (const key of ["--ai-mobile-top", "--ai-mobile-bottom", "--ai-mobile-height"]) {
+        panel.style.removeProperty(key);
+      }
+    };
+  }, [open]);
 
   async function send(text = input) {
     const value = text.trim();
@@ -64,7 +118,8 @@ export default function AIAssistant() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: nextMessages.map((message) => ({ role: toApiRole(message.role), content: message.text }))
+          messages: nextMessages.map((message) => ({ role: toApiRole(message.role), content: message.text })),
+          openaiConsent
         })
       });
       const data = await response.json();
@@ -81,19 +136,6 @@ export default function AIAssistant() {
     }
   }
 
-  async function submitLead() {
-    const lastUser = [...messages].reverse().find((message) => message.role === "user")?.text || "Website visitor requested contact from the AI assistant.";
-    await fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: lastUser,
-        recommendedService: "AI assistant conversation",
-        conversation: messages.map((message) => ({ role: toApiRole(message.role), content: message.text }))
-      })
-    }).catch(() => null);
-  }
-
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     send();
@@ -106,7 +148,7 @@ export default function AIAssistant() {
       <button className="ai-launcher" type="button" onClick={() => setOpen(true)} aria-label="Open Marketech AI assistant">
         <Image src={founderImage} alt="Basit Abbasi AI assistant" width={72} height={72} priority={false} unoptimized />
       </button>
-      <div className={`ai-panel ${open ? "show" : ""}`} aria-hidden={!open} role="dialog" aria-modal="true" aria-label="Marketech Digital AI assistant">
+      <div ref={panelRef} className={`ai-panel ${open ? "show" : ""}`} aria-hidden={!open} role="dialog" aria-modal="true" aria-label="Marketech Digital AI assistant">
         <div className="ai-head">
           <div className="ai-avatar"><Image src={founderImage} alt="Basit Abbasi AI assistant" width={54} height={54} unoptimized /></div>
           <div>
@@ -124,6 +166,7 @@ export default function AIAssistant() {
         <div className="ai-quick" aria-label="Quick prompts for Marketech AI assistant">
           {quickReplies.map((q) => <button type="button" key={q} onClick={() => send(q)} disabled={loading}>{q}</button>)}
         </div>
+        <label className="ai-provider-consent"><input type="checkbox" checked={openaiConsent} onChange={(e) => setOpenaiConsent(e.target.checked)} /> Allow OpenAI to process up to 12 recent chat messages, including earlier messages. Without this, the site provides a guided reply without forwarding your chat to OpenAI. See <a href="/privacy">Privacy details</a>.</label>
         <form className="ai-form" onSubmit={onSubmit}>
           <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about audits, SEO, websites, automation..." aria-label="Describe your project to the Marketech AI assistant" disabled={loading} />
           <button type="submit" disabled={loading} aria-label="Send message to the Marketech AI assistant">➤</button>
@@ -131,7 +174,7 @@ export default function AIAssistant() {
         <div className="ai-actions">
           <a href="/audit">Free audit</a>
           <a href="/insights">Insights</a>
-          <a href={mailHref} onClick={submitLead}>Contact →</a>
+          <a href={contactHref}>Contact →</a>
         </div>
       </div>
       <style jsx global>{`
@@ -171,7 +214,9 @@ export default function AIAssistant() {
           color: #fff;
           box-shadow: 0 30px 120px rgba(0,0,0,.62);
           backdrop-filter: blur(18px);
-          overflow: hidden;
+          overflow-x: hidden;
+          overflow-y: auto;
+          overscroll-behavior: contain;
           opacity: 0;
           transform: translateY(16px) scale(.96);
           pointer-events: none;
@@ -184,7 +229,8 @@ export default function AIAssistant() {
         .ai-head strong { display: block; font-size: 12px; letter-spacing: .22em; }
         .ai-head span { display: block; margin-top: 4px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); }
         .ai-head button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: rgba(255,255,255,.75); font-size: 26px; cursor: pointer; }
-        .ai-messages { flex: 1; overflow: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+        .ai-messages { flex: 1 0 100px; min-height: 100px; overflow: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+        .ai-provider-consent, .ai-form, .ai-actions { flex-shrink: 0; }
         .ai-message { max-width: 90%; padding: 15px 16px; border-radius: 20px; line-height: 1.55; font-size: 14px; white-space: pre-wrap; }
         .ai-message.bot { align-self: flex-start; background: #f5f5f2; color: #101010; border-top-left-radius: 6px; }
         .ai-message.user { align-self: flex-end; background: rgba(255,106,0,.16); border: 1px solid rgba(255,106,0,.26); color: #fff; border-top-right-radius: 6px; }
