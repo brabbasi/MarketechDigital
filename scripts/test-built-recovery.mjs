@@ -56,6 +56,7 @@ try {
     ["/", [/Marketech Digital/i]],
     ["/privacy", [/Website privacy notice/i, /Website inquiry intake is temporarily paused/]],
     ["/contact", [/Online inquiry form temporarily unavailable/, /hello@getmarketechdigital.com/]],
+    ["/audit", [/Online audit requests temporarily unavailable/, /website recovery mode/i]],
     ["/solutions/ottawa", [/Lead Capture Rescue/, /Trades Quote Funnel/]]
   ]) {
     const response = await get(path);
@@ -69,6 +70,14 @@ try {
         "Recovery homepage must not render Idea Helper input form");
       assert.doesNotMatch(html, /class="ai-panel/,
         "Recovery homepage must not render assistant input panel");
+    }
+    if (path === "/audit") {
+      assert.doesNotMatch(html, /<form\b/i,
+        "Recovery audit page must not contain any intake form");
+      assert.doesNotMatch(html, /project@getmarketechdigital\.com/i,
+        "Recovery audit page must not expose a second intake mailbox");
+      assert.doesNotMatch(html, /data-destination-email=/i,
+        "Recovery audit page must not mount the audit mailto destination");
     }
     if (path === "/contact") {
       assert.doesNotMatch(html, /<form[^>]*class="contact-card"/,

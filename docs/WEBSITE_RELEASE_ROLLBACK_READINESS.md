@@ -140,3 +140,61 @@ existence of a CI job alone is **not** a successful build.
 build until a separate authorization. No merge, deployment, provider settings
 change, customer send, actual mailbox deletion, or incident rollback is
 permitted by this section.
+
+## 8. Audit intake P1 closure and staged-production operator boundary (November 24, 2026)
+
+Independent review at the previous release-candidate head found a second
+`/audit` mailto intake to `project@` still available during recovery.
+The existing `app/audit/page.tsx` now checks the same server-owned
+`MARKETECH_RECOVERY_MODE` flag as `/contact`, renders only a recovery
+notice, and links to the existing contact page and privacy notice instead
+of rendering the audit form/client handler. The exact built-recovery
+`scripts/test-built-recovery.mjs` now checks GET `/audit` 200, verifies
+the recovery notice, and fails if any `<form>`, second intake destination,
+or destination-mailbox attribute appears. Ordinary non-recovery marketing
+audit behavior remains unchanged; **do not claim the new source is
+production-approved until exact-head CI and independent review return.**
+
+### STAGING-ONLY proposed command — NOT AUTHORIZED TO EXECUTE
+
+**Scope:** immutable reviewed PR #21 source in a clean, separately prepared
+checkout; verified Vercel project `prj_iRZyxQA5Gh93mcrEt7Z6XSMN7HVJ`
+and team `team_OHRkafYU5Gg6L00qcwYYsq81` in the existing protected
+`.vercel/project.json`, pinned reviewed Vercel CLI, Founder exact-head
+STAGING GO *after* separate security/operational source verdict. Credentials
+must remain with the authorized runner/operator; no token in command logs,
+review artifacts, or GitHub. These lines are an **operator proposal**,
+not permission for this ChatGPT conversation or any autonomous worker.
+
+```sh
+# AFTER explicit, separately recorded Founder STAGING approval, only:
+# verify clean checkout and exact commit; verify linked project/team;
+# verify CLI pinned version and no untracked deployable source.
+vercel deploy --prod --skip-domain \
+  --build-env MARKETECH_RECOVERY_MODE=true \
+  --env MARKETECH_RECOVERY_MODE=true
+```
+
+The flags are documented by Vercel: `--prod` selects Production,
+`--skip-domain` prevents custom-domain auto-assignment, `--build-env`
+sets the build flag, `--env` sets runtime flag. Do **not** use a Preview
+deployment or `promote` as if it were the same immutable Production build.
+Production-target staging is an externally consequential action, and the
+`--skip-domain` option is only a *mitigation*, not authorization.
+
+**Required post-stage receipts before any separate Founder production GO:**
+production-target READY deployment ID, exact reviewed source Git SHA,
+one immutable build, recovery flag effectively true in both stages,
+custom production aliases still pointing to old known-ready deployment,
+zero new assigned production domains, GET `/`, `/privacy`, `/contact`,
+`/audit`, `/solutions/ottawa` 200 with no online intake forms, POST
+`/api/inquiry`, `/api/chat`, `/api/idea` 503/no-store, legacy
+`/api/lead` 410, no real inquiry/body parsing or provider delivery, and
+independent security verdict for the exact stage. Reject if any fails.
+Never submit personal data merely to test the recovery route.
+
+**Separate unresolved human custody:** Namecheap all-folder and Trash,
+linked Gmail, Resend logs, forwarding/IMAP, exports/backups,
+retention from last meaningful *human exchange* and legal holds; require
+human operator proof and sign-off before production release. No live
+message deletion or outbound send follows from this source patch.
