@@ -167,17 +167,29 @@ review artifacts, or GitHub. These lines are an **operator proposal**,
 not permission for this ChatGPT conversation or any autonomous worker.
 
 ```sh
-# AFTER explicit, separately recorded Founder STAGING approval, only:
-# verify clean checkout and exact commit; verify linked project/team;
-# verify CLI pinned version and no untracked deployable source.
+# AFTER independently reviewed exact-head Founder STAGING GO, only:
+# FOUNDER_APPROVED_WEBSITE_SHA must be supplied from the separate
+# documented Founder decision; never infer it from the current branch.
+set -euo pipefail
+: "${FOUNDER_APPROVED_WEBSITE_SHA:?missing exact-head Founder STAGING GO}"
+test "$(git rev-parse HEAD)" = "$FOUNDER_APPROVED_WEBSITE_SHA"
+test -z "$(git status --porcelain --untracked-files=all)"
+node -e 'const p=require("./.vercel/project.json"); if (p.projectId!=="prj_iRZyxQA5Gh93mcrEt7Z6XSMN7HVJ" || p.orgId!=="team_OHRkafYU5Gg6L00qcwYYsq81") process.exit(2)'
+# Operator must also verify the pinned reviewed Vercel CLI exact version
+# before any authenticated deployment. No token printed in terminal/logs.
 vercel deploy --prod --skip-domain \
+  --project prj_iRZyxQA5Gh93mcrEt7Z6XSMN7HVJ \
+  --team team_OHRkafYU5Gg6L00qcwYYsq81 \
   --build-env MARKETECH_RECOVERY_MODE=true \
   --env MARKETECH_RECOVERY_MODE=true
 ```
 
 The flags are documented by Vercel: `--prod` selects Production,
 `--skip-domain` prevents custom-domain auto-assignment, `--build-env`
-sets the build flag, `--env` sets runtime flag. Do **not** use a Preview
+sets the build flag, and `--env` sets the runtime flag. Explicit
+`--project` takes precedence over ambient `VERCEL_PROJECT_ID` and
+project linking; `--team` pins the approved organization (the project/team
+flags are NOT permission to stage). Do **not** use a Preview
 deployment or `promote` as if it were the same immutable Production build.
 Production-target staging is an externally consequential action, and the
 `--skip-domain` option is only a *mitigation*, not authorization.
